@@ -4,7 +4,7 @@
 ### Installation
 -   Extract the database file and change the wp-config.php to your database connection.
 -   Setup your virtual host and change the app config to this Wordpress site.
-
+-   Account login: root / 12345678 or user / 12345678
 
 - ##### BeoNews app
     - Update file *App/Common/Config.js* to change Wordpress URL.
