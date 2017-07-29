@@ -410,7 +410,7 @@ INSERT INTO `wp_options` (`option_id`, `option_name`, `option_value`, `autoload`
 	(3,'blogname','Mstore App Demo','yes'),
 	(4,'blogdescription','Just another WordPress site','yes'),
 	(5,'users_can_register','1','yes'),
-	(6,'admin_email','support@mstore.io','yes'),
+	(6,'admin_email','support@gmail.com','yes'),
 	(7,'start_of_week','1','yes'),
 	(8,'use_balanceTags','0','yes'),
 	(9,'use_smilies','1','yes'),
@@ -558,7 +558,7 @@ INSERT INTO `wp_options` (`option_id`, `option_name`, `option_value`, `autoload`
 	(155,'woocommerce_hold_stock_minutes','60','no'),
 	(156,'woocommerce_notify_low_stock','yes','no'),
 	(157,'woocommerce_notify_no_stock','yes','no'),
-	(158,'woocommerce_stock_email_recipient','support@mstore.io','no'),
+	(158,'woocommerce_stock_email_recipient','support@gmail.com','no'),
 	(159,'woocommerce_notify_low_stock_amount','2','no'),
 	(160,'woocommerce_notify_no_stock_amount','0','yes'),
 	(161,'woocommerce_hide_out_of_stock_items','no','yes'),
@@ -607,7 +607,7 @@ INSERT INTO `wp_options` (`option_id`, `option_name`, `option_value`, `autoload`
 	(204,'woocommerce_myaccount_lost_password_endpoint','lost-password','yes'),
 	(205,'woocommerce_logout_endpoint','customer-logout','yes'),
 	(206,'woocommerce_email_from_name','Mstore App Demo','no'),
-	(207,'woocommerce_email_from_address','support@mstore.io','no'),
+	(207,'woocommerce_email_from_address','support@gmail.com','no'),
 	(208,'woocommerce_email_header_image','','no'),
 	(209,'woocommerce_email_footer_text','Mstore App Demo - Powered by WooCommerce','no'),
 	(210,'woocommerce_email_base_color','#96588a','no'),
@@ -640,7 +640,7 @@ INSERT INTO `wp_options` (`option_id`, `option_name`, `option_value`, `autoload`
 	(242,'_transient_geoip_116.108.126.152','VN','no'),
 	(243,'woocommerce_paypal-braintree_settings','a:1:{s:7:"enabled";s:3:"yes";}','yes'),
 	(244,'woocommerce_stripe_settings','a:1:{s:7:"enabled";s:3:"yes";}','yes'),
-	(245,'woocommerce_paypal_settings','a:2:{s:7:"enabled";s:2:"no";s:5:"email";s:17:"support@mstore.io";}','yes'),
+	(245,'woocommerce_paypal_settings','a:2:{s:7:"enabled";s:2:"no";s:5:"email";s:17:"support@gmail.com";}','yes'),
 	(246,'woocommerce_cheque_settings','a:1:{s:7:"enabled";s:2:"no";}','yes'),
 	(247,'woocommerce_bacs_settings','a:1:{s:7:"enabled";s:2:"no";}','yes'),
 	(248,'woocommerce_cod_settings','a:1:{s:7:"enabled";s:3:"yes";}','yes'),
@@ -2809,7 +2809,7 @@ INSERT INTO `wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALU
 	(49,4,'nickname','minh'),
 	(50,4,'first_name',''),
 	(51,4,'last_name',''),
-	(52,4,'description',''),
+	(52,4,'description',''),gmail.com
 	(53,4,'rich_editing','true'),
 	(54,4,'comment_shortcuts','false'),
 	(55,4,'admin_color','fresh'),
@@ -2822,7 +2822,7 @@ INSERT INTO `wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALU
 
 
 INSERT INTO `wp_users` (`ID`, `user_login`, `user_pass`, `user_nicename`, `user_email`, `user_url`, `user_registered`, `user_activation_key`, `user_status`, `display_name`) VALUES 
-	(1,'root','$P$B2Sy7mQFG8RD/mFvgZ2Ut4U799Bpl70','root','support@mstore.io','','2017-06-29 14:47:20','',0,'root'),
+	(1,'root','$P$B2Sy7mQFG8RD/mFvgZ2Ut4U799Bpl70','root','support@gmail.com','','2017-06-29 14:47:20','',0,'root'),
 	(2,'user','$P$Bg0zU1NkmkVrpiPnNlCMJ7Iv9zGcXX1','user','User@gmail.com','','2017-06-29 15:12:57','1498749177:$P$BHLmUjJRK174NVtnjkf5CTrJsyOQdl/',0,'User Test'),
 	(3,'thang','$P$BdoTho4nyqou81m1Z/b5wI4TwIT7Rm/','thang','','','2017-06-30 03:18:08','',0,'thang'),
 	(4,'minh','$P$BFasQ246CIqDWI5yN/ho3Hzx9218V30','minh','','','2017-06-30 03:18:08','',0,'minh');
@@ -3055,7 +3055,7 @@ INSERT INTO `wp_woocommerce_sessions` (`session_id`, `session_key`, `session_val
 	(35,'058c8efefb181337f3298714cea519c8','a:1:{s:8:"customer";s:653:"a:25:{s:2:"id";i:0;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:0:"";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}',1498922375),
 	(23,'0ed24a695959f5d1be9b222b73b639da','a:1:{s:8:"customer";s:653:"a:25:{s:2:"id";i:0;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:0:"";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}',1498921786),
 	(21,'0faff03f25400ff7bcf10e4c402a9ded','a:1:{s:8:"customer";s:653:"a:25:{s:2:"id";i:0;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:0:"";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}',1498921666),
-	(10,'1','a:19:{s:8:"customer";s:671:"a:25:{s:2:"id";i:1;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:17:"support@mstore.io";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";s:4:"cart";s:6:"a:0:{}";s:15:"applied_coupons";s:6:"a:0:{}";s:23:"coupon_discount_amounts";s:6:"a:0:{}";s:27:"coupon_discount_tax_amounts";s:6:"a:0:{}";s:21:"removed_cart_contents";s:6:"a:0:{}";s:19:"cart_contents_total";i:0;s:5:"total";i:0;s:8:"subtotal";i:0;s:15:"subtotal_ex_tax";i:0;s:9:"tax_total";i:0;s:5:"taxes";s:6:"a:0:{}";s:14:"shipping_taxes";s:6:"a:0:{}";s:13:"discount_cart";i:0;s:17:"discount_cart_tax";i:0;s:14:"shipping_total";i:0;s:18:"shipping_tax_total";i:0;s:9:"fee_total";i:0;s:4:"fees";s:6:"a:0:{}";}',1498921022),
+	(10,'1','a:19:{s:8:"customer";s:671:"a:25:{s:2:"id";i:1;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:17:"support@gmail.com";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";s:4:"cart";s:6:"a:0:{}";s:15:"applied_coupons";s:6:"a:0:{}";s:23:"coupon_discount_amounts";s:6:"a:0:{}";s:27:"coupon_discount_tax_amounts";s:6:"a:0:{}";s:21:"removed_cart_contents";s:6:"a:0:{}";s:19:"cart_contents_total";i:0;s:5:"total";i:0;s:8:"subtotal";i:0;s:15:"subtotal_ex_tax";i:0;s:9:"tax_total";i:0;s:5:"taxes";s:6:"a:0:{}";s:14:"shipping_taxes";s:6:"a:0:{}";s:13:"discount_cart";i:0;s:17:"discount_cart_tax";i:0;s:14:"shipping_total";i:0;s:18:"shipping_tax_total";i:0;s:9:"fee_total";i:0;s:4:"fees";s:6:"a:0:{}";}',1498921022),
 	(11,'15c354ebe8f87ab74ba60fc5fe6a67e1','a:1:{s:8:"customer";s:653:"a:25:{s:2:"id";i:0;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:0:"";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}',1498921044),
 	(47,'15d3c18e0da54a32e4a01f43001dffe1','a:1:{s:8:"customer";s:653:"a:25:{s:2:"id";i:0;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:0:"";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}',1498965017),
 	(46,'21502813de396cf004a103969dd6ab49','a:1:{s:8:"customer";s:653:"a:25:{s:2:"id";i:0;s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:2:"AL";s:7:"country";s:2:"US";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:2:"AL";s:16:"shipping_country";s:2:"US";s:13:"is_vat_exempt";b:0;s:19:"calculated_shipping";b:0;s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:0:"";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}',1498965017),
