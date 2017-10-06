@@ -11,7 +11,7 @@
 
 -   ##### MStore app:
     -   Update file *src/common/Constants.js* to change new Wordpress URL or use the config on this respo: https://github.com/inspireui/mstore/blob/master/Constants.js
-    -   Edit the from Omni.js file to config the image size for product:
+    -   Edit the from src/Omni.js file to config the image size for product:
     - ```sh
         const ThumbnailSizes = {
             CatalogImages: {
@@ -27,6 +27,17 @@
                 height: 180,
             },
         };
+        ```
+    
+    -   Edit the from src/common/Layout.js file to config the image size for product:
+    - ```sh
+        export const HorizonLayout = [
+              {tag: 18, paging: true, layout: Constants.Layout.miniBanner},
+              {name: "Accessories", category: 15 , image: Images.Banner.Feature, layout: Constants.Layout.threeColumn},
+              {name: "Hoodies", category: 16, image: Images.Banner.Bag, layout: Constants.Layout.twoColumn},
+              {name: "Hoodies", category: 16, image: Images.Banner.Woman, layout: Constants.Layout.twoColumnHigh},
+              {name: "Accessories", category: 15, image: Images.Banner.Man, layout: Constants.Layout.card},
+            ]
         ```
 ### Support
 Please post the issue ticket with your Envato username and purchase code to ask for installing help or troubleshooting from InspireUI support team.
