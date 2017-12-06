@@ -20,31 +20,20 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 class WC_Email_Customer_Invoice extends WC_Email {
 
 	/**
-	 * Strings to find in subjects/headings.
-	 *
-	 * @var array
-	 */
-	public $find;
-
-	/**
-	 * Strings to replace in subjects/headings.
-	 *
-	 * @var array
-	 */
-	public $replace;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-
 		$this->id             = 'customer_invoice';
 		$this->customer_email = true;
-
-		$this->title          = __( 'Customer invoice', 'woocommerce' );
+		$this->title          = __( 'Customer invoice / Order details', 'woocommerce' );
 		$this->description    = __( 'Customer invoice emails can be sent to customers containing their order information and payment links.', 'woocommerce' );
 		$this->template_html  = 'emails/customer-invoice.php';
 		$this->template_plain = 'emails/plain/customer-invoice.php';
+		$this->placeholders   = array(
+			'{site_title}'   => $this->get_blogname(),
+			'{order_date}'   => '',
+			'{order_number}' => '',
+		);
 
 		// Call parent constructor
 		parent::__construct();
@@ -62,7 +51,7 @@ class WC_Email_Customer_Invoice extends WC_Email {
 		if ( $paid ) {
 			return __( 'Your {site_title} order from {order_date}', 'woocommerce' );
 		} else {
-			return __( 'Invoice for order {order_number} from {order_date}', 'woocommerce' );
+			return __( 'Invoice for order {order_number}', 'woocommerce' );
 		}
 	}
 
@@ -74,7 +63,7 @@ class WC_Email_Customer_Invoice extends WC_Email {
 	 */
 	public function get_default_heading( $paid = false ) {
 		if ( $paid ) {
-			return __( 'Order {order_number} details', 'woocommerce' );
+			return __( 'Your order details', 'woocommerce' );
 		} else {
 			return __( 'Invoice for order {order_number}', 'woocommerce' );
 		}
@@ -121,27 +110,23 @@ class WC_Email_Customer_Invoice extends WC_Email {
 	 * @param WC_Order $order Order object.
 	 */
 	public function trigger( $order_id, $order = false ) {
+		$this->setup_locale();
+
 		if ( $order_id && ! is_a( $order, 'WC_Order' ) ) {
 			$order = wc_get_order( $order_id );
 		}
 
 		if ( is_a( $order, 'WC_Order' ) ) {
-			$this->object                  = $order;
-			$this->recipient               = $this->object->get_billing_email();
-
-			$this->find['order-date']      = '{order_date}';
-			$this->find['order-number']    = '{order_number}';
-
-			$this->replace['order-date']   = wc_format_datetime( $this->object->get_date_created() );
-			$this->replace['order-number'] = $this->object->get_order_number();
+			$this->object                         = $order;
+			$this->recipient                      = $this->object->get_billing_email();
+			$this->placeholders['{order_date}']   = wc_format_datetime( $this->object->get_date_created() );
+			$this->placeholders['{order_number}'] = $this->object->get_order_number();
 		}
 
-		if ( ! $this->get_recipient() ) {
-			return;
+		if ( $this->get_recipient() ) {
+			$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 		}
 
-		$this->setup_locale();
-		$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 		$this->restore_locale();
 	}
 

@@ -21,6 +21,19 @@
 
 .wc_addons_wrap {
 
+	.update-plugins .update-count  {
+		background-color: #d54e21;
+		border-radius: 10px;
+		color: #fff;
+		display: inline-block;
+		font-size: 9px;
+		font-weight: 600;
+		line-height: 17px;
+		margin: 1px 0 0 2px;
+		padding: 0 6px;
+		vertical-align: text-top;
+	}
+
 	.addons-featured {
 		max-width: 1140px;
 		margin: -1%;
@@ -565,9 +578,18 @@ table.wc_status_table {
 		width: 1em;
 	}
 
-	td {
-		padding: 9px;
+	td, th {
 		font-size: 1.1em;
+		font-weight: normal;
+
+		&.run-tool {
+			text-align:right;
+		}
+
+		strong.name {
+			display: block;
+			margin-bottom: .5em;
+		}
 
 		mark {
 			background: transparent none;
@@ -581,7 +603,7 @@ table.wc_status_table {
 			color: #999;
 		}
 
-		mark.error {
+		mark.error, .red {
 			color: $red;
 		}
 
@@ -592,6 +614,12 @@ table.wc_status_table {
 
 	.help_tip {
 		cursor: help;
+	}
+}
+
+table.wc_status_table--tools {
+	td, th {
+		padding: 2em;
 	}
 }
 
@@ -797,22 +825,56 @@ ul.wc_coupon_list,
 	clear: both;
 }
 
-ul.wc_coupon_list li {
-	margin: 0;
+ul.wc_coupon_list {
+	padding-bottom: 5px;
 
-	&.code {
-		display: inline-block;
+	li {
+		margin: 0;
 
-		&::after {
-			content: ', ';
-		}
+		&.code {
+			display: inline-block;
+			position: relative;
+			padding-right: 2em;
+			padding-left: .5em;
+			background-color: #fff;
+			border: 1px solid #aaa;
+			-webkit-box-shadow: 0 1px 0 #dfdfdf;
+			box-shadow: 0 1px 0 #dfdfdf;
 
-		&:last-of-type::after {
-			display: none;
-		}
+			border-radius: 4px;
+			margin-right: 5px;
+			margin-top: 5px;
 
-		.tips {
-			cursor: pointer;
+			.tips {
+				cursor: pointer;
+
+				span {
+					color: #888;
+
+					&:hover {
+						color: #000;
+					}
+				}
+			}
+
+			.remove-coupon {
+				text-decoration: none;
+				color: #888;
+				position: absolute;
+				top: 7px;
+				right: 20px;
+
+				/*rtl:raw:
+				left: 7px;
+				*/
+
+				&::before {
+					@include icon_dashicons( '\f158' );
+				}
+				&:hover::before {
+					color: $red;
+				}
+			}
 		}
 	}
 }
@@ -989,6 +1051,7 @@ ul.wc_coupon_list_block {
 			textarea,
 			select,
 			.wc-enhanced-select,
+			.wc-category-search,
 			.wc-customer-search {
 				width: 100%;
 			}
@@ -1564,7 +1627,7 @@ ul.wc_coupon_list_block {
 				font-size: 1.5em;
 				line-height: 1em;
 				vertical-align: middle;
-				margin: 0;
+				margin: 0 auto;
 
 				&::before {
 					@include icon( '\e007' );
@@ -1577,7 +1640,7 @@ ul.wc_coupon_list_block {
 				font-size: 1.5em;
 				line-height: 1em;
 				vertical-align: middle;
-				margin: 0;
+				margin: 0 auto;
 
 				&::before {
 					@include icon( '\e014' );
@@ -1591,7 +1654,7 @@ ul.wc_coupon_list_block {
 					font-size: 1.5em;
 					line-height: 1em;
 					vertical-align: middle;
-					margin: 0;
+					margin: 0 auto;
 
 					&::before {
 						@include icon( '\e01a' );
@@ -3009,7 +3072,6 @@ img.help_tip {
 
 	nav.woo-nav-tab-wrapper {
 		margin: 1.5em 0 1em;
-		border-bottom: 1px solid #ccc;
 	}
 
 	.subsubsub {
@@ -3055,7 +3117,6 @@ img.help_tip {
 		input[type="text"],
 		input[type="number"],
 		input[type="email"] {
-			padding: 6px;
 			height: auto;
 		}
 
@@ -3065,8 +3126,29 @@ img.help_tip {
 			display: block;
 		}
 
+		// Give regular settings inputs a standard width and padding.
+		select,
+		textarea,
+		input[type="text"],
+		input[type="email"],
+		input[type="number"],
 		input.regular-input {
 			width: 400px;
+			margin: 0;
+			padding: 6px;
+			box-sizing: border-box;
+		}
+
+		// Ignore nested inputs.
+		table {
+			select,
+			textarea,
+			input[type="text"],
+			input[type="email"],
+			input[type="number"],
+			input.regular-input {
+				width: auto;
+			}
 		}
 
 		textarea.wide-input {
@@ -3150,7 +3232,7 @@ img.help_tip {
 		}
 
 		.colorpickpreview {
-			padding: 3px;
+			padding: 6px;
 			padding-left: 20px;
 			border: 1px solid #ddd;
 			/* rtl:ignore */
@@ -3169,6 +3251,10 @@ img.help_tip {
 
 			label {
 				margin-left: 10px;
+			}
+
+			input {
+				width: auto;
 			}
 		}
 
@@ -4280,7 +4366,7 @@ img.help_tip {
 		width: 100%;
 		vertical-align: middle;
 		margin: 2px 0 0;
-		padding: 6px;
+		padding: 5px;
 	}
 
 	select {
@@ -5508,6 +5594,7 @@ table.bar_chart {
 .woocommerce table.form-table .select2-container {
 	min-width: 400px !important;
 }
+.post-type-product .tablenav,
 .post-type-shop_order .tablenav {
 	.actions {
 		overflow: visible;
@@ -5587,6 +5674,34 @@ table.bar_chart {
 		}
 	}
 
+	.button {
+		font-size: 1.25em;
+		padding: 0.5em 1em !important;
+		line-height: 1.5em !important;
+		margin-right: 0.5em;
+		margin-bottom: 2px;
+		height: auto !important;
+		border-radius: 4px;
+		background-color: #bb77ae;
+		border-color: #a36597;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
+		text-shadow: 0 -1px 1px #a36597, 1px 0 1px #a36597, 0 1px 1px #a36597, -1px 0 1px #a36597;
+		margin: 0;
+		opacity: 1;
+
+		&:hover, &:focus, &:active {
+			background: #a36597;
+			border-color: #a36597;
+			-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
+		}
+	}
+
+	.error .button {
+		font-size: 1em;
+	}
+
 	.wc-actions {
 		overflow: hidden;
 		border-top: 1px solid #eee;
@@ -5596,27 +5711,6 @@ table.bar_chart {
 
 		.button {
 			float: right;
-			font-size: 1.25em;
-			padding: 0.5em 1em !important;
-			line-height: 1.5em !important;
-			margin-right: 0.5em;
-			margin-bottom: 2px;
-			height: auto !important;
-			border-radius: 4px;
-			background-color: #bb77ae;
-			border-color: #a36597;
-			-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
-			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
-			text-shadow: 0 -1px 1px #a36597, 1px 0 1px #a36597, 0 1px 1px #a36597, -1px 0 1px #a36597;
-			margin: 0;
-			opacity: 1;
-
-			&:hover, &:focus, &:active {
-				background: #a36597;
-				border-color: #a36597;
-				-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
-				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 #a36597;
-			}
 		}
 
 		.woocommerce-importer-toggle-advanced-options {
@@ -5865,6 +5959,15 @@ table.bar_chart {
 				float: none;
 				margin: 0 0 24px;
 			}
+		}
+	}
+}
+
+.wc-pointer {
+	.wc-pointer-buttons {
+		.close {
+			float: left;
+			margin: 6px 0 0 15px;
 		}
 	}
 }

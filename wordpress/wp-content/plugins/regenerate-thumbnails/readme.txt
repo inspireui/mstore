@@ -2,8 +2,8 @@
 Contributors: Viper007Bond
 Donate link: http://www.viper007bond.com/donate/
 Tags: thumbnail, thumbnails
-Requires at least: 2.8
-Tested up to: 4.6
+Requires at least: 3.2
+Tested up to: 4.9
 Stable tag: trunk
 
 Allows you to regenerate your thumbnails after changing the thumbnail sizes.
@@ -13,8 +13,6 @@ Allows you to regenerate your thumbnails after changing the thumbnail sizes.
 Regenerate Thumbnails allows you to regenerate the thumbnails for your image attachments. This is very handy if you've changed any of your thumbnail dimensions (via Settings -> Media) after previously uploading images or have changed to a theme with different featured post image dimensions.
 
 You can either regenerate the thumbnails for all image uploads, individual image uploads, or specific multiple image uploads.
-
-See the [screenshots tab](http://wordpress.org/extend/plugins/regenerate-thumbnails/screenshots/) for more details.
 
 == Installation ==
 
@@ -30,6 +28,18 @@ See the [screenshots tab](http://wordpress.org/extend/plugins/regenerate-thumbna
 2. You can resize specific multiples images using the checkboxes and the "Bulk Actions" dropdown
 
 == ChangeLog ==
+
+= Version 2.3.1 =
+
+* Fix PHP notice. ([#20](https://github.com/Viper007Bond/regenerate-thumbnails/issues/20))
+
+= Version 2.3.0 =
+
+Maintenance release. A [major rewrite](https://github.com/Viper007Bond/regenerate-thumbnails/tree/dev/v3-rewrite) is in the works on GitHub.
+
+* Add "Regenerate Thumbnails" button to the Edit Media submit metabox. Props [Brian Alexander](https://github.com/ironprogrammer) for inspiration.
+* Bump required WordPress version to v3.2 so that we don't need to bundle jQuery's progress bar plugin anymore.
+* Context for translators.
 
 = Version 2.2.6 =
 
@@ -110,17 +120,3 @@ Lots of new features!
 = Version 1.0.0 =
 
 * Initial release.
-
-== Upgrade Notice ==
-
-= 2.2.4 =
-Better AJAX response error handling in the JavaScript. This should fix a long-standing bug in this plugin. Props Hew Sutton.
-
-= 2.2.3 =
-Make the capability required to use this plugin filterable so themes and other plugins can change it. Props [Jackson Whelan](http://jacksonwhelan.com/).
-
-= 2.2.2 =
-Fixes lots of "Are you sure you want to do this?" error messages.
-
-= 2.2.1 =
-Fix the bottom bulk action dropdown. Thanks Stefan for pointing out the issue!

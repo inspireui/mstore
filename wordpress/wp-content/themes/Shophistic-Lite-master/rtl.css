@@ -1,0 +1,1781 @@
+/*
+Theme Name: Shophistic Lite
+Theme URI: https://www.quemalabs.com/theme/shophistic-lite/
+Description: Shophistic Lite is the perfect theme for your shop online. With a beautiful and unique design, is responsive and fully compatible with WooCommerce. The easiest way to create your store online. If you need more features you should check the PRO version, Shophistic: https://www.quemalabs.com/theme/shophistic/
+Version: 1.0.1
+Author: Quema Labs
+Author URI: https://www.quemalabs.com/
+License: GNU General Public License v3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.en.html
+Tags: featured-images, responsive-layout, two-columns, threaded-comments, custom-menu, light, left-sidebar, sticky-post, translation-ready, white, gray, custom-background, full-width-template, rtl-language-support, photoblogging, theme-options
+Text Domain: shophistic-lite
+*/
+/*
+----------------------------------------------------------------
+TABLE OF CONTENTS
+----------------------------------------------------------------
+1. Header
+2. Blog & Pages
+3. Sidebar
+4. Footer
+5. Comments
+6. Woocommerce
+7. Owl Carousel
+8. Pace
+9. WordPress Default
+10. External Plugins
+11. Global Styles
+12. Responsive Styles
+LESS Variables and Mixins
+----------------------------------------------------------------
+*/
+/*
+==========================================
+1. Header
+========================================== 
+*/
+
+.logo_container {
+	margin: 30px 0 0 20px;
+	float: right;
+}
+
+.logo_container .logo_desc_wrap {
+	margin-right: 15px;
+	margin-left: auto;
+}
+
+/*-----------------------------*/
+/*
+Nav Menu
+---------------------------------------*/
+
+#ql_nav_btn {
+	left: 0;
+	right: auto;
+}
+
+/*Top level list items*/
+#jqueryslidemenu ul.nav > li {
+	margin-right: 0;
+	margin-left: auto;
+}
+
+/*Top level menu link items style*/
+
+/* Active item ----------*/
+/*1st sub level menu*/
+
+#jqueryslidemenu ul.nav > li > ul > li.menu-item-has-children > a {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+#jqueryslidemenu ul.nav > li > ul > li .dropdown-menu {
+	right: 100%;
+	left: auto;
+}
+
+/* Multi level dropdown -------*/
+.dropdown-menu .dropdown-menu {
+	margin-right: 15px;
+	margin-left: auto;
+}
+
+/* Mobile Nav icon (Hamburguer) -----------*/
+
+/* Dropdown arrow ------------*/
+
+/*
+Login and Cart Buttons
+---------------------------------------*/
+.login_cart_wrap {
+	text-align: left;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+/* Login ------------*/
+.login_btn_wrap {
+	float: left;
+}
+
+.ql_login-btn {
+	border-left: 1px solid #b3b3b3;
+	border-right: none;
+}
+
+/* Cart ------------*/
+.ql_cart_wrap {
+	float: left;
+}
+
+.ql_cart-btn {
+	padding: 10px 15px 10px 45px;
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+.ql_cart_wrap:hover .ql_cart-btn::before {
+	left: 0;
+	right: 0;
+}
+
+.ql_cart-btn i {
+	left: 5px;
+	right: auto;
+}
+
+.ql_cart-btn i.ql-chevron-down {
+	left: 15px;
+	right: auto;
+}
+
+.ql_adding_tocart .ql_cart-btn i {
+	-webkit-transform-origin: right top;
+	-moz-transform-origin: right top;
+	-ms-transform-origin: right top;
+	transform-origin: right top;
+}
+
+/*
+Nav Button
+---------------------------------------*/
+.ql_nav_btn {
+	right: 20px;
+	left: auto;
+}
+
+.ql_nav_btn i {
+	right: 0;
+	left: 0;
+}
+
+/*
+Nav Sidebar
+---------------------------------------*/
+.nav_sidebar {
+	right: -19.6875em;
+	left: auto;
+}
+
+.nav_sidebar.open {
+	right: 0;
+	left: auto;
+}
+
+.nav_sidebar #jqueryslidemenu ul.nav {
+	margin-left: 0;
+	margin-right: auto;
+}
+
+.nav_sidebar #jqueryslidemenu ul.nav > li {
+	margin-right: 0;
+	margin-left: auto;
+}
+
+/* Author Widget ------------------*/
+
+/* Close button */
+.ql_nav_close {
+	left: -2.22222222em;
+	right: auto;
+}
+
+/*
+Sub Nav Sidebar
+---------------------------------------*/
+
+.sub_nav_header ul {
+	text-align: right;
+}
+
+.sub_nav_header ul li i {
+	margin-left: 8px;
+	margin-right: auto;
+}
+
+/*
+Search
+---------------------------------------*/
+.ql_search_btn {
+	float: left;
+}
+
+.ql_search_btn:hover .input-search {
+	padding-left: 50px;
+	padding-right: 0;
+}
+
+.ql_search_btn i {
+	left: 19px;
+	right: auto;
+}
+
+.ql_search_btn #searchsubmit {
+	left: 0;
+	right: auto;
+}
+
+/*
+==========================================
+2. Blog & Pages
+========================================== 
+*/
+
+#content {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+#content.col-md-pull-2 {
+	padding-left: 20px;
+	padding-right: 0;
+}
+
+#content.col-md-12 {
+	padding-left: 20px;
+	padding-right: 0;
+}
+
+/*Breadcrumbs								*/
+/*------------------------------------------*/
+#breadcrumbs {
+	left: 0;
+	text-align: right;
+	right: auto;
+}
+
+/*Page Title 								*/
+/*------------------------------------------*/
+
+/*Post Title 								*/
+/*------------------------------------------*/
+
+.post_title a {
+	text-align: right;
+}
+
+/*Post										*/
+/*------------------------------------------*/
+
+/*Image Post								*/
+/*------------------------------------------*/
+
+/*Metadata 									*/
+/*------------------------------------------*/
+.metadata {
+	border-left: none;
+	border-right: none;
+}
+
+.metadata ul li {
+	margin: 0 0 18px 20px;
+	float: right;
+}
+
+.metadata ul li i {
+	margin-left: 0.35714285714286em;
+	margin-right: auto;
+}
+
+.metadata ul li.meta_tags a {
+	margin-left: 10px;
+	margin-right: auto;
+}
+
+/*Pagination															*/
+/*----------------------------------------------------------------------*/
+
+.pagination a,
+.pagination span {
+	float: right;
+	margin-right: -2px;
+	margin-left: auto;
+}
+
+/*
+==========================================
+3. Sidebar
+========================================== 
+*/
+#sidebar {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+#sidebar.col-md-push-10 {
+	padding-left: 0;
+	padding-right: 20px;
+}
+
+/*
+Widgets
+--------------------------------
+*/
+
+#sidebar.col-md-pull-9 .widget {
+	margin-left: 10px;
+	margin-right: 0;
+}
+
+#sidebar .widget ul,
+#sidebar .widget ol {
+	margin-right: 0px;
+	padding-right: 0;
+	padding-left: 0;
+	margin-left: auto;
+}
+
+#sidebar .widget ul li ul {
+	margin-right: 15px;
+	margin-left: auto;
+}
+
+#sidebar .hasChildren i {
+	left: 5px;
+	right: auto;
+}
+
+#sidebar select {
+	margin-right: 5px;
+	margin-left: auto;
+}
+
+/*
+Recent Comments Widget
+--------------------------------
+*/
+
+#sidebar .widget_recent_comments ul li {
+	padding-right: 35px;
+	padding-left: 0;
+}
+
+#sidebar .widget_recent_comments ul li::before {
+	right: 0;
+	left: auto;
+}
+
+#sidebar .widget_recent_comments ul li i {
+	right: 0;
+	left: auto;
+}
+
+/*
+Recent Posts Widget
+--------------------------------
+*/
+
+/*
+Tag Widget
+--------------------------------
+*/
+
+#sidebar .widget_tag ul li {
+	margin: 0 0 0.90909090909091em 0.90909090909091em;
+	float: right;
+}
+
+/*
+Search Widget
+--------------------------------
+*/
+
+.widget_search #s {
+	padding-left: 30px;
+	padding-right: 0;
+}
+
+.widget_search #searchsubmit {
+	left: 15px;
+	right: auto;
+}
+
+.widget_search i {
+	left: 12px;
+	right: auto;
+}
+
+/*
+==========================================
+4. Footer
+========================================== 
+*/
+/*
+Footer
+------------------------
+*/
+
+#footer ul,
+footer ol {
+	margin-right: 0;
+	margin-left: auto;
+}
+
+/*
+==========================================
+Subfooter
+========================================== 
+*/
+
+.sub_footer p {
+	float: right;
+}
+
+/*
+==========================================
+Social Nav
+========================================== 
+*/
+.nav_social {
+	float: left;
+}
+
+.nav_social li {
+	float: right;
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+/*
+==========================================
+Payments Options
+========================================== 
+*/
+.ql_payments_options ul {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.ql_payments_options ul li {
+	margin-right: 0.71428571428571em;
+	margin-left: auto;
+}
+
+/*
+==========================================
+5. Comments
+========================================== 
+*/
+/*===========================================================================*/
+/*Comments																	 */
+/*===========================================================================*/
+
+.commentlist {
+	margin-right: 0;
+	margin-left: auto;
+}
+
+.ie8 ol.commentlist li .comment-entry,
+.ie7 ol.commentlist li .comment-entry {
+	float: left;
+}
+
+ol.commentlist .comment-entry span.arrow_comment {
+	right: -22px;
+	left: auto;
+}
+
+.comment-meta {
+	float: right;
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+.reply {
+	float: left;
+	clear: left;
+}
+
+#comments ul.children {
+	margin-right: 30px;
+	margin-left: auto;
+}
+
+/*===========================================================================*/
+/*Comments	Form															 */
+/*===========================================================================*/
+
+#respond .input-wrap {
+	margin: 0px 0 10px 15px;
+	float: right;
+}
+
+#respond input {
+	padding-right: 2.30769230769231em;
+	padding-left: 0;
+}
+
+#respond .controls-wrap i {
+	right: 0.71428571428571em;
+	left: auto;
+}
+
+#respond #submit-respond {
+	padding-right: 12px;
+	padding-left: 0;
+}
+
+/*
+==========================================
+6. WooCommerce
+========================================== 
+*/
+/*Shop
+=====================================================*/
+
+.woocommerce-breadcrumb {
+	margin-left: 15px;
+	float: right;
+	margin-right: auto;
+}
+
+#main .woocommerce-result-count {
+	float: left;
+}
+
+.woocommerce-ordering {
+	margin-right: 33px!important;
+	float: left;
+	margin-left: auto;
+}
+
+.ql_woocommerce_info .woocommerce-ordering select {
+	padding-right: 10px;
+	padding-left: 0;
+}
+
+.woocommerce-ordering::before {
+	left: 10px;
+	right: auto;
+}
+
+.thumbnails_view {
+	float: left;
+	margin-left: 30px;
+	margin-right: auto;
+}
+
+.thumbnails_view span {
+	float: right;
+	margin-left: 10px;
+	margin-right: auto;
+}
+
+.ql_regular_view {
+	float: right;
+	margin-left: 10px;
+	margin-right: auto;
+}
+
+.ql_regular_view i {
+	float: right;
+}
+
+.ql_big_view {
+	float: right;
+}
+
+.ql_big_view i {
+	float: right;
+}
+
+/*Product
+----------------*/
+.woocommerce .products {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.woocommerce #main .products .product,
+.woocommerce-page .products .product {
+	margin-left: 1.4%!important;
+	margin-right: auto;
+}
+
+.woocommerce .products .product .product_wrap {
+	-webkit-transition: top 200ms, left 200ms, bottom 200ms, right 200ms;
+	-o-transition: top 200ms, left 200ms, bottom 200ms, right 200ms;
+	transition: top 200ms, left 200ms, bottom 200ms, right 200ms;
+	left: 0;
+	right: 0;
+}
+
+.woocommerce .products .product:hover .product_wrap {
+	left: -10px;
+	right: -10px;
+}
+
+.woocommerce .products .product .product_content {
+	-webkit-transition: top 200ms, left 200ms, bottom 200ms, right 200ms;
+	-o-transition: top 200ms, left 200ms, bottom 200ms, right 200ms;
+	transition: top 200ms, left 200ms, bottom 200ms, right 200ms;
+	left: -10px;
+	right: -10px;
+}
+
+.woocommerce .products .product:hover .product_content {
+	left: 0;
+	right: 0;
+}
+
+.woocommerce #main ul.products li.last,
+.woocommerce-page ul.products li.last {
+	margin-left: 0!important;
+	margin-right: auto;
+}
+
+@media (min-width: 768px) and (max-width: 1345px) {
+
+.woocommerce #main ul.products li.last,
+.woocommerce-page ul.products li.last {
+	margin-left: 0!important;
+	margin-right: auto;
+}
+
+}
+
+@media (max-width: 767px) {
+
+@media (min-width: 768px) and (max-width: 1345px) {
+
+.woocommerce #main ul.products li.last,
+.woocommerce-page ul.products li.last {
+	margin-left: 0!important;
+	margin-right: auto;
+}
+
+}
+
+}
+
+/*Image
+----------------*/
+
+.woocommerce .products .product .product_second_img {
+	right: 0;
+	left: 0;
+}
+
+/*Animation into the Cart
+----------------*/
+.ql_item_moving {
+	-webkit-transition: transform 300ms, top 1500ms ease-in-out, right 1500ms ease-in-out, width 1500ms, opacity 200ms;
+	-o-transition: transform 300ms, top 1500ms ease-in-out, right 1500ms ease-in-out, width 1500ms, opacity 200ms;
+	transition: transform 300ms, top 1500ms ease-in-out, right 1500ms ease-in-out, width 1500ms, opacity 200ms;
+	-webkit-transform-origin: right top;
+	-moz-transform-origin: right top;
+	-ms-transform-origin: right top;
+	transform-origin: right top;
+}
+
+/*3D animation
+----------------*/
+
+.ql_products_big .ql_regular_product {
+	right: 0;
+	left: auto;
+}
+
+/*Sale
+----------------*/
+.woocommerce ul.products li.product .onsale,
+.woocommerce-page ul.products li.product .onsale {
+	left: 0.71428571428571em;
+	right: auto;
+}
+
+/*Rating
+----------------*/
+.woocommerce .products .product .product_thumbnail_wrap .rating_wrap {
+	right: -100%;
+	padding: 7px 10px 7px 7px;
+	left: auto;
+}
+
+.woocommerce .products .product .product_thumbnail_wrap:hover .rating_wrap {
+	right: 0;
+	left: auto;
+}
+
+/*Price
+----------------*/
+
+.woocommerce ul.products li.product .price del,
+.woocommerce-page ul.products li.product .price del {
+	float: right;
+	margin-left: 15px;
+	margin-right: auto;
+}
+
+/*Add to cart
+----------------*/
+.add_to_cart_wrap {
+	left: 10px;
+	right: auto;
+}
+
+.woocommerce .products .product .add_to_cart_button:active i {
+	right: -1px;
+	left: auto;
+}
+
+/*Added to cart
+----------------*/
+
+.woocommerce .add_to_cart_button.loading {
+	padding-left: 38px!important;
+	padding-right: 0;
+}
+
+.woocommerce .ql_regular_product button.button.loading::after {
+	margin-right: 0;
+	left: 19px;
+	right: auto;
+	margin-left: auto;
+}
+
+.woocommerce .ql_regular_product button.button.added::after {
+	margin-right: 0;
+	margin-left: auto;
+}
+
+/*Product Big
+----------------*/
+.woocommerce #main .ql_products_big .product,
+.woocommerce-page .ql_products_big .product {
+	margin-left: 1.4%!important;
+	margin-right: auto;
+}
+
+.woocommerce ul.ql_products_big li.last,
+.woocommerce-page ul.ql_products_big li.last {
+	margin-left: 1.4%!important;
+	margin-right: auto;
+}
+
+.woocommerce .ql_products_big .product .product_content {
+	left: auto;
+	right: auto;
+}
+
+.woocommerce .ql_products_big .product:hover .product_content {
+	left: auto;
+	right: auto;
+}
+
+.woocommerce .ql_products_big .product_options ul {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.woocommerce .ql_products_big .product .product_second_img {
+	left: auto;
+	right: auto;
+}
+
+@media (min-width: 1346px) and (max-width: 1509px) {
+
+.woocommerce .ql_products_big .product .product_second_img {
+	left: auto;
+	right: auto;
+}
+
+}
+
+@media (min-width: 768px) and (max-width: 1345px) {
+
+@media (min-width: 1346px) and (max-width: 1509px) {
+
+.woocommerce .ql_products_big .product .product_second_img {
+	left: auto;
+	right: auto;
+}
+
+}
+
+}
+
+@media (max-width: 767px) {
+
+@media (min-width: 768px) and (max-width: 1345px) {
+
+@media (min-width: 1346px) and (max-width: 1509px) {
+
+.woocommerce .ql_products_big .product .product_second_img {
+	left: auto;
+	right: auto;
+}
+
+}
+
+}
+
+}
+
+/*Pagination
+----------------*/
+
+/*Single Product
+=====================================================*/
+/*Images
+----------------*/
+
+.woocommerce #main .ql_main_image_column_wrap {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.ql_main_images_btn.ql_prev {
+	right: 0;
+	-webkit-transform-origin: right center;
+	-moz-transform-origin: right center;
+	-ms-transform-origin: right center;
+	transform-origin: right center;
+	left: auto;
+}
+
+.ql_main_images_btn.ql_next {
+	left: 0;
+	-webkit-transform-origin: left center;
+	-moz-transform-origin: left center;
+	-ms-transform-origin: left center;
+	transform-origin: left center;
+	right: auto;
+}
+
+.woocommerce.single-product span.onsale {
+	left: 0;
+	right: auto;
+}
+
+/*Product counter */
+.woocommerce #content .quantity input.qty,
+.woocommerce .quantity input.qty,
+.woocommerce-page #content .quantity input.qty,
+.woocommerce-page .quantity input.qty {
+	margin-left: 10px;
+	margin-right: auto;
+}
+
+/*Variations
+----------------*/
+
+.ql_custom_variations .ql_custom_variation ul {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.ql_custom_variations .ql_custom_variation ul li {
+	margin-left: 7px;
+	margin-right: auto;
+}
+
+.ql_custom_variations .ql_custom_variation .ql_color_variation li {
+	margin-left: 20px;
+	margin-right: auto;
+}
+
+.ql_custom_variations .ql_custom_variation .ql_color_variation li a i {
+	margin-left: 5px;
+	margin-right: auto;
+}
+
+/*Tabs
+----------------*/
+
+/* Reviews
+---------------------*/
+
+#review_form input[type='text'] {
+	padding-right: 12px;
+	padding-left: 0;
+}
+
+/*Related Products
+---------------------*/
+
+/* Up-Sell products (You may also like...)
+---------------------*/
+
+/*Cart Page
+=====================================================*/
+
+.woocommerce-cart a.remove {
+	margin-left: 0;
+	margin-right: auto;
+}
+
+/*Cupon Row
+---------------------*/
+
+/*Cupon Input
+---------------------*/
+
+/*Cupon Button
+---------------------*/
+.woocommerce-cart table.cart td.actions .coupon .button {
+	margin-right: 5px;
+	margin-left: auto;
+}
+
+/*Checkout Button
+---------------------*/
+
+/*Checkout Page
+=====================================================*/
+
+.woocommerce .checkout #shiptobilling label,
+.woocommerce-page .checkout #shiptobilling label {
+	padding-right: 0!important;
+	padding-left: 0;
+}
+
+.woocommerce .checkout .col-2 h3#ship-to-different-address label,
+.woocommerce-page .checkout .col-2 h3#ship-to-different-address label {
+	float: right;
+}
+
+.woocommerce .checkout .col-2 #ship-to-different-address-checkbox {
+	float: right;
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+/*Payments
+---------------------*/
+
+.woocommerce #payment ul.payment_methods li input,
+.woocommerce-page #payment ul.payment_methods li input {
+	float: right;
+}
+
+.woocommerce-checkout #payment .payment_method_paypal .about_paypal {
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+/*Place Order Button
+---------------------*/
+.woocommerce-checkout #payment div.form-row {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+/* =Tables
+	-------------------------------------------------------------- */
+
+/*Cart Widget
+=====================================================*/
+
+#ql_woo_cart {
+	left: 0;
+	text-align: right;
+	right: auto;
+}
+
+.ql_woo_cart_button {
+	left: 20px;
+	right: auto;
+}
+
+.ql_header2 .ql_woo_cart_button {
+	left: -20px;
+	right: auto;
+}
+
+.ql_woo_cart_qty {
+	left: -7px;
+	right: auto;
+}
+
+/* Close button */
+.ql_woo_cart_close {
+	right: -2.22222222em;
+	left: auto;
+}
+
+#ql_woo_cart ul.cart_list li a {
+	text-align: right;
+	margin-left: 15px;
+	float: right;
+	margin-right: auto;
+}
+
+#ql_woo_cart ul.cart_list li a.remove {
+	margin-left: 0;
+	margin-right: auto;
+}
+
+#ql_woo_cart ul.cart_list li a img {
+	float: right;
+	margin-left: 10px;
+	margin-right: auto;
+}
+
+#ql_woo_cart .widget_shopping_cart_content .total {
+	text-align: left;
+}
+
+#ql_woo_cart .widget_shopping_cart_content .buttons {
+	text-align: left;
+}
+
+#ql_woo_cart .widget_shopping_cart_content a.button {
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+#ql_woo_cart ul.cart_list li .quantity {
+	float: left;
+}
+
+#ql_woo_cart .woocommerce ul.cart_list li dl,
+#ql_woo_cart .woocommerce ul.product_list_widget li dl {
+	border-right: 0;
+	padding-right: 0;
+	float: left;
+	padding-left: 0;
+	border-left: none;
+}
+
+@media (max-width: 767px) {
+
+}
+
+/*List Widget
+=====================================================*/
+
+/*Categories Widget
+=====================================================*/
+.widget_layered_nav ul li {
+	margin-left: 5%;
+	margin-right: auto;
+}
+
+.widget_product_categories ul .cat-item a,
+.widget_layered_nav ul li a {
+	padding-right: 20px!important;
+	padding-left: 0;
+}
+
+.widget_product_categories ul .cat-item a::before,
+.widget_layered_nav ul li a::before {
+	right: 0;
+	left: auto;
+}
+
+/*Filter Widget
+=====================================================*/
+
+.woocommerce .widget_price_filter .price_label {
+	text-align: right;
+}
+
+/*Search Widget
+=====================================================*/
+
+#sidebar .woocommerce-product-search::before {
+	left: 10px;
+	right: auto;
+}
+
+.widget_product_search .search-field {
+	padding-left: 30px;
+	padding-right: 0;
+}
+
+/*My Account
+=====================================================*/
+
+/*Login / Register
+=====================================================*/
+
+#customer_login .login label.inline {
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+/*Edit Account
+=====================================================*/
+
+/*View Order
+=====================================================*/
+
+.woocommerce ul.order_details {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+/*Global
+=====================================================*/
+
+.woocommerce-info {
+	border-right: 5px solid #2e90c7 !important;
+	border-left: none;
+}
+
+.woocommerce-error {
+	border-right: 5px solid #e60000 !important;
+	border-left: none;
+}
+
+.woocommerce-message {
+	border-right: 5px solid #006700 !important;
+	border-left: none;
+}
+
+/*WooCommerce Widgets
+=====================================================*/
+
+/* Layered Nav
+---------------------*/
+
+/* Products
+---------------------*/
+
+/* Recent Reviews
+---------------------*/
+
+/* Top Rated Products
+---------------------*/
+
+/* Product Tags Clouds
+---------------------*/
+.widget_product_tag_cloud a {
+	margin-left: 5px;
+	margin-right: auto;
+}
+
+/* Search
+---------------------*/
+
+/* WooCommerce Shortcode Featured Products
+---------------------*/
+.woocommerce.columns-5 ul.products li.product {
+	margin-left: 2%;
+	margin-right: auto;
+}
+
+/* Search form in header
+---------------------*/
+
+/*
+==========================================
+7. Owl Carousel
+========================================== 
+*/
+
+/*
+==========================================
+8. Pace (Loading animation)
+========================================== 
+*/
+
+.pace .pace-progress {
+	right: 0;
+	left: auto;
+}
+
+.pace .pace-progress-inner {
+	left: 0px;
+	right: auto;
+}
+
+.pace .pace-activity {
+	left: 15px;
+	border-right-color: #c3a769;
+	right: auto;
+}
+
+/*
+==========================================
+9. WordPress Default
+========================================== 
+*/
+/* =WordPress Core
+-------------------------------------------------------------- */
+.alignnone {
+	margin: 5px 0 20px 20px;
+}
+
+.alignleft {
+	float: left;
+	margin: 5px 20px 20px 0;
+}
+
+.alignright {
+	float: right;
+	margin: 5px 0 20px 20px;
+}
+
+a img.alignleft {
+	float: left;
+	margin: 5px 20px 20px 0;
+}
+
+a img.alignnone {
+	margin: 5px 0 20px 20px;
+}
+
+a img.alignright {
+	float: right;
+	margin: 5px 0 20px 20px;
+}
+
+a img.aligncenter {
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.wp-caption.alignnone {
+	margin: 5px 0 20px 20px;
+}
+
+.wp-caption.alignright {
+	margin: 5px 0 20px 20px;
+}
+
+.wp-caption.alignleft {
+	margin: 5px 20px 20px 0;
+}
+
+/*------------------------------------------------------------
+ Defaul Widgets
+-------------------------------------------------------------- */
+/* Archive List Widget
+-------------------------------------- */
+
+/* Calendar Widget
+-------------------------------------- */
+
+#wp-calendar caption {
+	text-align: left;
+}
+
+#wp-calendar tfoot #next {
+	text-align: left;
+}
+
+/* Categories Widget
+-------------------------------------- */
+
+/* Recent Comments Widget
+-------------------------------------- */
+
+/* Recent Entries Widget
+-------------------------------------- */
+
+/* RSS Widget
+-------------------------------------- */
+
+/* Search Widget
+-------------------------------------- */
+
+.widget_search #s {
+	padding-left: 32px;
+	padding-right: 0;
+}
+
+.widget_search #searchsubmit {
+	left: 15px;
+	right: auto;
+}
+
+.widget_search i {
+	left: 15px;
+	right: auto;
+}
+
+/* Tag Cloud Widget
+-------------------------------------- */
+
+/* Nav Menu Widget
+-------------------------------------- */
+
+.widget_nav_menu .menu-navigation-container .sub-menu {
+	padding-right: 20px;
+	padding-left: 0;
+}
+
+/* Search Form
+-------------------------------------- */
+
+.widget_search .search-submit {
+	left: 0;
+	right: auto;
+}
+
+.search-form label::before {
+	left: 15px;
+	right: auto;
+}
+
+.widget_search i {
+	left: 12px;
+	right: auto;
+}
+
+/* Post Navigation
+-------------------------------------- */
+
+.post-navigation .nav-previous {
+	float: right;
+}
+
+.post-navigation .nav-next {
+	float: left;
+	text-align: left;
+}
+
+.post-navigation .nav-previous a {
+	padding-right: 45px;
+	padding-left: 0;
+}
+
+.post-navigation .nav-next a {
+	padding-left: 45px;
+	padding-right: 0;
+}
+
+.post-navigation .nav-previous a::before {
+	right: 20px;
+	left: auto;
+}
+
+.post-navigation .nav-next a::before {
+	left: 20px;
+	right: auto;
+}
+
+/* Nav Menu
+-------------------------------------- */
+
+/*
+==========================================
+10. External Plugins
+========================================== 
+*/
+/*
+// Contact Form 7
+// ------------------
+*/
+
+.wpcf7 input[type="checkbox"],
+.wpcf7 input[type="radio"] {
+	margin-left: 5px;
+	margin-right: auto;
+}
+
+/*
+// Visual Composer
+// ------------------
+*/
+
+.aio-icon-box.top-icon .align-icon,
+.aio-icon-box.top-icon .aio-icon-header,
+.aio-icon-box.top-icon .aio-icon-description {
+	text-align: right!important;
+}
+
+@media (min-width: 768px) and (max-width: 1345px) {
+
+}
+
+/*
+// Revolution Slider
+// ------------------
+*/
+
+@media (max-width: 767px) {
+
+}
+
+/*
+// Easy MailChimp Forms
+// ------------------
+*/
+
+/*
+==========================================
+11. Global Styles
+========================================== 
+*/
+
+.preloader {
+	right: 0;
+	left: auto;
+}
+
+.preloader i {
+	right: 50%;
+	left: auto;
+}
+
+/* Custom button
+-------------------------------------------------- */
+/* Override base .btn styles */
+/* Apply text and background changes to three key states: default, hover, and active (click). */
+
+/* Apply the custom-colored gradients */
+/* Note: you'll need to include all the appropriate gradients for various browsers and standards. */
+.btn-ql > i {
+	right: 44%;
+	left: auto;
+}
+
+/*For special occacions */
+.btn-ql > b.ql_sec_icon {
+	right: 43%;
+	left: auto;
+}
+
+/* Set the hover state */
+/* An easy hover state is just to move the gradient up a small amount. Add other embellishments as you see fit. */
+
+/*
+Show the icon
+*/
+
+/*
+Hide the icon
+*/
+
+/*Hero Colors Classes													*/
+/*----------------------------------------------------------------------*/
+
+/* Make Space between sections											*/
+/*----------------------------------------------------------------------*/
+
+/* Hover effect for thumbnails											*/
+/*----------------------------------------------------------------------*/
+
+.ql_thumbnail_hover > span {
+	right: 10px;
+	left: 10px;
+}
+
+.ql_thumbnail_hover > span > i {
+	right: 50%;
+	margin-right: -1.5em;
+	left: auto;
+	margin-left: auto;
+}
+
+/* Font size using REMs													*/
+/*----------------------------------------------------------------------*/
+/* Inputs																*/
+/*----------------------------------------------------------------------*/
+
+/*
+	Header
+	========================================== 
+	*/
+  .logo_container {
+	margin-left: 0;
+	margin-right: auto;
+}
+
+/*1st sub level menu*/
+
+/*
+	Content
+	--------------------------------
+	*/
+
+#content {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.metadata ul li {
+	float: right;
+}
+
+/*
+==========================================
+12. Responsive Styles
+========================================== 
+*/
+/*
+	// Extra Small Breakpoint
+	// ------------------
+	*/
+@media (max-width: 767px) {
+
+.ql_thumbnail_hover > span > i {
+	right: 50%;
+	margin-right: -1.5em;
+	left: auto;
+	margin-left: auto;
+}
+
+/* Font size using REMs													*/
+/*----------------------------------------------------------------------*/
+/* Inputs																*/
+/*----------------------------------------------------------------------*/
+
+/*
+	Header
+	========================================== 
+	*/
+  .logo_container {
+	margin-left: 0;
+	margin-right: auto;
+}
+
+/*1st sub level menu*/
+
+/*
+	Content
+	--------------------------------
+	*/
+
+#content {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.metadata ul li {
+	float: right;
+}
+
+}
+
+/*
+	Header
+	========================================== 
+	*/
+
+/*
+	Content
+	========================================== 
+	*/
+
+#content {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.metadata ul li {
+	float: right;
+}
+
+/*
+	Sidebar
+	========================================== 
+	*/
+  #sidebar {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+/*
+	// Small Breakpoint
+	// ------------------
+	*/
+@media (min-width: 768px) and (max-width: 1345px) {
+
+/*
+	Content
+	========================================== 
+	*/
+
+#content {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.metadata ul li {
+	float: right;
+}
+
+/*
+	Sidebar
+	========================================== 
+	*/
+  #sidebar {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+}
+
+/*
+	Header
+	--------------------------------
+	*/
+
+.ql_cart-btn {
+	padding-right: 10px;
+	margin-right: 5px;
+	padding-left: 0;
+	margin-left: auto;
+}
+
+/*
+	Content
+	========================================== 
+	*/
+
+/*
+	Sidebar
+	========================================== 
+	*/
+
+/*
+	// Medium Breakpoint
+	// ------------------
+	*/
+@media (min-width: 1346px) and (max-width: 1509px) {
+
+/*
+	Sidebar
+	========================================== 
+	*/
+
+}
+
+/*
+	// Extra Larga Breakpoint
+	// ------------------
+	*/
+/*
+==========================================
+LESS Variables and Mixins
+========================================== 
+*/
+/*!
+Animate.css - http://daneden.me/animate
+Licensed under the MIT license - http://opensource.org/licenses/MIT
+
+Copyright (c) 2015 Daniel Eden
+*/
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: right bottom;
+	transform-origin: right bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+100% {
+	-webkit-transform-origin: left bottom;
+	transform-origin: left bottom;
+}
+
+20%,
+  60% {
+	-webkit-transform-origin: top right;
+	transform-origin: top right;
+}
+
+40%,
+  80% {
+	-webkit-transform-origin: top right;
+	transform-origin: top right;
+}
+
+20%,
+  60% {
+	-webkit-transform-origin: top right;
+	transform-origin: top right;
+}
+
+40%,
+  80% {
+	-webkit-transform-origin: top right;
+	transform-origin: top right;
+}
+
+100% {
+	-webkit-transform-origin: right center;
+	transform-origin: right center;
+}
+
+100% {
+	-webkit-transform-origin: right center;
+	transform-origin: right center;
+}
+
+100% {
+	-webkit-transform-origin: left center;
+	transform-origin: left center;
+}
+
+100% {
+	-webkit-transform-origin: left center;
+	transform-origin: left center;
+}
+
+
+/* Generated by the RTLer - http://wordpress.org/extend/plugins/rtler/ */

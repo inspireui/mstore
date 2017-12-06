@@ -1,0 +1,749 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: WooCommerce Currency Switcher\n"
+"POT-Creation-Date: 2016-09-02 10:18+0200\n"
+"PO-Revision-Date: 2016-09-06 20:23+0200\n"
+"Language-Team: Roland Stumpp <support@mediaoffice.de>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: index.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: Roland Stumpp <support@mediaoffice.de>\n"
+"Language: de_DE\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: classes/widgets/widget-currency-converter.php:9
+#: classes/widgets/widget-currency-converter.php:38
+msgid "WooCommerce Currency Converter"
+msgstr "Währungsrechner"
+
+#: classes/widgets/widget-currency-converter.php:11
+msgid "WooCommerce Currency Converter by realmag777"
+msgstr "Währungsrechner von realmag777"
+
+#: classes/widgets/widget-currency-rates.php:9
+#: classes/widgets/widget-currency-rates.php:38
+msgid "WooCommerce Currency Rates"
+msgstr "Wechselkurse"
+
+#: classes/widgets/widget-currency-rates.php:11
+msgid "WooCommerce Currency Rates by realmag777"
+msgstr "Wechselkurse von realmag777"
+
+#. Plugin Name of the plugin/theme
+#: classes/widgets/widget-woocs-selector.php:9
+#: classes/widgets/widget-woocs-selector.php:42
+msgid "WooCommerce Currency Switcher"
+msgstr "Währungs-Umschalter"
+
+#: classes/widgets/widget-woocs-selector.php:11
+msgid "WooCommerce Currency Switcher by realmag777"
+msgstr "Währungs-Umschalter von realmag777"
+
+#: index.php:531
+#, php-format
+msgid "each %s week"
+msgstr "jede %s Woche"
+
+#: index.php:536
+#, php-format
+msgid "each %s month"
+msgstr "jeden %s Monat"
+
+#: index.php:541
+msgid "each 1 min"
+msgstr "Jede Minute"
+
+#: index.php:546
+msgid "each 5 min"
+msgstr "Alle 5 Minuten"
+
+#: index.php:551
+msgid "each 15 min"
+msgstr "Alle 15 Minuten"
+
+#: index.php:556
+msgid "each 30 min"
+msgstr "Alle 30 Minuten"
+
+#: index.php:561
+msgid "each 45 min"
+msgstr "Alle 45 Minuten"
+
+#: index.php:716
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: index.php:717 views/plugin_options.php:368
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#: index.php:763
+msgid "WOOCS Order Info"
+msgstr "WOOCS Bestell-Info"
+
+#: index.php:876
+msgid "loading"
+msgstr "Laden…"
+
+#: index.php:959
+msgid "Currency"
+msgstr "Währung"
+
+#: index.php:1351
+msgid "Current currency is:"
+msgstr "Aktuelle Währung ist:"
+
+#: index.php:1452 index.php:1475 index.php:1520 index.php:1532
+#, php-format
+msgid "no data for %s"
+msgstr "keine Daten für%s"
+
+#: index.php:1528
+#, php-format
+msgid "base currecny is %s and its absent"
+msgstr "Basis Währung ist %s und ist nicht verfügbar."
+
+#: index.php:1641
+msgid "Total in basic currency: "
+msgstr "Insgesamt in der Basiswährung:"
+
+#: index.php:2712
+#, php-format
+msgid "(Approx. %s)"
+msgstr "(Zirka %s)"
+
+#: views/plugin_options.php:24
+msgid "Drop-down view"
+msgstr "Dropdown-Menü"
+
+#: views/plugin_options.php:25
+msgid "How to display currency switcher drop-down on the front of your site"
+msgstr "Wie das Drop Down Menü auf Ihrer Seite angezeigt wird"
+
+#: views/plugin_options.php:31
+msgid "ddslick"
+msgstr "Standard"
+
+#: views/plugin_options.php:32
+msgid "chosen"
+msgstr "Klick und auswählen"
+
+#: views/plugin_options.php:33
+msgid "chosen dark"
+msgstr "Mir schwarzem Pfeil"
+
+#: views/plugin_options.php:34
+msgid "wSelect"
+msgstr "Auswahl scrollen"
+
+#: views/plugin_options.php:35
+msgid "simple drop-down"
+msgstr "Dropdown-Menü"
+
+#: views/plugin_options.php:36
+msgid "show as flags"
+msgstr "Als Flagge zeigen"
+
+#: views/plugin_options.php:41
+msgid "Show flags by default"
+msgstr "Flaggen zeigen als Standard"
+
+#: views/plugin_options.php:42
+msgid "Show/hide flags on the front drop-down"
+msgstr "Anzeigen / Ausblenden der Landesflagge im DropDown Menü"
+
+#: views/plugin_options.php:48 views/plugin_options.php:61
+#: views/plugin_options.php:74 views/plugin_options.php:87
+#: views/plugin_options.php:125 views/plugin_options.php:152
+#: views/plugin_options.php:187 views/plugin_options.php:200
+#: views/plugin_options.php:213
+msgid "No"
+msgstr "Nein"
+
+#: views/plugin_options.php:49 views/plugin_options.php:62
+#: views/plugin_options.php:75 views/plugin_options.php:88
+#: views/plugin_options.php:126 views/plugin_options.php:153
+#: views/plugin_options.php:188 views/plugin_options.php:201
+#: views/plugin_options.php:214
+msgid "Yes"
+msgstr "Ja "
+
+#: views/plugin_options.php:54
+msgid "Show money signs"
+msgstr "Zeigen Sie Währungszeichen"
+
+#: views/plugin_options.php:55
+msgid "Show/hide money signs on the front drop-down"
+msgstr "Anzeigen / Ausblenden der Währungszeichen im DropDown Menü"
+
+#: views/plugin_options.php:67
+msgid "Show price info icon"
+msgstr "Preis-Info-Symbol anzeigen"
+
+#: views/plugin_options.php:68
+msgid ""
+"Show info icon near the price of the product which while its under hover "
+"shows prices of products in all currencies"
+msgstr ""
+"Ein Info Icon neben dem Preis zeigen. Beim berühren (Hover) mit dem Cursor "
+"werden alle Währungen angezeigt"
+
+#: views/plugin_options.php:80
+msgid "Is multiple allowed"
+msgstr "Mehrere zulässig?"
+
+#: views/plugin_options.php:81
+msgid "Customer will pay with selected currency or with default currency."
+msgstr ""
+"Kunde kann mit der ausgewählten Währung bezahlen oder mit der Standard "
+"Währung."
+
+#: views/plugin_options.php:93
+msgid "Welcome currency"
+msgstr "Aktuelle Währung"
+
+#: views/plugin_options.php:94
+msgid ""
+"In wich currency show prices for first visit of your customer on your site"
+msgstr ""
+"In dieser Währung wird dem Nutzer ein Preis beim ersten Aufruf der Seite "
+"angezeigt"
+
+#: views/plugin_options.php:103
+msgid "Currency aggregator"
+msgstr "Währungs-Aggregator"
+
+#: views/plugin_options.php:104
+msgid "Currency aggregators"
+msgstr "Währung-Aggregatoren"
+
+#: views/plugin_options.php:110
+msgid "http://finance.yahoo.com"
+msgstr "http://finance.yahoo.com"
+
+#: views/plugin_options.php:111
+msgid "http://google.com/finance"
+msgstr "http://google.com/finance"
+
+#: views/plugin_options.php:112
+msgid "http://rate-exchange.appspot.com"
+msgstr "http://rate-exchange.appspot.com"
+
+#: views/plugin_options.php:113
+msgid "http://www.cbr.ru - russian centrobank"
+msgstr "http://www.cbr.ru - russian centrobank"
+
+#: views/plugin_options.php:118
+msgid "CURL for aggregators"
+msgstr "CURL für Aggregatoren"
+
+#: views/plugin_options.php:119
+msgid ""
+"You can use it if aggregators doesn works with file_get_contents because of "
+"security reasons. If all is ok leave it No!"
+msgstr ""
+"Sie können das nutzen, wenn der Aggregator aus Sicherheitsgründen nicht mit "
+"file_get_contents arbeitet. Wenn alles OK ist auf Nein lassen! "
+
+#: views/plugin_options.php:131
+msgid "Currency storage"
+msgstr "Speicherung der Währung"
+
+#: views/plugin_options.php:132
+msgid ""
+"In some servers there is troubles with sessions, and after currency "
+"selecting its reset to welcome currency or geo ip currency. In such case use "
+"transient!"
+msgstr ""
+"In manchen Servern gibt es Probleme mit der Einstellung Pro Sitzung. Nach "
+"Auswahl der Währung setzt der Server die Auswahl auf die Standard Währung "
+"zurück. In solch einem Fall bitte auf Transient setzen. "
+
+#: views/plugin_options.php:138
+msgid "session"
+msgstr "Pro Sitzung"
+
+#: views/plugin_options.php:140
+msgid "transient"
+msgstr "Transient"
+
+#: views/plugin_options.php:145
+msgid "Use GeoLocation"
+msgstr "Geo-Lokalisierung nutzen"
+
+#: views/plugin_options.php:146
+msgid ""
+"Use GeoLocation rules for your currencies. This feature uses native "
+"WC_Geolocation php class! Works from woocommerce >= 2.3.0"
+msgstr ""
+"Verwenden Sie Geo-Lokalisierung für die Auswahl der Währung. Dieses Feature "
+"erkennt wo der Nutzer Zuhause ist. Es arbeitet ab Woocommerce Version > "
+"=2.3.0"
+
+#: views/plugin_options.php:158
+msgid "Rate auto update"
+msgstr "Wechselkurs automatisch aktualisieren"
+
+#: views/plugin_options.php:159
+msgid "Currencies rate auto update by wp cron. Use it for your own risk!"
+msgstr ""
+"Währungen werden automatisch aktualisiert über einen Cron Job. Nutzen Sie "
+"dieses Feature auf eigene Gefahr. "
+
+#: views/plugin_options.php:165
+msgid "no auto update"
+msgstr "kein AutoUpdate"
+
+#: views/plugin_options.php:166
+msgid "hourly"
+msgstr "Stündlich"
+
+#: views/plugin_options.php:167
+msgid "twicedaily"
+msgstr "Zweimal täglich"
+
+#: views/plugin_options.php:168
+msgid "daily"
+msgstr "Täglich"
+
+#: views/plugin_options.php:169
+msgid "weekly"
+msgstr "Wöchentlich"
+
+#: views/plugin_options.php:170
+msgid "monthly"
+msgstr "Monatlich"
+
+#: views/plugin_options.php:171
+msgid "special: each minute"
+msgstr "Special: jede Minute"
+
+#: views/plugin_options.php:172
+msgid "special: each 5 minutes"
+msgstr "Special: alle 5 Minuten"
+
+#: views/plugin_options.php:173
+msgid "special: each 15 minutes"
+msgstr "Special: alle 15 Minuten"
+
+#: views/plugin_options.php:174
+msgid "special: each 30 minutes"
+msgstr "Special: alle 30 Minuten"
+
+#: views/plugin_options.php:175
+msgid "special: each 45 minutes"
+msgstr "Special: alle 45 Minuten"
+
+#: views/plugin_options.php:180
+msgid "Hide switcher on checkout page"
+msgstr "Den Währungsumschalter auf der Kassenseite ausblenden"
+
+#: views/plugin_options.php:181
+msgid ""
+"Hide switcher on checkout page for any of your reason. Better restrike for "
+"users change currency on checkout page in multiple mode."
+msgstr ""
+"Den Währungsumschalter auf der Kassenseite auf jeden Fall ausblenden. "
+"Bessere Chance für Nutzer sich die ausgesuchte Währung zu merken als bei "
+"Mehrfachauswahl. "
+
+#: views/plugin_options.php:193
+msgid "Show approx. amount"
+msgstr "Zeige den Zirka Betrag"
+
+#: views/plugin_options.php:194
+msgid ""
+"THIS IS AN EXPERIMENTAL FEATURE! Show approximate amount on the checkout and "
+"the cart page with currency of user defined by IP in the GeoIp options tab. "
+"ATTENTION: \"Use GeoLocation\" should be enabled and its options should be "
+"set there!"
+msgstr ""
+"Das ist ein Experimentier Feature. Es zeigt den Zirka Betrag auf der "
+"Kassenseite wenn die Währung durch die Einstellung Geo-Lokalisierung "
+"definiert wird. ACHTUNG: \"Geo-Lokalisierung nutzen\" sollte eingeschaltet "
+"sein wenn diese Option genutzt wird. "
+
+#: views/plugin_options.php:206
+msgid "I am using cache plugin on my site"
+msgstr "Ich nutze ein Cache Plugin auf meiner Website."
+
+#: views/plugin_options.php:207
+msgid ""
+"Set Yes here ONLY if you are REALLY use cache plugin for your site, for "
+"example like Super cache or Hiper cache (doesn matter). + Set \"Custom price "
+"format\", for example: __PRICE__ (__CODE__). After enabling this feature - "
+"clean your cache to make it works. It will allow show prices in selected "
+"currency on all pages of site. Fee for this feature - additional AJAX "
+"queries for products prices redrawing."
+msgstr ""
+"Setze diese Einstellung nur auf Ja wenn Sie wirklich ein Cache Plugin wie "
+"zum Beispiel SuperCache oder Hiper Cache nutzen. +Einstellung \"Eigenes "
+"Preis Format\" zum Beispiel: __PRICE__ (__CODE__). Wenn Sie dieses Feature "
+"einschalten, leeren Sie bitte Ihr Cache damit es funktioniert. Es zeigt "
+"Preise auf allen Seiten in ihren ausgesuchten Währungen.  Zusätzlicher "
+"Server Aufwand - extra AJAX Abfragen für die neu zu schreibenden Preise. "
+
+#: views/plugin_options.php:219
+msgid "Custom money signs"
+msgstr "Eigene Währungszeichen"
+
+#: views/plugin_options.php:220
+msgid ""
+"Add your money symbols in your shop. Example: $USD,AAA,AUD$,DDD - separated "
+"by commas"
+msgstr ""
+"Fügen Sie eigene Währungssymbole in Ihrem Shop hinzu. Beispiel: $USD,AAA,AUD"
+"$,DDD - getrennt durch ein Komma"
+
+#: views/plugin_options.php:229
+msgid "Custom price format"
+msgstr "Eigenes Preis Format"
+
+#: views/plugin_options.php:230
+msgid ""
+"Set your format how to display price on front. Use keys: __CODE__,__PRICE__. "
+"Leave it empty to use default format. Example: __PRICE__ (__CODE__)"
+msgstr ""
+"Setzen Sie Ihr eigenes Preis Format. Nutzen Sie folgenden Code:  __CODE__,"
+"__PRICE__. Lassen Sie das frei wenn das Standard Format genutzt werden soll. "
+"Beispiel: __PRICE__ (__CODE__)"
+
+#: views/plugin_options.php:239
+msgid "Prices without cents"
+msgstr "Cent verbergen"
+
+#: views/plugin_options.php:240
+msgid ""
+"Recount prices without cents everywhere like in JPY and TWD which by its "
+"nature have not cents. Use comma. Example: UAH,RUB. Test it for checkout "
+"after set!"
+msgstr ""
+"Stellen Sie Ihre Preise ohne Cent dar. Zum Beispiel in Japan oder Taiwan ist "
+"es normal Preise ohne Cent zu nennen.  Beispiel: UAH, RUB. Testen Sie diese "
+"Einstellung an der Kasse. "
+
+#: views/plugin_options.php:255
+#, php-format
+msgid "WooCommerce Currency Switcher v.%s"
+msgstr "WooCommerce Währungs-Umschalter v.%s"
+
+#: views/plugin_options.php:261
+#, php-format
+msgid ""
+"Your version of WooCommerce plugin is too obsolete. Update minimum to %s "
+"version to avoid malfunctionality!"
+msgstr ""
+"Ihre WooCommerce Version ist veraltet.  Aktualisieren Sie mindestens auf "
+"Version %s um Fehlfunktionen zu vermeiden. "
+
+#: views/plugin_options.php:266
+msgid "Currencies"
+msgstr "Währungen"
+
+#: views/plugin_options.php:267
+msgid "Options"
+msgstr "Optionen"
+
+#: views/plugin_options.php:269
+msgid "GeoIP options"
+msgstr "GeoIP Optionen"
+
+#: views/plugin_options.php:271
+msgid "Info"
+msgstr "Info"
+
+#: views/plugin_options.php:277
+msgid "Add currency"
+msgstr "Währung hinzufügen"
+
+#: views/plugin_options.php:308
+msgid ""
+"Read wiki about Currency Active codes  <-  Get right currencies codes here "
+"if you are not sure about it!"
+msgstr ""
+"Hier geht es zum WIKI für die Aktiven Währungscodes  <- Wenn Sie unsicher "
+"sind bekommen Sie hier die richtigen Währungscodes! "
+
+#: views/plugin_options.php:320
+msgid ""
+"GeoIP works from v.2.3 of the WooCommerce plugin and no with minor versions "
+"of WooCommerce!!"
+msgstr ""
+"GeoIP funktioniert ab der WooCoomerce Version 2.3 und nicht mit älteren "
+"WooCommerce Versionen!!"
+
+#: views/plugin_options.php:369
+msgid "GET FREE FLAGS IMAGES"
+msgstr "Kostenlose Flaggen als gif oder png"
+
+#: views/plugin_options.php:370
+msgid "FAQ"
+msgstr "FAQ (englisch)"
+
+#: views/plugin_options.php:372
+msgid ""
+"Read wiki about Currency Active codes  <-  Get right currencies codes here"
+msgstr ""
+"Hier geht es zum WIKI für die Aktiven Währungscodes <- Hier bekommen Sie die "
+"richtigen Währungscodes"
+
+#: views/plugin_options.php:398
+msgid "I cant add flags! What to do?"
+msgstr "Ich kann keine Flaggen hinzufügen. Was ist zu tun?"
+
+#: views/plugin_options.php:399
+msgid "Using Geolocation causes problems, doesn’t seem to work for me"
+msgstr ""
+"Die Nutzung von Geo-Location verursacht Probleme und scheint nicht für mich "
+"zu funktionieren. "
+
+#: views/plugin_options.php:400
+msgid "The plugin options example screen"
+msgstr "Beispiel Screen der Plugin Optionen"
+
+#: views/plugin_options.php:417
+msgid "Hint"
+msgstr "Tipp"
+
+#: views/plugin_options.php:417
+msgid ""
+"To update all currencies rates by one click - press radio button of the "
+"default currency and then press \"Save changes\" button!"
+msgstr ""
+"Mit einem Klick kann man den Wechselkurs aktualisieren - Zuerst auf den "
+"Radiobutton (rund) der aktuellen Währung klicken und dann auf den Button "
+"\"Änderungen speichern\" klicken."
+
+#: views/plugin_options.php:570
+msgid ""
+"Set etalon main currency. This should be the currency in which the price of "
+"goods exhibited!"
+msgstr ""
+"Lege die Hauptwährung fest. Das sollte die Währung sein, in welcher der "
+"Preis der Produkte ausgezeichnet ist!"
+
+#: views/plugin_options.php:572
+msgid "Exmpl.: USD,EUR"
+msgstr "Zum Beispiel: USD,EUR"
+
+#: views/plugin_options.php:579
+msgid "Select symbol position"
+msgstr "Wählen Sie Symbolposition"
+
+#: views/plugin_options.php:587
+msgid "Decimals"
+msgstr "Kommastellen"
+
+#: views/plugin_options.php:607
+msgid "exchange rate"
+msgstr "Wechselkurs:"
+
+#: views/plugin_options.php:608
+msgid ""
+"Press this button if you want get currency rate from the selected aggregator "
+"above!"
+msgstr ""
+"Klicken Sie diesen Button wenn sie den aktuellen Wechselkurs vom "
+"ausgesuchten Aggregator errechnen lassen!"
+
+#: views/plugin_options.php:608
+msgid "finance"
+msgstr "Finanzwirtschaft"
+
+#: views/plugin_options.php:612
+msgid "Show cents on front"
+msgstr "Cent anzeigen"
+
+#: views/plugin_options.php:613
+msgid "Hide cents on front"
+msgstr "Cent verbergen"
+
+#: views/plugin_options.php:629 views/widgets/selector_form.php:54
+msgid "description"
+msgstr "Beschreibung"
+
+#: views/plugin_options.php:638
+msgid "Click to select the flag"
+msgstr "Klicken um die Flagge auszuwählen"
+
+#: views/plugin_options.php:638
+msgid "Flag"
+msgstr "Flagge"
+
+#: views/plugin_options.php:639
+msgid "remove"
+msgstr "entfernen"
+
+#: views/plugin_options.php:640
+msgid "drag and drope"
+msgstr "Drag &amp; Drop"
+
+#: views/plugin_options.php:640
+msgid "move"
+msgstr "Bewegen"
+
+#: views/shortcodes/woocs_converter.php:22
+msgid "enter amount"
+msgstr "Betrag eingeben"
+
+#: views/shortcodes/woocs_converter.php:40
+msgid "to"
+msgstr "an"
+
+#: views/shortcodes/woocs_converter.php:57
+msgid "results"
+msgstr "Ergebnisse"
+
+#: views/shortcodes/woocs_converter.php:59
+msgid "Convert"
+msgstr "Umwandeln"
+
+#: views/shortcodes/woocs_rates.php:43
+#, php-format
+msgid "1 %s is"
+msgstr "1 %s ist"
+
+#: views/widgets/converter_form.php:5 views/widgets/rates_form.php:5
+#: views/widgets/selector_form.php:5
+msgid "Title"
+msgstr "Titel"
+
+#: views/widgets/converter_form.php:11 views/widgets/rates_form.php:11
+msgid "Currencies excluding from view"
+msgstr "Währungen die in der Ansicht ausgeschlossen sind"
+
+#: views/widgets/converter_form.php:13 views/widgets/rates_form.php:13
+msgid "Examples: EUR,GBP,UAH"
+msgstr "Beispiele: EUR, GBP, UAH"
+
+#: views/widgets/converter_form.php:18 views/widgets/rates_form.php:18
+msgid "Precision"
+msgstr "Genauigkeit"
+
+#: views/widgets/converter_form.php:20 views/widgets/rates_form.php:20
+msgid "Count of digits after point"
+msgstr "Anzahl der Ziffern nach dem Punkt"
+
+#: views/widgets/selector_form.php:11
+msgid "Width"
+msgstr "Breite"
+
+#: views/widgets/selector_form.php:13
+msgid "Examples: 300px,100%,auto"
+msgstr "Beispiele: 300px, 100 %, auto"
+
+#: views/widgets/selector_form.php:26
+msgid "Show flags"
+msgstr "Flaggen zeigen"
+
+#: views/widgets/selector_form.php:32
+msgid "Flag position"
+msgstr "Position der Flagge"
+
+#: views/widgets/selector_form.php:35
+msgid "right"
+msgstr "rechts"
+
+#: views/widgets/selector_form.php:36
+msgid "left"
+msgstr "links"
+
+#: views/widgets/selector_form.php:44
+msgid "For ddslick script only!"
+msgstr "Nur für das ddslick Skript!"
+
+#: views/widgets/selector_form.php:50
+msgid "Drop-down options text type"
+msgstr "Textart der Drop Down Optionen "
+
+#: views/widgets/selector_form.php:53
+msgid "code"
+msgstr "Code"
+
+#: views/widgets/selector_form.php:62
+msgid ""
+"Which text display in the drop-down options - currency code OR description "
+"text. Looks good for all dropdowns except ddslick."
+msgstr ""
+"Welcher Text soll in den Drop Down Optionen angezeigt werden - Der "
+"Währungskurs oder ein Beschreibungstext? Das sieht bei allen Drop Down Menüs "
+"gut aus, außer bei ddslick. "
+
+#: views/woocs_order_metabox.php:16
+msgid "Order currency"
+msgstr "Währung wählen"
+
+#: views/woocs_order_metabox.php:24
+msgid "Currency in which the customer paid."
+msgstr "Währung mit der ein Kunde bezahlt."
+
+#: views/woocs_order_metabox.php:24
+#, php-format
+msgid "THIS order currency is changed manually %s!"
+msgstr "Die Währung des Auftrages wurde manuell auf %s geändert!"
+
+#: views/woocs_order_metabox.php:25
+msgid "Base currency"
+msgstr "Basiswährung"
+
+#: views/woocs_order_metabox.php:26
+msgid "Order currency rate"
+msgstr "Auftrags Wechselkurs"
+
+#: views/woocs_order_metabox.php:26
+msgid "Currency rate when the customer paid "
+msgstr "Wechselkurs, wenn der Kunde bezahlt"
+
+#: views/woocs_order_metabox.php:27
+msgid "Total amount"
+msgstr "Gesamtbetrag"
+
+#: views/woocs_order_metabox.php:33
+msgid "Change order currency"
+msgstr "Währung wählen"
+
+#: views/woocs_order_metabox.php:33
+msgid "For new manual order ONLY!!"
+msgstr "Nur für eine neuen manuellen Auftrag!!"
+
+#: views/woocs_order_metabox.php:34
+msgid "cancel"
+msgstr "Abbrechen"
+
+#: views/woocs_order_metabox.php:39
+msgid "Recalculate order"
+msgstr "Bestellung neu berechnen"
+
+#: views/woocs_order_metabox.php:39
+msgid ""
+"Recalculate current order with basic currency. Recommended test this option "
+"on the clone of your site! Read the documentation of the plugin about it!"
+msgstr ""
+"Die Bestellung mit der Standard Währung neu berechnen. Es wird empfohlen "
+"diese Option vor der Online Stellung Ihrer Website zu testen. Lesen Sie dazu "
+"in der Beschreibung des Plugin.  "
+
+#. Plugin URI of the plugin/theme
+msgid "http://currency-switcher.com/"
+msgstr "http://currency-switcher.com/"
+
+#. Description of the plugin/theme
+msgid "Currency Switcher for WooCommerce"
+msgstr "Währungs-Umschalter für Woocommerce"
+
+#. Author of the plugin/theme
+msgid "realmag777"
+msgstr "realmag777"
+
+#. Author URI of the plugin/theme
+msgid "http://www.pluginus.net/"
+msgstr "http://www.pluginus.net/"

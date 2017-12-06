@@ -1,0 +1,265 @@
+.content_background{
+	padding: 50px;
+	background-color: #fff;
+}
+#content{
+	padding-right: 0;
+	opacity: 0;
+	.translate(0;50px);
+	.transition(~"opacity 600ms 600ms, transform 600ms 600ms")
+}
+#content.col-md-pull-2{
+	padding-right: 20px;
+	padding-left: 0;
+}
+#content.col-md-12{
+	padding-right: 20px;
+}
+.pace-done #content, .no-js #content{
+	opacity: 1;
+	.translate(0;0);
+}
+
+.home #content.col-md-12{
+	padding: 0;
+}
+
+
+/*Breadcrumbs								*/
+/*------------------------------------------*/
+#breadcrumbs{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	text-align: left;
+}
+	#breadcrumbs a{
+		font-size: 0.76923076923077em;
+		color: #fff;
+	}
+		#breadcrumbs a:hover{
+			text-decoration: underline;
+		}
+	#breadcrumbs span{
+		font-size: 0.76923076923077em;
+	}
+
+
+
+
+
+
+
+
+
+
+/*Page Title 								*/
+/*------------------------------------------*/
+.page-title{
+	border-bottom: 2px solid @gray-lighter;
+	margin-top: 0;
+	margin-bottom: 0.97560975609756em;
+	padding-bottom: 0.36585365853659em;
+}
+
+
+
+
+/*Post Title 								*/
+/*------------------------------------------*/
+
+.post_title {
+	margin-bottom: 0.88235294117647em;
+	margin-top: 0;
+	border-top: 3px solid @gray-lighter;
+	padding-top: 20px;
+	width: 95%;
+}
+.single .post_title{
+	width: 100%;
+	border-top: none;
+	padding-top: 0;
+	border-bottom: 3px solid @gray-lighter;
+	padding-bottom: 20px;
+}
+.post_title a{
+	color:inherit;
+	text-align: left;
+}
+
+
+
+
+
+
+/*Post										*/
+/*------------------------------------------*/
+.blog article, .search article, .archive article{
+	margin-bottom: 180px;
+}
+.single article{
+	margin-bottom: 2.30769230769231em;
+	padding-bottom: 0;
+}
+.post_content_wrap{
+	position: relative;
+}
+.post_content{
+	position: relative;
+	border-top: none;
+	margin-top: 30px;
+}
+
+.blog .entry{
+	position: relative;
+	text-align: justify;
+	border-top: 3px solid @gray-light2;
+	padding-top: 20px;
+}
+
+
+
+.more-link{
+	margin-top: 0.41666666666667em;
+	text-indent: -12px;
+	.transition(all ease 200ms);
+}
+.more-link:hover{
+	text-indent: 0;
+}
+
+	
+/*Image Post								*/
+/*------------------------------------------*/
+.post-image{
+	overflow: hidden;
+	position: relative;
+	margin-bottom: 30px;
+}
+	.post-image a{
+		display:block;
+		text-align: center;
+	}
+	.post-image img{
+		width:100%;
+		vertical-align: bottom;
+		border-radius: @border-radius-large;
+		height: auto;
+	}
+
+.post-image:hover .post_date, .post-image:hover .post_title_wrap{
+	opacity: 0;
+	.transition( all 200ms linear);
+}
+
+
+/*Metadata 									*/
+/*------------------------------------------*/
+.metadata{
+	margin: 1.25em 0;
+	overflow:hidden;
+	border-right: none;
+	border-left: none;
+	border-top: none;
+	padding: 0;
+}
+
+.single .metadata{
+	margin: 1.25em 0;
+}
+
+.metadata ul{
+	margin:0;
+	padding: 0;
+}
+.metadata ul li{
+	list-style:none;
+	.font-size(14);
+	line-height: 1.2em;
+	margin: 0 20px 18px 0;
+	float: left;
+	position: relative;
+	color: darken(@gray-light2, 8%);
+}
+
+.metadata ul li strong{
+	color: @text-color;
+	font-style: normal;
+}
+.metadata ul li i{
+	margin-right: 0.35714285714286em;
+	.font-size(14);
+	text-align: center;
+	color: darken(@gray-light2, 8%);
+}
+
+.metadata ul li a{
+	text-decoration: none;
+	color: darken(@gray-light2, 8%);
+}
+.metadata ul li a:hover{
+	text-decoration: underline;
+}
+.metadata ul li.meta_comments{
+}
+.metadata ul li.meta_tags a{
+	margin-right: 10px;
+}
+.metadata hr{
+	margin: 0;
+}
+
+
+
+
+
+
+/*Pagination															*/
+/*----------------------------------------------------------------------*/
+.pagination_wrap{
+
+}
+.pagination{
+
+}
+.pagination .screen-reader-text{
+	display: none;
+}
+
+.pagination a, .pagination span{
+    background-color: @contrastColor;
+    border: 2px solid @gray-lighter;
+    color: @gray-light;
+    float: left;
+    line-height: 1.42857;
+    margin-left: -2px;
+    padding: 6px 12px;
+    position: relative;
+    text-decoration: none;
+    font-size: 14px;
+}
+.pagination .current{
+	background-color: @gray-lighter;
+	color: @heroColor;
+	border-color: @gray-lighter;
+}
+.pagination a:hover{
+	background-color: @gray-lighter;
+	color: @heroColor;
+	border-color: @gray-lighter;
+	cursor: pointer;
+}
+
+
+
+.pagination li.active a{
+	background-color: @heroColor;
+	color: @contrastColor;
+	border-color: @heroColor;
+}
+.pagination li.active a:hover{
+	background-color: @contrastColor;
+	color: @heroColor;
+	border-color: @heroColor;
+	cursor: pointer;
+}

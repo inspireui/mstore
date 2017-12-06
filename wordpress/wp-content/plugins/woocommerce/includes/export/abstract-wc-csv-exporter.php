@@ -122,7 +122,7 @@ abstract class WC_CSV_Exporter {
 			return true;
 		}
 
-		if ( in_array( $column_id, $columns_to_export ) ) {
+		if ( in_array( $column_id, $columns_to_export ) || 'meta' === $column_id ) {
 			return true;
 		}
 
@@ -168,7 +168,7 @@ abstract class WC_CSV_Exporter {
 		@ini_set( 'output_handler', '' );
 		ignore_user_abort( true );
 		wc_set_time_limit( 0 );
-		nocache_headers();
+		wc_nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=' . $this->get_filename() );
 		header( 'Pragma: no-cache' );
@@ -405,6 +405,25 @@ abstract class WC_CSV_Exporter {
 			}
 		}
 
-		return implode( ', ', $formatted_terms );
+		return $this->implode_values( $formatted_terms );
+	}
+
+	/**
+	 * Implode CSV cell values using commas by default, and wrapping values
+	 * which contain the separator.
+	 *
+	 * @since  3.2.0
+	 * @param  array  $values
+	 * @return string
+	 */
+	protected function implode_values( $values ) {
+		$values_to_implode  = array();
+
+		foreach ( $values as $value ) {
+			$value               = (string) is_scalar( $value ) ? $value : '';
+			$values_to_implode[] = str_replace( ',', '\\,', $value );
+		}
+
+		return implode( ', ', $values_to_implode );
 	}
 }

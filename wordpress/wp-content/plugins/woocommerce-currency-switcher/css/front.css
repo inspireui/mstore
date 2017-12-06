@@ -1,0 +1,167 @@
+/**************** ddslick ****************************************/
+.woocommerce-currency-switcher-form .dd-selected
+{
+    color: #000000;
+    display: block;
+    font-weight: bold;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.woocommerce-currency-switcher-form a.dd-selected:hover{
+    text-decoration: none;
+}
+
+
+.woocommerce-currency-switcher-form a.dd-option{
+    text-decoration: none;
+    display: block;
+    font-weight: bold;
+    overflow: hidden;
+    padding: 10px;
+    background: #fff;
+}
+
+.woocommerce-currency-switcher-form a.dd-option:hover{
+    text-decoration: none;
+}
+
+.woocommerce-currency-switcher-form ul.dd-options{
+    list-style: none !important;
+}
+
+/**************** ddslick end ****************************************/
+
+.woocs_show_flags .chosen-container .chosen-results li.highlighted {
+    color: green !important;
+}
+
+.woocommerce-currency-switcher option{
+    height: 23px;
+    padding-bottom: 3px;
+}
+
+a.woocs_flag_view_item{
+    display: inline-block;
+    margin: 0 3px 3px 0;
+    width: 50px;
+    height: 40px;
+}
+a.woocs_flag_view_item img{
+    width: 100%;
+}
+
+a.woocs_flag_view_item_current{
+    opacity: 0.65;
+}
+
+.woocs_converter_shortcode_from, .woocs_converter_shortcode_to{
+    width: 45%;
+}
+
+.woocs_converter_shortcode_amount{
+    width: 99%;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.woocs_converter_shortcode_results{
+    width: 99%;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+ul.woocs_currency_rates{
+    margin: 5px 0 0 9px !important;
+}
+
+
+
+
+
+/***************** price info styles ****************************/
+span.woocs_price_info_icon{
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background-image: url(../img/woocs_price_info_icon.png);
+}
+
+.woocs_price_info{
+    position: relative;
+    display: inline;
+    margin-left: 3px;
+}
+
+.woocs_price_info + .woocs_price_info{
+    display: none !important;
+}
+
+.woocs_price_info + .woocs_price_info{
+    display: none !important;
+}
+
+
+div.woocs_price_info ul{
+    list-style: none;
+    position: absolute;
+    width: auto !important;
+    min-width: 120px;
+    max-width: 400px;
+    color: #FFFFFF !important;
+    background: #000000 !important;
+    height: auto;
+    min-height: 19px;
+    /*font-size: 24px;*/
+    line-height: normal;
+    vertical-align: middle;
+    text-align: left;
+    visibility: hidden;
+    border-radius: 6px;
+    padding: 7px !important;
+}
+
+
+
+div:hover.woocs_price_info ul{
+    visibility: visible;
+    opacity: 0.85;
+    bottom: 5px;
+    left: 50%;
+    margin-left: -5px;
+    z-index: 999;
+}
+
+div.woocs_price_info ul li{
+    padding-bottom: 4px;
+    white-space: nowrap;
+    margin: 0 !important;
+}
+
+/***************** price info styles end ****************************/
+
+.woocs_current_product_id{
+    display: none;
+}
+
+ul.woocs_price_info_list li span{
+    font-weight: bold;
+}
+
+.woocs_cart_item_price{
+    font-size: 11px;
+    font-style: italic;
+}
+
+#shipping_method .woocs_cart_item_price{
+    display: inline-block;
+    clear: both;
+    text-indent: 0;
+    margin-left: 5px;
+}
+
+.woocs_currency_rate_flag{
+    width: 25px !important; max-width: 25px !important; display: inline;
+}
+

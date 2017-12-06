@@ -1,0 +1,38 @@
+{
+  "name": "wSelect",
+  "title": "wSelect jQuery Select Box Plugin",
+  "description": "A jQuery plugin for fully customizable and clean looking select boxes.  These are div based select boxes that will allow us to do additional things like adding icons to our options.",
+  "keywords": [
+    "websanova",
+    "wSelect",
+    "select",
+    "box",
+    "selectbox"
+  ],
+  "version": "1.2.1",
+  "author": {
+    "name": "Websanova",
+    "email": "rob@websanova.com",
+    "url": "http://websanova.com"
+  },
+  "maintainers": [
+    {
+      "name": "Websanova",
+      "email": "rob@websanova.com",
+      "url": "http://websanova.com"
+    }
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/websanova/wSelect#license"
+    }
+  ],
+  "bugs": "https://github.com/websanova/wSelect/issues",
+  "homepage": "http://wselect.websanova.com",
+  "docs": "https://github.com/websanova/wSelect#wselectjs",
+  "download": "https://github.com/websanova/wSelect/tags",
+  "dependencies": {
+    "jquery": ">=1.5"
+  }
+}

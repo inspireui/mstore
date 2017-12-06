@@ -94,7 +94,7 @@ class WC_CLI_REST_Command {
 	}
 
 	/**
-	 * Peturns an ID of supported ID arguments (things like product_id, order_id, etc) that we should look for in addition to id.
+	 * Returns an ID of supported ID arguments (things like product_id, order_id, etc) that we should look for in addition to id.
 	 *
 	 * @return array
 	 */
@@ -248,9 +248,8 @@ class WC_CLI_REST_Command {
 	 * @return array
 	 */
 	private function do_request( $method, $route, $assoc_args ) {
-		if ( ! defined( 'REST_REQUEST' ) ) {
-			define( 'REST_REQUEST', true );
-		}
+		wc_maybe_define_constant( 'REST_REQUEST', true );
+
 		$request = new WP_REST_Request( $method, $route );
 		if ( in_array( $method, array( 'POST', 'PUT' ) ) ) {
 			$request->set_body_params( $assoc_args );

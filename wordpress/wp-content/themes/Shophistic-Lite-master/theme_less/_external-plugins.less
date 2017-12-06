@@ -1,0 +1,177 @@
+/*
+// Contact Form 7
+// ------------------
+*/
+.wpcf7 p{
+	margin-bottom: 25px;
+}
+.wpcf7 input[type="text"], .wpcf7 input[type="email"]{
+	width: 50%;
+}
+
+.wpcf7 select{
+	.font-size(14);
+}
+
+//Checkbox & Radios
+.wpcf7 input[type="checkbox"], .wpcf7 input[type="radio"]{
+	display: inline-block;
+	width: auto;
+	height: 20px;
+	margin-right: 5px;
+	margin-top: 0;
+}
+.wpcf7-list-item{
+	display: block;
+	margin-bottom: 5px;
+	line-height: 20px;
+}
+
+//Textarea
+.wpcf7 textarea{
+	width: 80%;
+}
+
+//Submit Button
+.wpcf7 input[type="submit"]{
+	width: auto;
+	border-color: @gray;
+	.transition(background-color 200ms);
+	padding: 6px 15px;
+}
+.wpcf7 input[type="submit"]:hover{
+	background-color: @gray;
+	color: #fff;
+}
+.wpcf7 input[disabled="disabled"]{
+	opacity: 0.3;
+}
+//Quiz
+.wpcf7-quiz{
+	margin-bottom: 0;
+}
+
+//Errors
+.wpcf7-not-valid{
+	border-color: red;
+}
+
+
+
+
+/*
+// Visual Composer
+// ------------------
+*/
+.ult-ib-effect-style9 .ult-new-ib-desc{
+	text-align: center!important;
+}
+
+
+.aio-icon-box.top-icon .align-icon, .aio-icon-box.top-icon .aio-icon-header, .aio-icon-box.top-icon .aio-icon-description{
+	text-align: left!important;
+}
+
+.align_text2.ult-ib-resp.ult-ib-effect-style9 h2{
+	padding-top: 15%;
+}
+.align_text1.ult-ib-resp.ult-ib-effect-style9 h2{
+	padding-top: 22%;
+}
+@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+	.align_text1.ult-ib-resp.ult-ib-effect-style9 h2{
+		.font-size(16)!important;
+		padding-top: 17%;
+	}
+}
+
+.wpb_wrapper .products .product-category a{
+	overflow: hidden;
+	display: block;
+}
+.wpb_wrapper .products .product-category a img{
+	.scale(1);
+	.transition( transform 300ms );
+}
+.wpb_wrapper .products .product-category a:hover img{
+	.scale(1.1);
+	z-index: 1;
+	position: relative;
+}
+.wpb_wrapper .products .product-category h3{
+	background-color: @heroColor;
+	text-align: center;
+	color: @contrastColor;
+	padding: 15px 20px!important;
+	z-index: 3;
+	position: relative;
+	.transition( transform 300ms );
+}
+.wpb_wrapper .products .product-category a:hover h3{
+	.scale(1.1);
+}
+.wpb_wrapper .products .product-category .count{
+	display: none;
+}
+
+
+
+/*
+// Revolution Slider
+// ------------------
+*/
+.ql_slider_btn{
+	border: 2px solid #000;
+	padding: 15px 30px;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.ql_slider_btn:hover{
+	text-decoration: none;
+}
+.ql_slider_btn.black{
+	color: #000!important;
+}
+.ql_slider_btn.white{
+	color: #fff!important;
+	border-color: #fff;
+}
+
+@media (max-width: @screen-xs-max) {
+	.tp-caption{
+		.font-size(18)!important;
+	}
+}
+
+
+
+
+/*
+// Easy MailChimp Forms
+// ------------------
+*/
+.widget_yikes_mc_widget input[type="submit"]{
+	display: inline-block;
+	width: auto;
+	background-color: transparent;
+	border: 2px solid @gray-light;
+	color: @gray-light;
+}
+.widget_yikes_mc_widget input[type="submit"]:hover{
+	background-color: @gray-lighter;
+	border: 2px solid @gray-lighter;
+	color: @gray;
+}
+.widget_yikes_mc_widget input[type="text"]{
+	border: none;
+}
+.widget_yikes_mc_widget .yks-mailchimpFormDivSubmit{
+	margin: 0;
+}
+.widget_yikes_mc_widget p{
+	padding-top: 0!important;
+}
+.widget_yikes_mc_widget .yks-status p{
+	color: @gray-lighter;
+	margin-bottom: 10px;
+}

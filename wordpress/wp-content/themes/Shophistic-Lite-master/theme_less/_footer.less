@@ -1,0 +1,210 @@
+/*
+Footer
+------------------------
+*/
+.footer_wrap{
+	
+}
+#footer{
+	background-color: @gray-dark;
+	.font-size(14);
+}
+#footer p{
+	margin: 0;
+}
+#footer a:hover{
+	text-decoration: underline;
+}
+#footer ul, footer ol{
+	list-style:none;
+	margin-left:0;
+}
+
+
+
+
+
+/*
+==========================================
+Subfooter
+========================================== 
+*/
+.sub_footer_wrap .container{
+	background-color: @gray-dark;
+}
+.sub_footer{
+	padding: 17px;
+	color: @gray-light;
+	.font-size(12);
+}
+.sub_footer p{
+	margin-bottom: 0;
+	float: left;
+	line-height: 35px;
+	padding: 0;
+}
+.sub_footer a{
+	color: lighten(@gray-light, 10%);
+}
+
+
+
+
+
+/*
+==========================================
+Social Nav
+========================================== 
+*/
+.nav_social{
+	position: relative;
+	text-align: center;
+	float: right;
+}
+.nav_social li{
+	text-align: center;
+	position: relative;
+	float: left;
+	margin-left: 10px;
+}
+.nav_social li a{
+	padding: 0;
+	overflow: hidden;
+	display: block;
+	position: relative;
+	width: 35px;
+	height: 35px;
+	line-height: 35px;
+	color: @gray-light2;
+	.transition(background 200ms);
+	text-decoration: none;
+	text-align: center;
+	font-weight: normal;
+}
+.nav_social li a:hover{
+	color: #fff;
+}
+
+.nav_social .screen-reader-text{
+	display: none;
+}
+.nav_social li a::before{
+	display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-rendering: auto; // optimizelegibility throws things off #1094
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+    text-decoration: inherit;
+    font-size: 18px;
+    line-height: 1em;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+    color: inherit;
+    text-decoration: none!important;
+}
+.nav_social li a:hover::before{
+	color: #fff;
+	.animation(social_icons_anim 500ms ease);
+}
+
+
+@-webkit-keyframes social_icons_anim {
+	0%  { .translate(0; -30px); opacity: 0; }
+	60% { .translate(0; 2px); opacity: 1; }
+	100% { .translate(0; 0); }
+}
+@-moz-keyframes social_icons_anim {
+	0%  { .translate(0; -30px); opacity: 0; }
+	60% { .translate(0; 2px); opacity: 1; }
+	100% { .translate(0; 0); }
+}
+@-o-keyframes social_icons_anim {
+	0%  { .translate(0; -30px); opacity: 0; }
+	60% { .translate(0; 2px); opacity: 1; }
+	100% { .translate(0; 0); }
+}
+@keyframes social_icons_anim {
+	0%  { .translate(0; -30px); opacity: 0; }
+	60% { .translate(0; 2px); opacity: 1; }
+	100% { .translate(0; 0); }
+}
+
+.nav_social li a[href*="facebook.com"]::before { content: "\f09a"; }
+.nav_social li a[href*="facebook.com"]:hover { background-color:#3B5998; }
+
+.nav_social li a[href*="twitter.com"]::before { content: "\f099"; }
+.nav_social li a[href*="twitter.com"]:hover { background-color:#33CCFF; }
+
+.nav_social li a[href*="dribbble.com"]::before { content: "\f17d"; }
+.nav_social li a[href*="dribbble.com"]:hover { background-color:#C5376D; }
+
+.nav_social li a[href*="instagram.com"]::before { content: "\f16d"; }
+.nav_social li a[href*="instagram.com"]:hover { background-color:#427097; }
+
+.nav_social li a[href*="flickr.com"]::before { content: "\f16e"; }
+.nav_social li a[href*="flickr.com"]:hover { background-color:#FF0084; }
+
+.nav_social li a[href*="youtube.com"]::before { content: "\f167"; }
+.nav_social li a[href*="youtube.com"]:hover { background-color:#C1302A; }
+
+.nav_social li a[href*="github.com"]::before { content: "\f09b"; }
+.nav_social li a[href*="github.com"]:hover { background-color:#2f2f2f; }
+
+.nav_social li a[href*="vimeo.com"]::before { content: "\f194"; }
+.nav_social li a[href*="vimeo.com"]:hover { background-color:#1AB7EA; }
+
+.nav_social li a[href*="foursquare.com"]::before { content: "\f180"; }
+.nav_social li a[href*="foursquare.com"]:hover { background-color:#1DAFEC; }
+
+.nav_social li a[href*="skype.com"]::before { content: "\f17e"; }
+.nav_social li a[href*="skype.com"]:hover { background-color:#00AFF0; }
+
+.nav_social li a[href*="plus.google.com"]::before { content: "\f0d5"; }
+.nav_social li a[href*="plus.google.com"]:hover { background-color:#D5402B; }
+
+.nav_social li a[href*="tumblr.com"]::before { content: "\f173"; }
+.nav_social li a[href*="tumblr.com"]:hover { background-color:#343B4A; }
+
+.nav_social li a[href*="linkedin.com"]::before { content: "\f0e1"; }
+.nav_social li a[href*="linkedin.com"]:hover { background-color:#0073B2; }
+
+.nav_social li a[href*="pinterest.com"]::before { content: "\f231"; }
+.nav_social li a[href*="pinterest.com"]:hover { background-color:#CB2027; }
+
+.nav_social li a[href*="/feed/"]::before { content: "\f09e"; }
+.nav_social li a[href*="/feed/"]:hover { background-color:#FF6600; }
+
+.nav_social li a[href*="wordpress.com"]::before { content: "\f19a"; }
+.nav_social li a[href*="wordpress.com"]:hover { background-color:#21759b; }
+
+.nav_social li a[href*="wordpress.org"]::before { content: "\f19a"; }
+.nav_social li a[href*="wordpress.org"]:hover { background-color:#21759b; }
+
+
+
+
+/*
+==========================================
+Payments Options
+========================================== 
+*/
+.ql_payments_options ul{
+	padding-left: 0;
+	list-style: none;
+	margin: 20px 0;
+}
+.ql_payments_options ul li{
+	display: inline-block;
+	color: @gray-light2;
+	.font-size(28);
+	margin-left: 0.71428571428571em;
+	line-height: 1em;
+}
+.ql_payments_options ul li:hover, .ql_payments_options ul li i{
+	cursor: default;
+}
+
+

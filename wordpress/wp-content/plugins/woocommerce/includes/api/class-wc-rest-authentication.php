@@ -92,7 +92,7 @@ class WC_REST_Authentication {
 	 * @return WP_Error|null|bool
 	 */
 	public function check_authentication_error( $error ) {
-		// Passthrough other errors.
+		// Pass through other errors.
 		if ( ! empty( $error ) ) {
 			return $error;
 		}
@@ -103,7 +103,7 @@ class WC_REST_Authentication {
 	/**
 	 * Set authentication error.
 	 *
-	 * @param WP_Error $error Authication error data.
+	 * @param WP_Error $error Authentication error data.
 	 */
 	protected function set_error( $error ) {
 		// Reset user.
@@ -354,7 +354,7 @@ class WC_REST_Authentication {
 		if ( substr( $request_path, 0, strlen( $wp_base ) ) === $wp_base ) {
 			$request_path = substr( $request_path, strlen( $wp_base ) );
 		}
-		$base_request_uri = rawurlencode( get_home_url( null, $request_path ) );
+		$base_request_uri = rawurlencode( get_home_url( null, $request_path, is_ssl() ? 'https' : 'http' ) );
 
 		// Get the signature provided by the consumer and remove it from the parameters prior to checking the signature.
 		$consumer_signature = rawurldecode( str_replace( ' ', '+', $params['oauth_signature'] ) );
@@ -533,6 +533,8 @@ class WC_REST_Authentication {
 					return new WP_Error( 'woocommerce_rest_authentication_error', __( 'The API key provided does not have write permissions.', 'woocommerce' ), array( 'status' => 401 ) );
 				}
 				break;
+			case 'OPTIONS' :
+				return true;
 
 			default :
 				return new WP_Error( 'woocommerce_rest_authentication_error', __( 'Unknown request method.', 'woocommerce' ), array( 'status' => 401 ) );

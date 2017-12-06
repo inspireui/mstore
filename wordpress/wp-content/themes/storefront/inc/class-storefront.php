@@ -18,8 +18,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 	 */
 	class Storefront {
 
-		private static $structured_data;
-
 		/**
 		 * Setup class.
 		 *
@@ -34,7 +32,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 			add_filter( 'wp_page_menu_args',          array( $this, 'page_menu_args' ) );
 			add_filter( 'navigation_markup_template', array( $this, 'navigation_markup_template' ) );
 			add_action( 'enqueue_embed_scripts',      array( $this, 'print_embed_styles' ) );
-			add_action( 'wp_footer',                  array( $this, 'get_structured_data' ) );
 		}
 
 		/**
@@ -168,6 +165,8 @@ if ( ! class_exists( 'Storefront' ) ) :
 					);
 				}
 			}
+			
+			$sidebar_args = apply_filters( 'storefront_sidebar_args', $sidebar_args );
 
 			foreach ( $sidebar_args as $sidebar => $args ) {
 				$widget_tags = array(
@@ -232,12 +231,14 @@ if ( ! class_exists( 'Storefront' ) ) :
 			/**
 			 * Scripts
 			 */
-			wp_enqueue_script( 'storefront-navigation', get_template_directory_uri() . '/assets/js/navigation.min.js', array( 'jquery' ), '20120206', true );
-			wp_enqueue_script( 'storefront-skip-link-focus-fix', get_template_directory_uri() . '/assets/js/skip-link-focus-fix.min.js', array(), '20130115', true );
+			$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+			wp_enqueue_script( 'storefront-navigation', get_template_directory_uri() . '/assets/js/navigation' . $suffix . '.js', array( 'jquery' ), '20120206', true );
+			wp_enqueue_script( 'storefront-skip-link-focus-fix', get_template_directory_uri() . '/assets/js/skip-link-focus-fix' . $suffix . '.js', array(), '20130115', true );
 
 			if ( is_page_template( 'template-homepage.php' ) && has_post_thumbnail() ) {
 				wp_enqueue_script( 'storefront-rgbaster', get_template_directory_uri() . '/assets/js/vendor/rgbaster.min.js', array( 'jquery' ), '1.1.0', true );
-				wp_enqueue_script( 'storefront-homepage', get_template_directory_uri() . '/assets/js/homepage.min.js', array( 'jquery' ), '20120206', true );
+				wp_enqueue_script( 'storefront-homepage', get_template_directory_uri() . '/assets/js/homepage' . $suffix . '.js', array( 'jquery' ), '20120206', true );
 			}
 
 			if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
@@ -366,62 +367,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 				}
 			</style>
 			<?php
-		}
-
-		/**
-		 * Sets `self::structured_data`.
-		 *
-		 * @param array $json
-		 */
-		public static function set_structured_data( $json ) {
-			if ( ! is_array( $json ) ) {
-				return;
-			}
-
-			self::$structured_data[] = $json;
-		}
-
-		/**
-		 * Outputs structured data.
-		 *
-		 * Hooked into `wp_footer` action hook.
-		 */
-		public function get_structured_data() {
-			if ( ! self::$structured_data ) {
-				return;
-			}
-
-			$structured_data['@context'] = 'http://schema.org/';
-
-			if ( count( self::$structured_data ) > 1 ) {
-				$structured_data['@graph'] = self::$structured_data;
-			} else {
-				$structured_data = $structured_data + self::$structured_data[0];
-			}
-
-			echo '<script type="application/ld+json">' . wp_json_encode( $this->sanitize_structured_data( $structured_data ) ) . '</script>';
-		}
-
-		/**
-		 * Sanitizes structured data.
-		 *
-		 * @param  array $data
-		 * @return array
-		 */
-		public function sanitize_structured_data( $data ) {
-			$sanitized = array();
-
-			foreach ( $data as $key => $value ) {
-				if ( is_array( $value ) ) {
-					$sanitized_value = $this->sanitize_structured_data( $value );
-				} else {
-					$sanitized_value = sanitize_text_field( $value );
-				}
-
-				$sanitized[ sanitize_text_field( $key ) ] = $sanitized_value;
-			}
-
-			return $sanitized;
 		}
 	}
 endif;

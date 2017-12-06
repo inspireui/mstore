@@ -1,0 +1,181 @@
+/***********************************
+ * Layout
+ ***********************************/
+.woocommerce-currency-switcher-form .wSelect-el {
+    width: 0px;
+    height: 0px;
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    overflow: hidden;
+}
+.woocommerce-currency-switcher-form .wSelect {
+    position: relative;
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.woocommerce-currency-switcher-form .wSelect-arrow {
+    position: absolute;
+    width: 30px;
+    right: 0px;
+    top: 0px;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 0px center;
+}
+.woocommerce-currency-switcher-form .wSelect-hover .wSelect-arrow,
+.woocommerce-currency-switcher-form .wSelect-active .wSelect-arrow  {
+    background-position: -30px center;
+}
+.woocommerce-currency-switcher-form .wSelect.wSelect-multiple {
+    overflow: hidden;
+}
+.woocommerce-currency-switcher-form .wSelect-selected {
+    margin: 0px 35px 0px 5px;
+    padding: 5px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    background-repeat: no-repeat;
+    background-position: 0 center;
+    background-size: 40px;
+}
+.woocommerce-currency-switcher-form .wSelect-options-holder {
+    position: absolute;
+    display: none;
+    left: 0px;
+    z-index: 200;
+    overflow: hidden;
+}
+.woocommerce-currency-switcher-form .wSelect-multiple .wSelect-options-holder {
+    position: relative !important;
+    display: block !important;
+    top: auto !important;
+    z-index: auto !important;
+    border: none !important;
+}
+.woocommerce-currency-switcher-form .wSelect-options {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.woocommerce-currency-switcher-form .wSelect-option {
+    background-repeat: no-repeat;
+    background-position: 5px center;
+    margin-bottom: 1px;
+    cursor: pointer;
+}
+.woocommerce-currency-switcher-form .wSelect-option-last {
+    margin-bottom: 0px;
+}
+.woocommerce-currency-switcher-form .wSelect-option-value {
+    margin: 0 5px;
+    padding: 5px 0;
+    background-repeat: no-repeat;
+    background-position: 0 center;
+    background-size: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.woocommerce-currency-switcher-form .wSelect-option-disabled .wSelect-option-value {
+    filter: alpha(opacity=20);
+    opacity: 0.2;
+}
+.woocommerce-currency-switcher-form .wSelect-option-icon {
+    padding-left: 50px;
+}
+
+/***********************************
+ * Theme - classic
+ ***********************************/
+.woocommerce-currency-switcher-form .wSelect-theme-classic.wSelect {
+    border: solid #CCC 1px;
+    color: #555;
+    background-color: #FAFAFA;	
+    font-size: 12px;
+    font-family: verdana;
+    line-height: 20px;
+    min-width: 100px;
+    max-width: 300px;
+    margin-bottom: 7px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+.woocommerce-currency-switcher-form .wSelect-arrow {
+    background-image: url('./img/arrow-down.png');
+}
+.woocommerce-currency-switcher-form .wSelect-theme-classic.wSelect-hover,
+.woocommerce-currency-switcher-form .wSelect-theme-classic.wSelect-active {
+    border-color: rgb(82, 168, 236);
+    border-color: rgba(82, 168, 236, 0.8);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+.woocommerce-currency-switcher-form .wSelect-theme-classic .wSelect-options-holder {
+    background-color: #FAFAFA;
+    border: solid #CACACA 1px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    min-width: 100px;
+    max-width: 300px;
+}
+.woocommerce-currency-switcher-form .wSelect-theme-classic .wSelect-options {
+    border: solid #FAFAFA 1px;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+.woocommerce-currency-switcher-form .wSelect-theme-classic .wSelect-option {
+    background-color: #FFF;
+    color: #333;
+}
+.woocommerce-currency-switcher-form .wSelect-theme-classic .wSelect-option-disabled {
+    background-color: #FFF !important;
+    color: #333 !important;	
+}
+.woocommerce-currency-switcher-form .wSelect-theme-classic .wSelect-option-selected,
+.woocommerce-currency-switcher-form .wSelect-theme-classic .wSelect-option:hover {
+    background-color: #99AAFF;
+    color: #FAFAFA;
+}
+
+/***********************************
+ * Labels
+ ***********************************/
+.woocommerce-currency-switcher-form .wLabel-top,
+.woocommerce-currency-switcher-form .wLabel-left,
+.woocommerce-currency-switcher-form .wLabel-left-top {
+    vertical-align: middle;
+    font-size: 10px;
+    line-height: 16px;
+    color: #999;
+    display: block;
+    margin: 5px 0 3px 3px;
+}
+.woocommerce-currency-switcher-form .wLabel-left-top {
+    vertical-align: top;
+}
+@media screen and (min-width: 600px) {
+    .woocommerce-currency-switcher-form .wLabel-left,
+    .woocommerce-currency-switcher-form .wLabel-left-top {
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        width: 70px;
+        text-align: right;
+        margin: 0 0 7px 0;
+    }
+}

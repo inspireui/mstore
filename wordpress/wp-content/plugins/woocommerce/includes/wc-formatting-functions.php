@@ -216,20 +216,32 @@ function wc_trim_zeros( $price ) {
 /**
  * Round a tax amount.
  *
- * @param mixed $tax
+ * @param  double $value Amount to round.
+ * @param  int    $precision DP to round. Defaults to wc_get_price_decimals.
  * @return double
  */
-function wc_round_tax_total( $tax ) {
-	$dp = wc_get_price_decimals();
+function wc_round_tax_total( $value, $precision = null ) {
+	$precision = is_null( $precision ) ? wc_get_price_decimals() : absint( $precision );
 
-	// @codeCoverageIgnoreStart
-	if ( version_compare( phpversion(), '5.3', '<' ) ) {
-		$rounded_tax = round( $tax, $dp );
+	if ( version_compare( PHP_VERSION, '5.3.0', '>=' ) ) {
+		$rounded_tax = round( $value, $precision, wc_get_tax_rounding_mode() );
 	} else {
-		// @codeCoverageIgnoreEnd
-		$rounded_tax = round( $tax, $dp, WC_TAX_ROUNDING_MODE );
+		// Fake it in PHP 5.2.
+		if ( 2 === wc_get_tax_rounding_mode() && strstr( $value, '.' ) ) {
+			$value    = (string) $value;
+			$value    = explode( '.', $value );
+			$value[1] = substr( $value[1], 0, $precision + 1 );
+			$value    = implode( '.', $value );
+
+			if ( substr( $value, -1 ) === '5' ) {
+				$value = substr( $value, 0, -1 ) . '4';
+			}
+			$value = floatval( $value );
+		}
+		$rounded_tax = round( $value, $precision );
 	}
-	return apply_filters( 'wc_round_tax_total', $rounded_tax, $tax, $dp, WC_TAX_ROUNDING_MODE );
+
+	return apply_filters( 'wc_round_tax_total', $rounded_tax, $value, $precision, WC_TAX_ROUNDING_MODE );
 }
 
 /**
@@ -271,7 +283,10 @@ function wc_format_decimal( $number, $dp = false, $trim_zeros = false ) {
 
 	// DP is false - don't use number format, just return a string in our format
 	} elseif ( is_float( $number ) ) {
-		$number = wc_clean( str_replace( $decimals, '.', strval( $number ) ) );
+		// DP is false - don't use number format, just return a string using whatever is given. Remove scientific notation using sprintf.
+		$number     = str_replace( $decimals, '.', sprintf( '%.' . wc_get_rounding_precision() . 'f', $number ) );
+		// We already had a float, so trailing zeros are not needed.
+		$trim_zeros = true;
 	}
 
 	if ( $trim_zeros && strstr( $number, '.' ) ) {
@@ -477,9 +492,10 @@ function wc_price( $price, $args = array() ) {
 		'price_format'       => get_woocommerce_price_format(),
 	) ) ) );
 
-	$negative        = $price < 0;
-	$price           = apply_filters( 'raw_woocommerce_price', floatval( $negative ? $price * -1 : $price ) );
-	$price           = apply_filters( 'formatted_woocommerce_price', number_format( $price, $decimals, $decimal_separator, $thousand_separator ), $price, $decimals, $decimal_separator, $thousand_separator );
+	$unformatted_price = $price;
+	$negative          = $price < 0;
+	$price             = apply_filters( 'raw_woocommerce_price', floatval( $negative ? $price * -1 : $price ) );
+	$price             = apply_filters( 'formatted_woocommerce_price', number_format( $price, $decimals, $decimal_separator, $thousand_separator ), $price, $decimals, $decimal_separator, $thousand_separator );
 
 	if ( apply_filters( 'woocommerce_price_trim_zeros', false ) && $decimals > 0 ) {
 		$price = wc_trim_zeros( $price );
@@ -492,7 +508,15 @@ function wc_price( $price, $args = array() ) {
 		$return .= ' <small class="woocommerce-Price-taxLabel tax_label">' . WC()->countries->ex_tax_or_vat() . '</small>';
 	}
 
-	return apply_filters( 'wc_price', $return, $price, $args );
+	/**
+	 * Filters the string of price markup.
+	 *
+	 * @param string $return 			Price HTML markup.
+	 * @param string $price	            Formatted price.
+	 * @param array  $args     			Pass on the args.
+	 * @param float  $unformatted_price	Price as float to allow plugins custom formatting. Since 3.2.0.
+	 */
+	return apply_filters( 'wc_price', $return, $price, $args, $unformatted_price );
 }
 
 /**
@@ -1138,4 +1162,77 @@ function wc_do_oembeds( $content ) {
 	$content = $wp_embed->autoembed( $content );
 
 	return $content;
+}
+
+/**
+ * Get part of a string before :.
+ *
+ * Used for example in shipping methods ids where they take the format
+ * method_id:instance_id
+ *
+ * @since  3.2.0
+ * @param  string $string
+ * @return string
+ */
+function wc_get_string_before_colon( $string ) {
+	return trim( current( explode( ':', (string) $string ) ) );
+}
+
+/**
+ * Array merge and sum function.
+ *
+ * Source:  https://gist.github.com/Nickology/f700e319cbafab5eaedc
+ *
+ * @since 3.2.0
+ * @return array
+ */
+function wc_array_merge_recursive_numeric() {
+	$arrays = func_get_args();
+
+	// If there's only one array, it's already merged.
+	if ( 1 === count( $arrays ) ) {
+		return $arrays[0];
+	}
+
+	// Remove any items in $arrays that are NOT arrays.
+	foreach ( $arrays as $key => $array ) {
+		if ( ! is_array( $array ) ) {
+			unset( $arrays[ $key ] );
+		}
+	}
+
+	// We start by setting the first array as our final array.
+	// We will merge all other arrays with this one.
+	$final = array_shift( $arrays );
+
+	foreach ( $arrays as $b ) {
+		foreach ( $final as $key => $value ) {
+			// If $key does not exist in $b, then it is unique and can be safely merged.
+			if ( ! isset( $b[ $key ] ) ) {
+				$final[ $key ] = $value;
+			} else {
+				// If $key is present in $b, then we need to merge and sum numeric values in both.
+				if ( is_numeric( $value ) && is_numeric( $b[ $key ] ) ) {
+					// If both values for these keys are numeric, we sum them.
+					$final[ $key ] = $value + $b[ $key ];
+				} elseif ( is_array( $value ) && is_array( $b[ $key ] ) ) {
+					// If both values are arrays, we recursively call ourself.
+					$final[ $key ] = wc_array_merge_recursive_numeric( $value, $b[ $key ] );
+				} else {
+					// If both keys exist but differ in type, then we cannot merge them.
+					// In this scenario, we will $b's value for $key is used.
+					$final[ $key ] = $b[ $key ];
+				}
+			}
+		}
+
+		// Finally, we need to merge any keys that exist only in $b.
+		foreach ( $b as $key => $value ) {
+			if ( ! isset( $final[ $key ] ) ) {
+				$final[ $key ] = $value;
+			}
+		}
+	}
+
+	return $final;
 }

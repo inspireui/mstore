@@ -20,7 +20,7 @@ class WC_Product_Variation extends WC_Product_Simple {
 	 * Post type.
 	 * @var string
 	 */
-	public $post_type = 'product_variation';
+	protected $post_type = 'product_variation';
 
 	/**
 	 * Parent data.
@@ -90,7 +90,7 @@ class WC_Product_Variation extends WC_Product_Simple {
 			$identifier = '#' . $this->get_id();
 		}
 
-		$formatted_variation_list = wc_get_formatted_variation( $this, true, true );
+		$formatted_variation_list = wc_get_formatted_variation( $this, true, true, true );
 
 		return sprintf( '%2$s (%1$s)', $identifier, $this->get_name() ) . '<span class="description">' . $formatted_variation_list . '</span>';
 	}
@@ -427,16 +427,6 @@ class WC_Product_Variation extends WC_Product_Simple {
 	}
 
 	/**
-	 * Returns array of attribute name value pairs. Keys are prefixed with attribute_, as stored.
-	 *
-	 * @param  string $context
-	 * @return array
-	 */
-	public function get_attributes( $context = 'view' ) {
-		return $this->get_prop( 'attributes', $context );
-	}
-
-	/**
 	 * Returns whether or not the product has any visible attributes.
 	 *
 	 * Variations are mapped to specific attributes unlike products, and the return
@@ -484,5 +474,17 @@ class WC_Product_Variation extends WC_Product_Simple {
 	 */
 	public function variation_is_visible() {
 		return apply_filters( 'woocommerce_variation_is_visible', 'publish' === get_post_status( $this->get_id() ) && '' !== $this->get_price(), $this->get_id(), $this->get_parent_id(), $this );
+	}
+
+	/**
+	 * Return valid tax classes. Adds 'parent' to the default list of valid tax classes.
+	 *
+	 * @return array valid tax classes
+	 */
+	protected function get_valid_tax_classes() {
+		$valid_classes = WC_Tax::get_tax_class_slugs();
+		$valid_classes[] = 'parent';
+
+		return $valid_classes;
 	}
 }

@@ -1,0 +1,43 @@
+2017-12-03T16:23:53+00:00 CRITICAL Uncaught Error: Class 'Wooconnector_Detect' not found in /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-content/plugins/mstore-checkout/mstore-checkout.php:47
+Stack trace:
+#0 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): MstoreCheckOut->handle_recived_order_page('')
+#1 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(310): WP_Hook->apply_filters(NULL, Array)
+#2 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/plugin.php(453): WP_Hook->do_action(Array)
+#3 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/script-loader.php(1386): do_action('wp_print_script...')
+#4 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): wp_print_head_scripts('')
+#5 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(310): WP_Hook->apply_filters(Array, Array)
+#6 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/plugin.php(453): WP_Hook->do_action(Array)
+#7 /Use
+
+2017-12-03T16:24:06+00:00 CRITICAL Uncaught BadMethodCallException: No such method exists: output in /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-content/plugins/mstore-checkout/templates/class-mobile-detect.php:1080
+Stack trace:
+#0 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-content/plugins/mstore-checkout/mstore-checkout.php(50): Mobile_Detect->__call('output', Array)
+#1 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): MstoreCheckOut->handle_recived_order_page('')
+#2 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(310): WP_Hook->apply_filters(NULL, Array)
+#3 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/plugin.php(453): WP_Hook->do_action(Array)
+#4 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/script-loader.php(1386): do_action('wp_print_script...')
+#5 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): wp_print_head_scripts('')
+#6 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes
+
+2017-12-03T16:26:06+00:00 CRITICAL Uncaught BadMethodCallException: No such method exists: output in /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-content/plugins/mstore-checkout/templates/class-mobile-detect.php:1080
+Stack trace:
+#0 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-content/plugins/mstore-checkout/mstore-checkout.php(50): Mobile_Detect->__call('output', Array)
+#1 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): MstoreCheckOut->handle_recived_order_page('')
+#2 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(310): WP_Hook->apply_filters(NULL, Array)
+#3 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/plugin.php(453): WP_Hook->do_action(Array)
+#4 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/script-loader.php(1386): do_action('wp_print_script...')
+#5 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): wp_print_head_scripts('')
+#6 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes
+
+2017-12-04T14:59:54+00:00 CRITICAL Uncaught Error: Class 'PageTemplater' not found in /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout.php:19
+Stack trace:
+#0 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(286): PageTemplate::get_instance('')
+#1 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/class-wp-hook.php(310): WP_Hook->apply_filters(NULL, Array)
+#2 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-includes/plugin.php(453): WP_Hook->do_action(Array)
+#3 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-settings.php(327): do_action('plugins_loaded')
+#4 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-config.php(89): require_once('/Users/minh/Pro...')
+#5 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-load.php(37): require_once('/Users/minh/Pro...')
+#6 /Users/minh/Projects/mstore-demo/mstore/wordpress/wp-admin/admin-ajax.php(22): require_once('/Users/minh/Pro...')
+#7 {main}
+  thrown
+

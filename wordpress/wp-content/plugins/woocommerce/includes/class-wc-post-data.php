@@ -42,13 +42,13 @@ class WC_Post_Data {
 		add_filter( 'update_order_item_metadata', array( __CLASS__, 'update_order_item_metadata' ), 10, 5 );
 		add_filter( 'update_post_metadata', array( __CLASS__, 'update_post_metadata' ), 10, 5 );
 		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ) );
+		add_filter( 'oembed_response_data', array( __CLASS__, 'filter_oembed_response_data' ), 10, 2 );
 
 		// Status transitions
 		add_action( 'delete_post', array( __CLASS__, 'delete_post' ) );
 		add_action( 'wp_trash_post', array( __CLASS__, 'trash_post' ) );
 		add_action( 'untrashed_post', array( __CLASS__, 'untrash_post' ) );
-		add_action( 'before_delete_post', array( __CLASS__, 'delete_order_items' ) );
-		add_action( 'before_delete_post', array( __CLASS__, 'delete_order_downloadable_permissions' ) );
+		add_action( 'before_delete_post', array( __CLASS__, 'before_delete_order' ) );
 
 		// Download permissions
 		add_action( 'woocommerce_process_product_file_download_paths', array( __CLASS__, 'process_product_file_download_paths' ), 10, 3 );
@@ -67,7 +67,7 @@ class WC_Post_Data {
 	 * @return string
 	 */
 	public static function variation_post_link( $permalink, $post ) {
-		if ( isset( $post->ID, $post->post_type ) && 'product_variation' === $post->post_type && ( $variation = wc_get_product( $post->ID ) ) ) {
+		if ( isset( $post->ID, $post->post_type ) && 'product_variation' === $post->post_type && ( $variation = wc_get_product( $post->ID ) ) && $variation->get_parent_id() ) {
 			return $variation->get_permalink();
 		}
 		return $permalink;
@@ -292,6 +292,21 @@ class WC_Post_Data {
 	}
 
 	/**
+	 * Change embed data for certain post types.
+	 *
+	 * @since 3.2.0
+	 * @param array   $data The response data.
+	 * @param WP_Post $post The post object.
+	 * @return array
+	 */
+	public static function filter_oembed_response_data( $data, $post ) {
+		if ( in_array( $post->post_type, array( 'shop_order', 'shop_coupon' ) ) ) {
+			return array();
+		}
+		return $data;
+	}
+
+	/**
 	 * Removes variations etc belonging to a deleted post, and clears transients.
 	 *
 	 * @param mixed $id ID of post being deleted
@@ -388,6 +403,40 @@ class WC_Post_Data {
 			$data_store->untrash_variations( $id );
 
 			wc_product_force_unique_sku( $id );
+		}
+	}
+
+	/**
+	 * Before deleting an order, do some cleanup.
+	 *
+	 * @since 3.2.0
+	 * @param int $order_id
+	 */
+	public static function before_delete_order( $order_id ) {
+		if ( in_array( get_post_type( $order_id ), wc_get_order_types() ) ) {
+			// Clean up user.
+			$order       = wc_get_order( $order_id );
+
+			// Check for `get_customer_id`, since this may be e.g. a refund order (which doesn't implement it).
+			$customer_id = is_callable( array( $order, 'get_customer_id' ) ) ? $order->get_customer_id() : 0;
+
+			if ( $customer_id > 0 && 'shop_order' === $order->get_type() ) {
+				$customer    = new WC_Customer( $customer_id );
+				$order_count = $customer->get_order_count();
+				$order_count --;
+
+				if ( 0 === $order_count ) {
+					$customer->set_is_paying_customer( false );
+					$customer->save();
+				}
+
+				// Delete order count meta.
+				delete_user_meta( $customer_id, '_order_count' );
+			}
+
+			// Clean up items.
+			self::delete_order_items( $order_id );
+			self::delete_order_downloadable_permissions( $order_id );
 		}
 	}
 

@@ -496,7 +496,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 		 * The dynamic portion of the hook name, $this->post_type, refers to post_type of the post being
 		 * prepared for the response.
 		 *
-		 * @param WC_Order           $order      The prder object.
+		 * @param WC_Order           $order      The order object.
 		 * @param WP_REST_Request    $request    Request object.
 		 */
 		return apply_filters( "woocommerce_rest_pre_insert_{$this->post_type}", $order, $request );
@@ -513,7 +513,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 	}
 
 	/**
-	 * Only reutrn writeable props from schema.
+	 * Only return writable props from schema.
 	 * @param  array $schema
 	 * @return bool
 	 */
@@ -1211,7 +1211,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 							),
 							'name' => array(
 								'description' => __( 'Product name.', 'woocommerce' ),
-								'type'        => 'string',
+								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
@@ -1223,7 +1223,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 							),
 							'product_id' => array(
 								'description' => __( 'Product ID.', 'woocommerce' ),
-								'type'        => 'integer',
+								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'variation_id' => array(
@@ -1238,7 +1238,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 							),
 							'tax_class' => array(
 								'description' => __( 'Tax class of product.', 'woocommerce' ),
-								'type'        => 'integer',
+								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
@@ -1319,7 +1319,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 										),
 										'value' => array(
 											'description' => __( 'Meta value.', 'woocommerce' ),
-											'type'        => 'string',
+											'type'        => 'mixed',
 											'context'     => array( 'view', 'edit' ),
 											'readonly'    => true,
 										),
@@ -1397,12 +1397,12 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 							),
 							'method_title' => array(
 								'description' => __( 'Shipping method name.', 'woocommerce' ),
-								'type'        => 'string',
+								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'method_id' => array(
 								'description' => __( 'Shipping method ID.', 'woocommerce' ),
-								'type'        => 'string',
+								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'total' => array(
@@ -1457,7 +1457,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 							),
 							'name' => array(
 								'description' => __( 'Fee name.', 'woocommerce' ),
-								'type'        => 'string',
+								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'tax_class' => array(
@@ -1528,7 +1528,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 							),
 							'code' => array(
 								'description' => __( 'Coupon code.', 'woocommerce' ),
-								'type'        => 'string',
+								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'discount' => array(

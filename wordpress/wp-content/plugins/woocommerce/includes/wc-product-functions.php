@@ -15,35 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 /**
- * Products wrapper for get_posts.
+ * Standard way of retrieving products based on certain parameters.
  *
  * This function should be used for product retrieval so that we have a data agnostic
  * way to get a list of products.
  *
- * Args:
- *      status array|string List of statuses to find. Default: any. Options: any, draft, pending, private and publish.
- *      type array|string Product type, e.g. Default: all. Options: all, simple, external, variable, variation, grouped.
- *      parent int post/product parent
- *      sku string Limit result set to products with specific SKU.
- *      category array Limit result set to products assigned to specific categories by slug
- *                     e.g. array('hoodie', 'cap', 't-shirt').
- *      tag array Limit result set to products assigned to specific tags (by slug)
- *                e.g. array('funky', 'retro', 'designer')
- *      shipping_class array Limit results set to products in specific shipping classes (by slug)
- *                           e.g. array('standard', 'next-day')
- *      limit int Maximum of products to retrieve.
- *      offset int Offset of products to retrieve.
- *      page int Page of products to retrieve. Ignored when using the 'offset' arg.
- *      exclude array Product IDs to exclude from the query.
- *      orderby string Order by date, title, id, modified, rand etc
- *      order string ASC or DESC
- *      return string Type of data to return. Allowed values:
- *          ids array of Product ids
- *          objects array of product objects (default)
- *      paginate bool If true, the return value will be an array with values:
- *          'products'      => array of data (return value above),
- *          'total'         => total number of products matching the query
- *          'max_num_pages' => max number of pages found
+ * Args and usage: https://github.com/woocommerce/woocommerce/wiki/wc_get_products-and-WC_Product_Query
  *
  * @since  3.0.0
  * @param  array $args Array of args (above)
@@ -51,25 +28,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  *                             paginate is true, or just an array of values.
  */
 function wc_get_products( $args ) {
-	$args = wp_parse_args( $args, array(
-		'status'         => array( 'draft', 'pending', 'private', 'publish' ),
-		'type'           => array_merge( array_keys( wc_get_product_types() ) ),
-		'parent'         => null,
-		'sku'            => '',
-		'category'       => array(),
-		'tag'            => array(),
-		'limit'          => get_option( 'posts_per_page' ),
-		'offset'         => null,
-		'page'           => 1,
-		'include'        => array(),
-		'exclude'        => array(),
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'return'         => 'objects',
-		'paginate'       => false,
-		'shipping_class' => array(),
-	) );
-
 	// Handle some BW compatibility arg names where wp_query args differ in naming.
 	$map_legacy = array(
 		'numberposts'    => 'limit',
@@ -85,7 +43,8 @@ function wc_get_products( $args ) {
 		}
 	}
 
-	return WC_Data_Store::load( 'product' )->get_products( $args );
+	$query = new WC_Product_Query( $args );
+	return $query->get_products();
 }
 
 /**
@@ -99,7 +58,8 @@ function wc_get_products( $args ) {
  */
 function wc_get_product( $the_product = false, $deprecated = array() ) {
 	if ( ! did_action( 'woocommerce_init' ) ) {
-		wc_doing_it_wrong( __FUNCTION__, __( 'wc_get_product should not be called before the woocommerce_init action.', 'woocommerce' ), '2.5' );
+		/* translators: 1: wc_get_product 2: woocommerce_init */
+		wc_doing_it_wrong( __FUNCTION__, sprintf( __( '%1$s should not be called before the %2$s action.', 'woocommerce' ), 'wc_get_product', 'woocommerce_init' ), '2.5' );
 		return false;
 	}
 	if ( ! empty( $deprecated ) ) {
@@ -333,19 +293,22 @@ function wc_placeholder_img( $size = 'shop_thumbnail' ) {
  *
  * Gets a formatted version of variation data or item meta.
  *
- * @param array|WC_Product_Variation $variation
- * @param bool $flat (default: false)
- * @param bool $include_names include attribute names/labels
+ * @param array|WC_Product_Variation $variation Variation object.
+ * @param bool $flat (default: false) Should this be a flat list or HTML list?
+ * @param bool $include_names include attribute names/labels in the list.
+ * @param bool $skip_attributes_in_name Do not list attributes already part of the variation name.
  * @return string
  */
-function wc_get_formatted_variation( $variation, $flat = false, $include_names = true ) {
+function wc_get_formatted_variation( $variation, $flat = false, $include_names = true, $skip_attributes_in_name = false ) {
 	$return = '';
 
 	if ( is_a( $variation, 'WC_Product_Variation' ) ) {
 		$variation_attributes = $variation->get_attributes();
 		$product              = $variation;
+		$variation_name       = $variation->get_name();
 	} else {
-		$product              = false;
+		$product        = false;
+		$variation_name = '';
 		// Remove attribute_ prefix from names.
 		$variation_attributes = array();
 		if ( is_array( $variation ) ) {
@@ -366,18 +329,17 @@ function wc_get_formatted_variation( $variation, $flat = false, $include_names =
 		$variation_list = array();
 
 		foreach ( $variation_attributes as $name => $value ) {
-			if ( ! $value ) {
-				continue;
-			}
-
-			// If this is a term slug, get the term's nice name
+			// If this is a term slug, get the term's nice name.
 			if ( taxonomy_exists( $name ) ) {
 				$term = get_term_by( 'slug', $value, $name );
 				if ( ! is_wp_error( $term ) && ! empty( $term->name ) ) {
 					$value = $term->name;
 				}
-			} else {
-				$value = ucwords( str_replace( '-', ' ', $value ) );
+			}
+
+			// Do not list attributes already part of the variation name.
+			if ( '' === $value || ( $skip_attributes_in_name && wc_is_attribute_in_product_name( $value, $variation_name ) ) ) {
+				continue;
 			}
 
 			if ( $include_names ) {
@@ -418,18 +380,19 @@ function wc_scheduled_sales() {
 	$product_ids = $data_store->get_starting_sales();
 	if ( $product_ids ) {
 		foreach ( $product_ids as $product_id ) {
-			$product = wc_get_product( $product_id );
-			$sale_price = $product->get_sale_price();
+			if ( $product = wc_get_product( $product_id ) ) {
+				$sale_price = $product->get_sale_price();
 
-			if ( $sale_price ) {
-				$product->set_price( $sale_price );
-				$product->set_date_on_sale_from( '' );
-			} else {
-				$product->set_date_on_sale_to( '' );
-				$product->set_date_on_sale_from( '' );
+				if ( $sale_price ) {
+					$product->set_price( $sale_price );
+					$product->set_date_on_sale_from( '' );
+				} else {
+					$product->set_date_on_sale_to( '' );
+					$product->set_date_on_sale_from( '' );
+				}
+
+				$product->save();
 			}
-
-			$product->save();
 		}
 
 		delete_transient( 'wc_products_onsale' );
@@ -439,13 +402,14 @@ function wc_scheduled_sales() {
 	$product_ids = $data_store->get_ending_sales();
 	if ( $product_ids ) {
 		foreach ( $product_ids as $product_id ) {
-			$product       = wc_get_product( $product_id );
-			$regular_price = $product->get_regular_price();
-			$product->set_price( $regular_price );
-			$product->set_sale_price( '' );
-			$product->set_date_on_sale_to( '' );
-			$product->set_date_on_sale_from( '' );
-			$product->save();
+			if ( $product = wc_get_product( $product_id ) ) {
+				$regular_price = $product->get_regular_price();
+				$product->set_price( $regular_price );
+				$product->set_sale_price( '' );
+				$product->set_date_on_sale_to( '' );
+				$product->set_date_on_sale_from( '' );
+				$product->save();
+			}
 		}
 
 		WC_Cache_Helper::get_transient_version( 'product', true );
@@ -600,14 +564,12 @@ function wc_product_generate_unique_sku( $product_id, $sku, $index = 0 ) {
  * Get product ID by SKU.
  *
  * @since  2.3.0
- * @param  string $sku
+ * @param  string $sku Product SKU.
  * @return int
  */
 function wc_get_product_id_by_sku( $sku ) {
 	$data_store = WC_Data_Store::load( 'product' );
-	$product_id = $data_store->get_product_id_by_sku( $sku );
-
-	return ( $product_id ) ? intval( $product_id ) : 0;
+	return $data_store->get_product_id_by_sku( $sku );
 }
 
 /**
@@ -786,7 +748,7 @@ function wc_get_min_max_price_meta_query( $args ) {
 		'key'     => '_price',
 		'value'   => array( $min, $max ),
 		'compare' => 'BETWEEN',
-		'type'    => 'NUMERIC',
+		'type'    => 'DECIMAL(10,' . wc_get_price_decimals() . ')',
 	);
 }
 
@@ -938,7 +900,7 @@ function wc_get_price_including_tax( $product, $args = array() ) {
 			} elseif ( $tax_rates !== $base_tax_rates && apply_filters( 'woocommerce_adjust_non_base_location_prices', true ) ) {
 				$base_taxes   = WC_Tax::calc_tax( $line_price, $base_tax_rates, true );
 				$modded_taxes = WC_Tax::calc_tax( $line_price - array_sum( $base_taxes ), $tax_rates, false );
-				$return_price = round( $line_price - array_sum( $base_taxes ) + array_sum( $modded_taxes ), wc_get_price_decimals() );
+				$return_price = round( $line_price - array_sum( $base_taxes ) + wc_round_tax_total( array_sum( $modded_taxes ), wc_get_price_decimals() ), wc_get_price_decimals() );
 			}
 		}
 	}

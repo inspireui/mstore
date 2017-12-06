@@ -1,0 +1,117 @@
+
+    /*
+      //some themes need this for Paypal (fix: not only for paypal - paypal,checkout finish,orders mails)
+      public function woocommerce_order_amount_total($order_total)
+      {
+
+      global $wp;
+      if (is_page(wc_get_page_id('checkout')) && empty($wp->query_vars['order-pay']) && isset($wp->query_vars['order-received']))
+      {
+      //if order is paid - do not recount it after finish on checkout page
+      return $order_total;
+      }
+
+      //***
+
+      if (isset($_REQUEST['woocs_order_emails_is_sending']) AND ! isset($_REQUEST['payment_method']))
+      {
+      return $order_total;
+      }
+
+      //***
+
+      if ($this->is_multiple_allowed)
+      {
+      if ($this->current_currency !== $this->default_currency)
+      {
+      $currencies = $this->get_currencies();
+      $order_total = $order_total * $currencies[$this->current_currency]['rate'];
+      $order_total = number_format($order_total, 2, $this->decimal_sep, '');
+
+      //for JPY only
+      if (in_array($this->current_currency, $this->no_cents))
+      {
+      $order_total = number_format(floatval($order_total), 0, $this->decimal_sep, '');
+      }
+      }
+      }
+
+
+      return $order_total;
+      }
+     */
+
+
+
+
+
+
+
+
+
+
+ //for pdf invoice plugin
+    public static function normalize_order_data($order_id, $amount)
+    {
+
+        $rate = get_post_meta($order_id, '_woocs_order_rate', TRUE);
+        $currency = get_post_meta($order_id, '_order_currency', TRUE);
+
+        if (!empty($currency) AND ! empty($rate))
+        {
+            $amount = $amount * $rate;
+        }
+
+        return $amount;
+    }
+
+
+
+
+
+
+        //custom work Francisco
+        /*
+          if ($_REQUEST['currency_name'] == 'COP') {
+          $content = file_get_contents("http://dolar.wilkinsonpc.com.co/dolar.html");
+          $content = explode('<span class="baja">', $content);
+          $content = explode(' ', $content[1]);
+          $content = explode('</span>', $content[0]);
+          $rate = $content[0];
+          $rate = substr($rate, 1);
+          $rate = str_replace(',', '', $rate);
+          $rate1 = (float) $rate;
+          $request = $rate;
+          }
+         */
+
+
+
+
+
+//add_action('woocommerce_get_price_html', array($this, 'woocommerce_get_price_html'), 9999);
+public function woocommerce_get_price_html($price_html)
+    {
+        $currencies = $this->get_currencies();
+        $hide_cents = 0;
+        if (isset($currencies[$this->current_currency]['hide_cents']))
+        {
+            $hide_cents = $currencies[$this->current_currency]['hide_cents'];
+        }
+        if (in_array($this->current_currency, $this->no_cents) OR $hide_cents == 1)
+        {
+            if ($this->decimal_sep == '.')
+            {
+                $price_html = preg_replace('/\.[0-9][0-9]/', '', $price_html);
+            }
+
+            /*
+              if ($this->decimal_sep == ',')
+              {
+              $price_html = preg_replace('/,[0-9][0-9]/', '', $price_html);
+              }
+             */
+        }
+
+        return $price_html;
+    }

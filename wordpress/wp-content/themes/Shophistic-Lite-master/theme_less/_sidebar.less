@@ -1,0 +1,249 @@
+#sidebar{
+	position:relative;
+	padding-left: 0;
+}
+#sidebar.col-md-push-10{
+	padding-right: 0;
+	padding-left: 20px;
+}
+#sidebar .widget{
+	opacity: 0;
+	.translate(0;50px);
+	.transition(~"opacity 600ms 400ms, transform 600ms 400ms")
+}
+.pace-done #sidebar .widget, .no-js #sidebar .widget{
+	opacity: 1;
+	.translate(0;0);
+}
+.delay-widget(15);
+.delay-widget(@n, @i: 1) when (@i =< @n) {
+	#sidebar .widget:nth-child(@{i}) {
+    	.transition-delay(unit((200*@i), ms));
+	}
+	.delay-widget(@n, (@i + 1));
+}
+
+/*
+Widgets
+--------------------------------
+*/
+#sidebar .widget{
+	margin-bottom: 3.125em;
+	position:relative;
+	padding: 0;
+	.font-size(14);
+	color: lighten(@text-color, 20%);
+}
+#sidebar.col-md-pull-9 .widget{
+	margin-right: 10px;
+	margin-left: 0;
+}
+
+#sidebar .widget h4{
+	position: relative;
+	margin-bottom: 0.8em;
+	text-transform: uppercase;
+	.font-size(16);
+	font-weight: bold;
+}
+
+#sidebar .widget ul, #sidebar .widget ol{
+	margin-left:0px;
+	margin-bottom:0;
+	padding-left: 0;
+}
+
+#sidebar .widget .pagenav, #sidebar .widget .linkcat{
+	list-style:none;
+}
+#sidebar .widget ul li{
+	list-style:none;
+	border-bottom: @gray-lighter 1px solid;
+}
+#sidebar .widget ul li:first-child{
+	border-top:none;
+}
+#sidebar .widget ul li > a:hover{
+	color: @heroColor;
+}
+#sidebar .widget > ul li > a{
+	color: @gray-light;
+	padding: 0.63636363636364em 0;
+	display:block;
+	font-weight: normal;
+	.transition( all 200ms);
+}
+#sidebar .widget > ul li > a:hover{
+	text-indent: 10px;
+	text-decoration: none;
+}
+
+
+#sidebar .widget ul li ul{
+	margin-left: 15px;
+	margin-bottom:0;
+	margin-top:0!important;
+}
+#sidebar .widget ul li ul{
+	font-size:inherit;
+}
+#sidebar .widget ul li ul li:last-child{
+	border-bottom:none;
+}
+
+#sidebar .widget ul li ul, #sidebar .widget ul li ul li ul{
+	display: none;
+}
+#sidebar .hasChildren {
+	position: relative;
+}
+#sidebar .hasChildren i{
+	position: absolute;
+	top: 12px;
+	right: 5px;
+	font-size: 1.16666666666667em;
+}
+
+#sidebar select{
+	margin-left: 5px;
+}
+
+
+
+
+
+/*
+Recent Comments Widget
+--------------------------------
+*/
+#sidebar .widget_recent_comments ul#recentcomments{
+	margin-top:17px;
+}
+#sidebar .widget_recent_comments ul li{
+	padding-left: 35px;
+	margin-bottom: 20px;
+	border:none;
+	color:@gray-light;
+	position: relative;
+	display: block;
+	width: 100%;
+}
+#sidebar .widget_recent_comments ul li::before{
+  display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    content: "";
+    position: absolute;
+    left: 0;
+	top: 0;
+    color: @gray-light2;
+    font-size: 14px;
+}
+#sidebar .widget_recent_comments ul li i{
+	position: absolute;
+	color: @gray-light2;
+	left: 0;
+	top: 20%;
+	font-size: 1.45454545454545em;
+}
+#sidebar .widget_recent_comments ul li a{
+	display:inline;
+	background:none;
+	padding:0;
+}
+#sidebar .widget_recent_comments ul li a:hover{
+	color: @heroColor;
+	background: none;
+}
+
+/*
+Recent Posts Widget
+--------------------------------
+*/
+#sidebar .widget_recent_entries ul li{
+	display: block;
+	width: 100%;
+}
+
+/*
+Tag Widget
+--------------------------------
+*/
+#sidebar .widget_tag ul.wp-tag-cloud{
+	margin-top:20px;
+}
+#sidebar .widget_tag ul li{
+	display:inline-block;
+	margin:0 0.90909090909091em 0.90909090909091em 0;
+	float:left;
+	border:none;
+}
+
+#sidebar .widget_tag ul li a{
+	background-color: @gray-light2;
+	display:inline-block;
+	padding:3px 6px;
+	color:@body-bg;
+	font-weight:bold;
+	border-radius: 3px;
+	outline:none;
+}
+#sidebar .widget_tag ul li a:hover{
+	color:@gray-light;
+	text-decoration:none;
+	background-color: @body-bg;
+	text-indent: 0;
+}
+#sidebar .widget_tag ul li a:active{
+	position: relative;
+	top: 1px;
+}
+
+
+
+
+
+/*
+Search Widget
+--------------------------------
+*/
+.widget_search{
+	position:relative;
+}
+.widget_search #s{
+	width:100%;
+	display:block;
+	padding-right: 30px;
+}
+.widget_search #s:focus{
+	border-color: @gray-light;
+	.box-shadow(none);
+}
+
+.widget_search #searchsubmit{
+	background: none;
+	border:none;
+	width:17px;
+	height:17px;
+	display:block;
+	text-indent:-9999px;
+	position:absolute;
+	right: 15px;
+	top:7px;
+	cursor:pointer;
+	line-height:0;
+	box-shadow: none;
+}
+.widget_search i{
+	width:17px;
+	height:17px;
+	display:block;
+	position:absolute;
+	right: 12px;
+	top: 12px;
+	cursor:pointer;
+	font-size: 1em;
+	color: @gray-light;
+}

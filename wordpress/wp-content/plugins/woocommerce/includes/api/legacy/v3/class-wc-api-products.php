@@ -1147,6 +1147,10 @@ class WC_API_Products extends WC_API_Resource {
 			$product = wc_get_product( $product );
 		}
 
+		if ( ! is_a( $product, 'WC_Product' ) ) {
+			return array();
+		}
+
 		return array(
 			'title'              => $product->get_name(),
 			'id'                 => $product->get_id(),
@@ -1532,22 +1536,17 @@ class WC_API_Products extends WC_API_Resource {
 
 		} else {
 
-			// Regular Price
+			// Regular Price.
 			if ( isset( $data['regular_price'] ) ) {
 				$regular_price = ( '' === $data['regular_price'] ) ? '' : $data['regular_price'];
-			} else {
-				$regular_price = $product->get_regular_price();
+				$product->set_regular_price( $regular_price );
 			}
 
-			// Sale Price
+			// Sale Price.
 			if ( isset( $data['sale_price'] ) ) {
 				$sale_price = ( '' === $data['sale_price'] ) ? '' : $data['sale_price'];
-			} else {
-				$sale_price = $product->get_sale_price();
+				$product->set_sale_price( $sale_price );
 			}
-
-			$product->set_regular_price( $regular_price );
-			$product->set_sale_price( $sale_price );
 
 			if ( isset( $data['sale_price_dates_from'] ) ) {
 				$date_from = $data['sale_price_dates_from'];
@@ -1567,10 +1566,11 @@ class WC_API_Products extends WC_API_Resource {
 
 			$product->set_date_on_sale_to( $date_to );
 			$product->set_date_on_sale_from( $date_from );
+
 			if ( $product->is_on_sale() ) {
-				$product->set_price( $product->get_sale_price() );
+				$product->set_price( $product->get_sale_price( 'edit' ) );
 			} else {
-				$product->set_price( $product->get_regular_price() );
+				$product->set_price( $product->get_regular_price( 'edit' ) );
 			}
 		}
 
@@ -1998,11 +1998,9 @@ class WC_API_Products extends WC_API_Resource {
 
 		// Shipping class
 		if ( isset( $data['shipping_class'] ) ) {
-			$data_store         = $product->get_data_store();
-			$shipping_class_id  = $data_store->get_shipping_class_id_by_slug( wc_clean( $data['shipping_class'] ) );
-			if ( $shipping_class_id ) {
-				$product->set_shipping_class_id( $shipping_class_id );
-			}
+			$data_store        = $product->get_data_store();
+			$shipping_class_id = $data_store->get_shipping_class_id_by_slug( wc_clean( $data['shipping_class'] ) );
+			$product->set_shipping_class_id( $shipping_class_id );
 		}
 
 		return $product;

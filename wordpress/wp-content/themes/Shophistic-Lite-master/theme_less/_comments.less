@@ -1,0 +1,241 @@
+
+
+/*===========================================================================*/
+/*Comments																	 */
+/*===========================================================================*/
+#comments{
+	margin: 70px 0;
+}
+#comments h3{
+	margin-top: 0;
+}
+.commentlist{
+	margin-left: 0;
+	margin-top: 2.30769230769231em;
+	padding: 0;
+}
+#comments ol.commentlist li{
+	list-style:none;
+	margin-bottom:50px;
+}
+#comments .comment{
+	margin-bottom:40px;
+}
+#comments .comment-author{
+	text-align: center;
+}
+#comments .comment-author div.inner-gravatar{
+	border:#fff 1px solid;
+	text-shadow:0 1px 0 #fff;
+	position:relative;
+	width: 60px;
+	height: 60px;
+	margin: 0 auto;
+	overflow: hidden;
+	border-radius: 3px;
+}
+#comments .comment-author div.inner-gravatar div{
+	width: 60px;
+	height: 60px;
+	z-index:10;
+	position:absolute;
+	border-radius: 3px;
+}
+#comments .comment-author img{
+	z-index:5;
+}
+#comments .comment-author cite{
+	font-weight:bold;
+	margin-top: 4px;
+	display: block;
+	font-size: 0.92307692307692em;
+	display: block;
+}
+#comments .comment-author cite, #comments .comment-author cite a{
+	color:@text-color;
+	font-weight: normal;
+	.font-size(13);
+}
+#comments .comment-author .comment-meta a{
+	color:#aeaeae;
+	font-size:11px;
+}
+ol.commentlist li .comment-entry{
+	margin: 0;
+	border-width: 2px;
+	border-style: solid;
+	position:relative;
+	border-radius: 3px;
+	border-color: @gray-lighter;
+}
+ol.commentlist .bypostauthor .comment-entry{
+	border-color: @gray;
+}
+ol.commentlist li .comment-entry div.inner-comment{
+	padding: 1.42857142857143em;
+}
+ol.commentlist li .comment-entry div.inner-comment p{
+	margin-bottom: 0;
+}
+
+
+.ie8 ol.commentlist li .comment-entry, .ie7 ol.commentlist li .comment-entry{
+	float:right;
+	border:#cacaca 1px solid;
+	margin: 0;
+	background-color: #f3f3f3; /* for non-css3 browsers */
+	position:relative;
+}
+
+ol.commentlist li ul .comment-entry{
+	
+}
+ol.commentlist li ul li ul .comment-entry{
+	
+}
+ol.commentlist li ul li ul li ul .comment-entry{
+	
+}
+ol.commentlist li ul li ul li ul li ul .comment-entry{
+	
+}
+ol.commentlist .comment-entry span.arrow_comment{
+	/*background:url(images/comment_arrow.png) no-repeat;*/
+	display:block;
+	position:absolute;
+	width:31px;
+	height:28px;
+	top:17px;
+	left:-22px;
+}
+.ie7 ol.commentlist .comment-entry span.arrow_comment, .ie8 ol.commentlist .comment-entry span.arrow_comment{
+	background:none;
+}
+.comment-meta{
+	float:left;
+	margin-left:10px;
+	margin-top:5px;
+	font-size:11px;
+	color:#c3c3c3;
+}
+.comment-meta a{
+	font-size:11px;
+	color:#c3c3c3;
+}
+.comment-meta a:hover{
+	text-decoration:underline;
+}
+.reply{
+	float:right;
+	clear:right;
+}
+.comment-reply-link{
+	width:54px;
+	height:23px;
+	display:block;
+	color:@gray-light;
+	font-size:11px;
+	text-align:center;
+	margin: 10px 0;
+	line-height:20px;
+}
+.comment-reply-link:hover{
+	text-decoration: underline;
+}
+
+#comments ul.children{
+	margin-left: 30px;
+	margin-top:20px;
+	margin-bottom:10px;
+	padding: 0;
+}
+
+
+
+
+/*===========================================================================*/
+/*Comments	Form															 */
+/*===========================================================================*/
+#respond{
+	margin-bottom: 70px;
+}
+#respond h3{
+	margin-top: 0;
+}
+
+
+#respond .input-wrap{
+	margin:0px 15px 10px 0;
+	float: left;
+	width: 31%;
+}
+#respond .input-wrap.textarea{
+	float: none;
+	width: 97%;
+}
+
+
+#respond .controls-wrap{
+	position: relative;
+}
+
+#respond input{
+	padding-left: 2.30769230769231em;
+	width: 100%;
+}
+
+#respond input:focus{
+	border-color: @gray-light;
+	outline:none;
+	@box_shadow: none;
+	.box-shadow(@box_shadow);
+}
+#respond .input label{
+	margin-bottom:5px;
+	display:block;
+}
+#respond textarea{
+	width: 100%;
+	height: 150px;
+	margin-bottom: 1.42857142857143em;
+}
+#respond textarea:focus{
+	border-color: @gray-light;
+	outline:none;
+	@box_shadow: none;
+	.box-shadow(@box_shadow);
+}
+#respond .textarea{
+	
+}
+
+#respond .controls-wrap i{
+	position: absolute;
+	left: 0.71428571428571em;
+	top: 0.71428571428571em;
+	color: #c4c4c4;
+	.font-size(14);
+}
+#respond .form-actions{
+	background-color: transparent;
+	border: none;
+	padding: 0;
+}
+
+
+
+#respond #submit-respond{
+	outline: none;
+	width: auto;
+	padding-left: 12px;
+	height: auto;
+}
+#respond #submit-respond:hover{
+	.transition(all 200ms);
+	background-color: @gray;
+	border-color: @gray;
+	color: #fff;
+}
+
+
+

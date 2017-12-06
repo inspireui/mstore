@@ -49,7 +49,7 @@ class WC_Email extends WC_Settings_API {
 	 * Default heading.
 	 *
 	 * Supported for backwards compatibility but we recommend overloading the
-	 * get_default_x methods instead so localication can be done when needed.
+	 * get_default_x methods instead so localization can be done when needed.
 	 *
 	 * @var string
 	 */
@@ -59,7 +59,7 @@ class WC_Email extends WC_Settings_API {
 	 * Default subject.
 	 *
 	 * Supported for backwards compatibility but we recommend overloading the
-	 * get_default_x methods instead so localication can be done when needed.
+	 * get_default_x methods instead so localization can be done when needed.
 	 *
 	 * @var string
 	 */
@@ -94,18 +94,6 @@ class WC_Email extends WC_Settings_API {
 	 * @var object|bool
 	 */
 	public $object;
-
-	/**
-	 * Strings to find in subjects/headings.
-	 * @var array
-	 */
-	public $find = array();
-
-	/**
-	 * Strings to replace in subjects/headings.
-	 * @var array
-	 */
-	public $replace = array();
 
 	/**
 	 * Mime boundary (for multipart emails).
@@ -196,39 +184,59 @@ class WC_Email extends WC_Settings_API {
 	);
 
 	/**
+	 * Strings to find/replace in subjects/headings.
+	 *
+	 * @var array
+	 */
+	protected $placeholders = array();
+
+ 	/**
+	 * Strings to find in subjects/headings.
+	 *
+	 * @deprecated 3.2.0 in favour of placeholders
+	 * @var array
+	 */
+	public $find = array();
+
+	/**
+	 * Strings to replace in subjects/headings.
+	 *
+	 * @deprecated 3.2.0 in favour of placeholders
+	 * @var array
+	 */
+	public $replace = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
+		// Find/replace
+		if ( empty( $this->placeholders ) ) {
+			$this->placeholders = array(
+				'{site_title}' => $this->get_blogname(),
+			);
+		}
+
 		// Init settings
 		$this->init_form_fields();
 		$this->init_settings();
-
-		// Save settings hook
-		add_action( 'woocommerce_update_options_email_' . $this->id, array( $this, 'process_admin_options' ) );
 
 		// Default template base if not declared in child constructor
 		if ( is_null( $this->template_base ) ) {
 			$this->template_base = WC()->plugin_path() . '/templates/';
 		}
 
-		// Settings
 		$this->email_type = $this->get_option( 'email_type' );
 		$this->enabled    = $this->get_option( 'enabled' );
 
-		// Find/replace
-		$this->find['blogname']      = '{blogname}';
-		$this->find['site-title']    = '{site_title}';
-		$this->replace['blogname']   = $this->get_blogname();
-		$this->replace['site-title'] = $this->get_blogname();
-
-		// For multipart messages
 		add_action( 'phpmailer_init', array( $this, 'handle_multipart' ) );
+		add_action( 'woocommerce_update_options_email_' . $this->id, array( $this, 'process_admin_options' ) );
 	}
 
 	/**
 	 * Handle multipart mail.
 	 *
-	 * @param PHPMailer $mailer
+	 * @param  PHPMailer $mailer
 	 * @return PHPMailer
 	 */
 	public function handle_multipart( $mailer ) {
@@ -242,18 +250,48 @@ class WC_Email extends WC_Settings_API {
 	/**
 	 * Format email string.
 	 *
-	 * @param mixed $string
+	 * @param mixed $string Text to replace placeholders in.
 	 * @return string
 	 */
 	public function format_string( $string ) {
-		return str_replace( apply_filters( 'woocommerce_email_format_string_find', $this->find, $this ), apply_filters( 'woocommerce_email_format_string_replace', $this->replace, $this ), $string );
+		$find    = array_keys( $this->placeholders );
+		$replace = array_values( $this->placeholders );
+
+		// If using legacy find replace, add those to our find/replace arrays first. @todo deprecate in 4.0.0.
+		$find    = array_merge( (array) $this->find, $find );
+		$replace = array_merge( (array) $this->replace, $replace );
+
+		// Take care of blogname which is no longer defined as a valid placeholder.
+		$find[]    = '{blogname}';
+		$replace[] = $this->get_blogname();
+
+		// If using the older style filters for find and replace, ensure the array is associative and then pass through filters. @todo deprecate in 4.0.0.
+		if ( has_filter( 'woocommerce_email_format_string_replace' ) || has_filter( 'woocommerce_email_format_string_find' ) ) {
+			$legacy_find    = $this->find;
+			$legacy_replace = $this->replace;
+
+			foreach ( $this->placeholders as $find => $replace ) {
+				$legacy_key                    = sanitize_title( str_replace( '_', '-', trim( $find, '{}' ) ) );
+				$legacy_find[ $legacy_key ]    = $find;
+				$legacy_replace[ $legacy_key ] = $replace;
+			}
+
+			$string = str_replace( apply_filters( 'woocommerce_email_format_string_find', $legacy_find, $this ), apply_filters( 'woocommerce_email_format_string_replace', $legacy_replace, $this ), $string );
+		}
+
+		/**
+		 * woocommerce_email_format_string filter for main find/replace code.
+		 *
+		 * @since 3.2.0
+		 */
+		return apply_filters( 'woocommerce_email_format_string', str_replace( $find, $replace, $string ), $this );
 	}
 
 	/**
 	 * Set the locale to the store locale for customer emails to make sure emails are in the store language.
 	 */
 	public function setup_locale() {
-		if ( $this->is_customer_email() ) {
+		if ( $this->is_customer_email() && apply_filters( 'woocommerce_email_setup_locale', true ) ) {
 			wc_switch_to_site_locale();
 		}
 	}
@@ -262,7 +300,7 @@ class WC_Email extends WC_Settings_API {
 	 * Restore the locale to the default locale. Use after finished with setup_locale.
 	 */
 	public function restore_locale() {
-		if ( $this->is_customer_email() ) {
+		if ( $this->is_customer_email() && apply_filters( 'woocommerce_email_restore_locale', true ) ) {
 			wc_restore_locale();
 		}
 	}
@@ -538,7 +576,7 @@ class WC_Email extends WC_Settings_API {
 				'type'        => 'text',
 				'desc_tip'      => true,
 				/* translators: %s: list of placeholders */
-				'description'   => sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>{site_title}</code>' ),
+				'description'   => sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>' . implode( '</code>, <code>', array_keys( $this->placeholders ) ) . '</code>' ),
 				'placeholder' => $this->get_default_subject(),
 				'default'     => '',
 			),
@@ -547,7 +585,7 @@ class WC_Email extends WC_Settings_API {
 				'type'        => 'text',
 				'desc_tip'      => true,
 				/* translators: %s: list of placeholders */
-				'description'   => sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>{site_title}</code>' ),
+				'description'   => sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>' . implode( '</code>, <code>', array_keys( $this->placeholders ) ) . '</code>' ),
 				'placeholder' => $this->get_default_heading(),
 				'default'     => '',
 			),
@@ -623,7 +661,7 @@ class WC_Email extends WC_Settings_API {
 	protected function save_template( $template_code, $template_path ) {
 		if ( current_user_can( 'edit_themes' ) && ! empty( $template_code ) && ! empty( $template_path ) ) {
 			$saved  = false;
-			$file   = get_stylesheet_directory() . '/woocommerce/' . $template_path;
+			$file   = get_stylesheet_directory() . '/' . WC()->template_path() . $template_path;
 			$code   = wp_unslash( $template_code );
 
 			if ( is_writeable( $file ) ) {
@@ -827,9 +865,25 @@ class WC_Email extends WC_Settings_API {
 							<p>
 								<a href="#" class="button toggle_editor"></a>
 
-								<?php if ( ( is_dir( get_stylesheet_directory() . '/' . $template_dir . '/emails/' ) && is_writable( get_stylesheet_directory() . '/' . $template_dir . '/emails/' ) ) || is_writable( get_stylesheet_directory() ) ) { ?>
-									<a href="<?php echo esc_url( wp_nonce_url( remove_query_arg( array( 'delete_template', 'saved' ), add_query_arg( 'move_template', $template_type ) ), 'woocommerce_email_template_nonce', '_wc_email_nonce' ) ); ?>" class="button"><?php _e( 'Copy file to theme', 'woocommerce' ); ?></a>
-								<?php } ?>
+								<?php
+									$emails_dir    = get_stylesheet_directory() . '/' . $template_dir . '/emails';
+									$templates_dir = get_stylesheet_directory() . '/' . $template_dir;
+									$theme_dir     = get_stylesheet_directory();
+
+									if ( is_dir( $emails_dir ) ) {
+										$target_dir = $emails_dir;
+									} elseif ( is_dir( $templates_dir ) ) {
+										$target_dir = $templates_dir;
+									} else {
+										$target_dir = $theme_dir;
+									}
+
+									if ( is_writable( $target_dir ) ) {
+										?>
+										<a href="<?php echo esc_url( wp_nonce_url( remove_query_arg( array( 'delete_template', 'saved' ), add_query_arg( 'move_template', $template_type ) ), 'woocommerce_email_template_nonce', '_wc_email_nonce' ) ); ?>" class="button"><?php _e( 'Copy file to theme', 'woocommerce' ); ?></a>
+										<?php
+									}
+								?>
 
 								<?php printf( __( 'To override and edit this email template copy %1$s to your theme folder: %2$s.', 'woocommerce' ), '<code>' . plugin_basename( $template_file ) . '</code>', '<code>' . trailingslashit( basename( get_stylesheet_directory() ) ) . $template_dir . '/' . $template . '</code>' ); ?>
 							</p>

@@ -23,11 +23,16 @@ class WC_Email_Failed_Order extends WC_Email {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->id               = 'failed_order';
-		$this->title            = __( 'Failed order', 'woocommerce' );
-		$this->description      = __( 'Failed order emails are sent to chosen recipient(s) when orders have been marked failed (if they were previously processing or on-hold).', 'woocommerce' );
-		$this->template_html    = 'emails/admin-failed-order.php';
-		$this->template_plain   = 'emails/plain/admin-failed-order.php';
+		$this->id             = 'failed_order';
+		$this->title          = __( 'Failed order', 'woocommerce' );
+		$this->description    = __( 'Failed order emails are sent to chosen recipient(s) when orders have been marked failed (if they were previously processing or on-hold).', 'woocommerce' );
+		$this->template_html  = 'emails/admin-failed-order.php';
+		$this->template_plain = 'emails/plain/admin-failed-order.php';
+		$this->placeholders   = array(
+			'{site_title}'   => $this->get_blogname(),
+			'{order_date}'   => '',
+			'{order_number}' => '',
+		);
 
 		// Triggers for this email
 		add_action( 'woocommerce_order_status_pending_to_failed_notification', array( $this, 'trigger' ), 10, 2 );
@@ -67,24 +72,22 @@ class WC_Email_Failed_Order extends WC_Email {
 	 * @param WC_Order $order Order object.
 	 */
 	public function trigger( $order_id, $order = false ) {
+		$this->setup_locale();
+
 		if ( $order_id && ! is_a( $order, 'WC_Order' ) ) {
 			$order = wc_get_order( $order_id );
 		}
 
 		if ( is_a( $order, 'WC_Order' ) ) {
-			$this->object                  = $order;
-			$this->find['order-date']      = '{order_date}';
-			$this->find['order-number']    = '{order_number}';
-			$this->replace['order-date']   = wc_format_datetime( $this->object->get_date_created() );
-			$this->replace['order-number'] = $this->object->get_order_number();
+			$this->object                         = $order;
+			$this->placeholders['{order_date}']   = wc_format_datetime( $this->object->get_date_created() );
+			$this->placeholders['{order_number}'] = $this->object->get_order_number();
 		}
 
-		if ( ! $this->is_enabled() || ! $this->get_recipient() ) {
-			return;
+		if ( $this->is_enabled() && $this->get_recipient() ) {
+			$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 		}
 
-		$this->setup_locale();
-		$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 		$this->restore_locale();
 	}
 

@@ -2573,7 +2573,7 @@ class PHPMailer
                 // Check for string attachment
                 $string = '';
                 $path = '';
-                $bString = $attachment[5];
+                $bSztring = $attachment[5];
                 if ($bString) {
                     $string = $attachment[0];
                 } else {

@@ -1,0 +1,89 @@
+.woocs_multiple_simple_panel{
+    padding: 9px;
+    clear: both;
+    overflow: auto;
+}
+
+.woocs_price_col{
+    display: inline-block;
+}
+
+.woocs_price_col .wc_input_price{
+    width: 100% !important;
+}
+
+#woocs_multiple_simple_tpl{
+    display: none;
+}
+
+.woocs_tab_navbar{
+    background: #eee;
+    padding: 9px;
+    clear: both;
+    overflow: hidden;
+}
+
+.woocs_tab_navbar li{
+    float: left;
+    margin: 0 15px 0 0 !important;
+}
+
+.woocs_tab_navbar .button{
+    margin: 0;
+}
+
+.woocs_tab{
+    display: none;
+}
+
+/**************************/
+
+#woocs_multiple_simple_tpl_geo{
+    display: none;
+}
+
+.chosen-container-multi .chosen-choices li{
+    line-height: 29px;
+}
+
+
+.chosen-results{
+    position: relative;
+    overflow-y: auto;
+}
+
+.chosen-drop{
+    position: relative !important;
+    overflow-y: auto;
+}
+
+
+.chosen-container {
+    margin: 0;
+    position: relative;
+    display: block!important;
+    zoom: 1;
+    vertical-align: middle;
+}
+
+.chosen-container .chosen-drop{
+    height: 10px
+}
+
+.chosen-with-drop .chosen-drop{
+    height: 250px;
+}
+
+.chosen-container-multi .chosen-choices li.search-field input[type=text]{
+    height: 29px;
+}
+
+.chosen-container-multi .chosen-choices li.search-choice{
+    padding-top: 6px;
+    padding-bottom: 7px;
+}
+
+.chosen-container-multi .chosen-choices li.search-choice .search-choice-close{
+    top: 8px;
+}
+

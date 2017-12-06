@@ -57,6 +57,9 @@
 	.widget_shopping_cart {
 		display: none;
 
+		.woocommerce-mini-cart__empty-message {
+			margin: ms(2);
+		}
 		.product_list_widget {
 			img {
 				margin-left: 1em;
@@ -1261,7 +1264,8 @@ form.checkout {
 
 table.woocommerce-checkout-review-order-table {
 	.product-name {
-		max-width: 150px;
+		width: 300px;
+		word-wrap: break-word;
 	}
 }
 
@@ -1489,7 +1493,7 @@ ul.order_details {
 	padding: 1em ms(2);
 	background-color: $info;
 	color: #fff;
-	z-index: 999;
+	z-index: 9999;
 
 	a {
 		color: #fff;

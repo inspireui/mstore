@@ -1,0 +1,68 @@
+/* dark color overrides */
+/* https://www.exratione.com/2011/12/a-dark-style-for-chosen-selects */
+
+
+.woocommerce-currency-switcher-form .chosen-container .chosen-results li {
+    color: #999999;
+}
+.woocommerce-currency-switcher-form .chosen-container .chosen-drop, .chosen-container-single .chosen-single {
+    background-color: #252525;
+    color: #999999;
+}
+/* Some IE 7-9 fun with this next one - filter likes to override background */
+.woocommerce-currency-switcher-form .chosen-container-single .chosen-single {
+    background-color: #000000;
+    background-image: none;
+    background: #000000 none top left no-repeat;
+    filter: none;
+    border: none;
+    display: block;
+    height: 30px;
+}
+.woocommerce-currency-switcher-form .chosen-container .chosen-drop {
+    border: 1px solid #121212;
+}
+.woocommerce-currency-switcher-form .chosen-container-single .chosen-single div {
+    background-image: -webkit-gradient(linear, left bottom, left top,
+        color-stop(0, #333333), color-stop(0.6, #121212));
+    background-image: -webkit-linear-gradient(center bottom, #333333 0%, #121212 60%);
+    background-image: -moz-linear-gradient(center bottom, #333333 0%, #121212 60%);
+    background-image: -o-linear-gradient(bottom, #333333 0%, #121212 60%);
+    background-image: -ms-linear-gradient(top, #333333 0%,#121212 60%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#333333',
+        endColorstr='#121212',GradientType=0 );
+    background-image: linear-gradient(top, #333333 0%,#121212 60%);
+    border-left: 1px solid #252525;
+}
+.woocommerce-currency-switcher-form .chosen-container-active .chosen-single-with-drop {
+    box-shadow: none;
+}
+.woocommerce-currency-switcher-form .chosen-container .chosen-results .highlighted {
+    background: #333333;
+    color: #eeeeee;
+}
+.woocommerce-currency-switcher-form .chosen-container .chosen-results .no-results {
+    background: #333;
+}
+.woocommerce-currency-switcher-form .chosen-container .chosen-results li em {
+    background: none;
+}
+
+/* dark sprite overrides */
+
+.woocommerce-currency-switcher-form .chosen-container-single .chosen-single abbr {
+    background: url('chosen-sprite-dark.png') right top no-repeat;
+}
+.woocommerce-currency-switcher-form .chosen-container-single .chosen-single div b {
+    background: url('chosen-sprite-dark.png') no-repeat 0 1px;
+}
+.woocommerce-currency-switcher-form .chosen-container-single .chosen-search input,
+.woocommerce-currency-switcher-form .chosen-rtl .chosen-search input {
+    background: #333 url('chosen-sprite-dark.png') no-repeat 100% -22px;
+    color: #999999;
+    border: 1px solid #555555;
+}
+.woocommerce-currency-switcher-form .chosen-container-multi .chosen-choices .search-choice .search-choice-close {
+    background: url('chosen-sprite-dark.png') right top no-repeat;
+}
+
