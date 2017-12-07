@@ -39,6 +39,9 @@
               {name: "Accessories", category: 15, image: Images.Banner.Man, layout: Constants.Layout.card},
             ]
         ```
+### Referenece:
+- The demo data is used from Shophistic template https://github.com/nicoandrade/Shophistic-Lite
+
 ### Support
 Please post the issue ticket with your Envato username and purchase code to ask for installing help or troubleshooting from InspireUI support team.
         
