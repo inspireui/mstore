@@ -10,35 +10,8 @@
     - Update file *App/Common/Config.js* to change Wordpress URL.
 
 -   ##### MStore app:
-    -   Update file *src/common/Constants.js* to change new Wordpress URL or use the config on this respo: https://github.com/inspireui/mstore/blob/master/Constants.js
-    -   Edit the from src/Omni.js file to config the image size for product:
-    - ```sh
-        const ThumbnailSizes = {
-            CatalogImages: {
-                width: 300,
-                height: 300,
-            },
-            SingleProductImage: {
-                width: 600,
-                height: 600,
-            },
-            ProductThumbnails: {
-                width: 180,
-                height: 180,
-            },
-        };
-        ```
+    -   Update file *src/common/Config.js* to change new Wordpress URL or use the config on this respo: https://github.com/inspireui/mstore/blob/master/Config.js, follow 3 steps from this file to config your app.
     
-    -   Edit the from src/common/Layout.js file to config the image size for product:
-    - ```sh
-        export const HorizonLayout = [
-              {tag: 18, paging: true, layout: Constants.Layout.miniBanner},
-              {name: "Accessories", category: 15 , image: Images.Banner.Feature, layout: Constants.Layout.threeColumn},
-              {name: "Hoodies", category: 16, image: Images.Banner.Bag, layout: Constants.Layout.twoColumn},
-              {name: "Hoodies", category: 16, image: Images.Banner.Woman, layout: Constants.Layout.twoColumnHigh},
-              {name: "Accessories", category: 15, image: Images.Banner.Man, layout: Constants.Layout.card},
-            ]
-        ```
 ### Referenece:
 - The demo data is used from Shophistic template https://github.com/nicoandrade/Shophistic-Lite
 
