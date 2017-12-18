@@ -27,8 +27,6 @@ class MstoreCheckOut
             return 0;
         }
 
-        // default return true for getting checkout library working
-        add_filter('woocommerce_is_checkout', '__return_true');
 
         /* Checkout Template*/
         require_once('templates/class-page-templater.php');
@@ -45,6 +43,9 @@ class MstoreCheckOut
             if ($detect->isMobile()) {
                 wp_register_style('mstore-order-custom-style', plugins_url('assets/css/mstore-order-style.css', PLUGIN_FILE));
                 wp_enqueue_style('mstore-order-custom-style');
+
+                // default return true for getting checkout library working
+                add_filter('woocommerce_is_checkout', '__return_true');
             }
         }
 
