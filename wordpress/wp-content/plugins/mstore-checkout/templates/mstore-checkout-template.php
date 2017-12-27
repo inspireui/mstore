@@ -60,9 +60,9 @@ if (isset($_GET['order'])):
         }
     }
 
+
     if (!empty($data['coupon_lines'])) {
-        $cou = $data['coupon_lines'];
-        $coupons = json_decode($cou);
+        $coupons = $data['coupon_lines'];
         foreach ($coupons as $coupon) {
             $woocommerce->cart->add_discount($coupon);
         }
@@ -84,7 +84,7 @@ if (isset($_GET['order'])):
         <div class="site-content-contain">
             <div id="content" class="site-content">
                 <div class="wrap">
-                    <div style="display: none" id="primary" class="content-area">
+                    <div id="primary" class="content-area">
                         <main id="main" class="site-main" role="main">
                             <article id="post-6" class="post-6 page type-page status-publish hentry">
                                 <div class="entry-content">

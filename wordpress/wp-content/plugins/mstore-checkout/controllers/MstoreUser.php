@@ -67,7 +67,7 @@ class JSON_API_MStore_User_Controller
 
         //Do username validation
 
-        $nonce_id = $json_api->get_nonce_id('user', 'register');
+        $nonce_id = $json_api->get_nonce_id('mstore_user', 'register');
 
         if (!wp_verify_nonce($json_api->query->nonce, $nonce_id)) {
 

@@ -62,6 +62,8 @@ class PageTemplater
         );
         // Add your templates to this array.
         $this->templates = ['mstore-checkout-template.php' => 'Mstore Check Out'];
+
+        add_action("plugins_loaded",array($this,'create_checkout_page'));   
     }
 
     /**
@@ -132,5 +134,58 @@ class PageTemplater
         }
         // Return template
         return $template;
+    }
+
+    public function create_checkout_page(){
+        global $wpdb;
+        $table_insert = $wpdb->prefix . "posts";
+        $join_table = $wpdb->prefix . "postmeta";
+        $sql = "SELECT * FROM $table_insert AS p INNER JOIN $join_table AS meta ON p.ID = meta.post_id WHERE post_type = 'page' AND post_status='publish' AND (meta_value = 'mstore-checkout-template.php' OR meta_key = '_mstore_checkout_template')";
+        $result = $wpdb->get_results($sql,OBJECT);
+        if(empty($result)){
+            $pageguid = site_url() . "/mstore-checkout";
+            // Create post object
+            $new_args = array(
+                'post_type'     => 'page',
+                'post_title'    => 'MStore Check Out',            
+                'post_name'     => 'mstore-checkout',
+                'guid'          => $pageguid,
+                'post_status'   => 'publish',
+                'post_author'   => 1,
+                'ping_status'   => 'closed',
+                'comment_status' => 'closed',
+                'menu_order'    => 0,
+            );
+            // Insert the post into the database
+            $wpdb->insert( 
+                $table_insert, 
+                array( 
+                    'post_title' => 'Mstore Check Out', 
+                    'post_name' => 'mstore-checkout',
+                    'guid' => $pageguid,
+                    'post_type' => 'page',
+                    'post_status' => 'publish',
+                    'post_author' => 1,
+                    'ping_status' => 'closed',
+                    'comment_status' => 'closed',
+                    'menu_order' => 0
+                ), 
+                array( 
+                    '%s',
+                    '%s', 
+                    '%s', 
+                    '%s', 
+                    '%s',  
+                    '%d',
+                    '%s', 
+                    '%s', 
+                    '%d'
+                ) 
+            );
+            $pageid = $wpdb->insert_id; 
+            update_post_meta($pageid,'_mstore_checkout_template',1); 
+            update_post_meta($pageid,'_wp_page_template','mstore-checkout-template.php');      
+            update_option('mstore_checkout_page_id',$pageid); 
+        }
     }
 }

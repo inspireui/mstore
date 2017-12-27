@@ -3,7 +3,7 @@
  * Plugin Name: Mstore CheckOut Plugin and API
  * Plugin URI: http://inspireui.com
  * Description: The MStore Checkout Wordpress Plugin which use for the Mstore app - Complete React Native template for e-commerce
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: InspireUI
  * Author URI: http://inspireui.com
  *
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 
 class MstoreCheckOut
 {
-    public $version = '1.0.0';
+    public $version = '1.1.0';
 
     public function __construct()
     {
@@ -27,14 +27,12 @@ class MstoreCheckOut
             return 0;
         }
 
-        // default return true for getting checkout library working
-        add_filter('woocommerce_is_checkout', '__return_true');
 
         /* Checkout Template*/
-        require_once('templates/class-page-templater.php');
-        require_once('templates/class-mobile-detect.php');
-
-        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
+//        require_once('templates/class-page-templater.php');
+//        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
+        require_once __DIR__ . '/wp-templater/src/Templater.php';
+        require_once __DIR__ . '/templates/class-mobile-detect.php';
         add_action('wp_print_scripts', array($this, 'handle_received_order_page'));
     }
 
@@ -45,6 +43,10 @@ class MstoreCheckOut
             if ($detect->isMobile()) {
                 wp_register_style('mstore-order-custom-style', plugins_url('assets/css/mstore-order-style.css', PLUGIN_FILE));
                 wp_enqueue_style('mstore-order-custom-style');
+
+                // default return true for getting checkout library working
+                add_filter('woocommerce_is_checkout', '__return_true');
+
             }
         }
 
@@ -52,6 +54,32 @@ class MstoreCheckOut
 }
 
 $mstoreCheckOut = new MstoreCheckOut();
+
+use JO\Module\Templater\Templater;
+
+add_action('plugins_loaded', 'load_templater');
+function load_templater()
+{
+    // add our new custom templates
+    $my_templater = new Templater(
+        array(
+            // YOUR_PLUGIN_DIR or plugin_dir_path(__FILE__)
+            'plugin_directory' => plugin_dir_path(__FILE__),
+            // should end with _ > prefix_
+            'plugin_prefix' => 'plugin_prefix_',
+            // templates directory inside your plugin
+            'plugin_template_directory' => 'templates',
+        )
+    );
+    $my_templater->add(
+        array(
+            'page' => array(
+                'mstore-checkout-template.php' => 'Page Custom Template',
+            ),
+        )
+    )->register();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Define for the API User wrapper which is based on json api user plugin

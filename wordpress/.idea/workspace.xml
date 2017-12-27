@@ -11,23 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="json-api-auth.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wp-content/plugins/json-api-auth/json-api-auth.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="588">
-              <caret line="38" column="30" lean-forward="false" selection-start-line="38" selection-start-column="30" selection-end-line="38" selection-end-column="30" />
-              <folding>
-                <marker date="1512112935618" expanded="true" signature="913:930" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="mstore-checkout.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/mstore-checkout.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="462">
-              <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+            <state relative-caret-position="284">
+              <caret line="47" column="67" lean-forward="false" selection-start-line="47" selection-start-column="67" selection-end-line="47" selection-end-column="67" />
               <folding>
                 <element signature="e#6#336#0#PHP" expanded="true" />
               </folding>
@@ -35,11 +23,34 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/wp-templater/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="0">
+                <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Templater.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/wp-templater/src/Templater.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="693">
+              <caret line="33" column="6" lean-forward="false" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="class-page-templater.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-page-templater.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1911">
-              <caret line="97" column="20" lean-forward="false" selection-start-line="97" selection-start-column="8" selection-end-line="97" selection-end-column="20" />
+            <state relative-caret-position="1953">
+              <caret line="99" column="20" lean-forward="false" selection-start-line="99" selection-start-column="20" selection-end-line="99" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -67,22 +78,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mstore-checkout-template.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mstore-checkout-template.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/mstore-checkout-template.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="21">
-              <caret line="57" column="16" lean-forward="false" selection-start-line="57" selection-start-column="16" selection-end-line="57" selection-end-column="16" />
+            <state relative-caret-position="325">
+              <caret line="398" column="0" lean-forward="true" selection-start-line="398" selection-start-column="0" selection-end-line="398" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="thankyou.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wp-content/plugins/woocommerce/templates/checkout/thankyou.php">
+      <file leaf-file-name="MstoreUser.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/MstoreUser.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1071">
-              <caret line="66" column="68" lean-forward="false" selection-start-line="66" selection-start-column="68" selection-end-line="66" selection-end-column="68" />
+            <state relative-caret-position="1672">
+              <caret line="215" column="41" lean-forward="false" selection-start-line="215" selection-start-column="18" selection-end-line="215" selection-end-column="41" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pluggable.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wp-includes/pluggable.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="31">
+              <caret line="1977" column="9" lean-forward="false" selection-start-line="1977" selection-start-column="9" selection-end-line="1977" selection-end-column="9" />
+              <folding>
+                <marker date="1512186616595" expanded="true" signature="3278:3324" ph="SELECT * FRO... ${$wpdb-&gt;users}" />
+                <marker date="1512186616595" expanded="true" signature="53267:53341" ph="SELECT count... ${$wpdb-&gt;comments}" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -97,31 +121,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="razorpay-payments.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wp-content/plugins/woo-razorpay/razorpay-payments.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12579">
-              <caret line="610" column="0" lean-forward="false" selection-start-line="610" selection-start-column="0" selection-end-line="610" selection-end-column="0" />
-              <folding>
-                <marker date="1512362481772" expanded="true" signature="21586:21883" ph="..." />
-                <marker date="1512362481772" expanded="false" signature="21966:21978" ph="..." />
-                <marker date="1512362481772" expanded="true" signature="21979:22034" ph="..." />
-                <marker date="1512362481772" expanded="true" signature="22038:22184" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>http://mstore.local/mstore-checkout</find>
-      <find>Mstore CheckOut</find>
-      <find>this-&gt;templates</find>
-      <find>add_new_template</find>
-      <find>theme_page_templates</find>
-      <find>template_include</find>
       <find>changing the page temp</find>
       <find>PageTemplate</find>
       <find>loading</find>
@@ -146,6 +149,12 @@
       <find>MStore-checkout</find>
       <find>congra</find>
       <find>invalid authen</find>
+      <find>facebook</find>
+      <find>Invalid authentication cookie</find>
+      <find>override_plugin_custom_template</find>
+      <find>templates</find>
+      <find>d access, unverifiable 'nonce' va</find>
+      <find>user</find>
     </findStrings>
     <replaceStrings>
       <replace>getValue($billing['first_name'])</replace>
@@ -195,11 +204,9 @@
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/User.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/MUser.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/muser.php" />
-        <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/MstoreUser.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout-script.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout-functions.php" />
         <option value="$PROJECT_DIR$/wp-includes/class-phpmailer.php" />
-        <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/assets/css/mstore-order-style.css" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mobile-detect.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/woo-razorpay/razorpay-payments.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/assets/css/loading.css" />
@@ -207,9 +214,11 @@
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/lib/pagetemplater.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/pagetemplater.php" />
-        <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/mstore-checkout.php" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-page-templater.php" />
+        <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/assets/css/mstore-order-style.css" />
         <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/mstore-checkout-template.php" />
+        <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/MstoreUser.php" />
+        <option value="$PROJECT_DIR$/wp-content/plugins/mstore-checkout/mstore-checkout.php" />
       </list>
     </option>
   </component>
@@ -221,9 +230,8 @@
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="48" />
     <option name="y" value="23" />
-    <option name="width" value="1198" />
+    <option name="width" value="1237" />
     <option name="height" value="974" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -260,6 +268,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -298,7 +308,49 @@
               <item name="wp-content" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="plugins" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="mstore-checkout" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="assets" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="wordpress" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wordpress" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-content" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="plugins" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="mstore-checkout" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="assets" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="css" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="wordpress" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wordpress" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-content" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="plugins" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="mstore-checkout" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="controllers" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="wordpress" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wordpress" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-content" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="plugins" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="mstore-checkout" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="templates" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="wordpress" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wordpress" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-content" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="plugins" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="mstore-checkout" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-templater" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="wordpress" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wordpress" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-content" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="plugins" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="mstore-checkout" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="wp-templater" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="wordpress" type="b2602c69:ProjectViewProjectNode" />
@@ -388,8 +440,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -443,17 +493,19 @@
       <workItem from="1512391175483" duration="7930000" />
       <workItem from="1512526250680" duration="489000" />
       <workItem from="1512574460281" duration="483000" />
+      <workItem from="1513570863647" duration="4180000" />
+      <workItem from="1514255272837" duration="3177000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="54221000" />
+    <option name="totallyTimeSpent" value="61578000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="48" y="23" width="1198" height="974" extended-state="0" />
+    <frame x="0" y="23" width="1237" height="974" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2445743" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17623281" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22616407" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -469,7 +521,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.05764967" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.05764967" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -486,23 +538,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/wp-content/plugins/json-api-auth/controllers/Auth.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1628">
-          <caret line="79" column="88" lean-forward="false" selection-start-line="79" selection-start-column="88" selection-end-line="79" selection-end-column="88" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wp-content/plugins/json-api-auth/json-api-auth.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="38" column="30" lean-forward="true" selection-start-line="38" selection-start-column="30" selection-end-line="38" selection-end-column="30" />
-          <folding>
-            <marker date="1512112935618" expanded="true" signature="913:930" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout-functions.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/mstore-checkout-template.php">
       <provider selected="true" editor-type-id="text-editor">
@@ -594,17 +629,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wp-includes/pluggable.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="14679">
-          <caret line="704" column="9" lean-forward="false" selection-start-line="704" selection-start-column="9" selection-end-line="704" selection-end-column="9" />
-          <folding>
-            <marker date="1512186616595" expanded="true" signature="3278:3324" ph="SELECT * FRO... ${$wpdb-&gt;users}" />
-            <marker date="1512186616595" expanded="true" signature="53267:53341" ph="SELECT count... ${$wpdb-&gt;comments}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/json-api-user/json-api-user.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/json-api-user/readme.txt" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/json-api-generate-token.php" />
@@ -613,13 +637,6 @@
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/User.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/muser.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/json-api-user/controllers/User.php" />
-    <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/MstoreUser.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="154" column="40" lean-forward="false" selection-start-line="154" selection-start-column="17" selection-end-line="154" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout-script.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/json-api-mstore-user.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/views/mstore-checkout-template.php" />
@@ -666,22 +683,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/assets/css/mstore-order-style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="2" column="1" lean-forward="false" selection-start-line="2" selection-start-column="1" selection-end-line="2" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/page-template-in-plugin.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/assets/css/loading.css" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-mstore-checkout.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/pagetemplater.php" />
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/class-page-templater.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1911">
-          <caret line="97" column="20" lean-forward="false" selection-start-line="97" selection-start-column="8" selection-end-line="97" selection-end-column="20" />
+        <state relative-caret-position="1953">
+          <caret line="99" column="20" lean-forward="false" selection-start-line="99" selection-start-column="20" selection-end-line="99" selection-end-column="20" />
           <folding />
         </state>
       </provider>
@@ -709,10 +718,40 @@
         <state />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wp-includes/pluggable.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="31">
+          <caret line="1977" column="9" lean-forward="false" selection-start-line="1977" selection-start-column="9" selection-end-line="1977" selection-end-column="9" />
+          <folding>
+            <marker date="1512186616595" expanded="true" signature="3278:3324" ph="SELECT * FRO... ${$wpdb-&gt;users}" />
+            <marker date="1512186616595" expanded="true" signature="53267:53341" ph="SELECT count... ${$wpdb-&gt;comments}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/wp-templater/src/Templater.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="693">
+          <caret line="33" column="6" lean-forward="false" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/wp-templater/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/mstore-checkout.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+        <state relative-caret-position="284">
+          <caret line="47" column="67" lean-forward="false" selection-start-line="47" selection-start-column="67" selection-end-line="47" selection-end-column="67" />
           <folding>
             <element signature="e#6#336#0#PHP" expanded="true" />
           </folding>
@@ -721,8 +760,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/templates/mstore-checkout-template.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="57" column="16" lean-forward="false" selection-start-line="57" selection-start-column="16" selection-end-line="57" selection-end-column="16" />
+        <state relative-caret-position="325">
+          <caret line="398" column="0" lean-forward="true" selection-start-line="398" selection-start-column="0" selection-end-line="398" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/assets/css/mstore-order-style.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="2" column="1" lean-forward="false" selection-start-line="2" selection-start-column="1" selection-end-line="2" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wp-content/plugins/mstore-checkout/controllers/MstoreUser.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1672">
+          <caret line="215" column="41" lean-forward="false" selection-start-line="215" selection-start-column="18" selection-end-line="215" selection-end-column="41" />
           <folding />
         </state>
       </provider>
