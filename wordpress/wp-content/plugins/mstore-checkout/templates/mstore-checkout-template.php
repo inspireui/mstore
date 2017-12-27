@@ -68,6 +68,12 @@ if (isset($_GET['order'])):
         }
     }
 
+    $shippingMethod = '';
+    if (!empty($data['shipping_lines'])) {
+        $shippingLines = $data['shipping_lines'];
+        $shippingMethod = $shippingLines[0]['method_id'];
+    }
+
     ?>
     <!DOCTYPE html>
     <html <?php language_attributes(); ?> >
@@ -82,7 +88,7 @@ if (isset($_GET['order'])):
 
     <div id="page" class="site">
         <div class="site-content-contain">
-            <div id="content" class="site-content">
+            <div id="content"  class="site-content">
                 <div class="wrap">
                     <div id="primary" class="content-area">
                         <main id="main" class="site-main" role="main">
@@ -390,8 +396,8 @@ if (isset($_GET['order'])):
                                                             <th>Shipping</th>
                                                             <td><input type="radio" checked="checked"
                                                                        class="shipping_method" name="shipping_method[]"
-                                                                       id="shipping_method__<?= $finalsm ?>"
-                                                                       value="<?= getValue($shipping['method']); ?>"/>
+                                                                       id="shipping_method__<?= $shippingMethod ?>"
+                                                                       value="<?= $shippingMethod; ?>"/>
                                                             </td>
                                                         </tr>
 
@@ -435,7 +441,7 @@ if (isset($_GET['order'])):
                                                 <div id="payment" class="woocommerce-checkout-payment">
 
                                                     <input type="radio" name="payment_method"
-                                                           id="payment_method_<?= $pm; ?>" checked="checked"
+                                                           id="payment_method_<?= $data['payment_method']; ?>" checked="checked"
                                                            value="<?= $data['payment_method']; ?>"/>
 
                                                     <input type="checkbox"
