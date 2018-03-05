@@ -3,7 +3,7 @@
  * Plugin Name: Mstore CheckOut Plugin and API
  * Plugin URI: http://inspireui.com
  * Description: The MStore Checkout Wordpress Plugin which use for the Mstore app - Complete React Native template for e-commerce
- * Version: 1.1.0
+ * Version: 1.1.2
  * Author: InspireUI
  * Author URI: http://inspireui.com
  *
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 
 class MstoreCheckOut
 {
-    public $version = '1.1.0';
+    public $version = '1.1.2';
 
     public function __construct()
     {
@@ -25,6 +25,11 @@ class MstoreCheckOut
         include_once(ABSPATH . 'wp-admin/includes/plugin.php');
         if (is_plugin_active('woocommerce/woocommerce.php') == false) {
             return 0;
+        }
+
+
+        if (strlen($_GET['order'])>0) {
+            add_filter('woocommerce_is_checkout', '__return_true'); 
         }
 
 
@@ -38,15 +43,12 @@ class MstoreCheckOut
 
     public function handle_received_order_page()
     {
+        // default return true for getting checkout library working
         if (is_order_received_page()) {
             $detect = new Mobile_Detect;
             if ($detect->isMobile()) {
                 wp_register_style('mstore-order-custom-style', plugins_url('assets/css/mstore-order-style.css', PLUGIN_FILE));
                 wp_enqueue_style('mstore-order-custom-style');
-
-                // default return true for getting checkout library working
-                add_filter('woocommerce_is_checkout', '__return_true');
-
             }
         }
 
