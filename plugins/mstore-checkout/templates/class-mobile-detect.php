@@ -1,4 +1,6 @@
 <?php
+namespace MstoreCheckout\Templates\MobileDetect;
+
 /**
  * Mobile Detect Library
  * =====================

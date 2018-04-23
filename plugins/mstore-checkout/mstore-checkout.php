@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use storeCheckout\Templates\MobileDetect\Mobile_Detect;
+
 class MstoreCheckOut
 {
     public $version = '1.1.2';
@@ -21,7 +23,7 @@ class MstoreCheckOut
     public function __construct()
     {
         define('MSTORE_CHECKOUT_VERSION', $this->version);
-        define('PLUGIN_FILE', __FILE__);
+        define('MSTORE_PLUGIN_FILE', __FILE__);
         include_once(ABSPATH . 'wp-admin/includes/plugin.php');
         if (is_plugin_active('woocommerce/woocommerce.php') == false) {
             return 0;
@@ -37,7 +39,7 @@ class MstoreCheckOut
 //        require_once('templates/class-page-templater.php');
 //        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
         require_once __DIR__ . '/wp-templater/src/Templater.php';
-        require_once __DIR__ . '/templates/class-mobile-detect.php';
+        // require_once __DIR__ . '/templates/class-mobile-detect.php';
         add_action('wp_print_scripts', array($this, 'handle_received_order_page'));
     }
 
@@ -47,7 +49,7 @@ class MstoreCheckOut
         if (is_order_received_page()) {
             $detect = new Mobile_Detect;
             if ($detect->isMobile()) {
-                wp_register_style('mstore-order-custom-style', plugins_url('assets/css/mstore-order-style.css', PLUGIN_FILE));
+                wp_register_style('mstore-order-custom-style', plugins_url('assets/css/mstore-order-style.css', MSTORE_PLUGIN_FILE));
                 wp_enqueue_style('mstore-order-custom-style');
             }
         }
