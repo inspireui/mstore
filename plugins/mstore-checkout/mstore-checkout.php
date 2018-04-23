@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use storeCheckout\Templates\MobileDetect\Mobile_Detect;
+use MstoreCheckout\Templates\MobileDetect\Mobile_Detect;
 
 class MstoreCheckOut
 {
