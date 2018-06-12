@@ -65,7 +65,7 @@ $mstoreCheckOut = new MstoreCheckOut();
 add_action('plugins_loaded', 'load_templater');
 function load_templater()
 {
-    include plugin_dir_path(__FILE__).'templates/class-page-templater.php';
+    include plugin_dir_path(__FILE__).'templates/wp-templater/src/Templater.php';
     // add our new custom templates
     $my_templater = new Templater(
         array(
