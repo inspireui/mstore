@@ -1,5 +1,5 @@
 <?php
-namespace MstoreCheckout\Templates\MobileDetect;
+// namespace MstoreCheckout\Templates\MobileDetect;
 
 /**
  * Mobile Detect Library

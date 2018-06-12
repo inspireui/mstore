@@ -14,8 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use MstoreCheckout\Templates\MobileDetect\Mobile_Detect;
-
+// use MstoreCheckout\Templates\MobileDetect\Mobile_Detect;
+include plugin_dir_path(__FILE__).'templates/class-mobile-detect.php';
 class MstoreCheckOut
 {
     public $version = '1.1.2';
@@ -59,11 +59,13 @@ class MstoreCheckOut
 
 $mstoreCheckOut = new MstoreCheckOut();
 
-use JO\Module\Templater\Templater;
+// use JO\Module\Templater\Templater;
+
 
 add_action('plugins_loaded', 'load_templater');
 function load_templater()
 {
+    include plugin_dir_path(__FILE__).'templates/class-page-templater.php';
     // add our new custom templates
     $my_templater = new Templater(
         array(
