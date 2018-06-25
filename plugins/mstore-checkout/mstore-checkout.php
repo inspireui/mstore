@@ -30,7 +30,7 @@ class MstoreCheckOut
         }
 
 
-        if (strlen($_GET['order'])>0) {
+        if (isset($_GET['order']) && strlen($_GET['order'])>0) {
             add_filter('woocommerce_is_checkout', '__return_true'); 
         }
 
@@ -38,7 +38,7 @@ class MstoreCheckOut
         /* Checkout Template*/
 //        require_once('templates/class-page-templater.php');
 //        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
-        require_once __DIR__ . '/wp-templater/src/Templater.php';
+        // require_once __DIR__ . '/wp-templater/src/Templater.php';
         // require_once __DIR__ . '/templates/class-mobile-detect.php';
         add_action('wp_print_scripts', array($this, 'handle_received_order_page'));
     }
@@ -60,12 +60,12 @@ class MstoreCheckOut
 $mstoreCheckOut = new MstoreCheckOut();
 
 // use JO\Module\Templater\Templater;
-
+include plugin_dir_path(__FILE__).'wp-templater/src/Templater.php';
 
 add_action('plugins_loaded', 'load_templater');
 function load_templater()
 {
-    include plugin_dir_path(__FILE__).'templates/wp-templater/src/Templater.php';
+    
     // add our new custom templates
     $my_templater = new Templater(
         array(

@@ -1,6 +1,6 @@
 <?php
 
-namespace JO\Module\Templater;
+// namespace JO\Module\Templater;
 
 /**
  * Add custom ( page and post type ) templates with plugins.
