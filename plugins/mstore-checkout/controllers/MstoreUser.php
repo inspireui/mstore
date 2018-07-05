@@ -331,6 +331,66 @@ class JSON_API_MStore_User_Controller
         return $response;
 
     }
+   public function post_comment(){
+       global $json_api;
+
+      if (!$json_api->query->cookie) {
+                $json_api->error("You must include a 'cookie' var in your request. Use the `generate_auth_cookie` method.");
+            }
+
+      $user_id = wp_validate_auth_cookie($json_api->query->cookie, 'logged_in');
+        
+            if (!$user_id) {
+                $json_api->error("Invalid cookie. Use the `generate_auth_cookie` method.");
+            }
+
+     if ( !$json_api->query->post_id ) {
+      $json_api->error("No post specified. Include 'post_id' var in your request.");
+      } elseif (!$json_api->query->content ) {
+      $json_api->error("Please include 'content' var in your request.");
+      }
+      
+      // if (!$json_api->query->comment_status ) {
+      //   $json_api->error("Please include 'comment_status' var in your request. Possible values are '1' (approved) or '0' (not-approved)");
+      // }else $comment_approved = $json_api->query->comment_status;
+    $comment_approved = 0;
+    $user_info = get_userdata(  $user_id );
+
+     $time = current_time('mysql');
+     $agent = $_SERVER['HTTP_USER_AGENT'];
+     $ip=$_SERVER['REMOTE_ADDR'];
+
+        $data = array(
+      'comment_post_ID' => $json_api->query->post_id,
+      'comment_author' => $user_info->user_login,
+      'comment_author_email' => $user_info->user_email,
+      'comment_author_url' => $user_info->user_url,
+      'comment_content' => $json_api->query->content,
+      'comment_type' => '',
+      'comment_parent' => 0,
+      'user_id' => $user_info->ID,
+      'comment_author_IP' =>  $ip,
+      'comment_agent' => $agent,
+      'comment_date' => $time,
+      'comment_approved' => $comment_approved,
+       );
+
+    //print_r($data);
+
+     $comment_id = wp_insert_comment($data);
+
+     //add metafields
+     $meta = json_decode(stripcslashes($json_api->query->meta),true);
+     //extra function 
+     add_comment_meta($comment_id, 'rating', $meta['rating']);
+     add_comment_meta($comment_id, 'verified', 0);
+    
+     
+     
+     return array(
+                 "comment_id" => $comment_id
+             );    
+   }
 }
  
  
