@@ -22,6 +22,7 @@ class JSON_API_Post {
   var $comments;        // Array of objects
   var $attachments;     // Array of objects
   var $comment_count;   // Integer
+  var $post_parent;   // Integer
   var $comment_status;  // String ("open" or "closed")
   var $thumbnail;       // String
   var $custom_fields;   // Object (included by using custom_fields query var)
@@ -61,6 +62,11 @@ class JSON_API_Post {
     if (!empty($values['type'])) {
       $wp_values['post_type'] = $values['type'];
     }
+
+    if (!empty($values['parent'])) {
+      $wp_values['post_parent'] = $values['parent'];
+    }
+	
     
     if (!empty($values['status'])) {
       $wp_values['post_status'] = $values['status'];
@@ -103,6 +109,12 @@ class JSON_API_Post {
         }
       }
     }
+	
+	if ( isset( $values['meta_input'] ) ) {
+		$wp_values['meta_input'] = json_decode(urldecode(stripslashes($values['meta_input'])), true);
+	     
+    }
+ 
     
     if (isset($wp_values['ID'])) {
       $this->id = wp_update_post($wp_values);
@@ -130,6 +142,7 @@ class JSON_API_Post {
     $date_format = $json_api->query->date_format;
     $this->id = (int) $wp_post->ID;
     setup_postdata($wp_post);
+    $this->set_value('post_parent', (int) $wp_post->post_parent);
     $this->set_value('type', $wp_post->post_type);
     $this->set_value('slug', $wp_post->post_name);
     $this->set_value('url', get_permalink($this->id));
@@ -152,6 +165,7 @@ class JSON_API_Post {
     $this->set_custom_taxonomies($wp_post->post_type);
     do_action("json_api_import_wp_post", $this, $wp_post);
   }
+  
   
   function set_value($key, $value) {
     global $json_api;
