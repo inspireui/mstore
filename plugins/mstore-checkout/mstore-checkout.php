@@ -34,7 +34,7 @@ class MstoreCheckOut
             add_filter('woocommerce_is_checkout', '__return_true'); 
         }
 
-
+        include_once plugin_dir_path(__FILE__).'controllers/MstoreDokan.php';
         /* Checkout Template*/
 //        require_once('templates/class-page-templater.php');
 //        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
