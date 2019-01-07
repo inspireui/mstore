@@ -27,6 +27,8 @@
  * @version     2.8.27
  */
 
+if(!class_exists('Mobile_Detect')) {
+
 class Mobile_Detect
 {
     /**
@@ -1470,3 +1472,6 @@ class Mobile_Detect
         return self::MOBILE_GRADE_C;
     }
 }
+
+}
+

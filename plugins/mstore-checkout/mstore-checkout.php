@@ -16,6 +16,8 @@ if (!defined('ABSPATH')) {
 
 // use MstoreCheckout\Templates\MobileDetect\Mobile_Detect;
 include plugin_dir_path(__FILE__).'templates/class-mobile-detect.php';
+include plugin_dir_path(__FILE__).'templates/class-rename-generate.php';
+
 class MstoreCheckOut
 {
     public $version = '1.1.2';
@@ -34,7 +36,7 @@ class MstoreCheckOut
             add_filter('woocommerce_is_checkout', '__return_true'); 
         }
 
-
+        include_once plugin_dir_path(__FILE__).'controllers/MstoreDokan.php';
         /* Checkout Template*/
 //        require_once('templates/class-page-templater.php');
 //        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
@@ -92,7 +94,7 @@ function load_templater()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 if (!is_plugin_active('json-api/json-api.php')) {
-    add_action('admin_notices', 'pim_draw_notice_json_api');
+    // add_action('admin_notices', 'pim_draw_notice_json_api');
     return;
 }
 
