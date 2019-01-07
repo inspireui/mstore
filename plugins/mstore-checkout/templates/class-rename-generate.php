@@ -198,8 +198,8 @@ function bt_image_resize_dimensions($orig_w, $orig_h, $dest_w, $dest_h, $crop = 
 	}
 
 	// if the resulting image would be the same size or larger we don't want to resize it
-	if ( $new_w >= $orig_w && $new_h >= $orig_h )
-		return false;
+	// if ( $new_w >= $orig_w && $new_h >= $orig_h )
+	// 	return false;
 
 	// the return array matches the parameters to imagecopyresampled()
 	// int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h
