@@ -13,7 +13,7 @@
  * bt_add_image_size( 'product-screenshot', 300, 300, array( 'left', 'top' ) );
  * bt_add_image_size( 'product-feature', 460, 345, array( 'center', 'top' ) );
  */
-add_filter( 'intermediate_image_sizes_advanced', 'bt_intermediate_image_sizes_advanced', 0, 0 );
+add_filter( 'intermediate_image_sizes_advanced', 'bt_intermediate_image_sizes_advanced' );
 add_filter( 'wp_generate_attachment_metadata', 'bt_generate_attachment_metadata', 10, 2 );
 
 /**
@@ -45,7 +45,7 @@ function bt_add_image_size( $name, $width = 0, $height = 0, $crop = false ) {
  * upload, then we can run our own resizing functions by hooking into the
  * 'wp_generate_attachment_metadata' filter
  */
-function bt_intermediate_image_sizes_advanced( $sizes ) {
+function bt_intermediate_image_sizes_advanced() {
 	return array();
 }
 
