@@ -111,7 +111,12 @@ class JSON_API_Post {
     }
 	
 	if ( isset( $values['meta_input'] ) ) {
-		$wp_values['meta_input'] = json_decode(urldecode(stripslashes($values['meta_input'])), true);
+	    if(isset($values['platform']) && $values['platform'] == 'android'){
+	        $meta_input = json_decode("{". urldecode(stripslashes($values['meta_input']))."}", true);
+	    }else{
+	        $meta_input =  json_decode(urldecode(stripslashes($values['meta_input'])), true);
+	    }
+		$wp_values['meta_input'] = $meta_input;
 	     
     }
  
