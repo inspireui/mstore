@@ -160,7 +160,9 @@ class MStoreDokan extends WP_REST_Controller {
         
         $query_args = [
             'author' => $request['id'],
-            'post_type' => 'product'
+            'post_type' => 'product',
+            'posts_per_page' => $request['per_page'] ? $request['per_page'] : 20,
+            'paged' => $request['page'] ? $request['page'] : 1,
         ];
 
         // $query_args = $this->prepare_objects_query( $request );
