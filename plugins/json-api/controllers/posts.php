@@ -45,9 +45,9 @@ class JSON_API_Posts_Controller {
     if (empty($post)) {
       $json_api->error("Post not found.");
     }
-    if (!current_user_can('edit_post', $post->ID)) {
-      $json_api->error("You need to login with a user that has the 'edit_post' capacity for that post.", 403);
-    }
+//     if (!current_user_can('edit_post', $post->ID)) {
+//       $json_api->error("You need to login with a user that has the 'edit_post' capacity for that post.", 403);
+//     }
     if (!$json_api->query->nonce) {
       $json_api->error("You must include a 'nonce' value to update posts. Use the `get_nonce` Core API method.", 403);
     }
