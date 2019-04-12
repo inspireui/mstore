@@ -216,7 +216,7 @@ class JSON_API_Introspector {
     $id = $wpdb->get_var($wpdb->prepare("
       SELECT ID
       FROM $wpdb->users
-      WHERE user_nicename = %s
+      WHERE user_email = %s
     ", $login));
     return $this->get_author_by_id($id);
   }

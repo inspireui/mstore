@@ -34,13 +34,19 @@ class JSON_API_Post {
     do_action("json_api_{$this->type}_constructor", $this);
   }
   
-  function create($values = null) {
+  function create($values = []) {
     unset($values['id']);
-    if (empty($values) || empty($values['title'])) {
-      $values = array(
-        'title' => 'Untitled',
-        'content' => ''
-      );
+    // if (empty($values) || empty($values['title'])) {
+    //   $values = array(
+    //     'title' => 'Untitled',
+    //     'content' => ''
+    //   );
+    // }
+    if (!array_key_exists('title', $values)){ 
+      $values['title'] = 'Untitled';
+    }
+    if(!array_key_exists('content', $values)){
+      $values['content'] =  '';
     }
     return $this->save($values);
   }
@@ -109,15 +115,16 @@ class JSON_API_Post {
         }
       }
     }
-	
-	if ( isset( $values['meta_input'] ) ) {
-	    if(isset($values['platform']) && $values['platform'] == 'android'){
-	        $meta_input = json_decode("{". urldecode(stripslashes($values['meta_input']))."}", true);
-	    }else{
-	        $meta_input =  json_decode(urldecode(stripslashes($values['meta_input'])), true);
-	    }
-		$wp_values['meta_input'] = $meta_input;
-	     
+
+    
+	 if ( isset( $values['meta_input'] ) ) {
+      if(isset($values['platform']) && $values['platform'] == 'android'){
+          $meta_input = json_decode("{". urldecode(stripslashes($values['meta_input']))."}", true);
+      }else{
+          $meta_input =  json_decode(urldecode(stripslashes($values['meta_input'])), true);
+      }
+      $wp_values['meta_input'] = $meta_input;
+       
     }
  
     
@@ -138,6 +145,15 @@ class JSON_API_Post {
     
     $wp_post = get_post($this->id);
     $this->import_wp_object($wp_post);
+
+
+    // set custom taxonomy
+    if (isset($values['cate_type'])) {
+        if(isset($values['categories'])){
+          wp_set_post_terms($this->id, $values['categories'], $values['cate_type'], true) ;
+        }
+    }
+  
     
     return $this->id;
   }

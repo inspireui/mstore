@@ -1,11 +1,10 @@
 <?php
 /*
-Plugin Name: JSON API
-Plugin URI: http://wordpress.org/plugins/json-api/
+Plugin Name: JSON API - InspireUI
+Plugin URI: https://github.com/inspireui/mstore/tree/master/plugins/json-api
 Description: A RESTful API for WordPress
-Version: 1.1.1
-Author: Dan Phiffer
-Author URI: http://phiffer.org/
+Version: 1.3.0
+Author: TonyVo (InspireUI)
 */
 
 $dir = json_api_dir();
