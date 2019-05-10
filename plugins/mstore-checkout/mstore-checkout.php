@@ -3,7 +3,7 @@
  * Plugin Name: Mstore CheckOut Plugin and API
  * Plugin URI: http://inspireui.com
  * Description: The MStore Checkout Wordpress Plugin which use for the Mstore app - Complete React Native template for e-commerce
- * Version: 1.1.4
+ * Version: 1.1.5
  * Author: InspireUI
  * Author URI: http://inspireui.com
  *
