@@ -1,0 +1,511 @@
+<?php
+/**
+ * WooCommerce Plugin Framework
+ *
+ * This source file is subject to the GNU General Public License v3.0
+ * that is bundled with this package in the file license.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-3.0.html
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@skyverge.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade the plugin to newer
+ * versions in the future. If you wish to customize the plugin for your
+ * needs please refer to http://www.skyverge.com
+ *
+ * @package   SkyVerge/WooCommerce/Plugin/Classes
+ * @author    SkyVerge
+ * @copyright Copyright (c) 2013-2019, SkyVerge, Inc.
+ * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
+ */
+
+namespace WC_Braintree\Plugin_Framework\Plugin;
+
+defined( 'ABSPATH' ) or exit;
+
+if ( ! class_exists( '\\WC_Braintree\\Plugin_Framework\\Plugin\\Lifecycle' ) ) :
+
+/**
+ * Plugin lifecycle handler.
+ *
+ * Registers and displays milestone notice prompts and eventually the plugin
+ * install, upgrade, activation, and deactivation routines.
+ *
+ * @since 5.1.0
+ */
+class Lifecycle {
+
+
+	/** @var string minimum milestone version */
+	private $milestone_version;
+
+	/** @var \WC_Braintree\Plugin_Framework\SV_WC_Plugin plugin instance */
+	private $plugin;
+
+
+	/**
+	 * Constructs the class.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param \WC_Braintree\Plugin_Framework\SV_WC_Plugin $plugin plugin instance
+	 */
+	public function __construct( \WC_Braintree\Plugin_Framework\SV_WC_Plugin $plugin ) {
+
+		$this->plugin = $plugin;
+
+		$this->add_hooks();
+	}
+
+
+	/**
+	 * Adds the action & filter hooks.
+	 *
+	 * @since 5.1.0
+	 */
+	protected function add_hooks() {
+
+		// handle activation
+		add_action( 'admin_init', array( $this, 'handle_activation' ) );
+
+		// handle deactivation
+		add_action( 'deactivate_' . $this->get_plugin()->get_plugin_file(), array( $this, 'handle_deactivation' ) );
+
+		if ( is_admin() && ! is_ajax() ) {
+
+			// initialize the plugin lifecycle
+			add_action( 'wp_loaded', array( $this, 'init' ) );
+
+			// add the admin notices
+			add_action( 'init', array( $this, 'add_admin_notices' ) );
+		}
+
+		// catch any milestones triggered by action
+		add_action( 'wc_' . $this->get_plugin()->get_id() . '_milestone_reached', array( $this, 'trigger_milestone' ), 10, 3 );
+	}
+
+
+	/**
+	 * Initializes the plugin lifecycle.
+	 *
+	 * @since 5.2.0
+	 */
+	public function init() {
+
+		// potentially handle a new activation
+		$this->handle_activation();
+
+		$installed_version = $this->get_installed_version();
+		$plugin_version    = $this->get_plugin()->get_version();
+
+		// installed version lower than plugin version?
+		if ( version_compare( $installed_version, $plugin_version, '<' ) ) {
+
+			if ( ! $installed_version ) {
+
+				$this->install();
+
+				/**
+				 * Fires after the plugin has been installed.
+				 *
+				 * @since 5.1.0
+				 */
+				do_action( 'wc_' . $this->get_plugin()->get_id() . '_installed' );
+
+			} else {
+
+				$this->upgrade( $installed_version );
+
+				// if the plugin never had any previous milestones, consider them all reached so their notices aren't displayed
+				if ( ! $this->get_milestone_version() ) {
+					$this->set_milestone_version( $plugin_version );
+				}
+
+				/**
+				 * Fires after the plugin has been updated.
+				 *
+				 * @since 5.1.0
+				 *
+				 * @param string $installed_version previously installed version
+				 */
+				do_action( 'wc_' . $this->get_plugin()->get_id() . '_updated', $installed_version );
+			}
+
+			// new version number
+			$this->set_installed_version( $plugin_version );
+		}
+	}
+
+
+	/**
+	 * Triggers plugin activation.
+	 *
+	 * We don't use register_activation_hook() as that can't be called inside
+	 * the 'plugins_loaded' action. Instead, we rely on setting to track the
+	 * plugin's activation status.
+	 *
+	 * @internal
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/register_activation_hook/#comment-2100
+	 *
+	 * @since 5.2.0
+	 */
+	public function handle_activation() {
+
+		if ( ! get_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active', false ) ) {
+
+			$this->activate();
+
+			/**
+			 * Fires when the plugin is activated.
+			 *
+			 * @since 5.2.0
+			 */
+			do_action( 'wc_' . $this->get_plugin()->get_id() . '_activated' );
+
+			update_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active', 'yes' );
+		}
+	}
+
+
+	/**
+	 * Triggers plugin deactivation.
+	 *
+	 * @internal
+	 *
+	 * @since 5.2.0
+	 */
+	public function handle_deactivation() {
+
+		$this->deactivate();
+
+		/**
+		 * Fires when the plugin is deactivated.
+		 *
+		 * @since 5.2.0
+		 */
+		do_action( 'wc_' . $this->get_plugin()->get_id() . '_deactivated' );
+
+		delete_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active' );
+	}
+
+
+	/**
+	 * Handles plugin activation.
+	 *
+	 * Plugins can override this to run their own activation tasks.
+	 *
+	 * Important Note: operations here should never be destructive for existing
+	 * data. Since we rely on an option to track activation, it's possible for
+	 * this to run outside of genuine activations.
+	 *
+	 * @since 5.2.0
+	 */
+	public function activate() {
+
+		// stub
+	}
+
+
+	/**
+	 * Handles plugin deactivation.
+	 *
+	 * Plugins can override this to run their own deactivation tasks.
+	 *
+	 * @since 5.2.0
+	 */
+	public function deactivate() {
+
+		// stub
+	}
+
+
+	/**
+	 * Helper method to install default settings for a plugin.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @param array $settings settings in format required by WC_Admin_Settings
+	 */
+	public function install_default_settings( array $settings ) {
+
+		foreach ( $settings as $setting ) {
+
+			if ( isset( $setting['id'] ) && isset( $setting['default'] ) ) {
+
+				update_option( $setting['id'], $setting['default'] );
+			}
+		}
+	}
+
+
+	/**
+	 * Performs any install tasks.
+	 *
+	 * @since 5.2.0
+	 */
+	protected function install() {
+
+		// stub
+	}
+
+
+	/**
+	 * Performs any upgrade tasks based on the provided installed version.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @param string $installed_version installed version
+	 */
+	protected function upgrade( $installed_version ) {
+
+		// stub
+	}
+
+
+	/**
+	 * Adds any lifecycle admin notices.
+	 *
+	 * @since 5.1.0
+	 */
+	public function add_admin_notices() {
+
+		// display any milestone notices
+		foreach ( $this->get_milestone_messages() as $id => $message ) {
+
+			// bail if this notice was already dismissed
+			if ( ! $this->get_plugin()->get_admin_notice_handler()->should_display_notice( $id ) ) {
+				continue;
+			}
+
+			/**
+			 * Filters a milestone notice message.
+			 *
+			 * @since 5.1.0
+			 *
+			 * @param string $message message text to be used for the milestone notice
+			 * @param string $id milestone ID
+			 */
+			$message = apply_filters( 'wc_' . $this->get_plugin()->get_id() . '_milestone_message', $this->generate_milestone_notice_message( $message ), $id );
+
+			if ( $message ) {
+
+				$this->get_plugin()->get_admin_notice_handler()->add_admin_notice( $message, $id, array(
+					'always_show_on_settings' => false,
+				) );
+
+				// only display one notice at a time
+				break;
+			}
+		}
+	}
+
+
+	/** Milestone Methods *****************************************************/
+
+
+	/**
+	 * Triggers a milestone.
+	 *
+	 * This will only be triggered if the install's "milestone version" is lower
+	 * than $since. Plugins can specify $since as the version at which a
+	 * milestone's feature was added. This prevents existing installs from
+	 * triggering notices for milestones that have long passed, like a payment
+	 * gateway's first successful payment. Omitting $since will assume the
+	 * milestone has always existed and should only trigger for fresh installs.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param string $id milestone ID
+	 * @param string $message message to display to the user
+	 * @param string $since the version since this milestone has existed in the plugin
+	 * @return bool
+	 */
+	public function trigger_milestone( $id, $message, $since = '1.0.0' ) {
+
+		// if the plugin was had milestones before this milestone was added, don't trigger it
+		if ( version_compare( $this->get_milestone_version(), $since, '>' ) ) {
+			return false;
+		}
+
+		return $this->register_milestone_message( $id, $message );
+	}
+
+
+	/**
+	 * Generates a milestone notice message.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param string $custom_message custom text that notes what milestone was completed.
+	 * @return string
+	 */
+	protected function generate_milestone_notice_message( $custom_message ) {
+
+		$message = '';
+
+		if ( $this->get_plugin()->get_reviews_url() ) {
+
+			// to be prepended at random to each milestone notice
+			$exclamations = array(
+				__( 'Awesome', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+				__( 'Fantastic', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+				__( 'Cowabunga', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+				__( 'Congratulations', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+				__( 'Hot dog', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+			);
+
+			$message = $exclamations[ array_rand( $exclamations ) ] . ', ' . esc_html( $custom_message ) . ' ';
+
+			$message .= sprintf(
+				/* translators: Placeholders: %1$s - plugin name, %2$s - <a> tag, %3$s - </a> tag, %4$s - <a> tag, %5$s - </a> tag */
+				__( 'Are you having a great experience with %1$s so far? Please consider %2$sleaving a review%3$s! If things aren\'t going quite as expected, we\'re happy to help -- please %4$sreach out to our support team%5$s.', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+				'<strong>' . esc_html( $this->get_plugin()->get_plugin_name() ) . '</strong>',
+				'<a href="' . esc_url( $this->get_plugin()->get_reviews_url() ) . '">', '</a>',
+				'<a href="' . esc_url( $this->get_plugin()->get_support_url() ) . '">', '</a>'
+			);
+		}
+
+		return $message;
+	}
+
+
+	/**
+	 * Registers a milestone message to be displayed in the admin.
+	 *
+	 * @since 5.1.0
+	 * @see Lifecycle::generate_milestone_notice_message()
+	 *
+	 * @param string $id milestone ID
+	 * @param string $message message to display to the user
+	 * @return bool whether the message was successfully registered
+	 */
+	public function register_milestone_message( $id, $message ) {
+
+		$milestone_messages = $this->get_milestone_messages();
+		$dismissed_notices  = array_keys( $this->get_plugin()->get_admin_notice_handler()->get_dismissed_notices() );
+
+		// get the total number of dismissed milestone messages
+		$dismissed_milestone_messages = array_intersect( array_keys( $milestone_messages ), $dismissed_notices );
+
+		// if the user has dismissed more than three milestone messages already, don't add any more
+		if ( count( $dismissed_milestone_messages ) > 3 ) {
+			return false;
+		}
+
+		$milestone_messages[ $id ] = $message;
+
+		return update_option( 'wc_' . $this->get_plugin()->get_id() . '_milestone_messages', $milestone_messages );
+	}
+
+
+	/** Utility Methods *******************************************************/
+
+
+	/**
+	 * Gets the registered milestone messages.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return array
+	 */
+	protected function get_milestone_messages() {
+
+		return get_option( 'wc_' . $this->get_plugin()->get_id() . '_milestone_messages', array() );
+	}
+
+
+	/**
+	 * Sets the milestone version.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param string $version plugin version
+	 * @return bool
+	 */
+	public function set_milestone_version( $version ) {
+
+		$this->milestone_version = $version;
+
+		return update_option( 'wc_' . $this->get_plugin()->get_id() . '_milestone_version', $version );
+	}
+
+
+	/**
+	 * Gets the milestone version.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return string
+	 */
+	public function get_milestone_version() {
+
+		if ( ! $this->milestone_version ) {
+			$this->milestone_version = get_option( 'wc_' . $this->get_plugin()->get_id() . '_milestone_version', '' );
+		}
+
+		return $this->milestone_version;
+	}
+
+
+	/**
+	 * Gets the currently installed plugin version.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return string
+	 */
+	protected function get_installed_version() {
+
+		return get_option( $this->get_plugin()->get_plugin_version_name() );
+	}
+
+
+	/**
+	 * Sets the installed plugin version.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @param string $version version to set
+	 */
+	protected function set_installed_version( $version ) {
+
+		update_option( $this->get_plugin()->get_plugin_version_name(), $version );
+	}
+
+
+	/**
+	 * Gets the plugin instance.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return \WC_Braintree\Plugin_Framework\SV_WC_Plugin
+	 */
+	protected function get_plugin() {
+
+		return $this->plugin;
+	}
+
+
+	/** Deprecated methods ****************************************************/
+
+
+	/**
+	 * Handles tasks after the plugin has been updated.
+	 *
+	 * @internal
+	 *
+	 * @since 5.1.0
+	 */
+	public function do_update() {
+
+		SV_WC_Plugin_Compatibility::wc_deprecated_function( __METHOD__, '5.2.0' );
+	}
+
+
+}
+
+endif;

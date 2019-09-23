@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../razorpay-payments.php';
+require_once __DIR__.'/../woo-razorpay.php';
 require_once __DIR__.'/../razorpay-sdk/Razorpay.php';
 
 use Razorpay\Api\Api;
@@ -23,8 +23,9 @@ class RZP_Webhook
     /**
      * Event constants
      */
-    const PAYMENT_AUTHORIZED = 'payment.authorized';
-    const PAYMENT_FAILED     = 'payment.failed';
+    const PAYMENT_AUTHORIZED        = 'payment.authorized';
+    const PAYMENT_FAILED            = 'payment.failed';
+    const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
 
     function __construct()
     {
@@ -99,6 +100,9 @@ class RZP_Webhook
                     case self::PAYMENT_FAILED:
                         return $this->paymentFailed($data);
 
+                    case self::SUBSCRIPTION_CANCELLED:
+                        return $this->subscriptionCancelled($data);
+
                     default:
                         return;
                 }
@@ -114,6 +118,16 @@ class RZP_Webhook
     {
         return;
     }
+
+    /**
+     * Does nothing for the main payments flow currently
+     * @param array $data Webook Data
+     */
+    protected function subscriptionCancelled(array $data)
+    {
+        return;
+    }
+
 
     /**
      * Handling the payment authorized webhook

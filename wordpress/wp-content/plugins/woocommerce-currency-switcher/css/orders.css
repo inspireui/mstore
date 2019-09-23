@@ -1,0 +1,10 @@
+.woocs_recalculate_all_orders_curr_button .woocs_ajax_preload{
+    display:none;
+    vertical-align: middle;
+}
+.tablenav a.woocs_recalculate_all_orders_curr_button {
+    position: relative;
+    display:inline-block;
+    margin-top: 5px;
+}
+

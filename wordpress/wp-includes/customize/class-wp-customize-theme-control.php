@@ -82,17 +82,26 @@ class WP_Customize_Theme_Control extends WP_Customize_Control {
 
 			<span class="more-details theme-details" id="{{ data.section }}-{{ data.theme.id }}-action" aria-label="<?php echo esc_attr( $details_label ); ?>"><?php _e( 'Theme Details' ); ?></span>
 
-			<div class="theme-author"><?php
+			<div class="theme-author">
+			<?php
 				/* translators: Theme author name */
 				printf( _x( 'By %s', 'theme author' ), '{{ data.theme.author }}' );
-			?></div>
+			?>
+			</div>
 
 			<# if ( 'installed' === data.theme.type && data.theme.hasUpdate ) { #>
 				<div class="update-message notice inline notice-warning notice-alt" data-slug="{{ data.theme.id }}">
 					<p>
 						<?php
-						/* translators: %s: "Update now" button */
-						printf( __( 'New version available. %s' ), '<button class="button-link update-theme" type="button">' . __( 'Update now' ) . '</button>' );
+						if ( is_multisite() ) {
+							_e( 'New version available.' );
+						} else {
+							printf(
+								/* translators: %s: "Update now" button */
+								__( 'New version available. %s' ),
+								'<button class="button-link update-theme" type="button">' . __( 'Update now' ) . '</button>'
+							);
+						}
 						?>
 					</p>
 				</div>
@@ -115,7 +124,7 @@ class WP_Customize_Theme_Control extends WP_Customize_Control {
 				<div class="theme-id-container">
 					<h3 class="theme-name" id="{{ data.section }}-{{ data.theme.id }}-name">{{ data.theme.name }}</h3>
 					<div class="theme-actions">
-						<button type="button" class="button button-primary preview-theme" aria-label="<?php echo esc_attr( $preview_label ); ?>" data-slug="{{ data.theme.id }}"><?php _e( 'Live Preview' ); ?></span>
+						<button type="button" class="button button-primary preview-theme" aria-label="<?php echo esc_attr( $preview_label ); ?>" data-slug="{{ data.theme.id }}"><?php _e( 'Live Preview' ); ?></button>
 					</div>
 				</div>
 				<div class="notice notice-success notice-alt"><p><?php _ex( 'Installed', 'theme' ); ?></p></div>
@@ -128,6 +137,6 @@ class WP_Customize_Theme_Control extends WP_Customize_Control {
 				</div>
 			<# } #>
 		</div>
-	<?php
+		<?php
 	}
 }

@@ -1,0 +1,56 @@
+.woocs-style-for-menu-dialog {
+    position: absolute;
+    text-align: center;
+    background: #4478a0;
+    margin: 13px 0 4px 4px;
+    display: inline-block;
+    width: 256px;
+    box-shadow: 0px 0px 8px rgba(68, 140, 160, 0.5);
+}
+.woocs-style-for-menu-dialog:after,
+.woocs-style-for-menu-dialog:before {
+    bottom: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+.woocs-style-for-menu-dialog:after {
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: #5C9CCE;
+    border-width: 15px;
+    left: 50%;
+    margin-left: -15px;
+}
+.woocs-style-for-menu-dialog:before {
+    border-color: rgba(170, 170, 170, 0);
+    border-width: 16px;
+    left: 50%;
+    margin-left: -16px;
+}
+.woocs-style-for-menu-dialog .woocs-style-for-menu-title {
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #5189B5;
+    border-width: 0px 0px 1px 0px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 4px;
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: #5C9CCE;
+    box-shadow: 0px 1px 4px rgba(68, 120, 160, 0.1);
+    font-size: 16px;
+    line-height:2em;
+}
+.woocs-style-for-menu-dialog .woocs-style-for-menu-title:first-child {
+    margin-top: -4px;
+}
+
+.woocs-style-for-menu-form
+{
+    padding:16px;
+}

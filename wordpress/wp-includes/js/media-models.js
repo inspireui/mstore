@@ -36,12 +36,32 @@
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -59,14 +79,27 @@
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 20);
+/******/ 	return __webpack_require__(__webpack_require__.s = 22);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 20:
+/***/ 22:
 /***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(23);
+
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @output wp-includes/js/media-models.js
+ */
 
 var $ = jQuery,
 	Attachment, Attachments, l10n, media;
@@ -134,12 +167,12 @@ l10n = media.model.l10n = window._wpMediaModelsL10n || {};
 media.model.settings = l10n.settings || {};
 delete l10n.settings;
 
-Attachment = media.model.Attachment = __webpack_require__( 21 );
-Attachments = media.model.Attachments = __webpack_require__( 22 );
+Attachment = media.model.Attachment = __webpack_require__( 24 );
+Attachments = media.model.Attachments = __webpack_require__( 25 );
 
-media.model.Query = __webpack_require__( 23 );
-media.model.PostImage = __webpack_require__( 24 );
-media.model.Selection = __webpack_require__( 25 );
+media.model.Query = __webpack_require__( 26 );
+media.model.PostImage = __webpack_require__( 27 );
+media.model.Selection = __webpack_require__( 28 );
 
 /**
  * ========================================================================
@@ -310,7 +343,7 @@ $(window).on('unload', function(){
 
 /***/ }),
 
-/***/ 21:
+/***/ 24:
 /***/ (function(module, exports) {
 
 var $ = Backbone.$,
@@ -486,7 +519,7 @@ module.exports = Attachment;
 
 /***/ }),
 
-/***/ 22:
+/***/ 25:
 /***/ (function(module, exports) {
 
 /**
@@ -642,6 +675,15 @@ var Attachments = Backbone.Collection.extend(/** @lends wp.media.model.Attachmen
 	 * @returns {Boolean}
 	 */
 	validator: function( attachment ) {
+
+		// Filter out contextually created attachments (e.g. headers, logos, etc.).
+		if (
+			! _.isUndefined( attachment.attributes.context ) &&
+			'' !== attachment.attributes.context
+		) {
+			return false;
+		}
+
 		if ( ! this.validateDestroyed && attachment.destroyed ) {
 			return false;
 		}
@@ -1036,7 +1078,7 @@ module.exports = Attachments;
 
 /***/ }),
 
-/***/ 23:
+/***/ 26:
 /***/ (function(module, exports) {
 
 var Attachments = wp.media.model.Attachments,
@@ -1112,7 +1154,7 @@ Query = Attachments.extend(/** @lends wp.media.model.Query.prototype */{
 		// Only observe when a limited number of query args are set. There
 		// are no filters for other properties, so observing will result in
 		// false positives in those queries.
-		allowed = [ 's', 'order', 'orderby', 'posts_per_page', 'post_mime_type', 'post_parent' ];
+		allowed = [ 's', 'order', 'orderby', 'posts_per_page', 'post_mime_type', 'post_parent', 'author' ];
 		if ( wp.Uploader && _( this.args ).chain().keys().difference( allowed ).isEmpty().value() ) {
 			this.observe( wp.Uploader.queue );
 		}
@@ -1229,14 +1271,15 @@ Query = Attachments.extend(/** @lends wp.media.model.Query.prototype */{
 	 * @readonly
 	 */
 	propmap: {
-		'search':    's',
-		'type':      'post_mime_type',
-		'perPage':   'posts_per_page',
-		'menuOrder': 'menu_order',
-		'uploadedTo': 'post_parent',
-		'status':     'post_status',
-		'include':    'post__in',
-		'exclude':    'post__not_in'
+		'search':		's',
+		'type':			'post_mime_type',
+		'perPage':		'posts_per_page',
+		'menuOrder':	'menu_order',
+		'uploadedTo':	'post_parent',
+		'status':		'post_status',
+		'include':		'post__in',
+		'exclude':		'post__not_in',
+		'author':		'author'
 	},
 	/**
 	 * Creates and returns an Attachments Query collection given the properties.
@@ -1258,6 +1301,7 @@ Query = Attachments.extend(/** @lends wp.media.model.Query.prototype */{
 	 * @param {Object} [props.menu_order]
 	 * @param {Object} [props.post_parent]
 	 * @param {Object} [props.post_status]
+	 * @param {Object} [props.author]
 	 * @param {Object} [options]
 	 *
 	 * @returns {wp.media.model.Query} A new Attachments Query collection.
@@ -1349,7 +1393,7 @@ module.exports = Query;
 
 /***/ }),
 
-/***/ 24:
+/***/ 27:
 /***/ (function(module, exports) {
 
 /**
@@ -1510,7 +1554,7 @@ module.exports = PostImage;
 
 /***/ }),
 
-/***/ 25:
+/***/ 28:
 /***/ (function(module, exports) {
 
 var Attachments = wp.media.model.Attachments,

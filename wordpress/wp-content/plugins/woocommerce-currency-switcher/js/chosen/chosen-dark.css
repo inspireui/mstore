@@ -3,11 +3,12 @@
 
 
 .woocommerce-currency-switcher-form .chosen-container .chosen-results li {
-    color: #999999;
+    color: #fff !important;
+    line-height: 23px !important;
 }
 .woocommerce-currency-switcher-form .chosen-container .chosen-drop, .chosen-container-single .chosen-single {
     background-color: #252525;
-    color: #999999;
+    color: #fff !important;
 }
 /* Some IE 7-9 fun with this next one - filter likes to override background */
 .woocommerce-currency-switcher-form .chosen-container-single .chosen-single {
@@ -17,7 +18,7 @@
     filter: none;
     border: none;
     display: block;
-    height: 30px;
+    height: 23px;
 }
 .woocommerce-currency-switcher-form .chosen-container .chosen-drop {
     border: 1px solid #121212;

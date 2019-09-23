@@ -1,3 +1,7 @@
+/**
+ * @output wp-includes/js/mce-view.js
+ */
+
 /* global tinymce */
 
 /*
@@ -863,7 +867,7 @@
 
 			// Obtain the target width for the embed.
 			if ( self.editor ) {
-				maxwidth = self.editor.iframeElement.clientWidth - 20; // Minus the sum of horizontal margins and borders.
+				maxwidth = self.editor.getBody().clientWidth;
 			}
 
 			wp.ajax.post( this.action, {

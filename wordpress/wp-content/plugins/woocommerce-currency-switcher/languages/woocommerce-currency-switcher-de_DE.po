@@ -732,10 +732,6 @@ msgstr ""
 "diese Option vor der Online Stellung Ihrer Website zu testen. Lesen Sie dazu "
 "in der Beschreibung des Plugin.  "
 
-#. Plugin URI of the plugin/theme
-msgid "http://currency-switcher.com/"
-msgstr "http://currency-switcher.com/"
-
 #. Description of the plugin/theme
 msgid "Currency Switcher for WooCommerce"
 msgstr "Währungs-Umschalter für Woocommerce"

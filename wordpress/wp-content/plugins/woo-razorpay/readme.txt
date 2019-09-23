@@ -2,8 +2,9 @@
 Contributors: razorpay
 Tags: razorpay, payments, india, woocommerce, ecommerce
 Requires at least: 3.9.2
-Tested up to: 4.8
-Stable tag: 1.6.2
+Tested up to: 5.2.2
+Stable tag: 2.2.0
+Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,7 +26,7 @@ This is compatible with WooCommerce>=2.4, including the new 3.0 release. It has 
 1. Wordpress v3.9.2 and later
 2. Woocommerce v2.4 and later
 3. PHP v5.6.0 and later
-4. php-curl
+4. php-curl extension
 
 == Configuration ==
 
@@ -34,7 +35,32 @@ This is compatible with WooCommerce>=2.4, including the new 3.0 release. It has 
 3. Enable the Payment Method, name it Credit Card / Debit Card / Internet Banking (this will show up on the payment page your customer sees), add in your Key id and Key Secret.
 4. The Payment Action should be set to "Authorize and Capture". If you want to capture payments manually from the Dashboard after manual verification, set it to "Authorize".
 
+== Upgrade Notice ==
+= 2.0.0 =
+* Switches from WooCommerce side currency conversion to Razorpay's native multi currency support. 
+
 == Changelog ==
+
+= 2.2.0 =
+* Adds webhook for handling subscription cancellation.
+* Tested upto WordPress 5.2.2 and WooCommerce 3.7.0
+
+= 2.1.0 =
+* Fixed bug for razorpay orderID validation.
+* Adds support for razorpay Analytics
+* Tested upto WordPress 5.2.2 and WooCommerce 3.6.5
+
+= 2.0.0 =
+* Removes support for WooCommerce Currency Convertor
+* Switches to Razorpay's Native Multi-Currency support
+* Adds support for [Price Based on Country Plugin](https://www.pricebasedcountry.com/)
+* Tested upto WordPress 5.2-RC1 and WooCommerce 3.6.2
+* Release uploaded as 2.0.1 on the Wordpress Plugin Directory.
+
+= 1.6.3 =
+* Allows for null values in displayAmount
+* Better support for international currency conversion
+* Support for custom order success message
 
 = 1.6.2 =
 * Fixes webhook capture flow by re-fetching payment and checking for status
@@ -118,9 +144,20 @@ This is compatible with WooCommerce>=2.4, including the new 3.0 release. It has 
 = 1.2.6 =
 * Adds manual capture option
 
+== Frequently Asked Questions ==
+ 
+= Does this support webhooks? =
+ 
+Yes, please see https://github.com/razorpay/razorpay-woocommerce/wiki/Webhooks for more details
+
+= How do I enable Multi-currency support =
+
+Please get multi-currency enabled for your account. Once you have it enabled, you can install any plugin
+version higher than 2.0.0, which comes with native multi-currency support.
+
 == Support ==
 
-Visit [razorpay.com](https://razorpay.com) for support requests or email us at <integrations@razorpay.com>.
+Visit [razorpay.com](https://razorpay.com/support/#request/merchant/technical-assistance) for support requests.
 
 == License ==
 

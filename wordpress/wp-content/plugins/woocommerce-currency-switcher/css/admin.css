@@ -1,0 +1,137 @@
+.woocs_recalculate_all_orders_curr_button .woocs_ajax_preload{
+    display:none;
+    vertical-align: middle;
+}
+.tablenav a.woocs_recalculate_all_orders_curr_button {
+    position: relative;
+    display:inline-block;
+    margin-top: 5px;
+}
+.woocs_hint, .woocs_settings_version{
+    color:red;
+}
+.woocs_settings_red{
+    color:red;
+}
+.woocs_settings_clear{
+    clear: both;
+}
+.woocs_settings_codes{
+    float: right;
+}
+.woocs_settings_dd{
+    min-width: 300px;
+}
+.woocs_settings_tip{
+    margin-top: -4px;
+}
+.woocs_settings_hide{
+    display: none;
+}
+.woocs_settings_i1{
+    font-size:11px;
+    font-weight:normal;
+}
+.woocs_settings_i2{
+    color:red;
+    font-size:11px; 
+    font-weight:normal;
+}
+.woocs_settings_geo_table .woocs_settings_geo_table_td{
+    width: 100%;
+}
+.woocs_settings_geo_table_title div{
+    width: 70px;
+}
+.woocs_settings_geo_table .chosen_select{
+    max-width: 100%;
+}
+#plugin_warning{
+    padding: 9px; 
+    border: solid red 3px; 
+    background: #eee; 
+}
+.woocs_settings_ff{
+    color: #ff0000;
+}
+.woocs_settings_green{
+    color: #008000;
+}
+.woocs_settings_underline{
+    text-decoration: underline;
+}
+.woocs_settings_powered{
+    float: right;
+}
+.woocs_settings_powered a{
+    font-size: 11px;
+    color: #aaa;
+    text-decoration: none;
+}
+.woocs_settings_section{
+    position: relative;
+}
+.woocs_roll_blocks_width input{
+    min-width: 100px; margin-top: 3px;
+}
+.woocs_settings_promotion{
+    width: 100%;
+}
+.woocs_settings_promotion td{
+    width: 33%;
+}
+.woocs_settings_version{
+    margin-bottom: 1px;
+}
+.woocs_settings_geo_tip{
+    margin-top: 12px;
+}
+.woocs_settings_user_tip{
+    margin-top: -7px;   
+}
+button.woocs_settings_docs{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 999;
+}
+.woocs-rate{
+    width: 130px;
+}
+.woocs_curr_description{
+    width: 250px;
+}
+.woocs_settings_flag_tip{
+    max-height: 25px;
+    display: inline-block;
+}
+
+.woocs_settings_flag_tip img{
+    /*vertical-align: top;*/
+    max-width: 45px;
+}
+.woocs_del_currency{
+    vertical-align: middle;
+}
+.woocs_settings_move img{
+    width: 23px; 
+    vertical-align: top;
+}
+.woocs_geo_hello{
+    color:green;
+    font-size:18px;
+    font-weight:normal;
+    line-height:0;
+}
+
+a.woocs_flag{
+    vertical-align: top !important;
+}
+
+/*
+.wp-admin-bar-woocs-btn a.ab-item{
+    color: orange !important;
+}
+*/
+
+

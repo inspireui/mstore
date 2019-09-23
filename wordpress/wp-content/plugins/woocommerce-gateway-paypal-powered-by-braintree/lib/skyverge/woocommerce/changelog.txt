@@ -1,0 +1,280 @@
+*** SkyVerge WooCommerce Plugin Framework Changelog ***
+
+2018.09.25 - version 5.3.0
+ * Feature - Add support for updating payment methods via API on payment
+ * Tweak - Refactor capture handling and add a dedicated handling class
+ * Tweak - Add an admin notice for gateways when debug logging is enabled in production mode
+ * Fix - Ensure orders are automatically captured when the status is changes via the REST API if enabled
+ * Fix - Ensure the gateway capture UI is only displayed for regular orders
+ * Fix - Prevent capture JS errors when multiple gateways running the same framework version are activated
+ * Fix - Strip price HTML from the admin capture alert
+ * Dev - Add the wc_{gateway_id}_held_order_status filter
+
+2018.09.04 - version 5.2.2
+ * Tweak - Provide an abstract Setup Wizard for plugins to implement for easier onboarding
+
+2018.08.21 - version 5.2.1
+ * Fix - Prevent errors when triggering payment gateway payment and refund milestones
+ * Fix - Add escaping to some admin notice messages
+
+2018.07.24 - version 5.2.0
+ * Fix - Use the order currency for the gateway capture message currency symbol
+ * Dev - Introduce dedicated plugin methods for loading after init
+ * Dev - Move plugin lifecycle methods to the Lifecycle handler
+ * Dev - Introduce a dependency handler for PHP compatibility notices
+ * Dev - Introduce a REST API handler base
+ * Misc - Add default plugin and gateway data to the WooCommerce REST API System Status response
+
+2018.06.25 - version 5.1.5
+ * Fix - Ensure exceptions are caught for Subscriptions "change payment" and Pre-Orders tokenization failures
+
+2018.05.22 - version 5.1.4
+ * Tweak - Add a gateway privacy handler to export or remove order payment data and payment tokens on request
+ * Tweak - Add a warning for WooCommerce 2.6 installs that 3.0 will soon be required
+ * Misc - Add support for WooCommerce 3.4
+
+2018.04.17 - version 5.1.3
+ * Tweak - Add a method for gateways to call during failing captures
+
+2018.04.02 - version 5.1.2
+ * Fix - Prevent warnings in PHP 7.2 when building the gateway settings
+ * Fix - Fix namespaces in the Apple Pay framework
+
+2018.03.27 - version 5.1.1
+ * Tweak - Disable the Add Payment Method button when editing a method
+ * Fix - Ensure customers can't delete subscription payment methods from gateways that use integer token IDs
+ * Fix - Always pass user email to gateways when adding a payment method
+
+2018.02.27 - version 5.1.0
+ * Feature - Add payment method editing support
+ * Feature - Allow users to set nicknames for their payment methods
+ * Feature - Add support for auto-capturing orders when changed to a paid status
+ * Feature - Add a Milestones API for plugins to trigger milestone messages and prompt users for feedback after key plugin events
+ * Tweak - Improve the My Account Payment Methods table on desktop and mobile
+ * Tweak - Let gateway handle their own API errors when deleting payment methods
+ * Tweak - Improve the admin token editor with better error handling and improved display
+ * Tweak - Let plugins define a "reviews" URL to be displayed with the plugin action links
+ * Tweak - Adjust the gateway "Accepted Cards" setting wording to clarify that it doesn't affect payment processor card support
+ * Tweak - Support warning and info message types in the Admin Message Handler
+ * Fix - Prevent duplicate admin notices when running alongside legacy framework versions
+
+2018.01.17 - version 5.0.1
+ * Misc - Remove support for WooCommerce 2.5
+ * Misc - Require WordPress 4.4 or higher
+
+2018.01.11 - version 5.0.0
+ * Feature - Partial capture - add a UI for multiple partial captures in supported gateways
+ * Feature - Add CSC setting to enable or disable the field for tokenized methods
+ * Tweak - Improve the My Payment Methods table styling on mobile
+ * Dev - Add versioned namespaces
+ * Dev - Add a sample plugin loader class
+ * Dev - Add action hooks for My Payment Method actions
+ * Misc - Drop WooCommerce 2.5 support
+ * Misc - Drop Subscriptions 1.x support
+
+2017.12.11 - version 4.8.3
+ * Fix - Ensure failed order token meta is only copied to the parent subscription when a successful payment has occurred
+ * Fix - Don't reset the checkout password field if it's already visible
+
+2017.12.01 - version 4.8.2
+ * Fix - Fix a possible race condition when performing background processing health checks
+ * Fix - Account for possible false negatives when testing loopback connections in certain environments
+
+2017.11.27 - version 4.8.1
+ * Fix - Fix Apple Pay compatibility with WooCommerce 3.2+
+
+2017.10.31 - version 4.8.0
+ * Feature - Add a framework for batch job handling for when background processing is unavailable
+ * Feature - Debug tool for testing the site's environment for loopback connection support
+
+2017.10.05 - version 4.7.3
+ * Tweak - Add new methods for checking for specific WooCommerce versions
+ * Tweak - Adjust the PHP version notice to check for 5.6 by May 2018 and adjust the messaging when that date has passed
+ * Fix - Conflict with WooCommerce filtering of nonce checks for background jobs
+
+2017.09.12 - version 4.7.2
+ * Fix - Ensure failed Pre-Orders can be paid with a new method by bypassing the failed order's stored token
+ * Fix - Use the parameters passed to SV_WP_Admin_Message_Handler::show_messages()
+
+2017.08.14 - version 4.7.1
+ * Tweak - Refine the TLS 1.2 notice wording and appearance
+
+2017.07.25 - version 4.7.0
+ * Feature - Introduce the Apple Pay framework for developers
+
+2017.07.11 - version 4.6.6
+ * Fix - Ensure backwards compatibility with gateways that don't extend the SV_WC_API_Base class for their API
+
+2017.06.26 - version 4.6.5
+ * Misc. - Make a TLS 1.2 admin notice available for gateways that require it
+ * Misc. - Ensure WooCommerce 3.1 compatibility
+
+2017.05.20 - version 4.6.4
+ * Fix - Add dedicated subscriptions Change Payment handling to avoid subscription manipulation
+ * Fix - Ensure old payment methods can be removed after changing subscription payment to a new method
+
+2017.05.09 - version 4.6.3
+ * Tweak - Add optional notice for plugins that want to require PHP 5.3+ in the future
+ * Tweak - Improved background process handling for certain server & cache configurations
+
+2017.05.01 - version 4.6.2
+ * Fix - Ensure authorized, but not yet captured, transactions are marked "on hold" for off-site gateways
+
+2017.04.17 - version 4.6.1
+ * Tweak - Load admin translations based on the user's configured language in WordPress 4.7+
+ * Tweak - Added the SV_WC_Order_Compatibility::has_shipping_address() method
+ * Fix - Prevent some deprecated notices when processing subscriptions in WooCommerce 3.0+
+
+2017.03.27 - version 4.6.0
+ * Tweak - Add Payment Gateway debug mode to the System Status report
+ * Tweak - Plugin "Docs" links now open in a new tab
+ * Misc - Add helper method to get normalized WooCommerce screen IDs
+ * Misc - Added support for WooCommerce 3.0
+
+2017.01.06 - version 4.5.2
+ * Fix - Include Curaçao when converting country codes
+
+2016.11.18 - version 4.5.1
+ * Fix - Prevent a potential fatal error for plugins not using the latest JSON/XML request classes
+
+2016.11.07 - version 4.5.0
+ * Feature - Mobile-friendly credit card fields using the `tel` input
+ * Feature - Add setting to enable capture for virtual-only orders
+ * Feature - Define minimum php.ini requirements an display a notice when they are not met
+ * Feature - Allow deprecated hooks to be mapped to their replacements
+ * Tweak - Move capture handling to the base gateway class to make it available to hosted gateways
+ * Tweak - Add a "card not accepted" icon when a card number format is not accepted or recognized
+ * Tweak - Add full MasterCard BIN Series 2 support & update the card logo
+ * Tweak - Improve consistency of card type IDs and abbreviations
+ * Tweak - Refactor gateway settings inheritance
+ * Fix - Fix failed renewal payment data not updating for auth-only renewals
+ * Fix - The `load_translation()` method is no longer required for base plugins
+ * Fix - Prevent notices when running alongside bbPress or BuddyPress
+
+2016.09.14 - version 4.4.3
+ * Fix - Fix an error when processing guest pre-order payments
+
+2016.08.02 - version 4.4.2
+ * Tweak - Refactor background job data structure and processing
+
+2016.07.18 - version 4.4.1
+ * Misc - Add compatibility for WordPress 4.6
+
+2016.06.01 - version 4.4.0
+ * Feature - Allow bundled framework and plugin translations to be easily overridden
+ * Tweak - Allow plugins extending SV_WC_API_Base to declare TLS v1.2 as a requirement for requests
+ * Misc - Added support for WooCommerce 2.6
+ * Misc - Removed support for WooCommerce 2.3
+
+2016.04.18 - version 4.3.0
+ * Feature - Revamped admin payment token editor
+ * Feature - Prevent deleting subscription payment methods
+ * Feature - Add payment gateway environment information to the WooCommerce system status report
+ * Tweak - Support WordPress core dismissible notices
+ * Tweak - Misc Payment Gateway framework improvements
+ * Fix - Properly validate CSC if present for tokenized payment methods
+ * Fix - Fix double confirm messages when deleting a payment method in certain cases
+
+2016.02.08 - version 4.2.2
+ * Fix - Fix handling guest pre-orders
+
+2016.01.20 - version 4.2.1
+ * Fix - Fix `implode()` warnings in `SV_WC_Helper::get_order_line_items()`
+
+2016.01.13 - version 4.2.0
+ * Feature - Greatly improved compatibility with multi-language/translation plugins
+ * Misc - Switched to using a separate text domain for the framework strings - 'woocommerce-gateway-paypal-powered-by-braintree'
+ * Misc - Added support for WooCommerce 2.5
+ * Misc - Removed support for WooCommerce 2.2
+
+2015.11.05 - version 4.1.2
+ * Tweak - Misc Payment Gateway framework improvements
+
+2015.09.09 - version 4.1.1
+ * Fix - For Subscriptions 1.5, don't mark the original order as failed when a renewal payment fails
+
+2015.08.27 - version 4.1.0
+ * Feature - WooCommerce Subscriptions 2.0 Support
+ * Tweak - Add specific width/height styling for payment method icons
+ * Fix - Fix assert() warnings with certain gateway configurations on the My Account page
+
+2015.07.29 - version 4.0.1
+ * Fix - Fix typo in payment gateway frontend javascript
+ * Tweak - Add inline style for payment gateway icons
+
+2015.07.27 - version 4.0.0
+ * Feature - Standardized payment gateway form
+ * Feature - Add new payment method feature
+ * Feature - Standardized & unified My Payment Methods table
+ * Feature - New payment method icons in SVG format
+ * Tweak - Adds is_woocommerce_active() method to bootstrap class, to support non-WooThemes listed frameworked plugins
+ * Tweak - Payment gateway token support now allows for merging local data with remote data, and caching results in a transient
+ * Tweak - The order status for voided orders is now "cancelled" rather than "refunded"
+ * Tweak - Improved support for REST API development
+ * Tweak - Framework bootstrap now gives the option to easily deactivate backwards incompatible plugins, rather than only an instruction to update older plugins
+ * Tweak - Framework bootstrap option to declare minimum required WordPress version
+ * Misc - WooCommerce 2.4 compatibility
+
+2015.03.17 - version 3.1.2
+ * Fix - JS variable `wc_select_params` undefined in WC 2.3.6+
+
+2015.03.10 - version 3.1.1
+ * Tweak - Add `get_cancel_order_url_raw()` compatibility method
+
+2015.02.09 - version 3.1.0
+ * Feature - Refund/Void support for the payment gateway framework, huzzah!
+ * Misc - WooCommerce 2.3 compatibility
+
+2014.12.11 - version 3.0.4
+ * Fix - Bug when removing a tokenized credit card from the My Account page
+ * Tweak - Accept a notice-class parameter when rendering admin notice to avoid always using the "error" notice
+
+2014.11.20 - version 3.0.3
+ * Fix - Payment gateway framework now catches all SV_WC_Plugin_Exception exceptions. Fixes uncaught SV_WC_API_Exception error.
+
+2014.10.19 - version 3.0.2
+ * Fix - Add commonly used notice functions to avoid errors when renewing subscriptions
+
+2014.10.15 - version 3.0.1
+ * Tweak - Method visibility changed from private to protected to allow adjustment via sub-classes
+ * Fix - Fix "Wrong parameters for Exception" fatal error
+
+2014.09.07 - version 3.0.0
+ * Feature - Edit tokens from Admin Order Edit screen
+ * Tweak - Improved dismissible admin notices
+ * Misc - WooCommerce 2.2 compatibility
+ * Misc - Backwards incompatible
+
+2014.08.26 - version 2.2.0
+ * Feature - Added API base class and automatic request logging
+ * Feature - Introduced Helper class
+ * Feature - Optional detailed customer decline messages on checkout
+ * Tweak - Introduced named exceptions
+ * Tweak - Updates to support Chase Paymentech certification mode
+ * Tweak - Updates to the Hosted Gateway class for improved handling of redirect-back gateways
+ * Tweak - My Payment Methods template now uses Dashicons instead of images
+ * Tweak - Plugin active method now checks filename only
+ * Fix - Fixed product page URLs
+
+2014.05.26 - version 2.1.0
+ * Feature - Implemented hosted payment gateway framework
+ * Feature - Capture charge bulk order action for payment gateways
+ * Tweak - Authorized charges are no longer automatically capture when changing order status from on-hold to processing/completed
+ * Feature - Added function dependency checks
+
+2014.03.05 - version 2.0.3
+ * Fix - Fixed WC 2.1 compatibility for payment gateway charge captures
+
+2014.02.03 - version 2.0.2
+ * Fix - Improved WC 2.1 compatibility method to return the order id on the checkout pay page
+
+2014.01.29 - version 2.0.1
+ * Tweak - Additional WC 2.1 compatibility helpers
+
+2014.01.20 - version 2.0.0
+ * Feature - Generalized Plugin Framework
+ * Feature - Support for "tokenize with sale" gateways
+ * Tweak - Improved handling for credit card capture request
+
+2013.11.11 - version 1.0.0
+ * First Release

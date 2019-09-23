@@ -1,3 +1,10 @@
+.woocs_subsubsub_section{
+    font-family: 'Open Sans', sans-serif;
+}
+
+/******* loader *******/
+.cssload-loader{position:absolute;top:43%;left:40%;left:calc(50% - 36px);width:72px;height:72px;border-radius:50%;-o-border-radius:50%;-ms-border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%;perspective:900px}.cssload-inner{position:absolute;width:100%;height:100%;box-sizing:border-box;-o-box-sizing:border-box;-ms-box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;border-radius:50%;-o-border-radius:50%;-ms-border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%}.cssload-inner.cssload-one{left:0;top:0;animation:cssload-rotate-one 1.6s linear infinite;-o-animation:cssload-rotate-one 1.6s linear infinite;-ms-animation:cssload-rotate-one 1.6s linear infinite;-webkit-animation:cssload-rotate-one 1.6s linear infinite;-moz-animation:cssload-rotate-one 1.6s linear infinite;border-bottom:3px solid #22639c}.cssload-inner.cssload-two{right:0;top:0;animation:cssload-rotate-two 1.6s linear infinite;-o-animation:cssload-rotate-two 1.6s linear infinite;-ms-animation:cssload-rotate-two 1.6s linear infinite;-webkit-animation:cssload-rotate-two 1.6s linear infinite;-moz-animation:cssload-rotate-two 1.6s linear infinite;border-right:3px solid #22639c}.cssload-inner.cssload-three{right:0;bottom:0;animation:cssload-rotate-three 1.6s linear infinite;-o-animation:cssload-rotate-three 1.6s linear infinite;-ms-animation:cssload-rotate-three 1.6s linear infinite;-webkit-animation:cssload-rotate-three 1.6s linear infinite;-moz-animation:cssload-rotate-three 1.6s linear infinite;border-top:3px solid #22639c}@keyframes cssload-rotate-one{0%{transform:rotateX(35deg) rotateY(-45deg) rotateZ(0)}100%{transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg)}}@-o-keyframes cssload-rotate-one{0%{-o-transform:rotateX(35deg) rotateY(-45deg) rotateZ(0)}100%{-o-transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg)}}@-ms-keyframes cssload-rotate-one{0%{-ms-transform:rotateX(35deg) rotateY(-45deg) rotateZ(0)}100%{-ms-transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg)}}@-webkit-keyframes cssload-rotate-one{0%{-webkit-transform:rotateX(35deg) rotateY(-45deg) rotateZ(0)}100%{-webkit-transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg)}}@-moz-keyframes cssload-rotate-one{0%{-moz-transform:rotateX(35deg) rotateY(-45deg) rotateZ(0)}100%{-moz-transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg)}}@keyframes cssload-rotate-two{0%{transform:rotateX(50deg) rotateY(10deg) rotateZ(0)}100%{transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg)}}@-o-keyframes cssload-rotate-two{0%{-o-transform:rotateX(50deg) rotateY(10deg) rotateZ(0)}100%{-o-transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg)}}@-ms-keyframes cssload-rotate-two{0%{-ms-transform:rotateX(50deg) rotateY(10deg) rotateZ(0)}100%{-ms-transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg)}}@-webkit-keyframes cssload-rotate-two{0%{-webkit-transform:rotateX(50deg) rotateY(10deg) rotateZ(0)}100%{-webkit-transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg)}}@-moz-keyframes cssload-rotate-two{0%{-moz-transform:rotateX(50deg) rotateY(10deg) rotateZ(0)}100%{-moz-transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg)}}@keyframes cssload-rotate-three{0%{transform:rotateX(35deg) rotateY(55deg) rotateZ(0)}100%{transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg)}}@-o-keyframes cssload-rotate-three{0%{-o-transform:rotateX(35deg) rotateY(55deg) rotateZ(0)}100%{-o-transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg)}}@-ms-keyframes cssload-rotate-three{0%{-ms-transform:rotateX(35deg) rotateY(55deg) rotateZ(0)}100%{-ms-transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg)}}@-webkit-keyframes cssload-rotate-three{0%{-webkit-transform:rotateX(35deg) rotateY(55deg) rotateZ(0)}100%{-webkit-transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg)}}@-moz-keyframes cssload-rotate-three{0%{-moz-transform:rotateX(35deg) rotateY(55deg) rotateZ(0)}100%{-moz-transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg)}}.woocs-admin-preloader{position:fixed;left:0;top:0;width:100%;height:100%;z-index:9999;background:#fff}
+
 div.info_popup {
     position: fixed;
     top: 48%;
@@ -10,21 +17,23 @@ div.info_popup {
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: rgba(0,0,0,.6);
-    -webkit-box-shadow: 
-        inset 0 0 0 1px rgba(0,0,0,.6), 
+    -webkit-box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,.6),
         inset 0 0 0 2px rgba(255,255,255,.2);
-    -moz-box-shadow: 
-        inset 0 0 0 1px rgba(0,0,0,.6), 
+    -moz-box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,.6),
         inset 0 0 0 2px rgba(255,255,255,.2);
-    box-shadow: 
-        inset 0 0 0 1px rgba(0,0,0,.6), 
+    box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,.6),
         inset 0 0 0 2px rgba(255,255,255,.2);
     color: #fff;
     font-size: 22px;
     font-family: 'Oswald',sans-serif;
 }
 
-
+.woocs_roll_blocks_width{
+    margin-top: 15px;
+}
 
 .woocs-text{
     width: 150px;
@@ -38,15 +47,6 @@ div.info_popup {
 
 
 /***********/
-.woocs-admin-preloader {
-    position: fixed;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    background: url(../img/admin_preloader.gif) center no-repeat #fff;
-}
 
 label[for=woocs_is_fixed_enabled],
 label[for=woocs_force_pay_bygeoip_rules],
@@ -54,7 +54,8 @@ label[for=woocs_is_geoip_manipulation]{
     color: orangered;
 }
 
-#tabs-4 span.select2{
+#tabs-4 span.select2,
+#tabs-7 span.select2{
     width: 100% !important;
 }
 
@@ -373,7 +374,7 @@ nav ul {  display: block; }
 .wfc-tabs-style-shape > nav li a span {
     display: block;
     overflow: hidden;
-    padding: 0.25em 0;
+    padding: 0.28em 0;
     background-color: #bdc2c9;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -607,24 +608,34 @@ nav ul {  display: block; }
 #woocs_list > li {
     font-family: 'Open Sans', sans-serif;
     position: relative;
-    margin-bottom: 10px;
-    padding: 10px;
+    margin-bottom: 0 !important;
+    padding: 14px 10px;
     width: 100%;
-    background-color: #f8f8f8;
+    background-color: #f9f9f8;
     border: 1px solid #ddd;
+    border-bottom: 0;
     vertical-align: middle;
-
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
+
+#woocs_list > li:nth-child(odd){
+    background-color: #f2f2f2;
+}
+
+
+#woocs_list > li:last-child{
+    border-bottom: 1px solid #ddd;
+}
+
 #woocs_list input[type=text],
 #woocs_list select{
-    margin-bottom: 0;
-    padding: 6px 3px;
+    margin-bottom: 4px;
+    padding: 4px 3px;
     height: auto !important;
-    border-color: #bababa;
+    border-color: #ddd;
     border-style: solid;
     border-width: 1px;
     color: #3b3c3f;
@@ -642,38 +653,40 @@ nav ul {  display: block; }
     vertical-align: middle;
 }
 
-#woocs_add_currency{
-    border: solid 1px greenyellow;
-    line-height: 31px;
-    height: auto !important;
-}
+
+
 
 .wfc-tabs .button{
     font-size: 14px;
 }
 
 .wfc-tabs .select2-container .select2-selection--multiple .select2-selection__choice{
-    padding: 1px 6px 3px 6px;
+    padding: 1px 6px 0 6px;
     line-height: 27px;
     color: cornflowerblue;
     font-weight: bold;
+    font-size: 14px;
 }
 
 .wfc-tabs .select2-container .select2-selection--single .select2-selection__rendered{
-    font-size: 16px !important;
+    font-size: 15px !important;
 }
 
 .wfc-tabs select.chosen_select{
-    font-size: 16px !important;
+    font-size: 15px !important;
 }
 
 .wfc-tabs .select2-container--default .select2-selection--multiple .select2-selection__choice{
     background-color: #fff;
-    border:1px solid #000;
+    border:1px solid #ddd;
 }
 
 .wfc-tabs label{
-    font-size: 16px;
+    font-size: 15px;
+}
+
+label[for=woocs_payment_rule]{
+    padding-top: 8px;
 }
 
 li.woocs_help_links a{
@@ -684,5 +697,351 @@ li.woocs_help_links a{
 
 select{
     height: 36px !important;
+}
+
+#woocs_auto_switcher_color,#woocs_auto_switcher_hover_color{
+    min-width: 300px !important;
+    width: 370px;
+}
+
+.woocs_finance_btn{
+    height: 30px !important;
+}
+
+.woocs-btn-update-rate.dashicons-before:before{
+    font-size: 21px !important;
+    color: #e7470c;
+    line-height: 23px;
+}
+
+.woocs_finance_btn{
+    vertical-align: top !important;
+    padding: 3px 7px !important;
+    box-shadow: none !important;
+    border-color: #ddd !important;
+    box-sizing: border-box !important;
+}
+
+.woocs-btn-delete{
+    vertical-align: top !important;
+    padding: 3px !important;
+    box-shadow: none !important;
+    border-color: #ddd !important;
+    box-sizing: border-box !important;
+}
+
+.woocs-btn-delete.dashicons-before:before{
+    font-size: 21px !important;
+    color: darksalmon;
+    line-height: 24px;
+}
+
+.woocs-drop-down.woocs-symbol,
+.woocs-drop-down.woocs-decimals{
+    width: 50px;
+}
+
+@media only screen and (max-width: 782px) {
+    .woocs_finance_btn{
+        padding: 3px !important;
+    }
+}
+
+
+.woocs-panel-button {
+    font-weight: bold;
+    border: dashed 1px green;
+    color: #e7470c;
+    line-height: 27px;
+    height: auto !important;
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #0085ba), color-stop(1, #1e62d0));
+    background:-moz-linear-gradient(top, #0085ba 5%, #1e62d0 100%);
+    background:-webkit-linear-gradient(top, #0085ba 5%, #1e62d0 100%);
+    background:-o-linear-gradient(top, #0085ba 5%, #1e62d0 100%);
+    background:-ms-linear-gradient(top, #0085ba 5%, #1e62d0 100%);
+    background:linear-gradient(to bottom, #0085ba 5%, #1e62d0 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#3d94f6', endColorstr='#1e62d0',GradientType=0);
+    background-color:#0085ba;
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+    border-radius:3px;
+    border:1px solid #337fed;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:15px;
+    font-weight:bold;
+    padding:3px 11px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #1570cd;
+}
+
+@media only screen and (max-width: 782px) {
+    .woocs-panel-button{
+        margin-bottom: 2px !important;
+    }
+}
+
+
+
+.woocs-panel-button:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
+    background:-moz-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+    background:-webkit-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+    background:-o-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+    background:-ms-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+    background:linear-gradient(to bottom, #1e62d0 5%, #3d94f6 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6',GradientType=0);
+    background-color:#1e62d0;
+    color: #fff;
+}
+
+.woocs-panel-button:before{
+    vertical-align: middle;
+}
+
+
+/* Customize the label (the container) */
+label.container {
+    display: inline-block;
+    vertical-align: top !important;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom radio button */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 30px;
+    width: 30px;
+    background-color: #bbbbb3;
+    border-radius: 10%;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.container input:checked ~ .checkmark {
+    background-color: #2196F3;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.container .checkmark:after {
+    top: 9px;
+    left: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 70%;
+    /*background: white;*/
+}
+
+ol.woocs-info a{
+    text-decoration: none;
+}
+
+
+a.woocs_settings_docs{
+    height: 21px;
+    line-height: normal;
+}
+
+#woocs_tools_panel {
+    border: solid 1px #eee;
+    margin-bottom: 7px;
+    padding: 4px;
+    border-radius: 3px;
+}
+
+/****** switcher23 start ********/
+/* https://codepen.io/andreasstorm/pen/ZorYLO */
+
+.switcher23-toggle {
+    position: relative;
+    display: block;
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translate3d(0, 0, 0);
+}
+
+.switcher23-toggle:before {
+    content: "";
+    position: relative;
+    top: 3px;
+    left: 3px;
+    width: 34px;
+    height: 14px;
+    display: block;
+    background: #9A9999;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.switcher23-toggle span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(154, 153, 153, 0.5);
+    transition: all 0.2s ease;
+}
+
+.switcher23-toggle span:before {
+    content: "";
+    position: absolute;
+    display: block;
+    margin: -18px;
+    width: 56px;
+    height: 56px;
+    background: rgba(79, 46, 220, 0.5);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 1;
+    pointer-events: none;
+}
+
+.switcher23{
+    display: none !important;
+}
+
+.switcher23:checked + .switcher23-toggle:before {
+    background: #947ADA;
+}
+
+.switcher23:checked + .switcher23-toggle span {
+    background: #4F2EDC;
+    transform: translateX(20px);
+    transition: all 0.2s cubic-bezier(0.8, 0.4, 0.3, 1.25), background 0.15s ease;
+    box-shadow: 0 3px 8px rgba(79, 46, 220, 0.2);
+}
+
+.switcher23:checked + .switcher23-toggle span:before {
+    transform: scale(1);
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+/****** switcher23 finish ********/
+
+.form-table td{
+    padding-top: 18px;
+    vertical-align: top !important;
+}
+
+.dashicons-update:before,
+.dashicons-star-filled:before,
+.dashicons-hammer:before
+{
+    line-height: 0.8;
+    margin-right: 5px;
+}
+
+.woocs-panel-button.dashicons-before:before{
+    margin-right: 5px;
+}
+
+.woocs_drop_down_view_panel{
+    float: right;
+}
+
+@media only screen and (max-width: 782px) {
+    .woocs_drop_down_view_panel{
+        margin-top: 11px;
+        float: left;
+    }
+}
+
+.woocs-select-all-in-select,
+.woocs-clear-all-in-select{
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.woocs-select-all-in-select:hover,
+.woocs-clear-all-in-select:hover{
+    text-decoration: underline;
+}
+
+.forminp-textarea textarea,
+.forminp-text input,
+.forminp-select input,
+.forminp-select select,
+.forminp-color input{
+    border-radius: 4px;
+}
+
+.woocs-rate-plus{
+    max-width: 50px;
+}
+
+.woocs_stat_calendar{
+    width: 90px;
+    font-size: 14px;
+}
+
+.ui-datepicker{
+    z-index: 101 !important;
+}
+
+.woocs_drop_down_view_panel span.select2-selection{
+    border-color: orange !important;
+    border-width: 2px;
+    font-weight: bold;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered{
+    line-height: 30px !important;
+}
+
+.form-table th{
+    padding-top: 17px !important;
+}
+
+.woocommerce table.form-table th label .woocommerce-help-tip, .woocommerce table.form-table th label img.help_tip{
+    margin-top: -5px !important;
+}
+
+.woocs_stat_redraw_btn_a{
+    color: chartreuse !important;
 }
 

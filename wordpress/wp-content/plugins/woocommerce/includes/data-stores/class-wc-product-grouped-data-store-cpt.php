@@ -1,4 +1,10 @@
 <?php
+/**
+ * Class WC_Product_Grouped_Data_Store_CPT file.
+ *
+ * @package WooCommerce\DataStores
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -7,16 +13,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * WC Grouped Product Data Store: Stored in CPT.
  *
  * @version  3.0.0
- * @category Class
- * @author   WooThemes
  */
 class WC_Product_Grouped_Data_Store_CPT extends WC_Product_Data_Store_CPT implements WC_Object_Data_Store_Interface {
 
 	/**
 	 * Helper method that updates all the post meta for a grouped product.
 	 *
-	 * @param WC_Product
-	 * @param bool Force update. Used during create.
+	 * @param WC_Product $product Product object.
+	 * @param bool       $force Force update. Used during create.
 	 * @since 3.0.0
 	 */
 	protected function update_post_meta( &$product, $force = false ) {
@@ -41,10 +45,10 @@ class WC_Product_Grouped_Data_Store_CPT extends WC_Product_Data_Store_CPT implem
 	 * Handle updated meta props after updating meta data.
 	 *
 	 * @since  3.0.0
-	 * @param  WC_Product $product
+	 * @param  WC_Product $product Product object.
 	 */
 	protected function handle_updated_props( &$product ) {
-		if ( in_array( 'children', $this->updated_props ) ) {
+		if ( in_array( 'children', $this->updated_props, true ) ) {
 			$this->update_prices_from_children( $product );
 		}
 		parent::handle_updated_props( $product );
@@ -54,7 +58,7 @@ class WC_Product_Grouped_Data_Store_CPT extends WC_Product_Data_Store_CPT implem
 	 * Sync grouped product prices with children.
 	 *
 	 * @since 3.0.0
-	 * @param WC_Product|int $product
+	 * @param WC_Product|int $product Product object or product ID.
 	 */
 	public function sync_price( &$product ) {
 		$this->update_prices_from_children( $product );
@@ -70,15 +74,27 @@ class WC_Product_Grouped_Data_Store_CPT extends WC_Product_Data_Store_CPT implem
 		foreach ( $product->get_children( 'edit' ) as $child_id ) {
 			$child = wc_get_product( $child_id );
 			if ( $child ) {
-				$child_prices[] = $child->get_price();
+				$child_prices[] = $child->get_price( 'edit' );
 			}
 		}
 		$child_prices = array_filter( $child_prices );
 		delete_post_meta( $product->get_id(), '_price' );
+		delete_post_meta( $product->get_id(), '_sale_price' );
+		delete_post_meta( $product->get_id(), '_regular_price' );
 
 		if ( ! empty( $child_prices ) ) {
 			add_post_meta( $product->get_id(), '_price', min( $child_prices ) );
 			add_post_meta( $product->get_id(), '_price', max( $child_prices ) );
 		}
+
+		$this->update_lookup_table( $product->get_id(), 'wc_product_meta_lookup' );
+
+		/**
+		 * Fire an action for this direct update so it can be detected by other code.
+		 *
+		 * @since 3.6
+		 * @param int $product_id Product ID that was updated directly.
+		 */
+		do_action( 'woocommerce_updated_product_price', $product->get_id() );
 	}
 }

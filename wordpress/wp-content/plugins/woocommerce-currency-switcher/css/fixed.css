@@ -15,6 +15,9 @@
 #woocs_multiple_simple_tpl{
     display: none;
 }
+#woocs_multiple_simple_tpl_restriction{
+    display: none;
+}
 
 .woocs_tab_navbar{
     background: #eee;
@@ -86,4 +89,6 @@
 .chosen-container-multi .chosen-choices li.search-choice .search-choice-close{
     top: 8px;
 }
-
+#woocs_multiple_simple_tpl_user_role{
+    display:none;
+}

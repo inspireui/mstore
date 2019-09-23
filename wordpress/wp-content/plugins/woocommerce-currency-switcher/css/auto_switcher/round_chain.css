@@ -1,0 +1,67 @@
+.woocs_auto_switcher {
+  text-align: center;
+  width: 64px;
+  height: 64px;
+  position: fixed;
+  border-radius: 75px;
+  border: 5px solid #fff;
+  display: table;
+  z-index: 999;
+  color: #f2f2f2;
+}
+.woocs_auto_switcher span.woocs_current_text{
+    display:  table-cell;
+    vertical-align: middle;
+}
+
+.woocs_auto_switcher_text{
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #fff;
+    overflow: hidden;
+    display: table;
+}
+.woocs_auto_switcher_text span{
+    display:  table-cell;
+    vertical-align: middle;
+}
+.woocs_auto_switcher_item {
+  position: absolute;
+-webkit-transition: left 0.5s cubic-bezier(0.1,0.8,0.9,1), opacity 1s linear;
+-moz-transition: left 0.5s cubic-bezier(0.1,0.8,0.9,1),opacity 1s linear;
+-o-transition: left 0.5s cubic-bezier(0.1,0.8,0.9,1), opacity 1s linear;
+  display: inline;
+  opacity: 0;
+  width: 40px;
+  height: 40px;
+  z-index: 100;
+  margin:10px 0px 0px 20px;
+  background: no-repeat;
+  left:3px;
+}
+
+.woocs_auto_switcher:hover .woocs_auto_switcher_item {
+  opacity: 1;
+  transform: translate(0px,0);
+  -webkit-transform: translate(0px,0);
+  -o-transform: translate(0px,0); 
+  -moz-transform: translate(0px,0);
+  margin:10px 0px 0px 20px;
+  position: absolute;
+}
+.woocs_auto_switcher:hover .woocs_auto_switcher_item {
+  position: absolute;
+}
+
+
+
+.woocs_auto_switcher_item {
+    
+}
+
+.woocs_auto_switcher_item:hover {
+    background-position: 0 -46px;
+}
+
+

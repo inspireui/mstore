@@ -36,6 +36,14 @@
     color: green !important;
 }
 
+.woocommerce-currency-switcher-form .chosen-results li{
+    line-height: 23px !important;
+}
+
+.woocommerce-currency-switcher .hentry .entry-content a:not(.button){
+    text-decoration: none !important;
+}
+
 .woocommerce-currency-switcher option{
     height: 23px;
     padding-bottom: 3px;
@@ -113,7 +121,7 @@ div.woocs_price_info ul{
     background: #000000 !important;
     height: auto;
     min-height: 19px;
-    /*font-size: 24px;*/
+    font-size: 14px !important;
     line-height: normal;
     vertical-align: middle;
     text-align: left;
@@ -165,3 +173,12 @@ ul.woocs_price_info_list li span{
     width: 25px !important; max-width: 25px !important; display: inline;
 }
 
+.woocs_display_none{
+   display: none; 
+}
+.woocs_geo_hello{
+    color:green;
+    font-size:18px;
+    font-weight:normal;
+    line-height:0;
+}

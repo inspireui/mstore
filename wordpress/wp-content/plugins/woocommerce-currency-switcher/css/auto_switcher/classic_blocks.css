@@ -1,0 +1,96 @@
+.woocs_auto_switcher {
+    width: 200px;
+    height: 220px;
+    position: fixed;
+    margin-top: 30px;
+    /*perspective: 1000px;*/
+    margin: 0px;
+    z-index: 99999;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.woocs_auto_switcher.right {
+    right: 0px; 
+}
+
+img.flag_auto_switcher{
+    height: auto;
+    width: 35px;
+    display: inline-block;
+    vertical-align: middle;
+}
+span img.flag_auto_switcher{
+    margin: 0 auto;
+}
+.woocs_auto_switcher.right{
+    width: inherit;
+}
+.woocs_auto_switcher.right li{
+    list-style: none;
+}
+.woocs_auto_switcher li a {
+    display: block;
+    max-width: 75px;
+    font-size: 14px;
+    border-bottom: 1px solid #333;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    padding: 7px;
+    text-decoration: none;
+    text-align: center;
+    transition: background .5s ease .300ms;
+}
+
+.woocs_auto_switcher li:first-child a { border-radius: 0 5px 0 0 }
+.woocs_auto_switcher li:last-child  a { border-radius: 0 0 5px 0 }
+.woocs_auto_switcher.right li:first-child a { border-radius: 5px 0 0 0 }
+.woocs_auto_switcher.right li:last-child  a { border-radius: 0 0 0 5px }
+.woocs_auto_switcher li a span {
+    /*overflow: hidden*/;
+    width: 150px;
+    display: inline-block;
+    padding-right: 9px;
+    white-space: nowrap;
+    height: 40px;
+    float: left;
+    text-align: center;
+    color: #fff;
+    margin: -32px 78px;
+    padding: 8px;
+    transform-origin: 0;
+    visibility: hidden;
+    opacity: 0;
+    transform: rotateY(45deg);
+    border-radius: 5px;
+    transition: all .5s ease .300ms
+}
+.woocs_auto_switcher.right li a span {
+    float: right;  
+}
+.woocs_auto_switcher li span:after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: -20px;
+    top: 10px;
+    border: 10px solid transparent;
+    border-right: 10px solid #222;
+}
+.woocs_auto_switcher.right li span:after {
+    right: -20px;
+    left: initial;
+    border-right: 10px solid transparent;
+    border-left: 10px solid #222;
+}
+.woocs_auto_switcher li a:hover span {
+    visibility: visible;
+    opacity: 1;
+    transform: rotateY(0)
+}
+
+.woocs_auto_switcher li a span div{
+    display: table;
+}

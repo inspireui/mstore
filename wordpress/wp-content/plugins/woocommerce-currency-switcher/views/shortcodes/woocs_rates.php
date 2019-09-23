@@ -1,8 +1,7 @@
 <?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <?php
-
 if (!class_exists('WooCommerce')) {
-    echo "<div class='notice'>". _e('Warning: Woocommerce is not activated', 'woocommerce-currency-switcher')."</div>";
+    echo "<div class='notice'>" . esc_html__('Warning: Woocommerce is not activated', 'woocommerce-currency-switcher') . "</div>";
     return;
 }
 global $WOOCS;
@@ -31,36 +30,50 @@ if (!isset($precision)) {
 
     <?php if (!empty($currencies)): ?>
         <select class="woocs_rates_current_currency" data-precision="<?php echo $precision ?>" data-exclude="<?php echo $exclude_string ?>">
-	    <?php
-	    if (!empty($currencies)) {
-		foreach ($currencies as $key => $c) {
-		    if (in_array($key, $exclude)) {
-			continue;
-		    }
-		    ?>
-	    	<option <?php selected($current_currency, $key) ?> value="<?php echo $key ?>"><?php printf(__('1 %s is', 'woocommerce-currency-switcher'), $c['name']) ?></option>
-		    <?php
-		}
-	    }
-	    ?>
+            <?php
+            if (!empty($currencies)) {
+                foreach ($currencies as $key => $c) {
+
+                    if (isset($c['hide_on_front']) AND $c['hide_on_front']) {
+                        continue;
+                    }
+
+                    if (in_array($key, $exclude)) {
+                        continue;
+                    }
+                    ?>
+                    <option <?php selected($current_currency, $key) ?> value="<?php echo $key ?>"><?php printf(esc_html__('1 %s is', 'woocommerce-currency-switcher'), $c['name']) ?></option>
+                    <?php
+                }
+            }
+            ?>
         </select><br />
         <ul class="woocs_currency_rates">            
-	    <?php foreach ($currencies as $key => $c) : ?>
-		<?php
-		if ($key == $current_currency OR in_array($key, $exclude)) {
-		    continue;
-		}
-		?>
-		<li>
-		    <?php if (!empty($c['flag'])): ?>
-		    <img class="woocs_currency_rate_flag" src="<?php echo $c['flag'] ?>" alt="<?php echo $c['name'] ?>" />&nbsp;
-		    <?php endif; ?>
-		    <strong><?php echo $key ?></strong>:&nbsp;<?php
-		    $v = $c['rate'] / $currencies[$current_currency]['rate'];
-		    echo number_format($v, intval($precision), $this->decimal_sep, '');
-		    ?><br />
-		</li>
-	    <?php endforeach; ?>
+            <?php foreach ($currencies as $key => $c) : ?>
+                <?php
+                
+                 if (isset($c['hide_on_front']) AND $c['hide_on_front']) {
+                        continue;
+                    }
+                
+                if ($key == $current_currency OR in_array($key, $exclude)) {
+                    continue;
+                }
+                ?>
+                <li>
+                    <?php if (!empty($c['flag'])): ?>
+                        <img class="woocs_currency_rate_flag" src="<?php echo $c['flag'] ?>" alt="<?php echo $c['name'] ?>" />&nbsp;
+                    <?php endif; ?>
+                    <strong><?php echo $key ?></strong>:&nbsp;<?php
+                    $rate = $currencies[$current_currency]['rate'];
+                    if (!$rate OR $rate == 0) {
+                        $rate = 1;
+                    }
+                    $v = $c['rate'] / $rate;
+                    echo number_format($v, intval($precision), $this->decimal_sep, '');
+                    ?><br />
+                </li>
+            <?php endforeach; ?>
         </ul>
     <?php endif; ?>
 

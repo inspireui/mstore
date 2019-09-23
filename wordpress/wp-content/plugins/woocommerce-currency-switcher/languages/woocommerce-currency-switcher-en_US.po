@@ -4,48 +4,90 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Text in function
-#: woocommerce-currency-switcher/views/shortcodes/woocs_rates.php:43
+#: woocommerce-currency-switcher/views/plugin_options.php:1174
+msgid "$ P - left space"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1174
+msgid "$P - left"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
+msgid "(Approx. %s)"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1171
+msgid "+ to your interest in the rate, for example: 0.15"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/shortcodes/woocs_rates.php:45
 msgid "1 %s is"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:1
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:1
 msgid "<strong>Base currency of the site is: %s</strong>"
 msgstr ""
 
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:156
+msgid "Actualized for WooCommerce v.%s.x"
+msgstr ""
+
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:112
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:53
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:58
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:108
 msgid "Add"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:113
+#: woocommerce-currency-switcher/views/plugin_options.php:249
+msgid "Add Currency"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:54
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:59
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:109
 msgid "Add all"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:277
-msgid "Add currency"
+#: woocommerce-currency-switcher/views/plugin_options.php:251
+msgid "Add custom money sign"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:140
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:135
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:59
 msgid "Add group"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Add your money symbols in your shop. Example: $USD,AAA,AUD$,DDD - separated by commas"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:267
+#: woocommerce-currency-switcher/views/plugin_options.php:190
 msgid "Advanced"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:375
 msgid "After cron done - new currency rates will be sent on the site admin email. ATTENTION: if you not got emails - it is mean that PHP function mail() doesnt work on your server or sending emails by this function is locked."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
+msgid "Aggregator API key"
 msgstr ""
 
 #. Text in echo
@@ -53,9 +95,19 @@ msgstr ""
 msgid "Base currency"
 msgstr ""
 
-#. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "CURL for aggregators"
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:714
+msgid "Basic field(s)"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:803
+msgid "Behavior"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:762
+msgid "Behavior for devices"
 msgstr ""
 
 #. Text in echo
@@ -63,57 +115,117 @@ msgstr ""
 msgid "Change order currency"
 msgstr ""
 
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:922
+msgid "Chart type: bar"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:921
+msgid "Chart type: pie"
+msgstr ""
+
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:402
-#: woocommerce-currency-switcher/views/plugin_options.php:423
+#: woocommerce-currency-switcher/views/plugin_options.php:503
 msgid "Checkout by GeoIP rules"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:810
+#: woocommerce-currency-switcher/views/plugin_options.php:774
+msgid "Choise behavior"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:825
+msgid "Choise currencies"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:654
+msgid "Choise side"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:629
+msgid "Choise skin"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Chosen dark drop-down"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Chosen drop-down"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Classic blocks"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1219
 msgid "Click to select the flag"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:59
+#: woocommerce-currency-switcher/views/plugin_options.php:990
+msgid "Codex"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:567
+msgid "Collect currencies switching statistic for business purposes. No any private data of customers collects, only currency, country and time of switching. Also statistic for order currencies is there."
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:66
 msgid "Convert"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/widgets/rates_form.php:20
 #: woocommerce-currency-switcher/views/widgets/converter_form.php:20
+#: woocommerce-currency-switcher/views/widgets/rates_form.php:20
 msgid "Count of digits after point"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:265
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:11
+msgid "Coupon amount"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:179
 msgid "Currencies"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/widgets/rates_form.php:11
 #: woocommerce-currency-switcher/views/widgets/converter_form.php:11
+#: woocommerce-currency-switcher/views/widgets/rates_form.php:11
 msgid "Currencies excluding from view"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "Currencies rate auto update by wp cron. Use it for your own risk!"
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
+msgid "Currencies rate auto update by WordPress cron."
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:989
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
 msgid "Currency"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Currency aggregator"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "Currency aggregators"
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
+msgid "Currency aggregators. Note: If you know aggregator which not is represented in WOOCS write request on support please with suggestion to add it!"
 msgstr ""
 
 #. Text in echo
@@ -127,38 +239,44 @@ msgid "Currency rate when the customer paid "
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Currency storage"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:989
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
 msgid "Current currency is:"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Custom money signs"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Custom price format"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:322
+#: woocommerce-currency-switcher/views/plugin_options.php:464
 msgid "Customer will pay with selected currency (Yes) or with default currency (No)."
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:782
+#: woocommerce-currency-switcher/views/plugin_options.php:1160
 msgid "Decimals"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:540
-#: woocommerce-currency-switcher/index.php:1
+#: woocommerce-currency-switcher/views/plugin_options.php:664
+msgid "Distance from the top of the screen to the switcher html block. You can set in px or in %. Example 1: 100px. Example 2: 10%."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:1
 msgid "Documentation"
 msgstr ""
 
@@ -168,18 +286,18 @@ msgid "Drop-down options text type"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "Drop-down view"
-msgstr ""
-
-#. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:374
 msgid "Email notice about \"Rate auto update\" results"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:389
-msgid "Enable fixed pricing"
+#: woocommerce-currency-switcher/views/plugin_options.php:601
+msgid "Enable/Disable"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:602
+msgid "Enable/Disable the side currency switcher on your page"
 msgstr ""
 
 #. Text in echo
@@ -188,29 +306,49 @@ msgid "Examples: 300px,100%,auto"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/widgets/rates_form.php:13
 #: woocommerce-currency-switcher/views/widgets/converter_form.php:13
+#: woocommerce-currency-switcher/views/widgets/rates_form.php:13
 msgid "Examples: EUR,GBP,UAH"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:744
+#: woocommerce-currency-switcher/views/plugin_options.php:1129
 msgid "Exmpl.: USD,EUR"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:542
+#: woocommerce-currency-switcher/views/plugin_options.php:988
 msgid "FAQ"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:810
+#: woocommerce-currency-switcher/views/plugin_options.php:1075
+msgid "Fixer"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1219
 msgid "Flag"
 msgstr ""
 
 #. Text in echo
 #: woocommerce-currency-switcher/views/widgets/selector_form.php:32
 msgid "Flag position"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Flags (as images)"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:964
+msgid "For currencies - aggregated data about count of countries which users selected currencies on the site front. For orders - count of orders made from countries, detected by selected country in the billing address."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:963
+msgid "For currencies - aggregated data about selected currencies on the site front. For orders - count of orders made in the selected currencies."
 msgstr ""
 
 #. Text in echo
@@ -224,125 +362,293 @@ msgid "For new manual order ONLY!!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:403
+#: woocommerce-currency-switcher/views/plugin_options.php:504
 msgid "Force the customers to pay on checkout page by rules defined in 'GeoIP rules' tab. <b>ATTENTION</b>: this feature has logical sense if you enabled 'Enable fixed pricing' and also installed fixed prices rules in the products for different currencies!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:541
-msgid "GET FREE FLAGS IMAGES"
+#: woocommerce-currency-switcher/views/plugin_options.php:986
+msgid "Free flags images"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:269
+#: woocommerce-currency-switcher/views/plugin_options.php:217
 msgid "GeoIP rules"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:485
+#: woocommerce-currency-switcher/views/plugin_options.php:861
 msgid "GeoIP works from v.2.3 of the WooCommerce plugin and no with minor versions of WooCommerce!!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:447
-msgid "GeoIp product price manipulation"
+#: woocommerce-currency-switcher/views/plugin_options.php:1072
+msgid "Get free API key for:"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:100
+#: woocommerce-currency-switcher/views/plugin_options.php:541
+msgid "Gives ability to set different prices for each user role"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:57
+msgid "Gives ability to set different prices for each user role. Native WooCommerce price filter is blind for this data!"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4384
+msgid "Hello! Looks like you using <b>WooCommerce Currency Switcher</b> for some time and I hope this software helped you with your business. If you happy with the plugin functionality and like Currency Switcher - rate please WOOCS with 5-stars, also share your opinion and ideas with us. Thank you!<br /> P.S. If you have troubles you can always ask %s about help. Thank you!"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:3689
+msgid "Hello! Looks like you using <b>WooCommerce Currency Switcher</b> for some time and I hope this software helped you with your business. If you happy with the plugin functionality rate please WOOCS with 5-stars review, also share your opinion and ideas with us. Thank you!<br /> P.S. If you have troubles you can always ask %s about help."
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:42
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:47
+msgid "Here you can set FIXED amount for the coupon for any currency you want. In the case of empty amount field recounting by rate will work!"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:97
 msgid "Here you can set FIXED price for the product for any currency you want. In the case of empty price field recounting by rate will work!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:138
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:133
 msgid "Here you can set prices in the basic currency for different countries, and recount will be done relatively of this values. ATTENTION: fixed price for currencies has higher priority!"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:782
-msgid "Hide cents on front"
+#: woocommerce-currency-switcher/views/plugin_options.php:1174
+msgid "Hide cents"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Hide on mobile devices"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:750
+msgid "Hide on the pages"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:385
 msgid "Hide switcher on checkout page"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:386
 msgid "Hide switcher on checkout page for any of your reason. Better restrike for users change currency on checkout page in multiple mode."
 msgstr ""
 
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:397
+msgid "Hide/Show payments systems on checkout page depending on the current currency"
+msgstr ""
+
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:589
+#: woocommerce-currency-switcher/views/plugin_options.php:1071
+#: woocommerce-currency-switcher/views/plugin_options.php:1072
 msgid "Hint"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "How to display currency switcher drop-down on the front of your site"
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Hover color"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:726
+msgid "Hover field(s)"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:273
+msgid "How to display currency switcher (by default) on the site front. (NEW) Make your attention on skins with numbers - you can use them on the same page with different designs in shortcode [woocs] described in its attribute style and style number (see Codex page in Info Help tab)!"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:431
 msgid "I am using cache plugin on my site"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:570
+#: woocommerce-currency-switcher/views/plugin_options.php:1013
 msgid "I cant add flags! What to do?"
 msgstr ""
 
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:996
+#: woocommerce-currency-switcher/views/plugin_options.php:1078
+msgid "If WOOCS settings panel looks incorrect or you have JavaScript errors (after update) - firstly"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:931
+msgid "If in tab Options activated option I am using cache plugin on my site - to avoid double data for statistical data registration in tab Options activate option No GET data in link!"
+msgstr ""
+
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:984
+msgid "If you have an idea about css+js template - send request on support please where describe your vision."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:929
+msgid "If you have ideas about scenarios of the statistic please share and discuss them on %s"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1071
+msgid "If you want let your customers pay in their selected currency in tab Advanced set the option Is multiple allowed to Yes."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "In some servers there is troubles with sessions, and after currency selecting its reset to welcome currency or geo ip currency. In such case use transient!"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "In wich currency show prices for first visit of your customer on your site"
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
+msgid "In wich currency show prices for first visit of your customer on your site. Do not do it private to avoid logic mess!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:436
+#: woocommerce-currency-switcher/views/plugin_options.php:550
 msgid "Individual GeoIP rules for each product"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:378
+#: woocommerce-currency-switcher/views/plugin_options.php:521
+msgid "Individual fixed amount for coupon"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:531
+msgid "Individual fixed amount for shipping"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:486
 msgid "Individual fixed prices rules for each product"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:271
-msgid "Info"
+#: woocommerce-currency-switcher/views/plugin_options.php:540
+msgid "Individual prices based on user role"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:321
-#: woocommerce-currency-switcher/views/plugin_options.php:332
-msgid "Is multiple allowed"
-msgstr ""
-
-#. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:466
-msgid "Native WooCommerce price filter is blind for all data generated by features \"Individual fixed prices rules for each product\" and \"Individual GeoIP rules for each product\"!"
+#: woocommerce-currency-switcher/views/plugin_options.php:236
+msgid "Info Help"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-#: woocommerce-currency-switcher/views/plugin_options.php:526
-#: woocommerce-currency-switcher/views/plugin_options.php:498
-msgid "No"
+#: woocommerce-currency-switcher/views/plugin_options.php:946
+msgid "Is hidden"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:462
+#: woocommerce-currency-switcher/views/plugin_options.php:463
+#: woocommerce-currency-switcher/views/plugin_options.php:474
+msgid "Is multiple allowed"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:946
+msgid "Is shown"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4404
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:3709
+msgid "It is done!"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Left"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Main color"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Main color which coloring the switcher elements"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:15
+msgid "Maximum spend"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:11
+msgid "Minimum spend"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1130
+msgid "Money signs"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1026
+msgid "More power for your shop"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1113
+msgid "Native WooCommerce price filter does not see data generated by this feature."
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:581
+msgid "Native WooCommerce price filter is blind for all data generated by marked features"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:898
+msgid "No"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:342
+msgid "No GET data in link"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Not styled drop-down"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:931
+#: woocommerce-currency-switcher/views/plugin_options.php:1078
+msgid "Note"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:577
 msgid "Notes*"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:266
+#: woocommerce-currency-switcher/views/plugin_options.php:1074
+msgid "OR"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:185
 msgid "Options"
 msgstr ""
 
@@ -356,35 +662,86 @@ msgstr ""
 msgid "Order currency rate"
 msgstr ""
 
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1174
+msgid "P $ - right space"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1174
+msgid "P$ - right"
+msgstr ""
+
 #. Text in echo
-#: woocommerce-currency-switcher/views/widgets/rates_form.php:18
+#: woocommerce-currency-switcher/views/plugin_options.php:792
+msgid "Payments behavior"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:206
+#: woocommerce-currency-switcher/views/plugin_options.php:396
+msgid "Payments rules"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+msgid "Please use the API key"
+msgstr ""
+
+#. Text in echo
 #: woocommerce-currency-switcher/views/widgets/converter_form.php:18
+#: woocommerce-currency-switcher/views/widgets/rates_form.php:18
 msgid "Precision"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:780
+#: woocommerce-currency-switcher/views/plugin_options.php:1172
 msgid "Press this button if you want get currency rate from the selected aggregator above!"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Prices without cents"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1212
+msgid "Private"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1212
+msgid "Public"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1020
+msgid "Quick introduction"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Rate auto update"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:544
-msgid "Read wiki about Currency Active codes  <-  Get right currencies codes here"
+#: woocommerce-currency-switcher/views/plugin_options.php:994
+msgid "Read wiki about Currency Active codes"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:308
+#: woocommerce-currency-switcher/views/plugin_options.php:316
 msgid "Read wiki about Currency Active codes  <-  Get right currencies codes here if you are not sure about it!"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4875
+msgid "Recalculate all orders"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4875
+msgid "Recalculate all orders with basic currency. Recommended test this option on the clone of your site! Read the documentation of the plugin about it!"
 msgstr ""
 
 #. Text in echo
@@ -398,61 +755,122 @@ msgid "Recalculate order"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Recount prices without cents everywhere like in JPY and TWD which by its nature have not cents. Use comma. Example: UAH,RUB. Test it for checkout after setup!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:13
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:45
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:12
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:42
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:20
 msgid "Regular price"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:25
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:57
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:17
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:21
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:24
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:54
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:32
 msgid "Remove"
 msgstr ""
 
-#. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:19
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:51
-msgid "Sale price"
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Right"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Roll blocks"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Round chain"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Round select"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:751
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:18
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:48
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:26
+msgid "Sale price"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/shortcodes/styles/style-3/index.php:83
+msgid "Select Currency"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1135
 msgid "Select symbol position"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:432
 msgid "Set Yes here ONLY if you are REALLY use cache plugin for your site, for example like Super cache or Hiper cache (doesn matter). + Set \"Custom price format\", for example: __PRICE__ (__CODE__). After enabling this feature - clean your cache to make it works. It will allow show prices in selected currency on all pages of site. Fee for this feature - additional AJAX queries for products prices redrawing."
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:742
+#: woocommerce-currency-switcher/views/plugin_options.php:1124
 msgid "Set etalon main currency. This should be the currency in which the price of goods exhibited!"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Set your format how to display price on front. Use keys: __CODE__,__PRICE__. Leave it empty to use default format. Example: __PRICE__ (__CODE__)"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:1
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:1
 msgid "Settings"
 msgstr ""
 
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:793
+msgid "Should be payments system be hidden for selected currencies or vice versa shown!"
+msgstr ""
+
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:443
+msgid "Show WOOCS options button on top admin bar for quick access. Very handy for active work. Visible for site administrators only!"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:407
 msgid "Show approx. amount"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:782
-msgid "Show cents on front"
+#: woocommerce-currency-switcher/views/plugin_options.php:418
+msgid "Show approx. price"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:408
+msgid "Show approximate amount on the checkout and the cart page with currency of user defined by IP in the GeoIp rules tab. Works only with currencies rates data and NOT with fixed prices rules and geo rules."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:419
+msgid "Show approximate price on the shop and the single product page with currency of user defined by IP in the GeoIp rules tab. Works only with currencies rates data and NOT with fixed prices rules and geo rules."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1174
+msgid "Show cents"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1205
+msgid "Show currency for all on the site front or Hide for private moments in wp admin panel using only."
 msgstr ""
 
 #. Text in echo
@@ -461,38 +879,109 @@ msgid "Show flags"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:332
 msgid "Show flags by default"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:364
 msgid "Show info icon near the price of the product which while its under hover shows prices of products in all currencies"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:352
 msgid "Show money signs"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "Show price info icon"
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Show on all devices"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:766
+msgid "Show on mobile devices only"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:738
+msgid "Show on the pages"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:442
+msgid "Show options button on top admin bar."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:363
+msgid "Show price info icon"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:763
+msgid "Show/Hide on mobile device (highest priority)"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:333
 msgid "Show/hide flags on the front drop-down"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:353
 msgid "Show/hide money signs on the front drop-down"
 msgstr ""
 
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:643
+msgid "Side"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:197
+msgid "Side switcher"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:616
+msgid "Skin"
+msgstr ""
+
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "THIS IS AN EXPERIMENTAL FEATURE! Show approximate amount on the checkout and the cart page with currency of user defined by IP in the GeoIp rules tab. Works only with currencies rates data and NOT with fixed prices rules and geo rules."
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
+msgid "Some aggregators require an API key. See the hint below how to get it!"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:227
+#: woocommerce-currency-switcher/views/plugin_options.php:566
+msgid "Statistic"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Style #1"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Style #2"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "Style #3"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:617
+msgid "Style of the switcher on the site front"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:343
+msgid "Switches currency without GET properties (?currency=USD) in the link. Works in woocommerce > 3.3.0."
 msgstr ""
 
 #. Text in function
@@ -501,30 +990,78 @@ msgid "THIS order currency is changed manually %s!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:572
+#: woocommerce-currency-switcher/views/plugin_options.php:1073
+msgid "The Free Currency Converter"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:35
+msgid "The coupon fixed Minimum and Maximum spend rules"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:31
+msgid "The coupon fixed amount rules"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:1
+msgid "The following options affect how prices are displayed on the frontend. WooCommerce Currency Switcher is activated. Set default currency %s please."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
+msgid "The maximum spend for this coupon is %s."
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
+msgid "The minimum spend for this coupon is %s."
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1015
 msgid "The plugin options example screen"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:86
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:5
+msgid "The price based on user role"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:83
 msgid "The product custom GeoIP rules"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:82
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:79
 msgid "The product fixed prices rules"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/widgets/rates_form.php:5
+#: woocommerce-currency-switcher/views/plugin_options.php:644
+msgid "The side where the switcher is be placed"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "The switcher color when mouse hovering"
+msgstr ""
+
+#. Text in echo
 #: woocommerce-currency-switcher/views/widgets/converter_form.php:5
+#: woocommerce-currency-switcher/views/widgets/rates_form.php:5
 #: woocommerce-currency-switcher/views/widgets/selector_form.php:5
 msgid "Title"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:589
-msgid "To update all currencies rates by one click - press radio button of the default currency and then press \"Save changes\" button!"
+#: woocommerce-currency-switcher/views/plugin_options.php:663
+msgid "Top margin"
 msgstr ""
 
 #. Text in echo
@@ -533,60 +1070,115 @@ msgid "Total amount"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:989
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
 msgid "Total in basic currency: "
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:345
-#: woocommerce-currency-switcher/views/plugin_options.php:365
-msgid "Use GeoLocation rules"
+#: woocommerce-currency-switcher/views/plugin_options.php:1088
+msgid "UPGRADE to Full version"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:346
-msgid "Use GeoLocation rules for your currencies. This feature uses native WC_Geolocation php class! Works from woocommerce >= 2.3.0"
+#: woocommerce-currency-switcher/views/plugin_options.php:250
+msgid "Update all rates"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:571
+#: woocommerce-currency-switcher/views/plugin_options.php:1014
 msgid "Using Geolocation causes problems, doesn’t seem to work for me"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/index.php:851
-msgid "WOOCS -  recalculate orders"
+#: woocommerce-currency-switcher/views/plugin_options.php:992
+msgid "Video tutorials"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/index.php:850
-msgid "WOOCS - recalculate orders"
+#: woocommerce-currency-switcher/views/plugin_options.php:1098
+#: woocommerce-currency-switcher/views/plugin_options.php:1099
+msgid "WOOBE - WooCommerce Bulk Editor Professional"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:100
-msgid "WOOCS - the product <b>fixed</b> prices"
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:47
+msgid "WOOCS - the <b>fixed</b> Minimum and Maximum spend "
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:138
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:42
+msgid "WOOCS - the coupon fixed amount"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:57
+msgid "WOOCS - the price based on user role"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:133
 msgid "WOOCS - the product custom GeoIP rules"
 msgstr ""
 
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:97
+msgid "WOOCS - the product fixed prices"
+msgstr ""
+
 #. Text in function
-#: woocommerce-currency-switcher/index.php:2402
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+msgid "WOOCS Currency Options"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:1
 msgid "WOOCS Order Info"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:395
-#: woocommerce-currency-switcher/views/plugin_options.php:454
+#: woocommerce-currency-switcher/views/plugin_options.php:1093
+#: woocommerce-currency-switcher/views/plugin_options.php:1094
+msgid "WOOF - WooCommerce Products Filter"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/shortcodes/woocs.php:2
+#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:2
+#: woocommerce-currency-switcher/views/shortcodes/woocs_rates.php:2
+msgid "Warning: Woocommerce is not activated"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:496
+#: woocommerce-currency-switcher/views/plugin_options.php:557
 msgid "Watch video instructions"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "Welcome currency"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:727
+msgid "What content to show in the switcher after mouse hover on any currency there. Variants:  __CODE__ __FLAG___ __SIGN__ __DESCR__"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:715
+msgid "What content to show in the switcher after the site page loading. Variants:  __CODE__ __FLAG___ __SIGN__ __DESCR__"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:751
+msgid "Where on the site the switcher should be hidden. If any value is presented here switcher will be hidden on that pages and visible on all another ones. You can use pages IDs using comma, example: 28,34,232. Also you can use special words as: product, shop, checkout, front_page, woocommerce"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:739
+msgid "Where on the site the switcher should be visible. If any value is presented here switcher will be hidden on all another pages which not presented in this field. You can use pages IDs using comma, example: 28,34,232. Also you can use special words as: product, shop, checkout, front_page, woocommerce"
 msgstr ""
 
 #. Text in echo
@@ -600,74 +1192,99 @@ msgid "Width"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:254
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4408
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:3713
+#: woocommerce-currency-switcher/views/plugin_options.php:979
+msgid "WooCommerce Currency Switcher SUPPORT"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:155
 msgid "WooCommerce Currency Switcher v.%s"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:491
+#: woocommerce-currency-switcher/views/plugin_options.php:867
 msgid "WooCommerce GeoIP functionality doesn't work on your site. Maybe <a href='https://wordpress.org/support/topic/geolocation-not-working-1/?replies=10' target='_blank'>this</a> will help you."
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-#: woocommerce-currency-switcher/views/plugin_options.php:526
-#: woocommerce-currency-switcher/views/plugin_options.php:498
-msgid "Yes"
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4400
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:3705
+msgid "Write marvellous review about WOOCS features"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "You can use it if aggregators doesn works with file_get_contents because of security reasons. If all is ok leave it No!"
+#: woocommerce-currency-switcher/views/plugin_options.php:898
+msgid "Yes"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:379
+#: woocommerce-currency-switcher/views/plugin_options.php:522
+msgid "You will be able to set FIXED amount for coupon for each currency. ATTENTION: 'Is multiple allowed' should be enabled!"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:532
+msgid "You will be able to set FIXED amount for each currency for free and all another shipping ways. ATTENTION: 'Is multiple allowed' should be enabled!"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:487
 msgid "You will be able to set FIXED prices for simple and variable products. ATTENTION: 'Is multiple allowed' should be enabled!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:437
+#: woocommerce-currency-switcher/views/plugin_options.php:551
 msgid "You will be able to set different prices for each product (in BASIC currency) for different countries"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:989
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
 msgid "Your country is not defined! Troubles with GeoIp service."
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:498
-#: woocommerce-currency-switcher/views/plugin_options.php:526
+#: woocommerce-currency-switcher/views/plugin_options.php:898
 msgid "Your country is not defined! Troubles with internet connection or GeoIp service."
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:498
-#: woocommerce-currency-switcher/views/plugin_options.php:526
+#: woocommerce-currency-switcher/views/plugin_options.php:898
 msgid "Your country is: %s"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:989
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+msgid "Your country is: %s. (defined by woocommerce GeoIP functionality)"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
 msgid "Your country is: <b>%s</b>. <br /><i style=\"color:black; font-size:11px; font-weight:normal;\">(defined by woocommerce GeoIP functionality)</i>"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:260
+#: woocommerce-currency-switcher/views/plugin_options.php:164
 msgid "Your version of WooCommerce plugin is too obsolete. Update minimum to %s version to avoid malfunctionality!"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:455
+#: woocommerce-currency-switcher/views/plugin_options.php:558
 msgid "a hint"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:14
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:20
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:46
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:52
+#: woocommerce-currency-switcher/views/fixed/product_coupon_data.php:12
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:12
+#: woocommerce-currency-switcher/views/fixed/product_coupon_restriction_data.php:16
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:13
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:19
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:43
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:49
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:21
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:27
 msgid "auto"
 msgstr ""
 
@@ -677,13 +1294,13 @@ msgid "cancel"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "chosen"
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4876
+msgid "change the rate and this description to the right values"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "chosen dark"
+#: woocommerce-currency-switcher/views/plugin_options.php:892
+msgid "clear all"
 msgstr ""
 
 #. Text in function
@@ -692,49 +1309,70 @@ msgid "code"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "cookie"
+#: woocommerce-currency-switcher/views/plugin_options.php:941
+msgid "currency"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "daily"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "ddslick"
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "ddslick drop-down"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:801
+#: woocommerce-currency-switcher/views/plugin_options.php:1211
 #: woocommerce-currency-switcher/views/widgets/selector_form.php:51
 msgid "description"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:812
+#: woocommerce-currency-switcher/views/plugin_options.php:1221
 msgid "drag and drope"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:22
+#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:25
 msgid "enter amount"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:779
-msgid "exchange rate"
+#: woocommerce-currency-switcher/views/plugin_options.php:636
+msgid "enter roll width"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:780
-msgid "finance"
+#: woocommerce-currency-switcher/views/plugin_options.php:1171
+msgid "exchange rate"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:958
+msgid "from"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1089
+msgid "full version of the plugin"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:1
+msgid "here"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "hourly"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/plugin_options.php:1171
+msgid "interes"
 msgstr ""
 
 #. Text in function
@@ -743,37 +1381,50 @@ msgid "left"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/index.php:986
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1050
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:944
 msgid "loading"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "monthly"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:812
+#: woocommerce-currency-switcher/views/plugin_options.php:1221
 msgid "move"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "no auto update"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/index.php:989
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:1073
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:967
 msgid "no data for %s"
 msgstr ""
 
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:942
+msgid "orders (completed)"
+msgstr ""
+
 #. Text in echo
-#: woocommerce-currency-switcher/views/plugin_options.php:811
+#: woocommerce-currency-switcher/views/plugin_options.php:1220
 msgid "remove"
 msgstr ""
 
 #. Text in echo
-#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:57
+#: woocommerce-currency-switcher/views/plugin_options.php:996
+#: woocommerce-currency-switcher/views/plugin_options.php:1078
+msgid "reset the browser cache"
+msgstr ""
+
+#. Text in echo
+#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:64
 msgid "results"
 msgstr ""
 
@@ -782,72 +1433,84 @@ msgstr ""
 msgid "right"
 msgstr ""
 
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:892
+msgid "select all"
+msgstr ""
+
 #. Text in echo
-#: woocommerce-currency-switcher/views/fixed/product_price_data.php:63
+#: woocommerce-currency-switcher/views/fixed/product_price_data.php:60
 msgid "select some countries"
 msgstr ""
 
+#. Text in echo
+#: woocommerce-currency-switcher/views/fixed/product_user_role_data.php:41
+msgid "select user role"
+msgstr ""
+
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "session"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "show as flags"
-msgstr ""
-
-#. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "simple drop-down"
-msgstr ""
-
-#. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "special: each 15 minutes"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "special: each 30 minutes"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "special: each 45 minutes"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "special: each 5 minutes"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "special: each minute"
 msgstr ""
 
-#. Text in echo
-#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:40
+#. Text in function
+#: woocommerce-currency-switcher/classes/woocs_after_33.php:4384
+#: woocommerce-currency-switcher/classes/woocs_before_33.php:3689
+msgid "support"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:929
+msgid "the plugin forum"
+msgstr ""
+
+#. Text in function
+#: woocommerce-currency-switcher/views/plugin_options.php:961
+#: woocommerce-currency-switcher/views/shortcodes/woocs_converter.php:45
 msgid "to"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "transient"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "twicedaily"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
-msgid "wSelect"
+#: woocommerce-currency-switcher/views/plugin_options.php:678
+msgid "wSelect drop-down"
 msgstr ""
 
 #. Text in function
-#: woocommerce-currency-switcher/views/plugin_options.php:814
+#: woocommerce-currency-switcher/views/plugin_options.php:1223
 msgid "weekly"
 msgstr ""

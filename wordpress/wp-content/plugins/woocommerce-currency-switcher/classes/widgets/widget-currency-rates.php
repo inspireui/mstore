@@ -6,9 +6,9 @@ class WOOCS_RATES extends WP_Widget
 
     public function __construct()
     {
-        parent::__construct(__CLASS__, __('WooCommerce Currency Rates', 'woocommerce-currency-switcher'), array(
+        parent::__construct(__CLASS__, esc_html__('WooCommerce Currency Rates', 'woocommerce-currency-switcher'), array(
             'classname' => __CLASS__,
-            'description' => __('WooCommerce Currency Rates by realmag777', 'woocommerce-currency-switcher')
+            'description' => esc_html__('WooCommerce Currency Rates by realmag777', 'woocommerce-currency-switcher')
                 )
         );
     }
@@ -35,7 +35,7 @@ class WOOCS_RATES extends WP_Widget
     public function form($instance)
     {
         $defaults = array(
-            'title' => __('WooCommerce Currency Rates', 'woocommerce-currency-switcher'),
+            'title' => esc_html__('WooCommerce Currency Rates', 'woocommerce-currency-switcher'),
             'exclude' => '',
             'precision' => 4
         );

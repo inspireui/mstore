@@ -1,0 +1,595 @@
+.woocs_auto_switcher.cd-stretchy-nav {
+    position: fixed;
+    z-index: 9999;
+    right: 2%;
+    pointer-events: none;
+}
+.woocs_auto_switcher.cd-stretchy-nav .stretchy-nav-bg {
+    /* this is the stretching navigation background */
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    -webkit-transition: height 0.2s, box-shadow 0.2s;
+    -moz-transition: height 0.2s, box-shadow 0.2s;
+    transition: height 0.2s, box-shadow 0.2s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible {
+    pointer-events: auto;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible .stretchy-nav-bg {
+    height: 100%;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+
+.cd-nav-trigger {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    right: 0;
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    /* replace text with image */
+    overflow: hidden;
+    white-space: nowrap;
+    color: transparent;
+    pointer-events: auto;
+}
+
+.cd-nav-trigger span {
+    /* middle line of the hamburger icon */
+    left: 50%;
+    top: 50%;
+    bottom: auto;
+    right: auto;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -o-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    -webkit-transition: background-color 0.2s;
+    -moz-transition: background-color 0.2s;
+    transition: background-color 0.2s;
+}
+
+.cd-nav-trigger span::before {
+    -webkit-transform: translateY(-6px);
+    -moz-transform: translateY(-6px);
+    -ms-transform: translateY(-6px);
+    -o-transform: translateY(-6px);
+    transform: translateY(-6px);
+}
+.cd-nav-trigger span::after {
+    -webkit-transform: translateY(6px);
+    -moz-transform: translateY(6px);
+    -ms-transform: translateY(6px);
+    -o-transform: translateY(6px);
+    transform: translateY(6px);
+}
+.no-touch .cd-nav-trigger:hover ~ .stretchy-nav-bg {
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+.nav-is-visible .cd-nav-trigger span {
+    background-color: transparent;
+}
+
+
+.woocs_auto_switcher.cd-stretchy-nav ul {
+    list-style: none;
+    position: relative;
+    z-index: 2;
+    padding: 60px 0 0;
+    visibility: hidden;
+    -webkit-transition: visibility 0.3s;
+    -moz-transition: visibility 0.3s;
+    transition: visibility 0.3s;
+    text-align: right;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul a {
+    position: relative;
+    color: #2f2f2f;
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 calc(1em + 60px) 0 1em;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.4rem;
+    -webkit-transition: color 0.2s;
+    -moz-transition: color 0.2s;
+    transition: color 0.2s;
+}
+.woocs_auto_switcher.gcd-stretchy-nav ul a::after {
+    /* navigation item icons */
+    content: '';
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    right: 22px;
+    top: 50%;
+    -webkit-transform: translateY(-50%) scale(0);
+    -moz-transform: translateY(-50%) scale(0);
+    -ms-transform: translateY(-50%) scale(0);
+    -o-transform: translateY(-50%) scale(0);
+    transform: translateY(-50%) scale(0);
+    opacity: .6;
+}
+.woocs_base_text{
+    line-height: 14px;
+    font-size: 14px;
+    text-align: center;
+    position: absolute;
+    /* height: 16px; */
+    width: 50px;
+    right: 5px;
+    top: 18px;
+    -webkit-transform: translateY(-50%) scale(0);
+    -moz-transform: translateY(-50%) scale(0);
+    -ms-transform: translateY(-50%) scale(0);
+    -o-transform: translateY(-50%) scale(0);
+    transform: translateY(-50%) scale(0);
+    opacity: 1;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul a::before {
+    /* line visible next to the active navigation item */
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 16px;
+    top: 50%;
+    right: 60px;
+    -webkit-transform: translateX(3px) translateY(-50%) scaleY(0);
+    -moz-transform: translateX(3px) translateY(-50%) scaleY(0);
+    -ms-transform: translateX(3px) translateY(-50%) scaleY(0);
+    -o-transform: translateX(3px) translateY(-50%) scaleY(0);
+    transform: translateX(3px) translateY(-50%) scaleY(0);
+    background-color: #0a9581;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul li:first-of-type a::after {
+    /* change custom icon using image sprites */
+    background-position: -32px 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul li:nth-of-type(2) a::after {
+    background-position: -64px 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul li:nth-of-type(3) a::after {
+    background-position: -48px 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul li:nth-of-type(4) a::after {
+    background-position: 0 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul li:nth-of-type(5) a::after {
+    background-position: -16px 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav ul span {
+    /* navigation item labels */
+    display: block;
+    opacity: 0;
+    -webkit-transform: translateX(-25px);
+    -moz-transform: translateX(-25px);
+    -ms-transform: translateX(-25px);
+    -o-transform: translateX(-25px);
+    transform: translateX(-25px);
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul {
+    visibility: visible;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul a::after {
+    /* navigation item icons */
+    -webkit-transform: translateY(-50%) scale(1);
+    -moz-transform: translateY(-50%) scale(1);
+    -ms-transform: translateY(-50%) scale(1);
+    -o-transform: translateY(-50%) scale(1);
+    transform: translateY(-50%) scale(1);
+    -webkit-animation: scaleIn 0.15s backwards;
+    -moz-animation: scaleIn 0.15s backwards;
+    animation: scaleIn 0.15s backwards;
+    -webkit-transition: opacity 0.2s;
+    -moz-transition: opacity 0.2s;
+    transition: opacity 0.2s;
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul a.woocs_curr_curr::after {
+    opacity: 1;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul a.woocs_curr_curr::before {
+    -webkit-transform: translateX(3px) translateY(-50%) scaleY(1);
+    -moz-transform: translateX(3px) translateY(-50%) scaleY(1);
+    -ms-transform: translateX(3px) translateY(-50%) scaleY(1);
+    -o-transform: translateX(3px) translateY(-50%) scaleY(1);
+    transform: translateX(3px) translateY(-50%) scaleY(1);
+    -webkit-transition: -webkit-transform 0.15s 0.3s;
+    -moz-transition: -moz-transform 0.15s 0.3s;
+    transition: transform 0.15s 0.3s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul span {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0);
+    -webkit-animation: slideIn 0.15s backwards;
+    -moz-animation: slideIn 0.15s backwards;
+    animation: slideIn 0.15s backwards;
+    -webkit-transition: -webkit-transform 0.2s;
+    -moz-transition: -moz-transform 0.2s;
+    transition: transform 0.2s;
+}
+.no-touch .woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul a:hover {
+    color: #ffffff;
+}
+.no-touch .woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul a:hover::after {
+    opacity: 1;
+}
+.no-touch .woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul a:hover span {
+    -webkit-transform: translateX(-5px);
+    -moz-transform: translateX(-5px);
+    -ms-transform: translateX(-5px);
+    -o-transform: translateX(-5px);
+    transform: translateX(-5px);
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:first-of-type a::after,
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:first-of-type span {
+    -webkit-animation-delay: 0.05s;
+    -moz-animation-delay: 0.05s;
+    animation-delay: 0.05s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(2) a::after,
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(2) span {
+    -webkit-animation-delay: 0.1s;
+    -moz-animation-delay: 0.1s;
+    animation-delay: 0.1s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(3) a::after,
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(3) span {
+    -webkit-animation-delay: 0.15s;
+    -moz-animation-delay: 0.15s;
+    animation-delay: 0.15s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(4) a::after,
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(4) span {
+    -webkit-animation-delay: 0.2s;
+    -moz-animation-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(5) a::after,
+.woocs_auto_switcher.cd-stretchy-nav.nav-is-visible ul li:nth-of-type(5) span {
+    -webkit-animation-delay: 0.25s;
+    -moz-animation-delay: 0.25s;
+    animation-delay: 0.25s;
+}
+
+/* -------------------------------- 
+
+add-content navigation style
+
+-------------------------------- */
+.woocs_auto_switcher.cd-stretchy-nav.add-content {
+    bottom: 50px;
+    top: auto;
+    left: 50%;
+    right: auto;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 300px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content .stretchy-nav-bg {
+    left: 50%;
+    right: auto;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+    transform: translateX(-50%);
+    background-color: #8ac57f;
+    -webkit-transition: width 0.2s, box-shadow 0.2s;
+    -moz-transition: width 0.2s, box-shadow 0.2s;
+    transition: width 0.2s, box-shadow 0.2s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible .stretchy-nav-bg {
+    width: 100%;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.add-content .cd-nav-trigger {
+    left: 50%;
+    right: auto;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+    transform: translateX(-50%);
+    background-color: #9acd91;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content .cd-nav-trigger span {
+    background-color: transparent;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content .cd-nav-trigger span::before {
+    /* used to create the plus icon */
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content .cd-nav-trigger span::after {
+    /* used to create the plus icon */
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible .cd-nav-trigger {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible .cd-nav-trigger span::before {
+    -webkit-transform: rotate(-135deg);
+    -moz-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    -o-transform: rotate(-135deg);
+    transform: rotate(-135deg);
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible .cd-nav-trigger span::after {
+    -webkit-transform: rotate(-225deg);
+    -moz-transform: rotate(-225deg);
+    -ms-transform: rotate(-225deg);
+    -o-transform: rotate(-225deg);
+    transform: rotate(-225deg);
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul {
+    padding-top: 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul::after {
+    clear: both;
+    content: "";
+    display: table;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li {
+    display: inline-block;
+    float: left;
+    width: 60px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(2) {
+    /* space occupied by the navigation trigger */
+    margin-right: 60px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul a {
+    padding: 0;
+    height: 60px;
+    width: 100%;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul a::after {
+    top: 50%;
+    left: 22px;
+    right: auto;
+    -webkit-transform: translateY(-50%) scale(0);
+    -moz-transform: translateY(-50%) scale(0);
+    -ms-transform: translateY(-50%) scale(0);
+    -o-transform: translateY(-50%) scale(0);
+    transform: translateY(-50%) scale(0);
+    background-image: url(../img/cd-sprite-2.svg);
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:first-of-type a::after {
+    background-position: -16px 0px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(2) a::after {
+    background-position: 0px 0px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(3) a::after {
+    background-position: -48px 0px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(4) a::after {
+    background-position: -32px 0px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:first-of-type a::after,
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(4) a::after {
+    -webkit-animation-delay: 0.2s;
+    -moz-animation-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(2) a::after,
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul li:nth-of-type(3) a::after {
+    -webkit-animation-delay: 0.1s;
+    -moz-animation-delay: 0.1s;
+    animation-delay: 0.1s;
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible ul a::after {
+    -webkit-animation-name: scaleIn;
+    -moz-animation-name: scaleIn;
+    animation-name: scaleIn;
+    -webkit-transform: translateY(-50%) scale(1);
+    -moz-transform: translateY(-50%) scale(1);
+    -ms-transform: translateY(-50%) scale(1);
+    -o-transform: translateY(-50%) scale(1);
+    transform: translateY(-50%) scale(1);
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul span {
+    position: absolute;
+    left: 0;
+    top: -20px;
+    width: 100%;
+    padding: 0.6em 0;
+    opacity: 0;
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 2px;
+    font-size: 1.2rem;
+    line-height: 1;
+    white-space: nowrap;
+    text-align: center;
+    -webkit-transition: opacity 0.2s, visibility 0.2s;
+    -moz-transition: opacity 0.2s, visibility 0.2s;
+    transition: opacity 0.2s, visibility 0.2s;
+    /* reset default style */
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0);
+}
+.woocs_auto_switcher.cd-stretchy-nav.add-content ul span::after {
+    /* triangle below the tooltip */
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    right: auto;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+    transform: translateX(-50%);
+    height: 0;
+    width: 0;
+    border: 4px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible ul span {
+    /* reset default style */
+    -webkit-animation: none;
+    -moz-animation: none;
+    animation: none;
+}
+
+.no-touch .woocs_auto_switcher.cd-stretchy-nav.add-content.nav-is-visible ul a:hover span {
+    opacity: 1;
+    visibility: visible;
+    /* reset default style */
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0);
+}
+
+
+
+
+/* -------------------------------- 
+
+keyframes
+
+-------------------------------- */
+@-webkit-keyframes scaleIn {
+    from {
+        -webkit-transform: translateY(-50%) scale(0);
+    }
+    to {
+        -webkit-transform: translateY(-50%) scale(1);
+    }
+}
+@-moz-keyframes scaleIn {
+    from {
+        -moz-transform: translateY(-50%) scale(0);
+    }
+    to {
+        -moz-transform: translateY(-50%) scale(1);
+    }
+}
+@keyframes scaleIn {
+    from {
+        -webkit-transform: translateY(-50%) scale(0);
+        -moz-transform: translateY(-50%) scale(0);
+        -ms-transform: translateY(-50%) scale(0);
+        -o-transform: translateY(-50%) scale(0);
+        transform: translateY(-50%) scale(0);
+    }
+    to {
+        -webkit-transform: translateY(-50%) scale(1);
+        -moz-transform: translateY(-50%) scale(1);
+        -ms-transform: translateY(-50%) scale(1);
+        -o-transform: translateY(-50%) scale(1);
+        transform: translateY(-50%) scale(1);
+    }
+}
+@-webkit-keyframes slideIn {
+    from {
+        opacity: 0;
+        -webkit-transform: translateX(-25px);
+    }
+    to {
+        opacity: 1;
+        -webkit-transform: translateX(0);
+    }
+}
+@-moz-keyframes slideIn {
+    from {
+        opacity: 0;
+        -moz-transform: translateX(-25px);
+    }
+    to {
+        opacity: 1;
+        -moz-transform: translateX(0);
+    }
+}
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        -webkit-transform: translateX(-25px);
+        -moz-transform: translateX(-25px);
+        -ms-transform: translateX(-25px);
+        -o-transform: translateX(-25px);
+        transform: translateX(-25px);
+    }
+    to {
+        opacity: 1;
+        -webkit-transform: translateX(0);
+        -moz-transform: translateX(0);
+        -ms-transform: translateX(0);
+        -o-transform: translateX(0);
+        transform: translateX(0);
+    }
+}
+
+
+.cd-nav-trigger span.woocs_current_text {
+    position: absolute;
+    color: #fff;
+    left: 50%;
+    top: 50%;
+}
+.woocs_auto_switcher.cd-stretchy-nav .woocs_add_field{
+    font-size: 14px;
+    /*color: #847f7f;*/
+    color: red;
+}
+.flag_auto_switcher{
+    display: inline;
+    max-height: 20px;
+}
+
+.woocs_auto_switcher.cd-stretchy-nav.left {
+    left: 2%;
+    right: initial;
+}
+.woocs_auto_switcher.left .cd-nav-trigger, .woocs_auto_switcher.left .stretchy-nav-bg {
+    right: initial;
+}
+.woocs_auto_switcher.cd-stretchy-nav.left ul {
+    text-align: left;
+    margin: 0;
+}
+.woocs_auto_switcher.cd-stretchy-nav.left .woocs_base_text{
+    left: 5px;
+}
+.woocs_auto_switcher.cd-stretchy-nav.left ul a {
+    padding: 0 1em 0 calc(1em + 60px);
+}
+.woocs_auto_switcher.cd-stretchy-nav.left ul a::before {
+    left: 56px;
+}
