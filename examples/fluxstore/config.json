@@ -1,0 +1,172 @@
+{
+  "HorizonLayout": [
+    {
+      "layout": "logo",
+      "showMenu": true,
+      "showSearch": true
+    },
+    {
+      "layout": "category",
+      "type": "icon",
+      "wrap": false,
+      "size": 1.0,
+      "radius": 50.0,
+      "items": [
+        {
+          "category": 56,
+          "image": "https://user-images.githubusercontent.com/1459805/62820029-2e679f00-bb88-11e9-80de-fdf115cfd942.png",
+          "colors": [
+            "#3CC2BF",
+            "#3CC2BF"
+          ],
+          "originalColor": false
+        },
+        {
+          "category": 61,
+          "image": "assets/icons/categories/ic_dress.png",
+          "colors": [
+            "#3E6AB5",
+            "#3E6AB5"
+          ]
+        },
+        {
+          "category": 62,
+          "image": "assets/icons/categories/ic_shorts.png",
+          "colors": [
+            "#53A2CC",
+            "#53A2CC"
+          ]
+        },
+        {
+          "category": 64,
+          "image": "assets/icons/categories/ic_glasses.png",
+          "colors": [
+            "#53688A",
+            "#53688A"
+          ]
+        },
+        {
+          "category": 54,
+          "image": "assets/icons/categories/ic_tie.png",
+          "colors": [
+            "#43506A",
+            "#43506A"
+          ]
+        },
+        {
+          "category": 56,
+          "image": "assets/icons/categories/ic_panties.png",
+          "colors": [
+            "#12B58C",
+            "#12B58C"
+          ]
+        }
+      ]
+    },
+
+    {
+      "layout": "bannerImage",
+      "isSlider": true,
+      "autoPlay": false,
+      "showNumber": false,
+      "design": "default",
+      "showBackGround": true,
+      "radius": 2.0,
+      "items": [
+        {
+          "category": 65,
+          "image": "https://user-images.githubusercontent.com/1459805/59846818-12672e80-938b-11e9-8184-5f7bfe66f1a2.png",
+          "padding": 15.0
+        },
+        {
+          "category": 64,
+          "image": "https://user-images.githubusercontent.com/1459805/60091575-1f12ca80-976f-11e9-962c-bdccff60d143.png",
+          "padding": 15.0
+        },
+        {
+          "category": 63,
+          "image": "https://user-images.githubusercontent.com/1459805/60091808-a19b8a00-976f-11e9-9cc7-576ca05c2442.png",
+          "padding": 15.0
+        }
+      ]
+    },
+    {
+      "layout": "bannerImage",
+      "items": [
+        {
+          "category": 56,
+          "image": "https://user-images.githubusercontent.com/1459805/59846820-12672e80-938b-11e9-8fa6-b331b7db331d.png",
+          "padding": 5.0
+        }
+      ]
+    },
+    {
+      "layout": "bannerImage",
+      "items": [
+        {
+          "category": 59,
+          "image": "https://user-images.githubusercontent.com/1459805/59846823-12ffc500-938b-11e9-8d93-65ead3d6b1dd.png",
+          "padding": 5.0
+        },
+        {
+          "category": 60,
+          "image": "https://user-images.githubusercontent.com/1459805/59846824-12ffc500-938b-11e9-8d5a-fc42cb1b7658.png",
+          "padding": 5.0
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Recent View",
+        "ab": "عرض الأخيرة",
+        "vi": "Xem gần đây"
+      },
+      "layout": "recentView"
+    },
+    {
+      "name": {
+        "en": "Woman Collections",
+        "ab": "مجموعات المرأة",
+        "vi": "Bộ sưu tập cho phụ nữ"
+      },
+      "image": "",
+      "layout": "threeColumn",
+      "category": 56,
+      "isSnapping": true
+    },
+    {
+      "name": {
+        "en": "Man Collections",
+        "ab": "مجموعات الرجل",
+        "vi": "Bộ sưu tập cho đàn ông"
+      },
+      "image": "",
+      "layout": "twoColumn",
+      "category": 52,
+      "isSnapping": true
+    },
+    {
+      "name": {
+        "en": "Our Blog Posts",
+        "ab": "بلوق وظائف",
+        "vi": "Blog của chúng tôi"
+      },
+      "layout": "blog"
+    },
+
+    {
+      "name": {
+        "en": "New Collections",
+        "ab": "مجموعات الرجل",
+        "vi": "Bộ sưu tập gần "
+      },
+      "layout": "staggered",
+      "limit": 20,
+      "category": 56
+    }
+  ],
+  "Setting": {
+    "MainColor": "#3FC1BE",
+    "ProductListLayout": "list"
+  }
+}
