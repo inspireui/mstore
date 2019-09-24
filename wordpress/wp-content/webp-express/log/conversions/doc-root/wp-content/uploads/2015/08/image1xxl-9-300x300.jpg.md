@@ -1,0 +1,137 @@
+WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:31:43
+
+*WebP Convert 2.1.4*  ignited.
+- PHP version: 7.3.1
+- Server software: Apache
+
+Stack converter ignited
+
+Options:
+------------
+The following options have been set explicitly. Note: it is the resulting options after merging down the "jpeg" and "png" options and any converter-prefixed options.
+- source: [doc-root]/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg
+- destination: [doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg.webp
+- log-call-arguments: true
+- converters: (array of 9 items)
+
+The following options have not been explicitly set, so using the following defaults:
+- converter-options: (empty array)
+- shuffle: false
+- preferred-converters: (empty array)
+- extra-converters: (empty array)
+
+The following options were supplied and are passed on to the converters in the stack:
+- encoding: "auto"
+- metadata: "none"
+- near-lossless: 60
+- quality: 70
+------------
+
+
+*Trying: cwebp* 
+
+Options:
+------------
+The following options have been set explicitly. Note: it is the resulting options after merging down the "jpeg" and "png" options and any converter-prefixed options.
+- source: [doc-root]/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg
+- destination: [doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg.webp
+- encoding: "auto"
+- low-memory: true
+- log-call-arguments: true
+- metadata: "none"
+- method: 6
+- near-lossless: 60
+- quality: 70
+- use-nice: true
+- command-line-options: ""
+- try-common-system-paths: true
+- try-supplied-binary-for-os: true
+
+The following options have not been explicitly set, so using the following defaults:
+- alpha-quality: 85
+- auto-filter: false
+- default-quality: 75
+- max-quality: 85
+- preset: "none"
+- size-in-percentage: null (not set)
+- skip: false
+- rel-path-to-precompiled-binaries: *****
+------------
+
+Encoding is set to auto - converting to both lossless and lossy and selecting the smallest file
+
+Converting to lossy
+Locating cwebp binaries
+1 cwebp binaries found in common system locations
+Checking if we have a supplied binary for OS: Darwin... We do.
+We in fact have 1
+A total of 2 cwebp binaries where found
+Detecting versions of the cwebp binaries found (and verifying that they can be executed in the process)
+Executing: /usr/local/bin/cwebp -version. Result: version: 1.0.3
+Executing: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12 -version
+Exec failed (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12)
+Trying executing the cwebs found until success. Starting with the ones with highest version number.
+Creating command line options for version: 1.0.3
+Quality: 70. 
+Consider setting quality to "auto" instead. It is generally a better idea
+The near-lossless option ignored for lossy
+Trying to convert by executing the following command:
+nice /usr/local/bin/cwebp -metadata none -q 70 -alpha_q '85' -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg.webp.lossy.webp' 2>&1
+
+*Output:* 
+Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg.webp.lossy.webp'
+File:      [doc-root]/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg
+Dimension: 300 x 300
+Output:    3342 bytes Y-U-V-All-PSNR 40.98 45.55 45.28   42.02 dB
+           (0.30 bpp)
+block count:  intra4:        161  (44.60%)
+              intra16:       200  (55.40%)
+              skipped:        50  (13.85%)
+bytes used:  header:             52  (1.6%)
+             mode-partition:    728  (21.8%)
+ Residuals bytes  |segment 1|segment 2|segment 3|segment 4|  total
+  intra4-coeffs:  |    1578 |      50 |      43 |      56 |    1727  (51.7%)
+ intra16-coeffs:  |     140 |      17 |      14 |     157 |     328  (9.8%)
+  chroma coeffs:  |     406 |      13 |       9 |      52 |     480  (14.4%)
+    macroblocks:  |      43%|       4%|       4%|      48%|     361
+      quantizer:  |      39 |      32 |      26 |      17 |
+   filter level:  |      16 |      27 |       5 |       8 |
+------------------+---------+---------+---------+---------+-----------------
+ segments total:  |    2124 |      80 |      66 |     265 |    2535  (75.9%)
+
+Success
+Reduction: 75% (went from 13 kb to 3 kb)
+
+Converting to lossless
+Locating cwebp binaries
+1 cwebp binaries found in common system locations
+Checking if we have a supplied binary for OS: Darwin... We do.
+We in fact have 1
+A total of 2 cwebp binaries where found
+Detecting versions of the cwebp binaries found (and verifying that they can be executed in the process)
+Executing: /usr/local/bin/cwebp -version. Result: version: 1.0.3
+Executing: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12 -version
+Exec failed (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12)
+Trying executing the cwebs found until success. Starting with the ones with highest version number.
+Creating command line options for version: 1.0.3
+Trying to convert by executing the following command:
+nice /usr/local/bin/cwebp -metadata none -q 70 -alpha_q '85' -near_lossless 60 -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg.webp.lossless.webp' 2>&1
+
+*Output:* 
+Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg.webp.lossless.webp'
+File:      [doc-root]/wp-content/uploads/2015/08/image1xxl-9-300x300.jpg
+Dimension: 300 x 300
+Output:    31894 bytes (2.84 bpp)
+Lossless-ARGB compressed size: 31894 bytes
+  * Header size: 1869 bytes, image data size: 30000
+  * Lossless features used: PREDICTION CROSS-COLOR-TRANSFORM SUBTRACT-GREEN
+  * Precision Bits: histogram=3 transform=3 cache=10
+
+Success
+Reduction: -138% (went from 13 kb to 31 kb)
+
+Picking lossy
+cwebp succeeded :)
+
+Converted image in 301 ms, reducing file size with 75% (went from 13 kb to 3 kb)
+

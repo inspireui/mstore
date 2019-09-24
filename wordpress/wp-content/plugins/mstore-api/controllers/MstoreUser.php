@@ -471,4 +471,72 @@ class JSON_API_MStore_User_Controller
         );
     }
 
+    public function get_currentuserinfo() {
+		global $json_api;
+		if (!$json_api->query->cookie) {
+			$json_api->error("You must include a 'cookie' var in your request. Use the `generate_auth_cookie` Auth API method.");
+		}
+		$user_id = wp_validate_auth_cookie($json_api->query->cookie, 'logged_in');
+		if (!$user_id) {
+			$json_api->error("Invalid authentication cookie. Use the `generate_auth_cookie` Auth API method.");
+		}
+		$user = get_userdata($user_id);
+		preg_match('|src="(.+?)"|', get_avatar( $user->ID, 32 ), $avatar);
+		return array(
+			"user" => array(
+				"id" => $user->ID,
+				"username" => $user->user_login,
+				"nicename" => $user->user_nicename,
+				"email" => $user->user_email,
+				"url" => $user->user_url,
+				"registered" => $user->user_registered,
+				"displayname" => $user->display_name,
+				"firstname" => $user->user_firstname,
+				"lastname" => $user->last_name,
+				"nickname" => $user->nickname,
+				"description" => $user->user_description,
+				"capabilities" => $user->wp_capabilities,
+				"avatar" => $avatar[1]
+			)
+		);
+    }
+    
+    /**
+     * Get Point Reward by User ID
+     *
+     * @return void
+     */
+    function get_points(){       
+        global $wc_points_rewards;
+        global $json_api;
+        $user_id = (int) $_GET['user_id'];
+        $current_page = (int) $_GET['page'];
+       
+		$points_balance = WC_Points_Rewards_Manager::get_users_points( $user_id );
+		$points_label   = $wc_points_rewards->get_points_label( $points_balance );
+		$count        = apply_filters( 'wc_points_rewards_my_account_points_events', 5, $user_id );
+		$current_page = empty( $current_page ) ? 1 : absint( $current_page );
+        
+		$args = array(
+			'calc_found_rows' => true,
+			'orderby' => array(
+				'field' => 'date',
+				'order' => 'DESC',
+			),
+			'per_page' => $count,
+			'paged'    => $current_page,
+			'user'     => $user_id,
+        );
+        $total_rows = WC_Points_Rewards_Points_Log::$found_rows;
+		$events = WC_Points_Rewards_Points_Log::get_points_log_entries( $args );
+        
+        return array(
+            'points_balance' => $points_balance,
+            'points_label'   => $points_label,
+            'total_rows'     => $total_rows,
+            'page'   => $current_page,
+            'count'          => $count,
+            'events'         => $events
+        );
+    }  
 }

@@ -34,8 +34,8 @@ add_filter( 'wp_generate_attachment_metadata', 'bt_generate_attachment_metadata'
  * @return bool|array False, if no image was created. Metadata array on success.
  */
 function bt_add_image_size( $name, $width = 0, $height = 0, $crop = false ) {
-	global $additional_img_sizes;
-	$additional_img_sizes[$name] = array( 'width' => absint( $width ), 'height' => absint( $height ), 'crop' => $crop );
+	global $_wp_additional_image_sizes;
+	$_wp_additional_image_sizes[$name] = array( 'width' => absint( $width ), 'height' => absint( $height ), 'crop' => $crop );
 }
 
 
@@ -58,20 +58,20 @@ function bt_generate_attachment_metadata( $metadata, $attachment_id ) {
 
 	if ( !preg_match('!^image/!', get_post_mime_type( $attachment )) || !file_is_displayable_image( $file ) ) return $metadata;
 
-    global $additional_img_sizes;
+    global $_wp_additional_image_sizes;
 
     foreach ( get_intermediate_image_sizes() as $s ) {
         $sizes[$s] = array( 'width' => '', 'height' => '', 'crop' => FALSE );
-        if ( isset( $additional_img_sizes[$s]['width'] ) )
-            $sizes[$s]['width'] = (int)( $additional_img_sizes[$s]['width'] ); // For theme-added sizes
+        if ( isset( $_wp_additional_image_sizes[$s]['width'] ) )
+            $sizes[$s]['width'] = intval( $_wp_additional_image_sizes[$s]['width'] ); // For theme-added sizes
         else
             $sizes[$s]['width'] = get_option( "{$s}_size_w" ); // For default sizes set in options
-        if ( isset( $additional_img_sizes[$s]['height'] ) )
-            $sizes[$s]['height'] = (int)( $additional_img_sizes[$s]['height'] ); // For theme-added sizes
+        if ( isset( $_wp_additional_image_sizes[$s]['height'] ) )
+            $sizes[$s]['height'] = intval( $_wp_additional_image_sizes[$s]['height'] ); // For theme-added sizes
         else
             $sizes[$s]['height'] = get_option( "{$s}_size_h" ); // For default sizes set in options
-        if ( isset( $additional_img_sizes[$s]['crop'] ) )
-            $sizes[$s]['crop'] = $additional_img_sizes[$s]['crop'];
+        if ( isset( $_wp_additional_image_sizes[$s]['crop'] ) )
+            $sizes[$s]['crop'] = $_wp_additional_image_sizes[$s]['crop'];
         else
             $sizes[$s]['crop'] = get_option( "{$s}_crop" );
     }
@@ -115,7 +115,7 @@ function bt_image_make_intermediate_size( $file, $width, $height, $crop = false,
 				$suffix = null;
 				break;
 		}
-		$resized_file = mstore_image_resize( $file, $width, $height, $crop, $suffix, null, 90 );
+		$resized_file = bt_image_resize( $file, $width, $height, $crop, $suffix, null, 90 );
 		if ( !is_wp_error( $resized_file ) && $resized_file && $info = getimagesize( $resized_file ) ) {
 			$resized_file = apply_filters('image_make_intermediate_size', $resized_file);
 			return array(
@@ -144,7 +144,7 @@ function bt_image_make_intermediate_size( $file, $width, $height, $crop = false,
  * @param bool $crop Optional, default is false. Whether to crop image or resize.
  * @return bool|array False, on failure. Returned array matches parameters for imagecopyresampled() PHP function.
  */
-function r_dimensions($orig_w, $orig_h, $dest_w, $dest_h, $crop = false) {
+function bt_image_resize_dimensions($orig_w, $orig_h, $dest_w, $dest_h, $crop = false) {
 
 	if ($orig_w <= 0 || $orig_h <= 0)
 		return false;
@@ -159,11 +159,11 @@ function r_dimensions($orig_w, $orig_h, $dest_w, $dest_h, $crop = false) {
 		$new_h = min($dest_h, $orig_h);
 
 		if ( !$new_w ) {
-			$new_w = (int)($new_h * $aspect_ratio);
+			$new_w = intval($new_h * $aspect_ratio);
 		}
 
 		if ( !$new_h ) {
-			$new_h = (int)($new_w / $aspect_ratio);
+			$new_h = intval($new_w / $aspect_ratio);
 		}
 
 		$size_ratio = max($new_w / $orig_w, $new_h / $orig_h);
@@ -230,7 +230,7 @@ function r_dimensions($orig_w, $orig_h, $dest_w, $dest_h, $crop = false) {
  * @param int $jpeg_quality Optional, default is 90. Image quality percentage.
  * @return mixed WP_Error on failure. String with new destination path.
  */
-function mstore_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = null, $dest_path = null, $jpeg_quality = 90 ) {
+function bt_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = null, $dest_path = null, $jpeg_quality = 90 ) {
 
 	$image = wp_load_image( $file );
 	if ( !is_resource( $image ) )
@@ -258,7 +258,7 @@ function mstore_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = nu
 	if ( $rotate )
 		list($max_h,$max_w) = array($max_w,$max_h);
 
-	$dims = r_dimensions($orig_w, $orig_h, $max_w, $max_h, $crop);
+	$dims = bt_image_resize_dimensions($orig_w, $orig_h, $max_w, $max_h, $crop);
 	if ( !$dims )
 		return new WP_Error( 'error_getting_dimensions', __('Could not calculate resized image dimensions') );
 	list($dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h) = $dims;
@@ -268,11 +268,12 @@ function mstore_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = nu
 	if ( $rotate )
 		list($src_y,$src_x) = array($src_x,$src_y);
 
-	// imagecopyresampled( $newimage, $image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
-	imagecopyresized( $newimage, $image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+	imagecopyresampled( $newimage, $image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+
 	// convert from full colors to index colors, like original PNG.
 	if ( IMAGETYPE_PNG == $orig_type && function_exists('imageistruecolor') && !imageistruecolor( $image ) )
 		imagetruecolortopalette( $newimage, false, imagecolorstotal( $image ) );
+
 	// we don't need the original in memory anymore
 	imagedestroy( $image );
 
@@ -284,11 +285,9 @@ function mstore_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = nu
 			$suffix = "{$dst_w}x{$dst_h}";
 	}
 
-	// $info = pathinfo($file);
-	// $dir = $info['dirname'];
-	// $ext = $info['extension'];
-	$dir = dirname($file);
-	$ext = wp_check_filetype($file)['ext'];
+	$info = pathinfo($file);
+	$dir = $info['dirname'];
+	$ext = $info['extension'];
 	$name = wp_basename($file, ".$ext");
 
 	if ( !is_null($dest_path) and $_dest_path = realpath($dest_path) )
@@ -308,7 +307,7 @@ function mstore_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = nu
 		
 		// all other formats are converted to jpg
 		$destfilename = "{$dir}/{$name}-{$suffix}.jpg";
-		$return = imagejpeg( $newimage, $destfilename, apply_filters( 'jpeg_quality', $jpeg_quality, 'mstore_image_resize' ) );
+		$return = imagejpeg( $newimage, $destfilename, apply_filters( 'jpeg_quality', $jpeg_quality, 'image_resize' ) );
 		if ( !$return )
 			return new WP_Error('resize_path_invalid', __( 'Resize path invalid' ));
 	}
@@ -318,6 +317,7 @@ function mstore_image_resize( $file, $max_w, $max_h, $crop = false, $suffix = nu
 	// Set correct file permissions
 	$stat = stat( dirname( $destfilename ));
 	$perms = $stat['mode'] & 0000666; //same permissions as parent folder, strip off the executable bits
-	@ chmod( $destfilename, octdec($perms) );
+	@ chmod( $destfilename, $perms );
+
 	return $destfilename;
 }

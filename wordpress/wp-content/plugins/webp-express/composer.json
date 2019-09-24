@@ -1,0 +1,25 @@
+{
+    "name": "rosell-dk/webp-express",
+    "description": "WebP for the masses",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "rosell-dk/webp-convert": "^2.1.5",
+        "rosell-dk/webp-convert-cloud-service": "^2.0.0",
+        "rosell-dk/dom-util-for-webp": "^0.3.1"
+    },
+    "require-dev": {
+    },
+    "scripts": {
+        "ci": [
+            "@composer validate --no-check-all --strict"
+        ]
+    },
+    "authors": [
+      {
+        "name": "Bjørn Rosell",
+        "homepage": "https://www.bitwise-it.dk/contact",
+        "role": "Project Author"
+      }
+    ]
+}

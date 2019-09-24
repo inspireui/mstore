@@ -1,0 +1,644 @@
+/*input[name=webp_express_converters] {
+    display: none;
+    width: 100%;
+}*/
+
+/* break long lines in pre (when we are showing .htaccess inside notice) */
+.notice pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Classes used in our pseudo markdown. */
+.webpexpress.md h1 {
+    margin: 1em 0 1em;
+    font-size: 2em;
+    font-weight: normal;
+}
+.webpexpress.md h2 {
+    margin: 1em 0 0.5em;
+    font-size: 1.6em;
+    font-weight: normal;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #ccc;
+}
+.webpexpress.md h3 {
+    margin: 1em 0 0.5em;
+    font-size: 1.4em;
+    font-weight: normal;
+}
+.webpexpress.md h4 {
+    font-size: 1.0em;
+    margin: 1em 0 0.5em;
+    /*font-weight: 500;*/
+    font-weight: normal;
+    font-style: italic;
+}
+.webpexpress.md .warn {
+    background-color: yellow;
+}
+.webpexpress.md .ok {
+    color: green;
+}
+.webpexpress.md .error {
+    color: red;
+}
+
+
+
+/* remove the padding on the row with the hidden "webp_express_converters" setting.
+  it is the last row, we happen to know... */
+  /*
+.form-table tr:last-of-type > * {
+  padding: 0;
+}*/
+
+@media (min-width: 782px) {
+    #webpexpress_settings .form-table > tbody > tr > th {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        width: 200px;
+    }
+    #webpexpress_settings .form-table > tbody > tr > td {
+        padding-top: 1px;
+        padding-bottom: 5px;
+    }
+
+}
+
+#converters li {
+    border: 1px solid grey;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    line-height: 1.4em;
+    background-color: #fff;
+    padding: 6px 10px 0;
+    max-width: 400px;
+    min-height: 26px;
+    position: relative;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+#converters li {
+    cursor: move;
+}
+#converters li:hover {
+    border-color: #000;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+#converters li.deactivated {
+    border-color: #ccc;
+    background-color: #f0f0f0;
+    min-height: auto;
+    height: 22px;
+    padding-top: 3px;
+}
+#converters li.deactivated:hover {
+    border-color: #999;
+}
+#converters li.deactivated,
+#converters li.deactivated a.configure-converter,
+#converters li.deactivated a.test-converter,
+#converters li.deactivated a.activate-converter {
+    color: #888;
+}
+#converters li.not-operational {
+    border-style: dotted;
+    border-color: #666;
+}
+#converters li.not-operational:hover {
+    border-style: solid;
+}
+#converters li a {
+    cursor: pointer;
+}
+
+#converters li[data-id='gmagick'] a.configure-converter {
+    visibility: hidden;
+}
+
+#converters li > * {
+    vertical-align: middle;
+
+}
+#converters li > div {
+    display: inline-block;
+    line-height: 1;
+}
+#converters li > .text {
+    padding-left: 10px;
+    width: 160px;
+}
+
+#converters li > a.btn {
+/*    border: 1px solid transparent;
+    border-radius: 8px;
+    */
+    padding: 2px 6px;
+    margin-right: 4px;
+    text-decoration: none;
+}
+
+#converters li > a.btn:hover {
+    text-decoration: underline;
+    /*border-color: #666;
+    background-color: #eee;*/
+}
+#converters li > a.configure-converter {
+}
+#converters li .status {
+    font-size: 10px;
+    position: absolute;
+    right: 7px;
+    bottom: 3px;
+}
+
+#converters li .status svg {
+    padding: 0px;
+}
+#converters li svg#status_ok {
+    color: #008000;
+}
+#converters li.deactivated svg#status_ok {
+    color: #99cc99;
+}
+#converters li svg#status_not_ok {
+    color: #b11010; /* 444444 */
+}
+#converters li.deactivated svg#status_not_ok {
+    color: #999999;
+}
+
+#converters li.deactivated .status {
+    bottom: unset;
+}
+#converters li.deactivated .status svg {
+    width: 15px;
+    padding: 0;
+}
+
+#converters li .popup,
+.help .popup {
+    display: none;
+    position: absolute;
+    border: 1px solid #666;
+    z-index:2;
+    background-color: #ffffaa;
+    padding: 8px 10px;
+    /*left: 22px;
+    top: 20px;*/
+    margin-top: -5px;
+    /*white-space: nowrap;*/
+    min-width: 150px;
+}
+
+.popup,
+.popup p {
+    font-weight: normal;
+    text-align: left;
+    line-height: 1.5;
+    font-size: 14px;
+    color: #000;
+}
+
+.help .popup.narrow {
+    width: 200px;
+}
+.help .popup {
+    width: 250px;
+}
+.help .popup.wide {
+    width: 350px;
+}
+.help .popup.wider {
+    width: 450px;
+}
+.help .popup.even-wider {
+    width: 600px;
+}
+.help .popup.widest {
+    width: 750px;
+}
+@media (max-width: 1150px) {
+    .help .popup {
+        max-width: 620px;
+    }
+}
+@media (max-width: 900px) {
+    .help .popup {
+        max-width: 560px;
+    }
+}
+@media (max-width: 830px) {
+    .help .popup {
+        max-width: 530px;
+    }
+}
+@media (max-width: 500px) {
+    .help .popup {
+        max-width: 380px;
+    }
+}
+@media (max-width: 400px) {
+    .help .popup {
+        max-width: 280px;
+    }
+}
+
+.help .popup > p:first-child {
+    margin-top: 0;
+}
+.help .popup > p:last-child {
+    margin-bottom: 0;
+}
+#converters li.operational .popup {
+    background-color: #80ff80;
+}
+/* #converters li .status:hover .popup,*/
+#converters li:hover .status .popup,
+.help:hover .popup {
+    display: block;
+}
+#converters.dragging li:hover .status .popup {
+    display: none;
+
+}
+
+
+/*
+#converters li > a.remove-converter {
+    color: red;
+}*/
+
+
+.converter-options label {
+    min-width: 80px;
+    display: inline-block;
+    padding-top: 2px;
+    vertical-align: top;
+}
+
+.converter-options p {
+    padding: 0;
+}
+
+.converter-options .info {
+    margin-bottom: 20px;
+}
+.converter-options button {
+    margin-top: 15px;
+}
+.converter-options button.button-primary {
+    margin-right: 10px;
+}
+
+.converter-options div {
+    margin-bottom: 15px;
+}
+
+.help {
+    text-align: center;
+    display: inline-block;
+    border-radius: 50%;
+    background-color: #00a0ee;
+    width: 16px;
+    height: 16px;
+    border: 0px solid #00a0ee;
+    color: white;
+    font-weight: bolder;
+    margin-left: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 16px;
+    vertical-align: top;
+    font-family: sans-serif;
+    position: relative;
+    font-style: normal;
+}
+
+select + .help,
+input + .help {
+    margin-left: 1px;  /* bring help icons closer to select and input boxes  */
+    margin-top: 3px;
+}
+.help { /* new look! */
+    background-color: transparent;
+    border: 1px solid #999;
+    color: #333;
+}
+.help.no-margin-left {
+    margin-left: 0px;
+}
+.help.set-margin-right {
+    margin-right: 7px;
+}
+
+
+/*
+.converter-options.wpc #wpc_web_services_div > p {
+    margin-top: 0;
+    padding-top: 2px;
+    margin-bottom: 3px;
+}
+#wpc_web_services_div {
+    margin-bottom: 0px;
+}*/
+
+.converter-options.wpc div,
+.converter-options.vips div,
+.converter-options.imagemagick div,
+.converter-options.graphicsmagick div {
+    margin-bottom: 5px;
+}
+.converter-options.vips label,
+.converter-options.wpc label,
+.converter-options.imagemagick label,
+.converter-options.graphicsmagick label {
+    display: inline-block;
+}
+.converter-options.wpc label {
+    width: 110px;
+}
+.converter-options.vips label {
+    width: 143px;
+}
+.converter-options.imagemagick label,
+.converter-options.graphicsmagick label {
+    width: 110px;
+}
+#wpc_url {
+    min-width: 400px;
+}
+#wpc_change_api_key,
+#wpc_set_api_key {
+    display:inline-block;
+    line-height:22px
+}
+
+
+#whitelist_table {
+    max-width: 400px;
+    width: 100%;
+}
+.whitelist td {
+    padding: 5px 0;
+}
+.whitelist td.quota input{
+    max-width: 40px;
+}
+.whitelist td.remove {
+    padding-left: 8px;
+}
+.whitelist td.remove a {
+    color: red;
+    font-size: 12px;
+}
+.whitelist td.whitelist-add-site {
+    text-align: left;
+}
+
+#password_helptext,
+#whitelist_site_helptext,
+#whitelist_quota_helptext {
+    display: none;
+}
+
+.whitelist-popup-content label {
+    min-width: 125px;
+    display: inline-block;
+}
+/*
+.popup-content {
+    padding-top: 20px;
+}
+.popup-content > div {
+    margin: 10px 0;
+}
+*/
+
+#whitelist_div ul {
+    list-style: disc;
+    list-style-position: inside;
+    position: relative;
+    width: 400px;
+    max-width: 400px;
+}
+
+#whitelist_div .whitelist-links,
+#wpc_web_services_div .wpc-links {
+    position: absolute;
+    right: 0;
+    text-align: right;
+    display: inline-block;
+}
+#whitelist_div .whitelist-links a,
+#wpc_web_services_div .wpc-links a {
+    padding-left: 10px;
+}
+
+#whitelist_properties_popup label {
+    width: 110px;
+    display: inline-block;
+}
+
+#whitelist_change_api_key_div {
+    line-height: 35px;
+}
+
+.das-popup.mode-edit .hide-in-edit {
+    display: none;
+}
+
+.das-popup.mode-add .hide-in-add {
+    display: none;
+}
+/*
+#wpc_web_services_div ul {
+    list-style: disc;
+    list-style-position: inside;
+    position: relative;
+    width: 300px;
+    max-width: 300px;
+}
+
+#wpc_properties_popup label {
+    width: 110px;
+    display: inline-block;
+}
+*/
+
+#webpexpress_settings .block {
+    position: relative;
+    margin: 0 auto 0.5rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    background-color: #fff;
+    box-shadow: 0 0 0 1px rgba(200,215,225,0.25), 0 1px 2px #e9eff3;
+}
+
+#webpexpress_settings .block.buttons {
+    padding: 10px;
+    position: sticky;
+    top: 30px;
+    z-index: 1;
+}
+
+@media (min-width: 768px) {
+    #webpexpress_settings .block {
+        padding: 10px 1.5rem 20px;
+    }
+}
+
+#webpexpress_settings .block.buttons p.submit {
+    margin: 0;
+    padding: 0;
+}
+
+#webpexpress_settings .block.buttons table {
+    float: right;
+}
+
+#alter_html_options_div > div > label {
+    font-style: italic;
+}
+
+/*
+#alter_html_options_div > div {
+    margin-top: 15px;
+}*/
+
+.form-table table th {
+    font-weight: unset;
+    padding: 5px 0px;
+    width: auto;
+}
+
+.form-table table td {
+    padding: 0 10px;
+    width: auto;
+}
+
+
+.form-table td input[type=checkbox] {
+    margin-top: 6px;
+}
+
+.form-table h2 {
+    /*font-size: 1.6em;*/
+    text-transform: uppercase;
+    color: #222;
+}
+.form-table th[colspan='2'] {
+    font-weight: normal;
+    font-size: 14px;
+}
+.form-table th.header-section h2 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+.form-table th.header-section h2 + p {
+    margin-top: 10px;
+}
+.form-table th.header-section p,
+.form-table th.header-section h2,
+fieldset.block p,
+fieldset.block div.p {
+    max-width: 750px;
+}
+
+.toggler.effect-slider {
+    overflow-y: hidden;
+    transition: all 0.3s ease-in-out;
+    /*transition: all 0.5s cubic-bezier(0, 1, 0.5, 1);*/
+}
+.toggler.effect-slider.closed {
+    transition: all 0.5s cubic-bezier(0, 1, 0.5, 1);
+    max-height: 0px !important;
+}
+
+.toggler.effect-opacity.closed {
+    opacity: 0.5;
+    pointer-events: none;
+    font-weight: 300 !important;
+}
+.form-table .toggler.effect-opacity.closed th {
+    font-weight: 400 !important;
+}
+
+.toggler.effect-visibility {
+    /*position: static;
+    visibility: inherit;*/
+}
+.toggler.effect-visibility.closed {
+    visibility: hidden;
+    position: absolute;
+}
+
+.form-table h4 {
+    margin-bottom: 0;
+    text-decoration: underline;
+}
+
+table.designed {
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    /*box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.1)*/
+}
+table.designed th {
+    font-weight: bold;
+    background-color: #fff;
+}
+table.designed td,
+table.designed th {
+    text-align: left;
+    padding: 9px 17px;
+    border: 1px solid #999;
+    vertical-align: top;
+}
+table.designed td,
+table.designed th,
+table.designed p {
+    font-size: 12px;
+    line-height: 1.3;
+}
+table.designed td > p:first-child {
+    margin-top: 0;
+}
+table.designed tr:nth-child(odd) > td {
+    background-color: #eee;
+}
+table.designed tr:nth-child(even) > td {
+    background-color: #ddd;
+}
+table.designed th:first-child {
+    border-left-width: 0;
+}
+table.designed tr:first-child > th {
+    border-top-width: 0;
+}
+table.designed tr > *:last-child {
+    border-right-width: 0;
+}
+
+#hide_alterhtml_chart_btn {
+    margin-bottom: 20px;
+}
+
+/*table.designed tr:last-child > * {
+    border-bottom-width: 0;
+}*/
+
+ul.with-bullets {
+    padding-left: 20px;
+    list-style: unset;
+}
+
+#conversionlog_content {
+    overflow-y: scroll;
+    top: 20px;
+    bottom: 72px;
+    position: absolute;
+    right: 0;
+    left: 3%;
+}
