@@ -1,4 +1,4 @@
-WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:06:01
+WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 07:48:40
 
 *WebP Convert 2.1.4*  ignited.
 - PHP version: 7.3.1
@@ -74,7 +74,7 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:0
 Exec failed (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12)
 Trying executing the cwebs found until success. Starting with the ones with highest version number.
 Creating command line options for version: 1.0.3
-Quality of source is 82. This is higher than max-quality, so using max-quality instead (80)
+Quality of source is 90. This is higher than max-quality, so using max-quality instead (80)
 The near-lossless option ignored for lossy
 Trying to convert by executing the following command:
 nice /usr/local/bin/cwebp -metadata none -q 80 -alpha_q '85' -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/08/image3xxl5-568x725.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image3xxl5-568x725.jpg.webp.lossy.webp' 2>&1
@@ -83,25 +83,25 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:0
 Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image3xxl5-568x725.jpg.webp.lossy.webp'
 File:      [doc-root]/wp-content/uploads/2015/08/image3xxl5-568x725.jpg
 Dimension: 568 x 725
-Output:    16236 bytes Y-U-V-All-PSNR 43.36 48.34 48.89   44.52 dB
-           (0.32 bpp)
-block count:  intra4:        868  (52.42%)
-              intra16:       788  (47.58%)
-              skipped:       215  (12.98%)
+Output:    16052 bytes Y-U-V-All-PSNR 42.82 48.11 48.41   44.00 dB
+           (0.31 bpp)
+block count:  intra4:        882  (53.26%)
+              intra16:       774  (46.74%)
+              skipped:       229  (13.83%)
 bytes used:  header:            110  (0.7%)
-             mode-partition:   3485  (21.5%)
+             mode-partition:   3573  (22.3%)
  Residuals bytes  |segment 1|segment 2|segment 3|segment 4|  total
-  intra4-coeffs:  |    6845 |     381 |     457 |     423 |    8106  (49.9%)
- intra16-coeffs:  |     742 |      78 |     327 |     772 |    1919  (11.8%)
-  chroma coeffs:  |    1766 |      94 |     213 |     516 |    2589  (15.9%)
-    macroblocks:  |      33%|       4%|      14%|      49%|    1656
-      quantizer:  |      27 |      24 |      17 |      13 |
-   filter level:  |      12 |       6 |      20 |      16 |
+  intra4-coeffs:  |    7055 |     335 |     385 |     348 |    8123  (50.6%)
+ intra16-coeffs:  |     449 |     124 |     225 |     811 |    1609  (10.0%)
+  chroma coeffs:  |    1808 |      91 |     165 |     542 |    2606  (16.2%)
+    macroblocks:  |      33%|       5%|      11%|      51%|    1656
+      quantizer:  |      27 |      23 |      17 |      13 |
+   filter level:  |      18 |      20 |      16 |       9 |
 ------------------+---------+---------+---------+---------+-----------------
- segments total:  |    9353 |     553 |     997 |    1711 |   12614  (77.7%)
+ segments total:  |    9312 |     550 |     775 |    1701 |   12338  (76.9%)
 
 Success
-Reduction: 56% (went from 36 kb to 16 kb)
+Reduction: 71% (went from 53 kb to 16 kb)
 
 Converting to lossless
 Locating cwebp binaries
@@ -122,17 +122,17 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:0
 Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/08/image3xxl5-568x725.jpg.webp.lossless.webp'
 File:      [doc-root]/wp-content/uploads/2015/08/image3xxl5-568x725.jpg
 Dimension: 568 x 725
-Output:    136580 bytes (2.65 bpp)
-Lossless-ARGB compressed size: 136580 bytes
-  * Header size: 2469 bytes, image data size: 134085
+Output:    157316 bytes (3.06 bpp)
+Lossless-ARGB compressed size: 157316 bytes
+  * Header size: 2438 bytes, image data size: 154853
   * Lossless features used: PREDICTION CROSS-COLOR-TRANSFORM SUBTRACT-GREEN
   * Precision Bits: histogram=4 transform=4 cache=10
 
 Success
-Reduction: -272% (went from 36 kb to 133 kb)
+Reduction: -188% (went from 53 kb to 154 kb)
 
 Picking lossy
 cwebp succeeded :)
 
-Converted image in 712 ms, reducing file size with 56% (went from 36 kb to 16 kb)
+Converted image in 863 ms, reducing file size with 71% (went from 53 kb to 16 kb)
 

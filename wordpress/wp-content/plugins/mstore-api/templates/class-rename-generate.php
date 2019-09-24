@@ -58,7 +58,9 @@ function bt_generate_attachment_metadata( $metadata, $attachment_id ) {
 
 	if ( !preg_match('!^image/!', get_post_mime_type( $attachment )) || !file_is_displayable_image( $file ) ) return $metadata;
 
-    global $_wp_additional_image_sizes;
+
+	global $_wp_additional_image_sizes;
+
 
     foreach ( get_intermediate_image_sizes() as $s ) {
         $sizes[$s] = array( 'width' => '', 'height' => '', 'crop' => FALSE );

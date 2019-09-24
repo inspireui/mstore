@@ -1,4 +1,4 @@
-WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:31:09
+WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 07:29:31
 
 *WebP Convert 2.1.4*  ignited.
 - PHP version: 7.3.1
@@ -21,10 +21,12 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:3
 - extra-converters: (empty array)
 
 The following options were supplied and are passed on to the converters in the stack:
+- default-quality: 70
 - encoding: "auto"
+- max-quality: 80
 - metadata: "none"
 - near-lossless: 60
-- quality: 70
+- quality: "auto"
 ------------
 
 
@@ -35,13 +37,15 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:3
 The following options have been set explicitly. Note: it is the resulting options after merging down the "jpeg" and "png" options and any converter-prefixed options.
 - source: [doc-root]/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg
 - destination: [doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp
+- default-quality: 70
 - encoding: "auto"
 - low-memory: true
 - log-call-arguments: true
+- max-quality: 80
 - metadata: "none"
 - method: 6
 - near-lossless: 60
-- quality: 70
+- quality: "auto"
 - use-nice: true
 - command-line-options: ""
 - try-common-system-paths: true
@@ -50,8 +54,6 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:3
 The following options have not been explicitly set, so using the following defaults:
 - alpha-quality: 85
 - auto-filter: false
-- default-quality: 75
-- max-quality: 85
 - preset: "none"
 - size-in-percentage: null (not set)
 - skip: false
@@ -72,35 +74,34 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:3
 Exec failed (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12)
 Trying executing the cwebs found until success. Starting with the ones with highest version number.
 Creating command line options for version: 1.0.3
-Quality: 70. 
-Consider setting quality to "auto" instead. It is generally a better idea
+Quality of source is 90. This is higher than max-quality, so using max-quality instead (80)
 The near-lossless option ignored for lossy
 Trying to convert by executing the following command:
-nice /usr/local/bin/cwebp -metadata none -q 70 -alpha_q '85' -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp.lossy.webp' 2>&1
+nice /usr/local/bin/cwebp -metadata none -q 80 -alpha_q '85' -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp.lossy.webp' 2>&1
 
 *Output:* 
 Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp.lossy.webp'
 File:      [doc-root]/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg
 Dimension: 100 x 100
-Output:    778 bytes Y-U-V-All-PSNR 39.88 42.96 42.01   40.58 dB
-           (0.62 bpp)
-block count:  intra4:         27  (55.10%)
-              intra16:        22  (44.90%)
-              skipped:         4  (8.16%)
-bytes used:  header:             41  (5.3%)
-             mode-partition:    129  (16.6%)
+Output:    1056 bytes Y-U-V-All-PSNR 42.30 44.93 44.29   42.94 dB
+           (0.84 bpp)
+block count:  intra4:         28  (57.14%)
+              intra16:        21  (42.86%)
+              skipped:         3  (6.12%)
+bytes used:  header:             48  (4.5%)
+             mode-partition:    130  (12.3%)
  Residuals bytes  |segment 1|segment 2|segment 3|segment 4|  total
-  intra4-coeffs:  |     392 |       0 |       2 |       0 |     394  (50.6%)
- intra16-coeffs:  |      13 |       0 |       0 |       6 |      19  (2.4%)
-  chroma coeffs:  |     155 |       0 |       1 |       9 |     165  (21.2%)
+  intra4-coeffs:  |     590 |       0 |       5 |       3 |     598  (56.6%)
+ intra16-coeffs:  |      18 |       0 |       0 |       9 |      27  (2.6%)
+  chroma coeffs:  |     214 |       0 |       3 |       7 |     224  (21.2%)
     macroblocks:  |      73%|       0%|       2%|      24%|      49
-      quantizer:  |      34 |      25 |      19 |      16 |
-   filter level:  |      10 |       5 |       3 |       2 |
+      quantizer:  |      23 |      17 |      13 |      11 |
+   filter level:  |       7 |       4 |       2 |       0 |
 ------------------+---------+---------+---------+---------+-----------------
- segments total:  |     560 |       0 |       3 |      15 |     578  (74.3%)
+ segments total:  |     822 |       0 |       8 |      19 |     849  (80.4%)
 
 Success
-Reduction: 73% (went from 2847 bytes to 778 bytes)
+Reduction: 63% (went from 2847 bytes to 1056 bytes)
 
 Converting to lossless
 Locating cwebp binaries
@@ -115,7 +116,7 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:3
 Trying executing the cwebs found until success. Starting with the ones with highest version number.
 Creating command line options for version: 1.0.3
 Trying to convert by executing the following command:
-nice /usr/local/bin/cwebp -metadata none -q 70 -alpha_q '85' -near_lossless 60 -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp.lossless.webp' 2>&1
+nice /usr/local/bin/cwebp -metadata none -q 80 -alpha_q '85' -near_lossless 60 -m 6 -low_memory '[doc-root]/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp.lossless.webp' 2>&1
 
 *Output:* 
 Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2015/07/image2xxl-6-100x100.jpg.webp.lossless.webp'
@@ -133,5 +134,5 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:3
 Picking lossy
 cwebp succeeded :)
 
-Converted image in 194 ms, reducing file size with 73% (went from 2847 bytes to 778 bytes)
+Converted image in 139 ms, reducing file size with 63% (went from 2847 bytes to 1056 bytes)
 

@@ -1,4 +1,4 @@
-WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:55:12
+WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 07:57:10
 
 *WebP Convert 2.1.4*  ignited.
 - PHP version: 7.3.1
@@ -134,5 +134,5 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 03:5
 Picking lossy
 cwebp succeeded :)
 
-Converted image in 189 ms, reducing file size with 61% (went from 2896 bytes to 1134 bytes)
+Converted image in 151 ms, reducing file size with 61% (went from 2896 bytes to 1134 bytes)
 
