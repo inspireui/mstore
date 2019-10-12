@@ -1,3 +1,44 @@
+= 0.17.2 =
+*(released: 5 Oct 2019)*
+
+* Fixed bug: Updating plugin failed on a few hosts (in the unzip phase). Problem was introduced in 0.17.0 with the updated binaries.
+* Fixed bug: Alter HTML used the protocol (http/https) for the site for generated links (rather than keeping the protocol for the link). Thanks to Jacob Gullberg from Sweden for discovering this bug.
+
+If you experienced update problems due to the update bug, you will probably be left with an incomplete installation. Some of the plugin files are there, but not all. Especially, the main plugin file (webp-express.php) is missing, which means that Wordpress don't "see" the plugin (it is missing from the list). Trying to install WebP Express again will probably not work, because the "webp-express" folder is already there. You will then have to remove the "webp-express" folder in "plugins" manually (via ftp or a plugin, such as File Manager).
+
+For more info, see the closed issues on the 0.17.2 milestone on the github repository: https://github.com/rosell-dk/webp-express/milestone/29?closed=1
+
+= 0.17.1 =
+*(released: 3 Oct 2019)*
+
+* Fixed NGINX rules in FAQ (added xdestination for the create webp upon request functionality)
+* Fixed issue with Alter HTML. Thanks to @jonathanernst for discovering issue and supplying the patch.
+* WebP Express now works on WP Engine. Check out the new "I am on WP Engine" section in the FAQ
+* Miscellaneous bug fixes
+
+For more info, see the closed issues on the 0.17.1 milestone on the github repository: https://github.com/rosell-dk/webp-express/milestone/27?closed=1
+
+= 0.17.0 =
+*(released: 27 sep 2019)*
+
+* Cwebp conversion method runs on more systems (not subject to open_basedir restrictions and also tries "pure" cwebp command). Thanks to cng11 for reaching out so I spotted this.
+* Ewww conversion method no longer does a remote api-key check for each conversion - so it is faster. If an ewww conversions fails due to a non-functional key, the key will not be tried again (until next time the options are saved)
+* Updated cwebp binaries to version 1.0.3
+
+= 0.16.0 =
+*(released: 24 sep 2019)*
+
+* Added option to specify CDN urls in Alter HTML. Thanks to Gunnar Peipman from Estonia for suggesting this.
+* Direct Nginx users to Nginx FAQ section on welcome page
+* Fixed Bulk Conversion halting due to nonce expiry
+* Fixed unexpected output upon reactivation
+* Added affiliate link to [Optimole](https://optimole.pxf.io/20b0M) in the "Don't despair - You have options!" message
+
+= 0.15.3 =
+*(released: 19 sep 2019)*
+
+* Fixed fatal error upon activation for systems which cannot use document root for structuring (rare)
+
 = 0.15.2 =
 
 * Fixed the bug when File extension was set to "Set to .webp". It was buggy when file extension contained uppercase letters.

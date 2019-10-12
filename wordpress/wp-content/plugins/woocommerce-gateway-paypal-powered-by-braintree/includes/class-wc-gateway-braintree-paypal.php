@@ -22,6 +22,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
+use WC_Braintree\PayPal\Buttons;
 use WC_Braintree\Plugin_Framework as WC_Braintree_Framework;
 
 defined( 'ABSPATH' ) or exit;
@@ -41,6 +42,9 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 	/** @var bool whether cart checkout is enabled */
 	protected $enable_cart_checkout;
 
+	/** @var bool whether buy now buttons should be added to product pages */
+	protected $enable_product_buy_now;
+
 	/** @var bool whether paypal credit is enabled */
 	protected $enable_paypal_credit;
 
@@ -52,6 +56,9 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 
 	/** @var string button shape */
 	protected $button_shape;
+
+	/** @var Buttons\Abstract_Button[] PayPal button handler instances  */
+	protected $button_handlers = [];
 
 
 	/**
@@ -89,6 +96,8 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 			)
 		);
 
+		$this->init_paypal_buttons();
+
 		// tweak some frontend text so it matches PayPal
 		add_filter( 'gettext', array( $this, 'tweak_payment_methods_text' ), 10, 3 );
 
@@ -104,6 +113,27 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 		// get the client token via AJAX
 		add_filter( 'wp_ajax_wc_' . $this->get_id() . '_get_client_token',        array( $this, 'ajax_get_client_token' ) );
 		add_filter( 'wp_ajax_nopriv_wc_' . $this->get_id() . '_get_client_token', array( $this, 'ajax_get_client_token' ) );
+	}
+
+
+	/**
+	 * Initializes any PayPal buttons that may be required on the current page.
+	 *
+	 * @since 2.3.0
+	 */
+	protected function init_paypal_buttons() {
+
+		if ( ! $this->is_available() ) {
+			return;
+		}
+
+		if ( $this->product_page_buy_now_enabled() ) {
+			$this->button_handlers['product'] = new Buttons\Product( $this );
+		}
+
+		if ( $this->cart_checkout_enabled() ) {
+			$this->button_handlers['cart'] = new Buttons\Cart( $this );
+		}
 	}
 
 
@@ -133,7 +163,10 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 	 */
 	public function is_payment_form_page() {
 
-		return parent::is_payment_form_page() || is_cart();
+		$product = wc_get_product( get_the_ID() );
+		$is_product_page = $product instanceof \WC_Product;
+
+		return parent::is_payment_form_page() || is_cart() || ( $is_product_page && $this->product_page_buy_now_enabled() );
 	}
 
 
@@ -280,11 +313,18 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 			'disabled'    => ! $this->is_paypal_credit_supported(),
 			'label'       => __( 'Show the PayPal credit button beneath the standard PayPal button', 'woocommerce-gateway-paypal-powered-by-braintree' ),
 			'description' => ! $this->is_paypal_credit_supported() ? __( 'Currently disabled because PayPal Credit is only available for US merchants', 'woocommerce-gateway-paypal-powered-by-braintree'  ) : '',
-			'default'     => 'no',
+			'default'     => 'yes',
 		);
 
 		$form_fields['button_preview'] = [
 			'type'  => 'button_preview',
+		];
+
+		$form_fields['enable_product_buy_now'] = [
+			'title' => __( 'Buy Now on Product Pages', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+			'label' => __( 'Add the PayPal Buy Now button to product pages.', 'woocommerce-gateway-paypal-powered-by-braintree' ),
+			'type' => 'checkbox',
+			'default' => 'yes',
 		];
 
 		$form_fields['enable_cart_checkout'] = array(
@@ -593,6 +633,19 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 
 
 	/**
+	 * Gets the array of instantiated button handlers.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return Buttons\Abstract_Button[]
+	 */
+	public function get_button_handlers() {
+
+		return $this->button_handlers;
+	}
+
+
+	/**
 	 * Get the default payment method title, which is configurable within the
 	 * admin and displayed on checkout
 	 *
@@ -689,6 +742,27 @@ class WC_Gateway_Braintree_PayPal extends WC_Gateway_Braintree {
 		 * @param \WC_Gateway_Braintree_PayPal $gateway gateway object
 		 */
 		return (bool) apply_filters( 'wc_braintree_paypal_cart_checkout_enabled', 'no' !== $this->enable_cart_checkout, $this );
+	}
+
+
+	/**
+	 * Determines if buy now buttons should be added to the product pages.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return bool
+	 */
+	public function product_page_buy_now_enabled() {
+
+		/**
+		 * Filters whether product page buy now buttons are enabled.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param bool $enabled whether product buy now buttons are enabled in the settings
+		 * @param \WC_Gateway_Braintree_PayPal $gateway gateway object
+		 */
+		return (bool) apply_filters( 'wc_braintree_paypal_product_buy_now_enabled', 'no' !== $this->enable_product_buy_now, $this );
 	}
 
 

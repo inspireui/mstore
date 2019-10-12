@@ -88,7 +88,7 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 
 
 	/** plugin version number */
-	const VERSION = '2.2.7';
+	const VERSION = '2.3.0';
 
 	/** Braintree JS SDK version  */
 	const BRAINTREE_JS_SDK_VERSION = '3.48.0';
@@ -110,9 +110,6 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 
 	/** PayPal gateway ID */
 	const PAYPAL_GATEWAY_ID = 'braintree_paypal';
-
-	/** @var \WC_Braintree_PayPal_Cart the PayPal cart handler instance */
-	protected $paypal_cart;
 
 	/** @var \WC_Braintree_Frontend the frontend instance */
 	protected $frontend;
@@ -150,11 +147,8 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 		$this->includes();
 
 		// handle Braintree Auth connect/disconnect
-		add_action( 'admin_init', array( $this, 'handle_auth_connect' ) );
-		add_action( 'admin_init', array( $this, 'handle_auth_disconnect' ) );
-
-		// maybe initialize the PayPal cart handler on the cart page
-		add_action( 'init', array( $this, 'maybe_init_paypal_cart' ) );
+		add_action( 'admin_init', [ $this, 'handle_auth_connect' ] );
+		add_action( 'admin_init', [ $this, 'handle_auth_disconnect' ] );
 	}
 
 
@@ -184,7 +178,16 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 		require_once( $this->get_plugin_path() . '/includes/payment-forms/class-wc-braintree-hosted-fields-payment-form.php' );
 		require_once( $this->get_plugin_path() . '/includes/payment-forms/class-wc-braintree-paypal-payment-form.php' );
 
-		require_once( $this->get_plugin_path() . '/includes/class-wc-braintree-paypal-cart.php' );
+		// payment buttons
+		require_once( $this->get_plugin_path() . '/includes/PayPal/Buttons/Abstract_Button.php' );
+		require_once( $this->get_plugin_path() . '/includes/PayPal/Buttons/Cart.php' );
+		require_once( $this->get_plugin_path() . '/includes/PayPal/Buttons/Product.php' );
+
+		// integrations
+		if ( $this->is_plugin_active( 'woocommerce-product-addons.php' ) ) {
+
+			$this->load_class( '/includes/Integrations/Product_Addons.php', '\\WC_Braintree\\Integrations\\Product_Addons' );
+		}
 	}
 
 
@@ -364,16 +367,11 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 	 * Initializes the PayPal cart handler.
 	 *
 	 * @since 2.0.0
+	 * @deprecated since 2.3.0
 	 */
 	public function maybe_init_paypal_cart() {
 
-		$gateway = $this->get_gateway( self::PAYPAL_GATEWAY_ID );
-
-		if ( ! $gateway->is_available() ) {
-			return;
-		}
-
-		$this->paypal_cart = new WC_Braintree_PayPal_Cart( $gateway );
+		WC_Braintree_Framework\SV_WC_Plugin_Compatibility::wc_deprecated_function( __METHOD__, '2.3.0' );
 	}
 
 
@@ -381,11 +379,11 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 	 * Gets the PayPal cart handler instance.
 	 *
 	 * @since 2.0.0
-	 * @return \WC_Braintree_PayPal_Cart
+	 * @deprecated since 2.3.0
 	 */
 	public function get_paypal_cart_instance() {
 
-		return $this->paypal_cart;
+		WC_Braintree_Framework\SV_WC_Plugin_Compatibility::wc_deprecated_function( __METHOD__, '2.3.0' );
 	}
 
 

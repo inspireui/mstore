@@ -611,6 +611,9 @@ class WC_Gateway_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_
 		?>
 		<tr valign="top">
 			<th scope="row" class="titledesc">
+				<?php esc_html_e( 'Add merchant account ID', 'woocommerce-gateway-paypal-powered-by-braintree' ); ?>
+			</th>
+			<td class="forminp">
 				<select id="wc_braintree_merchant_account_id_currency" class="wc-enhanced-select">
 					<?php foreach ( get_woocommerce_currencies() as $code => $name ) : ?>
 						<option <?php selected( $code, $base_currency ); ?> value="<?php echo esc_attr( $code ); ?>">
@@ -618,9 +621,7 @@ class WC_Gateway_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_
 						</option>
 					<?php endforeach; ?>
 				</select>
-			</th>
-			<td class="forminp">
-				<a href="#" class="button js-add-merchant-account-id"><?php echo esc_html( $button_text ); ?></a>
+				<p><a href="#" class="button js-add-merchant-account-id"><?php echo esc_html( $button_text ); ?></a></p>
 			</td>
 		</tr>
 		<?php

@@ -1,7 +1,7 @@
-WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:51:02
+WebP Express 0.17.2. Conversion triggered using bulk conversion, 2019-10-12 08:39:33
 
-*WebP Convert 2.1.4*  ignited.
-- PHP version: 7.3.1
+*WebP Convert 2.3.0*  ignited.
+- PHP version: 7.0.33
 - Server software: Apache
 
 Stack converter ignited
@@ -58,21 +58,32 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:5
 - size-in-percentage: null (not set)
 - skip: false
 - rel-path-to-precompiled-binaries: *****
+- try-cwebp: true
+- try-discovering-cwebp: true
 ------------
 
 Encoding is set to auto - converting to both lossless and lossy and selecting the smallest file
 
 Converting to lossy
-Locating cwebp binaries
-1 cwebp binaries found in common system locations
-Checking if we have a supplied binary for OS: Darwin... We do.
-We in fact have 1
-A total of 2 cwebp binaries where found
-Detecting versions of the cwebp binaries found (and verifying that they can be executed in the process)
-Executing: /usr/local/bin/cwebp -version. Result: version: 1.0.3
-Executing: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12 -version
-Exec failed (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12)
-Trying executing the cwebs found until success. Starting with the ones with highest version number.
+Looking for cwebp binaries.
+Discovering if a plain cwebp call works (to skip this step, disable the "try-cwebp" option)
+- Executing: cwebp -version. Result: *Exec failed* (the cwebp binary was not found at path: cwebp)
+Nope a plain cwebp call does not work
+Discovering binaries using "which -a cwebp" command. (to skip this step, disable the "try-discovering-cwebp" option)
+Found 0 binaries
+Discovering binaries by peeking in common system paths (to skip this step, disable the "try-common-system-paths" option)
+Found 1 binaries: 
+- /usr/local/bin/cwebp
+Discovering binaries which are distributed with the webp-convert library (to skip this step, disable the "try-supplied-binary-for-os" option)
+Checking if we have a supplied precompiled binary for your OS (Darwin)... We do.
+Found 1 binaries: 
+- [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-103-mac-10_14
+Detecting versions of the cwebp binaries found
+- Executing: /usr/local/bin/cwebp -version. Result: version: *1.0.3*
+- Executing: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-103-mac-10_14 -version. Result: *Exec failed* (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-103-mac-10_14)
+Binaries ordered by version number.
+- /usr/local/bin/cwebp: (version: 1.0.3)
+Trying the first of these. If that should fail (it should not), the next will be tried and so on.
 Creating command line options for version: 1.0.3
 Quality of source is 90. This is higher than max-quality, so using max-quality instead (80)
 The near-lossless option ignored for lossy
@@ -83,37 +94,46 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:5
 Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2017/02/Creamy-Cococnut-Berry-Parfait-768x512.jpg.webp.lossy.webp'
 File:      [doc-root]/wp-content/uploads/2017/02/Creamy-Cococnut-Berry-Parfait-768x512.jpg
 Dimension: 768 x 512
-Output:    36202 bytes Y-U-V-All-PSNR 40.94 44.34 44.01   41.78 dB
-           (0.74 bpp)
-block count:  intra4:       1432  (93.23%)
-              intra16:       104  (6.77%)
+Output:    32864 bytes Y-U-V-All-PSNR 41.68 44.46 44.03   42.38 dB
+           (0.67 bpp)
+block count:  intra4:       1419  (92.38%)
+              intra16:       117  (7.62%)
               skipped:         0  (0.00%)
-bytes used:  header:            154  (0.4%)
-             mode-partition:   6160  (17.0%)
+bytes used:  header:            167  (0.5%)
+             mode-partition:   6267  (19.1%)
  Residuals bytes  |segment 1|segment 2|segment 3|segment 4|  total
-  intra4-coeffs:  |   15816 |    2443 |    1959 |     642 |   20860  (57.6%)
- intra16-coeffs:  |     727 |     182 |     175 |     125 |    1209  (3.3%)
-  chroma coeffs:  |    5119 |    1151 |    1073 |     447 |    7790  (21.5%)
-    macroblocks:  |      59%|      19%|      15%|       8%|    1536
+  intra4-coeffs:  |   12174 |    2153 |    2195 |     657 |   17179  (52.3%)
+ intra16-coeffs:  |     654 |     295 |     206 |     163 |    1318  (4.0%)
+  chroma coeffs:  |    4972 |    1116 |    1299 |     518 |    7905  (24.1%)
+    macroblocks:  |      55%|      18%|      18%|       9%|    1536
       quantizer:  |      24 |      17 |      12 |      11 |
-   filter level:  |      10 |       4 |       2 |      11 |
+   filter level:  |      10 |       4 |       2 |       0 |
 ------------------+---------+---------+---------+---------+-----------------
- segments total:  |   21662 |    3776 |    3207 |    1214 |   29859  (82.5%)
+ segments total:  |   17800 |    3564 |    3700 |    1338 |   26402  (80.3%)
 
 Success
-Reduction: 59% (went from 87 kb to 35 kb)
+Reduction: 61% (went from 81 kb to 32 kb)
 
 Converting to lossless
-Locating cwebp binaries
-1 cwebp binaries found in common system locations
-Checking if we have a supplied binary for OS: Darwin... We do.
-We in fact have 1
-A total of 2 cwebp binaries where found
-Detecting versions of the cwebp binaries found (and verifying that they can be executed in the process)
-Executing: /usr/local/bin/cwebp -version. Result: version: 1.0.3
-Executing: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12 -version
-Exec failed (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-mac12)
-Trying executing the cwebs found until success. Starting with the ones with highest version number.
+Looking for cwebp binaries.
+Discovering if a plain cwebp call works (to skip this step, disable the "try-cwebp" option)
+- Executing: cwebp -version. Result: *Exec failed* (the cwebp binary was not found at path: cwebp)
+Nope a plain cwebp call does not work
+Discovering binaries using "which -a cwebp" command. (to skip this step, disable the "try-discovering-cwebp" option)
+Found 0 binaries
+Discovering binaries by peeking in common system paths (to skip this step, disable the "try-common-system-paths" option)
+Found 1 binaries: 
+- /usr/local/bin/cwebp
+Discovering binaries which are distributed with the webp-convert library (to skip this step, disable the "try-supplied-binary-for-os" option)
+Checking if we have a supplied precompiled binary for your OS (Darwin)... We do.
+Found 1 binaries: 
+- [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-103-mac-10_14
+Detecting versions of the cwebp binaries found
+- Executing: /usr/local/bin/cwebp -version. Result: version: *1.0.3*
+- Executing: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-103-mac-10_14 -version. Result: *Exec failed* (the cwebp binary was not found at path: [doc-root]/wp-content/plugins/webp-express/vendor/rosell-dk/webp-convert/src/Convert/Converters/Binaries/cwebp-103-mac-10_14)
+Binaries ordered by version number.
+- /usr/local/bin/cwebp: (version: 1.0.3)
+Trying the first of these. If that should fail (it should not), the next will be tried and so on.
 Creating command line options for version: 1.0.3
 Trying to convert by executing the following command:
 nice /usr/local/bin/cwebp -metadata none -q 80 -alpha_q '85' -near_lossless 60 -m 6 -low_memory '[doc-root]/wp-content/uploads/2017/02/Creamy-Cococnut-Berry-Parfait-768x512.jpg' -o '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2017/02/Creamy-Cococnut-Berry-Parfait-768x512.jpg.webp.lossless.webp' 2>&1
@@ -122,17 +142,17 @@ WebP Express 0.15.3. Conversion triggered using bulk conversion, 2019-09-24 05:5
 Saving file '[doc-root]/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2017/02/Creamy-Cococnut-Berry-Parfait-768x512.jpg.webp.lossless.webp'
 File:      [doc-root]/wp-content/uploads/2017/02/Creamy-Cococnut-Berry-Parfait-768x512.jpg
 Dimension: 768 x 512
-Output:    278690 bytes (5.67 bpp)
-Lossless-ARGB compressed size: 278690 bytes
-  * Header size: 2706 bytes, image data size: 275959
+Output:    273700 bytes (5.57 bpp)
+Lossless-ARGB compressed size: 273700 bytes
+  * Header size: 3157 bytes, image data size: 270517
   * Lossless features used: PREDICTION CROSS-COLOR-TRANSFORM SUBTRACT-GREEN
   * Precision Bits: histogram=4 transform=4 cache=10
 
 Success
-Reduction: -213% (went from 87 kb to 272 kb)
+Reduction: -228% (went from 81 kb to 267 kb)
 
 Picking lossy
 cwebp succeeded :)
 
-Converted image in 833 ms, reducing file size with 59% (went from 87 kb to 35 kb)
+Converted image in 919 ms, reducing file size with 61% (went from 81 kb to 32 kb)
 

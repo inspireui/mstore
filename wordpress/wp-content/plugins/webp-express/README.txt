@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/rosell
 Tags: webp, images, performance
 Requires at least: 4.0
 Tested up to: 5.2
-Stable tag: 0.15.3
+Stable tag: 0.17.2
 Requires PHP: 5.6
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -134,6 +134,8 @@ Don't fret - you have options!
 - You can try to get one of the local converters working. Check out [this page](https://github.com/rosell-dk/webp-convert/wiki/Meeting-the-requirements-of-the-converters) on the webp-convert wiki. There is also this [test/troubleshooting script](https://github.com/rosell-dk/webp-convert/wiki/A-PHP-script-for-the-webhost) which is handy when messing around with this.
 - Finally, if you have access to another server and are comfortable with installing projects with composer, you can install [webp-convert-cloud-service](https://github.com/rosell-dk/webp-convert-cloud-service). It's open source.
 
+Of course, there is also the option of using another plugin altogether. I can recommend Optimole. If you want to try that out and want to support me in the process, [follow this link](https://optimole.pxf.io/20b0M). It is an affiliate link and will give me a reward in case you decide to sign up.
+
 = It doesn't work - Although test conversions work, it still serves jpeg images =
 Actually, you might be mistaking, so first, make sure that you didn't make the very common mistake of thinking that something with the URL *example.com/image.jpg* must be a jpeg image. The plugin serves webp images on same URL as the original (unconverted) images, so do not let appearances fool you! Confused? See next FAQ item.
 
@@ -160,7 +162,7 @@ WebP Express has three ways of distributing webp to webp-enabled browsers while 
 Can some of these go wrong?
 Yes. All!
 
-#### Method 1: Varied image responses
+**Method 1: Varied image responses**
 The "Varied image responses" method adds rules to the `.htaccess` which redirects jpegs and pngs to the corresponding webps (if they exist). The rules have a condition that makes sure they only trigger for browsers supports webp images (this is established by examining the "accept" header).
 
 I the method "varied image responses" because the response on a given image URL *varies* (the webp is served on the same URL as the jpeg/png).
@@ -178,12 +180,12 @@ I do not believe it can go wrong in other ways. To be certain, please check out 
 
 Since WebP Express 0.15.0 you can use the "Live test" button to check that browsers not supporting webp gets the original files and that the Vary:Accept header is returned. Note however that it may not detect CDN caching problems if the CDN doesn't cache a new image immediately - and across all its nodes.
 
-#### Method 2: Altering HTML to use picture tags
+**Method 2: Altering HTML to use picture tags**
 IMG tags are replaced with PICTURE tags which has two sources. One of them points to the webp and has the "content-type" set to "image/webp". The other points to the original. The browser will select the webp source if it supports webp and the other source if it doesn't.
 
 Method 2 can go wrong on old browser that doesn't support the picture tag syntax. However, simply enable the "Dynamically load picturefill.js on older browsers" option, and it will take care of that issue.
 
-#### Method 3: Altering HTML to point directly to webps in webp enabled browsers
+**Method 3: Altering HTML to point directly to webps in webp enabled browsers**
 In this solution, the URLs in the HTML are modified for browsers that supports webp. Again, this is determined by examining the "accept" header. So, actually the complete page HTML varies with this method.
 
 Method 3 can go wrong if you are using a page caching plugin if that plugin does not create a separate webp cache for webp-enabled browsers. The *Cache Enabler* plugin handles this. I don't believe there are other page caching plugins that does. There is a FAQ section in this FAQ describing how to set *Cache Enabler* up to work in tandem with WebP Express.
@@ -192,8 +194,10 @@ Note that Firefox 66+ unfortunately stopped including "image/webp" in the "accep
 
 = I am on NGINX or OpenResty =
 
+WebP Express works well on NGINX, however the UI is not streamlined NGINX yet. And of course, NGINX does not process the .htaccess files that WebP Express generates. WebP Express can be used without redirection, as it can alter HTML to use picture tags which links to the webp alternative. See "The simple way" below. Or, you can get your hands dirty and set up redirection in NGINX guided by the "The advanced way" section below.
+
 **The simple way (no redirecting rules)**
-The easy solution is simply to use the plugin in "CDN friendly" mode, do a bulk conversion (takes care of converting existing images) and activate the "Convert on upload" option (takes care of converting new images in the media library).
+The easy solution is simply to use the plugin in "CDN friendly" mode, do a bulk conversion (takes care of converting existing images), activate the "Convert on upload" option (takes care of converting new images in the media library) and enable Alter HTML (takes care of delivering webp to webp enabled browsers while still delivering the original jpeg/png to browsers not supporting webp).
 
 *PRO*: Very easy to set up.
 *CON*: Images in external CSS and images being dynamically added with javascript will not be served as webp.
@@ -234,7 +238,7 @@ location ~* ^/?wp-content/.*\.(png|jpe?g)$ {
 location ~* ^/?wp-content/.*\.(png|jpe?g)\.webp$ {
     try_files
       $uri
-      /wp-content/plugins/webp-express/wod/webp-realizer.php?wp-content=wp-content
+      /wp-content/plugins/webp-express/wod/webp-realizer.php?xdestination=x$request_filename&wp-content=wp-content
       ;
 }
 &#35; ------------------- (WebP Express rules ends here)
@@ -428,7 +432,7 @@ You can also make it "work" on some CDN's by bypassing cache for images. But I r
 *Status of some CDN's*:
 
 - *KeyCDN*: Does not support varied image responses. I have added a feature request [here](https://community.keycdn.com/t/support-vary-accept-header-for-conditional-webp/1864). You can give it a +1 if you like!
-- *Cloudflare*: See the "I am on Cloudflare" item
+- *Cloudflare*: See the "I am on Cloudflare" section
 - *Cloudfront*: Works, but needs to be configured to forward the accept header. Go to *Distribution settings*, find the *Behavior tab*, select the Behavior and click the Edit button. Choose *Whitelist* from *Forward Headers* and then add the "Accept" header to the whitelist.
 
 I shall add more to the list. You are welcome to help out [here](https://wordpress.org/support/topic/which-cdns-works-in-standard-mode/).
@@ -486,7 +490,21 @@ To make *WebP Express* work on a free Cloudflare account, you have the following
 
 3. You can switch operation mode to "CDN friendly" and use HTML altering.
 
-### WebP Express / ShortPixel setup
+= I am on WP Engine =
+From version 0.17.1 on WebP Express works with WP engine and this combination will be tested before each release.
+
+You can use the plugin both in "Varied image responses" mode and in "CDN friendly mode".
+
+To make the redirection work, you must:
+1) Grab the nginx configuration found in the "I am on Nginx/OpenResty" section in this FAQ. Use the "try_files" variant.
+2) Contact help center and ask them to insert that configuration.
+3) Make sure the settings match this configuration. Follow the "beware" statements in the "I am on Nginx/OpenResty" section.
+
+WebP Express tweaks the workings of "Redirect to converter" a bit for WP engine. That PHP script usually serves the webp directly, along with a Vary:Accept header. This header is however overwritten by the caching machinery on WP engine. As a work-around, I modified the response of the script for WP engine. Instead of serving the image, it serves a redirect to itself. As there now IS a corresponding webp, this repeated request will not be redirected to the PHP script, but directly to the webp. And headers are OK for those redirects. You can hit the "Live test" button next to "Enable redirection to converter?" to verify that this works as just described.
+
+If you (contrary to this headline!) are in fact not on WP Engine, but might want to be, I have an affiliate link for you. It will give you 3 months free and it will give me a reward too, if you should decide to stay there. Here you go: [Get 3 months free when you sign up for WP Engine.](https://shareasale.com/r.cfm?b=1343154&u=2194916&m=41388&urllink=&afftrack=)
+
+= WebP Express / ShortPixel setup =
 Here is a recipe for using WebP Express together with ShortPixel, such that WebP Express generates the webp's, and ShortPixel only is used to create `<picture>` tags, when it detects a webp image in the same folder as an original.
 
 **There is really no need to do this anymore, because WebP Express is now capable of replacing img tags with picture tags (check out the Alter HTML option)**
@@ -625,10 +643,13 @@ RewriteRule . - [L]
 `
 If you got any further questions, look at, or comment on [this topic](https://wordpress.org/support/topic/can-i-make-an-exception-for-specific-post-image/)
 
+= Update failed and cannot reinstall =
+The 0.17.0 release contained binaries with dots in their filenames, which caused the unpacking during update to fail on a few systems. This failure could leave an incomplete installation. With important files missing - such as the main plugin file - Wordpress no longer registers that the plugin is there (it is missing from the list). However, the folder is there in the file system and trying to install WebP Express again fails because Wordpress complains about just that. The solution is to remove the "webp-express" folder in "plugins" manually (via ftp or a plugin, such as File Manager) and then install WebP Express anew. The setting will be intact. The filenames that caused the trouble where fixed in 0.17.2.
+
 = When is feature X coming? / Roadmap =
 No schedule. I move forward as time allows. I currently spend a lot of time answering questions in the support forum. If someone would be nice and help out answering questions here, it would allow me to spend that time developing. Also, donations would allow me to turn down some of the more boring requests from my customers, and speed things up here.
 
-Here are my current plans ahead: 0.15 will probably be a file manager-like interface for converting / bulk converting / viewing conversion logs / comparing original vs webp visually - kind of a merge of current "test converter" and "bulk conversion" interfaces, and with an addition of a file explorer. 0.16 might be various improvements such as option to choose which folders webp express should process (Just uploads / Just uploads and templates / Whole wp-content / Whole system) and options to exclude certain files and folders. 0.17 could be supporting Save-Data header in Varied Image Responses mode (send extra compressed images to clients who wants to use as little bandwidth as possible). 0.18 might be a diagnose tool – this should release some time spend in the forum. 0.18 might be displaying rules for NGINX. 0.19 might be an effort to allow webp for all browsers using [this javascript library](http://libwebpjs.hohenlimburg.org/v0.6.0/). Unfortunately, the javascript librare does not (currently) support srcset attributes, which is why I moved this item down the priority list. We need srcset to be supported for the feature to be useful. 0.20 might be WAMP support. The current milestones, their subtasks and their progress can be viewed here: https://github.com/rosell-dk/webp-express/milestones
+Here are my current plans ahead: 0.17 will probably be a file manager-like interface for converting / bulk converting / viewing conversion logs / comparing original vs webp visually - kind of a merge of current "test converter" and "bulk conversion" interfaces, and with an addition of a file explorer. 0.18 might allow excluding certain files and folders. 0.19 could be supporting Save-Data header in Varied Image Responses mode (send extra compressed images to clients who wants to use as little bandwidth as possible). 0.19 might be displaying rules for NGINX. 0.20 might be an effort to allow webp for all browsers using [this javascript library](http://libwebpjs.hohenlimburg.org/v0.6.0/). Unfortunately, the javascript librare does not (currently) support srcset attributes, which is why I moved this item down the priority list. We need srcset to be supported for the feature to be useful. 0.21 might be WAMP support. The current milestones, their subtasks and their progress can be viewed here: https://github.com/rosell-dk/webp-express/milestones
 
 If you wish to affect priorities, it is certainly possible. You can try to argue your case in the forum or you can simply let the money do the talking. By donating as little as a cup of coffee on [ko-fi.com/rosell](https://ko-fi.com/rosell), you can leave a wish. I shall take these wishes into account when prioritizing between new features.
 
@@ -640,6 +661,42 @@ Easy enough! - [Go here!](https://ko-fi.com/rosell). Or [here](https://buymeacof
 1. WebP Express settings
 
 == Changelog ==
+
+= 0.17.2 =
+*(released: 5 Oct 2019)*
+
+* Fixed bug: Updating plugin failed on a few hosts (in the unzip phase). Problem was introduced in 0.17.0 with the updated binaries.
+* Fixed bug: Alter HTML used the protocol (http/https) for the site for generated links (rather than keeping the protocol for the link). Thanks to Jacob Gullberg from Sweden for discovering this bug.
+
+If you experienced update problems due to the update bug, you will probably be left with an incomplete installation. Some of the plugin files are there, but not all. Especially, the main plugin file (webp-express.php) is missing, which means that Wordpress don't "see" the plugin (it is missing from the list). Trying to install WebP Express again will probably not work, because the "webp-express" folder is already there. You will then have to remove the "webp-express" folder in "plugins" manually (via ftp or a plugin, such as File Manager).
+
+For more info, see the closed issues on the 0.17.2 milestone on the github repository: https://github.com/rosell-dk/webp-express/milestone/29?closed=1
+
+= 0.17.1 =
+*(released: 3 Oct 2019)*
+
+* Fixed NGINX rules in FAQ (added xdestination for the create webp upon request functionality)
+* Fixed issue with Alter HTML. Thanks to @jonathanernst for discovering issue and supplying the patch.
+* WebP Express now works on WP Engine. Check out the new "I am on WP Engine" section in the FAQ
+* Miscellaneous bug fixes
+
+For more info, see the closed issues on the 0.17.1 milestone on the github repository: https://github.com/rosell-dk/webp-express/milestone/27?closed=1
+
+= 0.17.0 =
+*(released: 27 sep 2019)*
+
+* Cwebp conversion method runs on more systems (not subject to open_basedir restrictions and also tries "pure" cwebp command). Thanks to cng11 for reaching out so I spotted this.
+* Ewww conversion method no longer does a remote api-key check for each conversion - so it is faster. If an ewww conversions fails due to a non-functional key, the key will not be tried again (until next time the options are saved)
+* Updated cwebp binaries to version 1.0.3
+
+= 0.16.0 =
+*(released: 24 sep 2019)*
+
+* Added option to specify CDN urls in Alter HTML. Thanks to Gunnar Peipman from Estonia for suggesting this.
+* Direct Nginx users to Nginx FAQ section on welcome page
+* Fixed Bulk Conversion halting due to nonce expiry
+* Fixed unexpected output upon reactivation
+* Added affiliate link to [Optimole](https://optimole.pxf.io/20b0M) in the "Don't despair - You have options!" message
 
 = 0.15.3 =
 *(released: 19 sep 2019)*
@@ -1005,6 +1062,18 @@ For more info, see the closed issues on the 0.5.0 milestone on our github reposi
 For older releases, check out changelog.txt
 
 == Upgrade Notice ==
+
+= 0.17.2 =
+* Fixed bug: Updating plugin failed on a few hosts (in the unzip phase). The problem was introduced in 0.17.0 where the binaries contains dots in their filename.
+
+= 0.17.1 =
+* Miscellaneous bug fixes. Including the NGINX rules in the FAQ (added "xdestination" argument to webp-realizer.php). Now works with WP Engine.
+
+= 0.17.0 =
+* Improved Cwebp availability and Ewww performance. And updated cwebp binaries to version 1.0.3
+
+= 0.16.0 =
+* Various improvements and fixes
 
 = 0.15.3 =
 * Fixed fatal error upon activation for systems which cannot use document root for structuring (rare)

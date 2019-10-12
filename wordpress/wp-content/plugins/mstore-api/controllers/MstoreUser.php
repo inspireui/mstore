@@ -22,12 +22,13 @@ class JSON_API_MStore_User_Controller
         // allow only connection over https. because, well, you care about your passwords and sniffing.
         // turn this sanity-check off if you feel safe inside your localhost or intranet.
         // send an extra POST parameter: insecure=cool
-        if (filter_has_var(INPUT_SERVER, 'HTTPS') ||
-            (filter_has_var(INPUT_SERVER, 'HTTPS') && filter_input(INPUT_SERVER, 'HTTPS') == 'off')) {
-            if (filter_has_var(INPUT_GET, 'insecure')  || filter_input(INPUT_GET, 'insecure') != 'cool') {
-                $json_api->error("SSL is not enabled. Either use _https_ or provide 'insecure' var as insecure=cool to confirm you want to use http protocol.");
-            }
-        }
+
+        // if (filter_has_var(INPUT_SERVER, 'HTTPS') ||
+        //     (filter_has_var(INPUT_SERVER, 'HTTPS') && filter_input(INPUT_SERVER, 'HTTPS') == 'off')) {
+        //     if (filter_has_var(INPUT_GET, 'insecure')  || filter_input(INPUT_GET, 'insecure') != 'cool') {
+        //         $json_api->error("SSL is not enabled. Either use _https_ or provide 'insecure' var as insecure=cool to confirm you want to use http protocol.");
+        //     }
+        // }
     }
 
     public function register()
@@ -38,16 +39,41 @@ class JSON_API_MStore_User_Controller
             $json_api->error("User registration is disabled. Please enable it in Settings > Gereral.");
         }
 
-        if (!$json_api->query->username) {
-            $json_api->error("You must include 'username' var in your request. ");
-        } else {
-            $username = sanitize_user($json_api->query->username);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $json = file_get_contents('php://input');
+            $params = json_decode($json);
+            $usernameReq = $params->username;
+            $emailReq = $params->email;
+            $secondsReq = $params->seconds;
+            $nonceReq = $params->nonce;
+            $roleReq = $params->role;
+            $userPassReq = $params->user_pass;
+            $userLoginReq = $params->user_login;
+            $userEmailReq = $params->user_email;
+            $notifyReq = $params->notify;
+        }else{
+            $usernameReq = $json_api->query->username;
+            $emailReq =$json_api->query->email;
+            $secondsReq = $json_api->query->seconds;
+            $nonceReq = $json_api->query->nonce;
+            $roleReq = $json_api->query->role;
+            $userPassReq = $json_api->query->user_pass;
+            $userLoginReq = $json_api->query->user_login;
+            $userEmailReq = $json_api->query->user_email;
+            $notifyReq = $json_api->query->notify;
         }
 
-        if (!$json_api->query->email) {
+        
+        if (!$usernameReq) {
+            $json_api->error("You must include 'username' var in your request. ");
+        } else {
+            $username = sanitize_user($usernameReq);
+        }
+
+        if (!$emailReq) {
             $json_api->error("You must include 'email' var in your request. ");
         } else {
-            $email = sanitize_email($json_api->query->email);
+            $email = sanitize_email($emailReq);
         }
 
         // if (!$json_api->query->nonce) {
@@ -62,8 +88,8 @@ class JSON_API_MStore_User_Controller
 
         // $user_pass = filter_has_vart(INPUT_GET, 'user_pass') ? sanitize_text_field(filter_input(INPUT_GET, 'user_pass')) : '';
 
-        if ($json_api->query->seconds) {
-            $seconds = (int) $json_api->query->seconds;
+        if ($secondsReq) {
+            $seconds = (int) $secondsReq;
         } else {
             $seconds = 120960000;
         }
@@ -77,7 +103,7 @@ class JSON_API_MStore_User_Controller
 
         $nonce_id = $json_api->get_nonce_id('mstore_user', 'register');
 
-        if (!wp_verify_nonce($json_api->query->nonce, $nonce_id)) {
+        if (!wp_verify_nonce($nonceReq, $nonce_id)) {
 
             $json_api->error("Invalid access, unverifiable 'nonce' value. Use the 'get_nonce' Core API method. ");
         } else {
@@ -102,21 +128,27 @@ class JSON_API_MStore_User_Controller
 
                     //Everything has been validated, proceed with creating the user
                     //Create the user
-                    if (!filter_has_var(INPUT_GET, 'user_pass')) {
+                    if (!$userPassReq) {
                         $args = [
                             'user_pass' => wp_generate_password()
                         ];
-                        filter_input_array(INPUT_GET, $args);
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            $params->user_pass = $args['user_pass'];
+                        }else{
+                            filter_input_array(INPUT_GET, $args);
+                        }
                     }
 
-                    if (filter_has_var(INPUT_GET, 'user_login') && filter_has_var(INPUT_GET, 'user_email')) {
+                    if ($userLoginReq && $userEmailReq) {
                         // filter_input_array(INPUT_GET, $_REQUEST['user_login']) = $username;
                         // filter_input_array(INPUT_GET, $_REQUEST['user_email']) = $email;
                         $argsBelow = [
                             'user_login' => $username,
                             'user_email' => $email
                         ];
-                        filter_input_array(INPUT_GET, $argsBelow);
+                        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                            filter_input_array(INPUT_GET, $argsBelow);
+                        }
                     }
 
                     $allowed_params = array('user_login', 'user_email', 'user_pass', 'display_name', 'user_nicename', 'user_url', 'nickname', 'first_name',
@@ -124,7 +156,11 @@ class JSON_API_MStore_User_Controller
                         'comment_shortcuts', 'admin_color', 'use_ssl', 'show_admin_bar_front',
                     );
 
-                    $dataRequest = filter_input_array(INPUT_GET);
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                        $dataRequest = $params;
+                    }else{
+                        $dataRequest = filter_input_array(INPUT_GET);
+                    }
                     foreach ($dataRequest as $field => $value) {
                         if (in_array($field, $allowed_params)) {
                             $user[$field] = trim(sanitize_text_field($value));
@@ -132,16 +168,16 @@ class JSON_API_MStore_User_Controller
 
                     }
                     
-                    $user['role'] = $json_api->query->role ? sanitize_text_field($json_api->query->role) : get_option('default_role');
+                    $user['role'] = $roleReq ? sanitize_text_field($roleReq) : get_option('default_role');
                     $user_id = wp_insert_user($user);
 
                     /*Send e-mail to admin and new user -
                     You could create your own e-mail instead of using this function*/
 
-                    if (filter_input(INPUT_GET, 'user_pass') && filter_input(INPUT_GET, 'notify') && filter_input(INPUT_GET, 'notify') == 'no') {
+                    if ($userPassReq && $notifyReq && $notifyReq == 'no') {
                         $notify = '';
-                    } elseif (filter_input(INPUT_GET, 'notify') && filter_input(INPUT_GET, 'notify') != 'no') {
-                        $notify = filter_input(INPUT_GET, 'notify');
+                    } elseif ($notifyReq && $notifyReq != 'no') {
+                        $notify = $notifyReq;
                     }
 
                     if ($user_id) {
@@ -184,12 +220,14 @@ class JSON_API_MStore_User_Controller
 
         global $json_api;
 
-        $dataPost = filter_input_array(INPUT_POST);
-        foreach ($dataPost as $k => $val) {
-            if (filter_has_var(INPUT_POST,$k)) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $json = file_get_contents('php://input');
+            $params = json_decode($json);
+            foreach ($params as $k => $val) {
                 $json_api->query->$k = $val;
             }
         }
+        
 
         if (!$json_api->query->username && !$json_api->query->email) {
             $json_api->error("You must include 'username' or 'email' var in your request to generate cookie.");
@@ -431,6 +469,65 @@ class JSON_API_MStore_User_Controller
 
             }
         }
+        return $response;
+
+    }
+
+    public function firebase_sms_login()
+    {
+
+        global $json_api;
+
+        if (!$json_api->query->phone) {
+            $json_api->error("You must include a 'phone' variable.");
+        } else {
+            $user_name = $json_api->query->phone;
+            $user_email = $json_api->query->phone."@mstore.io";
+            $email_exists = email_exists($user_email);
+
+            if ($email_exists) {
+                $user = get_user_by('email', $user_email);
+                $user_id = $user->ID;
+                $user_name = $user->user_login;
+            }
+
+
+            if (!$user_id && $email_exists == false) {
+
+                while (username_exists($user_name)) {
+                    $i++;
+                    $user_name = strtolower($user_name) . '.' . $i;
+
+                }
+
+                $random_password = wp_generate_password($length = 12, $include_standard_special_chars = false);
+                $userdata = array(
+                    'user_login' => $user_name,
+                    'user_email' => $user_email,
+                    'user_pass' => $random_password,
+                    'display_name' => $user_name,
+                    'first_name' => $user_name,
+                    'last_name' => ""
+                );
+
+                $user_id = wp_insert_user($userdata);
+                if ($user_id) $user_account = 'user registered.';
+
+            } else {
+
+                if ($user_id) $user_account = 'user logged in.';
+            }
+
+            $expiration = time() + apply_filters('auth_cookie_expiration', 120960000, $user_id, true);
+            $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in');
+
+            $response['msg'] = $user_account;
+            $response['wp_user_id'] = $user_id;
+            $response['cookie'] = $cookie;
+            $response['user_login'] = $user_name;
+            $response['user'] = $result;
+        }
+
         return $response;
 
     }

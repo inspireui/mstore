@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "628e816c040c595618fbe0151b6021b0",
+    "content-hash": "66c96d3268a657c647267f5e5eee8ca2",
     "packages": [
         {
             "name": "rosell-dk/dom-util-for-webp",
@@ -118,16 +118,16 @@
         },
         {
             "name": "rosell-dk/webp-convert",
-            "version": "2.1.6",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosell-dk/webp-convert.git",
-                "reference": "5cb744d2786468fb51883d1f3a90562166df3320"
+                "reference": "74991497d403c07de269623850722aa0f7d15542"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosell-dk/webp-convert/zipball/5cb744d2786468fb51883d1f3a90562166df3320",
-                "reference": "5cb744d2786468fb51883d1f3a90562166df3320",
+                "url": "https://api.github.com/repos/rosell-dk/webp-convert/zipball/74991497d403c07de269623850722aa0f7d15542",
+                "reference": "74991497d403c07de269623850722aa0f7d15542",
                 "shasum": ""
             },
             "require": {
@@ -168,13 +168,13 @@
             "authors": [
                 {
                     "name": "Bjørn Rosell",
-                    "role": "Project Author",
-                    "homepage": "https://www.bitwise-it.dk/contact"
+                    "homepage": "https://www.bitwise-it.dk/contact",
+                    "role": "Project Author"
                 },
                 {
                     "name": "Martin Folkers",
-                    "role": "Collaborator",
-                    "homepage": "https://twobrain.io"
+                    "homepage": "https://twobrain.io",
+                    "role": "Collaborator"
                 }
             ],
             "description": "Convert JPEG & PNG to WebP with PHP",
@@ -190,7 +190,7 @@
                 "png",
                 "png2webp"
             ],
-            "time": "2019-08-10T22:04:08+00:00"
+            "time": "2019-10-05T18:32:17+00:00"
         },
         {
             "name": "rosell-dk/webp-convert-cloud-service",

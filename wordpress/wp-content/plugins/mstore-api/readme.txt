@@ -1,4 +1,4 @@
-=== MStore Checkout ===
+=== MStore API ===
 
 Contributors: InsireUI
 
@@ -10,7 +10,7 @@ Requires at least: 4.0
 
 Tested up to: 4.6
 
-Stable tag: 1.0.0
+Stable tag: 1.3.0
 
 License: GPLv2 or later
 
@@ -41,14 +41,22 @@ Faster- Smoother- Closer.
 = Manual Installation =
 
 1. Upload the entire `/mstore-api` directory to the `/wp-content/plugins/` directory.
-1. Activate 'MStore Checkout' through the 'Plugins' menu in WordPress.
+1. Activate 'MStore API' through the 'Plugins' menu in WordPress.
 
 = Better Installation =
 
-1. Go to Plugins > Add New in your WordPress admin and search for 'MStore Checkout'.
+1. Go to Plugins > Add New in your WordPress admin and search for 'MStore API'.
 1. Click Install.
 
+== Changelog ==
+= 1.3.0 =
+* Add firebase phone auth
+
+== Changelog ==
+= 1.2.0 =
+* Support FluxStore
 
 == Changelog ==
 = 1.0.0 =
 * First Release
+* Support Mstore App

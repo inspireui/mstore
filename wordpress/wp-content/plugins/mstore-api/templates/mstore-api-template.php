@@ -64,7 +64,7 @@ if (filter_has_var(INPUT_GET, 'order')):
     if (!empty($data['coupon_lines'])) {
         $coupons = $data['coupon_lines'];
         foreach ($coupons as $coupon) {
-            $woocommerce->cart->add_discount($coupon);
+            $woocommerce->cart->add_discount($coupon['code']);
         }
     }
 

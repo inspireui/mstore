@@ -22,6 +22,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
+use WC_Braintree\PayPal\Buttons\Abstract_Button;
 use WC_Braintree\Plugin_Framework as WC_Braintree_Framework;
 
 defined( 'ABSPATH' ) or exit;
@@ -82,10 +83,36 @@ class WC_Braintree_PayPal_Payment_Form extends WC_Braintree_Payment_Form {
 			'must_login_message'            => __( 'Please click the "PayPal" button below to log into your PayPal account before placing your order.', 'woocommerce-gateway-paypal-powered-by-braintree' ),
 			'must_login_add_method_message' => __( 'Please click the "PayPal" button below to log into your PayPal account before adding your payment method.', 'woocommerce-gateway-paypal-powered-by-braintree' ),
 			'button_styles'                 => wp_parse_args( $button_styles, $default_button_styles ), // ensure all expected parameters are present after filtering to avoid JS errors
-			'cart_payment_nonce'            => ( $cart_handler = $this->get_gateway()->get_plugin()->get_paypal_cart_instance() ) ? $cart_handler->get_cart_nonce() : '',
+			'cart_payment_nonce'            => $this->get_cart_nonce(),
 		] );
 
 		return $params;
+	}
+
+
+	/**
+	 * Gets the cart nonce from the session, if any.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return string
+	 */
+	public function get_cart_nonce() {
+
+		return WC()->session->get( 'wc_braintree_paypal_cart_nonce', '' );
+	}
+
+
+	/**
+	 * Determines if the current view is at Checkout, confirming the cart PayPal purchase.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return bool
+	 */
+	public function is_checkout_confirmation() {
+
+		return is_checkout() && $this->get_gateway()->is_available() && $this->get_cart_nonce();
 	}
 
 
@@ -98,13 +125,9 @@ class WC_Braintree_PayPal_Payment_Form extends WC_Braintree_Payment_Form {
 	 */
 	public function render_payment_form_description() {
 
-		$cart_handler = $this->get_gateway()->get_plugin()->get_paypal_cart_instance();
-
-		if ( $cart_handler && $cart_handler->is_checkout_confirmation() ) {
-			return;
+		if ( ! $this->is_checkout_confirmation() ) {
+			parent::render_payment_form_description();
 		}
-
-		parent::render_payment_form_description();
 	}
 
 
@@ -117,13 +140,9 @@ class WC_Braintree_PayPal_Payment_Form extends WC_Braintree_Payment_Form {
 	 */
 	public function render_saved_payment_methods() {
 
-		$cart_handler = $this->get_gateway()->get_plugin()->get_paypal_cart_instance();
-
-		if ( $cart_handler && $cart_handler->is_checkout_confirmation() ) {
-			return;
+		if ( ! $this->is_checkout_confirmation() ) {
+			parent::render_saved_payment_methods();
 		}
-
-		parent::render_saved_payment_methods();
 	}
 
 

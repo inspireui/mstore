@@ -49,6 +49,7 @@ class ServeConvertedWebP
             new BooleanOption('serve-original', false),
             new BooleanOption('show-report', false),
             new BooleanOption('suppress-warnings', true),
+            new BooleanOption('redirect-to-self-instead-of-serving', false),
             new ArrayOption('serve-image', []),
             new SensitiveArrayOption('convert', [])
         );
@@ -178,6 +179,16 @@ class ServeConvertedWebP
         if ($options['serve-original']) {
             Header::addLogHeader('Serving original (told to)', $serveLogger);
             self::serveOriginal($source, $options['serve-image']);
+        }
+
+        if ($options['redirect-to-self-instead-of-serving']) {
+            Header::addLogHeader(
+                'Redirecting to self! ' .
+                    '(hope you got redirection to existing webps set up, otherwise you will get a loop!)',
+                $serveLogger
+            );
+            header('Location: ?fresh', 302);
+            return;
         }
 
         $filesizeDestination = @filesize($destination);

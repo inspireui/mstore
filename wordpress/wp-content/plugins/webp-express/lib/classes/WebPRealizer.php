@@ -39,21 +39,30 @@ class WebPRealizer extends WodConfigLoader
 
         // Check querystring (full path)
         // - But only on Nginx (our Apache .htaccess rules never passes absolute url)
-        if (
-            (stripos($_SERVER["SERVER_SOFTWARE"], 'nginx') !== false) &&
-            (isset($_GET['destination']) || isset($_GET['xdestination']))
-        ) {
+        if (self::isNginxHandlingImages()) {
             if (isset($_GET['destination'])) {
-                $destination = SanityCheck::absPathIsInDocRoot($_GET['destination']);
-            } else {
+                return SanityCheck::absPathIsInDocRoot($_GET['destination']);
+            }
+            if (isset($_GET['xdestination'])) {
                 $xdest = SanityCheck::noControlChars($_GET['xdestination']);
-                $destination = SanityCheck::absPathIsInDocRoot(substr($xdest, 1));
+                return SanityCheck::absPathIsInDocRoot(substr($xdest, 1));
             }
         }
 
         // Last resort is to use $_SERVER['REQUEST_URI'], well knowing that it does not give the
-        // correct result in all setups (ie "folder method 1")
+        // correct result in all setups (ie "folder method 1").
+        // On nginx, it can even return the path to webp-realizer.php. TODO: Handle that better than now
         $destRel = SanityCheck::pathWithoutDirectoryTraversal(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+        if ($destRel) {
+            if (preg_match('#webp-realizer\.php$#', $destRel)) {
+                throw new \Exception(
+                    'webp-realizer.php need to know the file path and cannot simply use $_SERVER["REQUEST_URI"] ' .
+                    'as that points to itself rather than the image requested. ' .
+                    'On Nginx, please add: "&xdestination=x$request_filename" to the URL in the rules in the nginx config ' .
+                    '(sorry, the parameter was missing in the rules in the README for a while, but it is back)'
+                );
+            }
+        }
         $destination = SanityCheck::absPath($docRoot . $destRel);
         return SanityCheck::absPathIsInDocRoot($destination);
     }
@@ -237,6 +246,7 @@ class WebPRealizer extends WodConfigLoader
             'Conversion triggered with the conversion script (wod/webp-realizer.php)'
         );
 
+        self::fixConfigIfEwwwDiscoveredNonFunctionalApiKeys();
     }
 
     public static function processRequest() {

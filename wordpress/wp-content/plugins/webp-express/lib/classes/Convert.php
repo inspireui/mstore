@@ -2,6 +2,8 @@
 
 namespace WebPExpress;
 
+use \WebPConvert\Convert\Converters\Ewww;
+
 use \WebPExpress\ConvertHelperIndependent;
 use \WebPExpress\Config;
 use \WebPExpress\ConvertersHelper;
@@ -44,7 +46,7 @@ class Convert
             $activeRootIds = Paths::getImageRootIds();  // Currently, root ids cannot be selected, so all root ids are active.
             $rootId = Paths::findImageRootOfPath($source, $activeRootIds);
             if ($rootId === false) {
-                throw new Exception('Path of source is not within a valid image root');
+                throw new \Exception('Path of source is not within a valid image root');
             }
 
             // Check config
@@ -77,12 +79,12 @@ class Convert
             $checking = 'destination';
             $destination = self::getDestination($source, $config);
 
-            $destination = SanityCheck::absPathIsInDocRoot($destination);
+            $destination = SanityCheck::absPath($destination);
 
             // Check log dir
             // -------------------------------
             $checking = 'conversion log dir';
-            $logDir = SanityCheck::absPathIsInDocRoot(Paths::getWebPExpressContentDirAbs() . '/log');
+            $logDir = SanityCheck::absPath(Paths::getWebPExpressContentDirAbs() . '/log');
 
 
         } catch (\Exception $e) {
@@ -98,6 +100,20 @@ class Convert
 //return false;
         $result = ConvertHelperIndependent::convert($source, $destination, $convertOptions, $logDir, $converter);
 
+//error_log('looki:' . $source . $converter);
+        // If we are using stack converter, check if Ewww discovered invalid api key
+        //if (is_null($converter)) {
+            if (isset(Ewww::$nonFunctionalApiKeysDiscoveredDuringConversion)) {
+                // We got an invalid or exceeded api key (at least one).
+                //error_log('look:' . print_r(Ewww::$nonFunctionalApiKeysDiscoveredDuringConversion, true));
+                EwwwTools::markApiKeysAsNonFunctional(
+                    Ewww::$nonFunctionalApiKeysDiscoveredDuringConversion,
+                    Paths::getConfigDirAbs()
+                );
+            }
+        //}
+
+
         if ($result['success'] === true) {
             $result['filesize-original'] = @filesize($source);
             $result['filesize-webp'] = @filesize($destination);
@@ -111,7 +127,7 @@ class Convert
             );
             $relPathFromImageRootToDest = ConvertHelperIndependent::appendOrSetExtension(
                 $relPathFromImageRootToSource,
-                $config['destination-folder'], 
+                $config['destination-folder'],
                 $config['destination-extension'],
                 ($rootId == 'uploads')
             );
@@ -162,7 +178,17 @@ class Convert
     {
 
         if (!check_ajax_referer('webpexpress-ajax-convert-nonce', 'nonce', false)) {
-            wp_send_json_error('Invalid security nonce (it has probably expired - try refreshing)');
+        //if (true) {
+            //wp_send_json_error('Invalid security nonce (it has probably expired - try refreshing)');
+            //wp_die();
+
+            $result = [
+                'success' => false,
+                'msg' => 'Invalid security nonce (it has probably expired - try refreshing)',
+                'stop' => true
+            ];
+
+            echo json_encode($result, JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT);
             wp_die();
         }
 
@@ -253,6 +279,14 @@ class Convert
         } else {
             $result = self::convertFile($filename);
         }
+
+        $nonceTick = wp_verify_nonce($_REQUEST['nonce'], 'webpexpress-ajax-convert-nonce');
+        if ($nonceTick == 2) {
+            $result['new-convert-nonce'] = wp_create_nonce('webpexpress-ajax-convert-nonce');
+            //  wp_create_nonce('webpexpress-ajax-convert-nonce')
+        }
+
+        $result['nonce-tick'] = $nonceTick;
 
         echo json_encode($result, JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT);
         wp_die();

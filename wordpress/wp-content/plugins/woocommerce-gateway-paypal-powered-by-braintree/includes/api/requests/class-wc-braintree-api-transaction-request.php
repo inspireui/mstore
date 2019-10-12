@@ -206,7 +206,7 @@ class WC_Braintree_API_Transaction_Request extends WC_Braintree_API_Request {
 				'firstName' => $this->get_order_prop( 'billing_first_name' ),
 				'lastName'  => $this->get_order_prop( 'billing_last_name' ),
 				'company'   => $this->get_order_prop( 'billing_company' ),
-				'phone'     => WC_Braintree_Framework\SV_WC_Helper::str_truncate( preg_replace( '/[^\d-().]/', '', $this->get_order_prop( 'billing_phone' ) ), 14, '' ),
+				'phone'     => WC_Braintree_Framework\SV_WC_Helper::str_truncate( preg_replace( '/[^\d\-().]/', '', $this->get_order_prop( 'billing_phone' ) ), 14, '' ),
 				'email'     => $this->get_order_prop( 'billing_email' ),
 			);
 		}

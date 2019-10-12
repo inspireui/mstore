@@ -19,18 +19,24 @@ trait WarningLoggerTrait
     /** @var string|array|null  Previous error handler (stored in order to be able pass warnings on) */
     private $previousErrorHandler;
 
+    /** @var boolean  Suppress ALL warnings? (both from log and from bubbling up) */
+    private $suppressWarnings;
+
+    /** @var int  Count number of warnings */
+    private $warningCounter;
+
     /**
      *  Handle warnings and notices during conversion by logging them and passing them on.
      *
      *  The function is a callback used with "set_error_handler".
-     *  It is declared public because it needs to be accessible from the point where the warning happened.
+     *  It is declared public because it needs to be accessible from the point where the warning is triggered.
      *
      *  @param  integer  $errno
      *  @param  string   $errstr
      *  @param  string   $errfile
      *  @param  integer  $errline
      *
-     *  @return false|null
+     *  @return false|null|void
      */
     public function warningHandler($errno, $errstr, $errfile, $errline)
     {
@@ -45,7 +51,26 @@ trait WarningLoggerTrait
 
         - Because we want to log all warnings and errors (also the ones that was suppressed with @)
         https://secure.php.net/manual/en/language.operators.errorcontrol.php
+
+        If we were to decide suppressing the ones with @, I could do this:
+
+        if (error_reporting() == 0) {
+            /// @ sign temporary disabled error reporting
+            return;
+        }
+        [https://stackoverflow.com/questions/7380782/error-suppression-operator-and-set-error-handler]
+
+        However, that would also disable the warnings on systems with error reporting set to E_NONE.
+        And I really want the conversion log file to contain these warnings on all systems.
+
+        If it was possible to suppress the warnings with @ without suppressing warnings on systems
+        with error reporting set to E_NONE, I would do that.
         */
+
+        $this->warningCounter++;
+        if ($this->suppressWarnings) {
+            return;
+        }
 
         $errorTypes = [
             E_WARNING =>             "Warning",
@@ -104,6 +129,8 @@ trait WarningLoggerTrait
      */
     protected function activateWarningLogger()
     {
+        $this->suppressWarnings = false;
+        $this->warningCounter = 0;
         $this->previousErrorHandler = set_error_handler(
             array($this, "warningHandler"),
             E_WARNING | E_USER_WARNING | E_NOTICE | E_USER_NOTICE
@@ -120,5 +147,25 @@ trait WarningLoggerTrait
     protected function deactivateWarningLogger()
     {
         restore_error_handler();
+    }
+
+    protected function disableWarningsTemporarily()
+    {
+        $this->suppressWarnings = true;
+    }
+
+    protected function reenableWarnings()
+    {
+        $this->suppressWarnings = false;
+    }
+
+    protected function getWarningCount()
+    {
+        return $this->warningCounter;
+    }
+
+    protected function resetWarningCount()
+    {
+        $this->warningCounter = 0;
     }
 }

@@ -286,6 +286,26 @@ function webpexpress_getSanitizedConverters() {
     return $convertersSanitized;
 }
 
+/**
+ * Get sanitized converters.
+ *
+ * @return array  Sanitized array of the converters json array received in $_POST
+ */
+function webpexpress_getSanitizedAlterHtmlHostnameAliases() {
+    $index = 0;
+
+    $result = [];
+    while (isset($_POST['alter-html-hostname-alias-' . $index])) {
+        $alias = webpexpress_getSanitizedText('alter-html-hostname-alias-' . $index, '');
+        $alias = preg_replace('#^https?\\:\\/\\/#', '', $alias);
+        //$alias .= 'hm';
+        if ($alias != '') {
+            $result[] = $alias;
+        }
+        $index++;
+    }
+    return $result;
+}
 
 /*
 ------------------------------------------------------
@@ -369,6 +389,7 @@ $sanitized = [
     'only-redirect-to-converter-for-webp-enabled-browsers' => isset($_POST['only-redirect-to-converter-for-webp-enabled-browsers']),
     'only-redirect-to-converter-on-cache-miss' => isset($_POST['only-redirect-to-converter-on-cache-miss']),
     'do-not-pass-source-in-query-string' => isset($_POST['do-not-pass-source-in-query-string']),
+    'enable-redirection-to-webp-realizer' => isset($_POST['enable-redirection-to-webp-realizer']),
 
 
     // Conversion options
@@ -435,7 +456,7 @@ $sanitized = [
         'content-hooks',
         'ob'
     ]),
-    'enable-redirection-to-webp-realizer' => isset($_POST['enable-redirection-to-webp-realizer']),
+    'alter-html-hostname-aliases' => webpexpress_getSanitizedAlterHtmlHostnameAliases(),
 
 
     // Web service
@@ -507,6 +528,7 @@ if ($sanitized['operation-mode'] != 'no-conversion') {
 
 $config['alter-html']['replacement'] = $sanitized['alter-html-replacement'];
 $config['alter-html']['hooks'] = $sanitized['alter-html-hooks'];
+$config['alter-html']['hostname-aliases'] = $sanitized['alter-html-hostname-aliases'];
 
 
 // Set options that are available in all operation modes, except the "no-conversion" mode
@@ -762,152 +784,11 @@ if (!$result['saved-both-config']) {
             'Configuration saved. Rewrite rules did not need to be updated. ' . HTAccess::testLinks($config)
         );
     } else {
-        $rulesResult = $result['htaccess-result'];
-        list($success, $successfullWrites, $successfulDeactivations, $failedWrites, $failedDeactivations) = $rulesResult;
-
-        $msg = '<p>Configuration was saved</p>';
-
-        if (count($successfullWrites) > 0) {
-            $msg .= '<p>Rewrite rules were saved to the following files:</p>';
-            foreach ($successfullWrites as $rootId) {
-                $msg .= '<i>' . Paths::getAbsDirById($rootId) . '/.htaccess</i> (' . $rootId . ')<br>';
-            }
-        }
-
-        if (count($successfulDeactivations) > 0) {
-            $msg .= '<p>Rewrite rules were removed from the following files:</p>';
-            foreach ($successfulDeactivations as $rootId) {
-                $msg .= '<i>' . Paths::getAbsDirById($rootId) . '/.htaccess</i> (' . $rootId . ')<br>';
-            }
-        }
-
         Messenger::addMessage(
-            ($success ? 'success' : 'info'),
-            $msg
+            'success',
+            'Configuration was saved.'
         );
-
-
-        if (count($failedWrites) > 0) {
-            $msg = '<p>Failed writing rewrite rules to the following files:</p>';
-            foreach ($failedWrites as $rootId) {
-                $msg .= '<i>' . Paths::getAbsDirById($rootId) . '/.htaccess</i> (' . $rootId . ')<br>';
-            }
-            $msg .= 'You need to change the file permissions to allow WebP Express to save the rules.';
-            Messenger::addMessage('error', $msg);
-        } else {
-            if (count($failedDeactivations) > 0) {
-                $msg = '<p>Failed deleting unused rewrite rules in the following files:</p>';
-                foreach ($failedDeactivations as $rootId) {
-                    $msg .= '<i>' . Paths::getAbsDirById($rootId) . '/.htaccess</i> (' . $rootId . ')<br>';
-                }
-                $msg .= 'You need to change the file permissions to allow WebP Express to remove the rules or ' .
-                    'remove them manually';
-                Messenger::addMessage('error', $msg);
-            }
-        }
-
-        /*
-        'mainResult'        // 'index', 'wp-content' or 'failed'
-        'minRequired'       // 'index' or 'wp-content'
-        'pluginToo'         // 'yes', 'no' or 'depends'
-        'uploadToo'         // 'yes', 'no' or 'depends'
-        'overidingRulesInWpContentWarning'  // true if main result is 'index' but we cannot remove those in wp-content
-        'rules'             // the rules that were generated
-        'pluginFailed'      // true if failed to write to plugin folder (it only tries that, if pluginToo == 'yes')
-        'pluginFailedBadly' // true if plugin failed AND it seems we have rewrite rules there
-        'uploadFailed'      // true if failed to write to plugin folder (it only tries that, if pluginToo == 'yes')
-        'uploadFailedBadly' // true if plugin failed AND it seems we have rewrite rules there
-        */
-        /*
-        $mainResult = $rulesResult['mainResult'];
-        $rules = $rulesResult['rules'];
-
-        if ($mainResult == 'failed') {
-            if ($rulesResult['minRequired'] == 'wp-content') {
-                Messenger::addMessage(
-                    'error',
-                    'Configuration saved, but failed saving rewrite rules. ' .
-                        'Please grant us write access to your <i>wp-content</i> dir (we need that, because you have moved <i>wp-content</i> out of the Wordpress dir) ' .
-                        '- or, alternatively insert the following rules directly in that <i>.htaccess</i> file, or your Apache configuration:' .
-                        '<pre>' . htmlentities(print_r($rules, true)) . '</pre>'
-                );
-
-            } else {
-                Messenger::addMessage(
-                    'error',
-                    'Configuration saved, but failed saving rewrite rules. ' .
-                        'Please grant us write access to either write rules to an <i>.htaccess</i> in your <i>wp-content</i> dir (preferably), ' .
-                        'or your main <i>.htaccess</i> file. ' .
-                        '- or, alternatively insert the following rules directly in that <i>.htaccess</i> file, or your Apache configuration:' .
-                        '<pre>' . htmlentities(print_r($rules, true)) . '</pre>'
-                );
-            }
-        } else {
-            $savedToPluginsToo = (($rulesResult['pluginToo'] == 'yes') && !($rulesResult['pluginFailed']));
-            $savedToUploadsToo = (($rulesResult['uploadToo'] == 'yes') && !($rulesResult['uploadFailed']));
-
-            Messenger::addMessage(
-                'success',
-                'Configuration saved.<br>Rewrite rules were saved to your <i>.htaccess</i> in your <i>' . $mainResult . '</i> folder' .
-                    (Paths::isWPContentDirMoved() ? ' (which you moved, btw)' : '') .
-                    ($savedToPluginsToo ? ' as well as in your <i>plugins</i> folder' : '') .
-                    ((Paths::isWPContentDirMoved() && $savedToPluginsToo) ? ' (you moved that as well!)' : '.') .
-                    ($savedToUploadsToo ? ' as well as in your <i>uploads</i> folder' : '') .
-                    ((Paths::isWPContentDirMoved() && $savedToUploadsToo) ? ' (you moved that as well!)' : '.') .
-                    HTAccess::testLinks($config)
-            );
-        }
-        if ($rulesResult['mainResult'] == 'index') {
-            if ($rulesResult['overidingRulesInWpContentWarning']) {
-                Messenger::addMessage(
-                    'warning',
-                    'We have rewrite rules in the <i>wp-content</i> folder, which we cannot remove. ' .
-                        'These are overriding those just saved. ' .
-                        'Please change file permissions or remove the rules from the <i>.htaccess</i> file manually'
-                );
-            } else {
-                Messenger::addMessage(
-                    'info',
-                    'The rewrite rules are currently stored in your root. ' .
-                        'WebP Express would prefer to store them in your wp-content folder, ' .
-                        'but your current file permissions does not allow that.'
-                );
-            }
-        }
-        if ($rulesResult['pluginFailed']) {
-            if ($rulesResult['pluginFailedBadly']) {
-                Messenger::addMessage(
-                    'warning',
-                    'The <i>.htaccess</i> rules in your plugins folder could not be updated (no write access). ' .
-                        'This is not so good, because we have rules there already...' .
-                        'You should update them. Here they are: ' .
-                        '<pre>' . htmlentities(print_r($rules, true)) . '</pre>'
-                );
-            } else {
-                Messenger::addMessage(
-                    'info',
-                    '<i>.htaccess</i> rules could not be written into your plugins folder. ' .
-                        'Images stored in your plugins will not be converted to webp'
-                );
-            }
-        }
-        if ($rulesResult['uploadFailed']) {
-            if ($rulesResult['uploadFailedBadly']) {
-                Messenger::addMessage(
-                    'error',
-                    'The <i>.htaccess</i> rules in your uploads folder could not be updated (no write access). ' .
-                        'This is not so good, because we have rules there already...' .
-                        'You should update them. Here they are: ' .
-                        '<pre>' . htmlentities(print_r($rules, true)) . '</pre>'
-                );
-            } else {
-                Messenger::addMessage(
-                    'warning',
-                    '<i>.htaccess</i> rules could not be written into your uploads folder (this is needed, because you have moved it outside your <i>wp-content</i> folder). ' .
-                        'Please grant write permmissions to you uploads folder. Otherwise uploaded mages will not be converted to webp'
-                );
-            }
-        }*/
+        HTAccess::showSaveRulesMessages($result['htaccess-result']);
     }
 }
 

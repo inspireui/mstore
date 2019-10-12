@@ -10,6 +10,8 @@ Calling Wordpress functions will FAIL. Make sure not to do that in either this c
 
 namespace WebPExpress;
 
+use \WebPConvert\Convert\Converters\Ewww;
+
 use \WebPExpress\ImageRoots;
 use \WebPExpress\Sanitize;
 use \WebPExpress\SanityCheck;
@@ -31,6 +33,42 @@ class WodConfigLoader
         header('X-WebP-Express-Error: ' . $msg, true);
         echo $msg;
         exit;
+    }
+
+    /**
+     *  Check if Apache handles the PHP requests (Note that duel setups are possible and ie Nginx could be handling the image requests).
+     */
+    public static function isApache()
+    {
+        return (stripos($_SERVER['SERVER_SOFTWARE'], 'apache') !== false);
+    }
+
+    protected static function isNginxHandlingImages()
+    {
+        if (stripos($_SERVER["SERVER_SOFTWARE"], 'nginx') !== false) {
+            return true;
+        }
+
+        // On WP Engine, SERVER_SOFTWARE is "Apache", but images are handled by NGINX.
+        if (isset($_SERVER['WPENGINE_ACCOUNT'])) {
+            return true;
+        };
+        return false;
+    }
+
+    public static function preventDirectAccess($filename)
+    {
+        // Protect against directly accessing webp-on-demand.php
+        // Only protect on Apache. We know for sure that the method is not reliable on nginx.
+        // We have not tested on litespeed yet, so we dare not.
+        if (self::isApache() && (!self::isNginxHandlingImages())) {
+            if (strpos($_SERVER['REQUEST_URI'], $filename) !== false) {
+                self::exitWithError(
+                    'It seems you are visiting this file (plugins/webp-express/wod/' . $filename . ') directly. We do not allow this.'
+                );
+                exit;
+            }
+        }
     }
 
     /**
@@ -177,4 +215,19 @@ class WodConfigLoader
         self::$wodOptions = self::$options['wod'];
     }
 
+    /**
+     *  Must be called after conversion.
+     */
+    protected static function fixConfigIfEwwwDiscoveredNonFunctionalApiKeys()
+    {
+        if (isset(Ewww::$nonFunctionalApiKeysDiscoveredDuringConversion)) {
+            // We got an invalid or exceeded api key (at least one).
+            //error_log('look:' . print_r(Ewww::$nonFunctionalApiKeysDiscoveredDuringConversion, true));
+            EwwwTools::markApiKeysAsNonFunctional(
+                Ewww::$nonFunctionalApiKeysDiscoveredDuringConversion,
+                self::$webExpressContentDirAbs . '/config'
+            );
+        }
+
+    }
 }

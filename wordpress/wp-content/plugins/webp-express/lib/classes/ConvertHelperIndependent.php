@@ -10,6 +10,7 @@ use \WebPConvert\WebPConvert;
 use \WebPConvert\Convert\ConverterFactory;
 use \WebPConvert\Exceptions\WebPConvertException;
 use \WebPConvert\Loggers\BufferLogger;
+
 use \WebPExpress\FileHelper;
 use \WebPExpress\SanityCheck;
 use \WebPExpress\SanityException;
@@ -569,7 +570,8 @@ APACHE
 
         $text = preg_replace('#' . preg_quote($_SERVER["DOCUMENT_ROOT"]) . '#', '[doc-root]', $text);
 
-        $text = 'WebP Express 0.15.3. ' . $msgTop . ', ' . date("Y-m-d H:i:s") . "\n\r\n\r" . $text;
+        // TODO: Put version number somewhere else. Ie \WebPExpress\VersionNumber::version
+        $text = 'WebP Express 0.17.2. ' . $msgTop . ', ' . date("Y-m-d H:i:s") . "\n\r\n\r" . $text;
 
         $logFile = self::getLogFilename($source, $logDir);
 

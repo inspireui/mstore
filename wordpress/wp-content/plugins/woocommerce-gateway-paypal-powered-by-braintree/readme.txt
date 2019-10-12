@@ -4,7 +4,7 @@ Tags: ecommerce, e-commerce, commerce, woothemes, wordpress ecommerce, store, sa
 Requires at least: 4.4
 Tested up to: 5.2.3
 Requires PHP: 5.4
-Stable tag: 2.2.7
+Stable tag: 2.3.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -123,6 +123,12 @@ New feature requests and bugs reports can be made in the plugin forum.
 7. Checkout with PayPal or credit / debit cards.
 
 == Changelog ==
+
+= 2019.10.03 - version 2.3.0 =
+* Feature - PayPal buy-now buttons can now be added to product pages
+* Tweak - Enable PayPal Credit by default on new installs
+* Fix - Fix a styling issue with the merchant account ID field in settings
+* Fix - Fix a bug with a regular expression being used in PHP 7.3+
 
 = 2019.09.12 - version 2.2.7 =
 * Fix - Fix JavaScript error blocking payments with 3D Secure from the Pay Order page
