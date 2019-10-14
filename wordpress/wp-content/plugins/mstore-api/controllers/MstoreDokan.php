@@ -59,7 +59,7 @@ class MStoreDokan extends WP_REST_Controller
     {
 
         register_rest_route($this->namespace, '/stores', array(
-            '',
+            'args'=>array(),
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'get_stores_handy'),
