@@ -3,7 +3,7 @@
  * Plugin Name: Mstore API
  * Plugin URI: https://github.com/inspireui/mstore-api
  * Description: The MStore API Plugin which is used for the Mstore and FluxStore App
- * Version: 1.3.7
+ * Version: 1.4.2
  * Author: InspireUI
  * Author URI: http://inspireui.com
  *
@@ -20,7 +20,7 @@ include plugin_dir_path(__FILE__)."templates/class-rename-generate.php";
 
 class MstoreCheckOut
 {
-    public $version = '1.3.7';
+    public $version = '1.4.2';
 
     public function __construct()
     {
@@ -31,17 +31,23 @@ class MstoreCheckOut
             return 0;
         }
 
+        $path = get_template_directory()."/templates";
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        $templatePath = plugin_dir_path(__FILE__)."templates/mstore-api-template.php";
+        if (!copy($templatePath,$path."/mstore-api-template.php")) {
+            return 0;
+        }
+
         $order = filter_has_var(INPUT_GET, 'order') && strlen(filter_input(INPUT_GET, 'order')) > 0 ? true : false;
         if ($order) {
             add_filter('woocommerce_is_checkout', '__return_true');
         }
 
-        include_once plugin_dir_path(__FILE__)."controllers/MstoreDokan.php";
-        /* Checkout Template*/
-//        require_once('templates/class-page-templater.php');
-        //        add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
-        // require_once __DIR__ . '/wp-templater/src/Templater.php';
-        // require_once __DIR__ . '/templates/class-mobile-detect.php';
+        include_once plugin_dir_path(__FILE__)."controllers/MStoreHome.php";
+        include_once plugin_dir_path(__FILE__)."controllers/MStoreDokan.php";
+
         add_action('wp_print_scripts', array($this, 'handle_received_order_page'));
     }
 
@@ -101,6 +107,26 @@ add_filter('json_api_controllers', 'registerJsonApiController');
 add_filter('json_api_mstore_user_controller_path', 'setMstoreUserControllerPath');
 add_action('init', 'json_apiCheckAuthCookie', 100);
 
+add_action( 'rest_api_init', 'my_register_route' );
+function my_register_route() {
+    register_rest_route( 'order', 'verify', array(
+                    'methods' => 'GET',
+                    'callback' => 'check_payment'
+                )
+            );
+}
+function check_payment() {
+    return true;
+}
+
+add_action('admin_menu', 'mstore_plugin_setup_menu');
+function mstore_plugin_setup_menu(){
+        add_menu_page( 'MStore Api', 'MStore Api', 'manage_options', 'mstore-plugin', 'mstore_init' );
+}
+function mstore_init(){
+    load_template( dirname( __FILE__ ) . '/templates/mstore-api-admin-page.php' );
+}
+
 function registerJsonApiController($aControllers)
 {
     $aControllers[] = 'Mstore_User';
@@ -123,4 +149,35 @@ function json_apiCheckAuthCookie()
             wp_set_current_user($user->ID, $user->user_login);
         }
     }
+    add_checkout_page();
 }
+
+function add_checkout_page() {
+    $page = get_page_by_title('Mstore Checkout');
+    if($page == null || strpos($page->post_name,"mstore-checkout") === false || $page->post_status != "publish") {
+        $my_post = array(
+            'post_type' => 'page',
+            'post_name' => 'mstore-checkout',
+            'post_title'    => 'Mstore Checkout',
+            'post_status'   => 'publish',
+            'post_author'   => 1,
+            'post_type'     => 'page'
+        );
+
+        // Insert the post into the database
+        $page_id = wp_insert_post( $my_post );
+        update_post_meta( $page_id, '_wp_page_template', 'templates/mstore-api-template.php' );
+    }
+    
+}
+
+/**
+ * Register the mstore caching endpoints so they will be cached.
+ */
+function wprc_add_mstore_endpoints( $allowed_endpoints ) {
+    if ( ! isset( $allowed_endpoints[ 'mstore/v1' ] ) || ! in_array( 'cache', $allowed_endpoints[ 'mstore/v1' ] ) ) {
+        $allowed_endpoints[ 'mstore/v1' ][] = 'cache';
+    }
+    return $allowed_endpoints;
+}
+add_filter( 'wp_rest_cache/allowed_endpoints', 'wprc_add_mstore_endpoints', 10, 1);

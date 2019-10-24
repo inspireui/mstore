@@ -8,9 +8,9 @@ Tags: mstore, react native, mobile plugin
 
 Requires at least: 4.0
 
-Tested up to: 4.6
+Tested up to: 5.3
 
-Stable tag: 1.0.0
+Stable tag: 1.4.0
 
 License: GPLv2 or later
 
@@ -36,6 +36,7 @@ Faster- Smoother- Closer.
 - Youtube Channel: https://www.youtube.com/inspireui
 
 
+
 == Installation ==
 
 = Manual Installation =
@@ -51,5 +52,11 @@ Faster- Smoother- Closer.
  2. Click Install.
 
 == Changelog ==
+= 1.4.0 =
+  * Update Caching
+
+= 1.2.0 =
+  * Update SMS Firebase Login
+
 = 1.0.0 =
   * First Release
