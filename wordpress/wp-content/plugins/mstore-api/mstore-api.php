@@ -3,7 +3,7 @@
  * Plugin Name: Mstore API
  * Plugin URI: https://github.com/inspireui/mstore-api
  * Description: The MStore API Plugin which is used for the Mstore and FluxStore App
- * Version: 1.4.2
+ * Version: 1.4.4
  * Author: InspireUI
  * Author URI: http://inspireui.com
  *
@@ -119,10 +119,15 @@ function check_payment() {
     return true;
 }
 
+
+
+// Add menu Setting
 add_action('admin_menu', 'mstore_plugin_setup_menu');
+
 function mstore_plugin_setup_menu(){
         add_menu_page( 'MStore Api', 'MStore Api', 'manage_options', 'mstore-plugin', 'mstore_init' );
 }
+
 function mstore_init(){
     load_template( dirname( __FILE__ ) . '/templates/mstore-api-admin-page.php' );
 }

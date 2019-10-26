@@ -105,16 +105,19 @@ class MStoreHome extends WP_REST_Controller
 
     function getProductsByLayout($layout, $api, $request)
     {
+        $params = array('order'=> 'desc', 'orderby' => 'date');
         if (isset($layout['category'])) {
-            $request->set_query_params(array('category'=>$layout['category']));
+            $params['category'] = $layout['category'];
         }
         if (isset($layout['tag'])) {
-            $request->set_query_params(array('tag'=>$layout['tag']));
+            $params['tag'] = $layout['tag'];
         }
         if (isset($layout['feature'])) {
-            $request->set_query_params(array('featured'=>$layout['feature']));
+            $params['feature'] = $layout['feature'];
         }
-        
+
+        $request->set_query_params($params);
+
         $response = $api->get_items($request);
         return $response->get_data();
     }
