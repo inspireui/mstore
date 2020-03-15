@@ -1,0 +1,118 @@
+{
+    "operation-mode": "varied-image-responses",
+    "image-types": 3,
+    "destination-folder": "separate",
+    "destination-extension": "append",
+    "destination-structure": "doc-root",
+    "cache-control": "no-header",
+    "cache-control-custom": "public, max-age=31536000, stale-while-revalidate=604800, stale-if-error=604800",
+    "cache-control-max-age": "one-week",
+    "cache-control-public": false,
+    "scope": [
+        "uploads",
+        "themes"
+    ],
+    "enable-redirection-to-converter": true,
+    "only-redirect-to-converter-on-cache-miss": false,
+    "only-redirect-to-converter-for-webp-enabled-browsers": true,
+    "do-not-pass-source-in-query-string": true,
+    "redirect-to-existing-in-htaccess": true,
+    "forward-query-string": false,
+    "enable-redirection-to-webp-realizer": true,
+    "jpeg-encoding": "auto",
+    "jpeg-enable-near-lossless": true,
+    "jpeg-near-lossless": 60,
+    "quality-auto": null,
+    "max-quality": 80,
+    "quality-specific": 70,
+    "png-encoding": "auto",
+    "png-enable-near-lossless": true,
+    "png-near-lossless": 60,
+    "png-quality": 85,
+    "alpha-quality": 80,
+    "converters": [
+        {
+            "converter": "cwebp",
+            "options": {
+                "use-nice": true,
+                "try-common-system-paths": true,
+                "try-supplied-binary-for-os": true,
+                "method": 6,
+                "low-memory": true,
+                "command-line-options": ""
+            }
+        },
+        {
+            "converter": "vips",
+            "options": {
+                "smart-subsample": false,
+                "preset": "none"
+            }
+        },
+        {
+            "converter": "imagemagick",
+            "options": {
+                "use-nice": true
+            }
+        },
+        {
+            "converter": "graphicsmagick",
+            "options": {
+                "use-nice": true
+            }
+        },
+        {
+            "converter": "wpc",
+            "options": []
+        },
+        {
+            "converter": "ewww",
+            "options": []
+        },
+        {
+            "converter": "imagick",
+            "options": []
+        },
+        {
+            "converter": "gmagick",
+            "options": []
+        },
+        {
+            "converter": "gd",
+            "options": {
+                "skip-pngs": false
+            }
+        }
+    ],
+    "metadata": "none",
+    "convert-on-upload": true,
+    "fail": "original",
+    "success-response": "converted",
+    "alter-html": {
+        "enabled": false,
+        "replacement": "picture",
+        "hooks": "ob",
+        "only-for-webp-enabled-browsers": true,
+        "only-for-webps-that-exists": false,
+        "alter-html-add-picturefill-js": true,
+        "hostname-aliases": []
+    },
+    "web-service": {
+        "enabled": false,
+        "whitelist": []
+    },
+    "environment-when-config-was-saved": {
+        "doc-root-available": null,
+        "doc-root-resolvable": null,
+        "doc-root-usable-for-structuring": null,
+        "image-roots": null
+    },
+    "base-htaccess-on-these-capability-tests": {
+        "passThroughHeaderWorking": false,
+        "passThroughEnvWorking": true,
+        "modHeaderWorking": true
+    },
+    "paths-used-in-htaccess": {
+        "wod-url-path": "wp-content/plugins/webp-express/wod/webp-on-demand.php"
+    }
+}

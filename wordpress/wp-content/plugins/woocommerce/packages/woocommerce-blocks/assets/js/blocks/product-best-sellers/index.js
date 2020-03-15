@@ -2,32 +2,39 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { createBlock, registerBlockType } from '@wordpress/blocks';
 import { without } from 'lodash';
 import Gridicon from 'gridicons';
+import { createBlock, registerBlockType } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
  */
 import Block from './block';
 import { deprecatedConvertToShortcode } from '../../utils/deprecations';
-import sharedAttributes, { sharedAttributeBlockTypes } from '../../utils/shared-attributes';
+import sharedAttributes, {
+	sharedAttributeBlockTypes,
+} from '../../utils/shared-attributes';
 
 registerBlockType( 'woocommerce/product-best-sellers', {
-	title: __( 'Best Selling Products', 'woo-gutenberg-products-block' ),
+	title: __( 'Best Selling Products', 'woocommerce' ),
 	icon: {
 		src: <Gridicon icon="stats-up-alt" />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
-	keywords: [ __( 'WooCommerce', 'woo-gutenberg-products-block' ) ],
+	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
 		'Display a grid of your all-time best selling products.',
-		'woo-gutenberg-products-block'
+		'woocommerce'
 	),
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+	},
+	example: {
+		attributes: {
+			isPreview: true,
+		},
 	},
 	attributes: {
 		...sharedAttributes,
@@ -37,11 +44,15 @@ registerBlockType( 'woocommerce/product-best-sellers', {
 		from: [
 			{
 				type: 'block',
-				blocks: without( sharedAttributeBlockTypes, 'woocommerce/product-best-sellers' ),
-				transform: ( attributes ) => createBlock(
-					'woocommerce/product-best-sellers',
-					attributes
+				blocks: without(
+					sharedAttributeBlockTypes,
+					'woocommerce/product-best-sellers'
 				),
+				transform: ( attributes ) =>
+					createBlock(
+						'woocommerce/product-best-sellers',
+						attributes
+					),
 			},
 		],
 	},
@@ -50,7 +61,9 @@ registerBlockType( 'woocommerce/product-best-sellers', {
 		{
 			// Deprecate shortcode save method in favor of dynamic rendering.
 			attributes: sharedAttributes,
-			save: deprecatedConvertToShortcode( 'woocommerce/product-best-sellers' ),
+			save: deprecatedConvertToShortcode(
+				'woocommerce/product-best-sellers'
+			),
 		},
 	],
 

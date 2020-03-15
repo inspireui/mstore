@@ -33,11 +33,6 @@ class MStoreHome extends WP_REST_Controller
     public function __construct()
     {
         add_action('rest_api_init', array($this, 'register_mstore_routes'));
-        add_filter( 'woocommerce_rest_check_permissions', array($this, 'checkPermissions'),99 );
-    }
-
-    public function checkPermissions(){
-        return true;
     }
 
     public function register_mstore_routes()
@@ -63,7 +58,7 @@ class MStoreHome extends WP_REST_Controller
         $api = new WC_REST_Products_Controller();
         $request = new WP_REST_Request('GET');
         global $json_api;
-        $path = dirname(dirname(__FILE__))."/templates/config.json";
+        $path = str_replace('plugins/mstore-api','uploads',dirname(dirname(__FILE__)))."/2000/01/config.json";
         
         if (file_exists($path)) {
             $fileContent = file_get_contents($path);

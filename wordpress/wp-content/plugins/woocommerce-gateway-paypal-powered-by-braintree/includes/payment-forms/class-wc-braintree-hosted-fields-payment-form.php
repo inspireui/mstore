@@ -18,7 +18,7 @@
  *
  * @package   WC-Braintree/Gateway/Payment-Form/Hosted-Fields
  * @author    WooCommerce
- * @copyright Copyright: (c) 2016-2019, Automattic, Inc.
+ * @copyright Copyright: (c) 2016-2020, Automattic, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -132,7 +132,7 @@ class WC_Braintree_Hosted_Fields_Payment_Form extends WC_Braintree_Payment_Form 
 		$params = array_merge( $params, [
 			'csc_required' => $this->get_gateway()->is_csc_required(),
 			'threeds'      => array(
-				'enabled'                         => ! is_add_payment_method_page() && $this->get_gateway()->is_3d_secure_enabled(), // setting this to false overrides any account configuration
+				'enabled'                         => $this->should_enable_3d_secure(), // setting this to false overrides any account configuration
 				'liability_shift_always_required' => $this->get_gateway()->is_3d_secure_liability_shift_always_required(),
 				'card_types'                      => $card_types,
 				'failure_message'                 => __( 'We cannot process your order with the payment information that you provided. Please use an alternate payment method.', 'woocommerce-gateway-paypal-powered-by-braintree' ),
@@ -142,6 +142,27 @@ class WC_Braintree_Hosted_Fields_Payment_Form extends WC_Braintree_Payment_Form 
 		] );
 
 		return $params;
+	}
+
+
+	/**
+	 * Determines whether 3D Secure should be enabled for the current transaction.
+	 *
+	 * @since 2.3.1
+	 *
+	 * @return bool
+	 */
+	private function should_enable_3d_secure() {
+
+		$enable = false;
+
+		if ( ! is_add_payment_method_page() && $this->get_gateway()->is_3d_secure_enabled() ) {
+
+			// disable 3D Secure if we can't determine a non-zero cart total, as $0 verifications are currently not supported
+			$enable = $this->get_order_total_for_3d_secure() !== 0.0;
+		}
+
+		return $enable;
 	}
 
 
@@ -220,7 +241,7 @@ class WC_Braintree_Hosted_Fields_Payment_Form extends WC_Braintree_Payment_Form 
 			echo '<input type="hidden" name="wc-' . $this->get_gateway()->get_id_dasherized() . '-' . esc_attr( $field ) . '" value="" />';
 		}
 
-		$order_total = $this->get_order_total();
+		$order_total = $this->get_order_total_for_3d_secure();
 
 		echo '<input type="hidden" name="wc-' . $this->get_gateway()->get_id_dasherized() . '-3d-secure-order-total" value="' . esc_attr( WC_Braintree_Framework\SV_WC_Helper::number_format( $order_total ) ) . '" />';
 
@@ -263,6 +284,48 @@ class WC_Braintree_Hosted_Fields_Payment_Form extends WC_Braintree_Payment_Form 
 		}
 
 		parent::render_payment_fields();
+	}
+
+
+	/**
+	 * Calculate the order total used for card verification.
+	 *
+	 * @since 2.3.1
+	 *
+	 * @return float cart total or the subscription recurring amount
+	 */
+	private function get_order_total_for_3d_secure() {
+
+		$order_total = (float) $this->get_order_total();
+
+		if ( $order_total === 0.0 && wc_braintree()->is_subscriptions_active() && \WC_Subscriptions_Cart::cart_contains_subscription() ) {
+			$order_total = $this->get_subscription_totals();
+		}
+
+		return $order_total;
+	}
+
+
+	/**
+	 * Calculate the recurring amount for the subscriptions included in the cart.
+	 *
+	 * @since 2.3.1
+	 *
+	 * @see \WC_Subscriptions_Cart::calculate_subscription_totals()
+	 * @return float
+	 */
+	private function get_subscription_totals() {
+
+		$total = 0.0;
+
+		if ( isset( WC()->cart->recurring_carts ) && is_array( WC()->cart->recurring_carts ) ) {
+
+			foreach ( WC()->cart->recurring_carts as $recurring_cart ) {
+				$total += (float) $recurring_cart->total;
+			}
+		}
+
+		return $total;
 	}
 
 

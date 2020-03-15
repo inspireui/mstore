@@ -55,7 +55,7 @@ class Plugin {
 	 */
 	public function __construct() {
 		$this->plugin_name = 'wp-rest-cache';
-		$this->version     = '2019.4.2';
+		$this->version     = '2020.1.1';
 
 		$this->set_locale();
 		$this->define_admin_hooks();
@@ -162,6 +162,7 @@ class Plugin {
 		add_action( 'comment_post', [ $caching, 'delete_comment_type_related_caches' ], 999, 2 );
 
 		add_action( 'wp_rest_cache_regenerate_cron', [ $caching, 'regenerate_expired_caches' ] );
+		add_action( 'wp_rest_cache_cleanup_deleted_caches', [ $caching, 'cleanup_deleted_caches' ] );
 	}
 
 	/**

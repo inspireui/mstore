@@ -8,9 +8,11 @@ Tags: mstore, react native, mobile plugin
 
 Requires at least: 4.0
 
-Tested up to: 5.3
+Tested up to: 5.3.2
 
-Stable tag: 1.4.0
+Requires PHP: 7.0
+
+Stable tag: trunk
 
 License: GPLv2 or later
 
@@ -51,12 +53,27 @@ Faster- Smoother- Closer.
 
  2. Click Install.
 
+== Frequently Asked Questions ==
+Please check out https://inspireui.com/faq
+
 == Changelog ==
+= 2.0.0 =
+  * Major update to remove the depend on JSON API plugins
+  * Add category caching API
+  * Fix security issues
+
 = 1.4.0 =
   * Update Caching
 
-= 1.2.0 =
-  * Update SMS Firebase Login
+= 1.3.0 =
+* Add firebase phone auth
 
+== Changelog ==
+= 1.2.0 =
+* Support FluxStore
+* Update SMS Firebase Login
+
+== Changelog ==
 = 1.0.0 =
-  * First Release
+* First Release
+* Support Mstore App

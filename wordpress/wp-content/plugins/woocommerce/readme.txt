@@ -1,10 +1,10 @@
 === WooCommerce ===
-Contributors: automattic, mikejolley, jameskoster, claudiosanches, kloon, rodrigosprimo, peterfabian1000, vedjain
+Contributors: automattic, mikejolley, jameskoster, claudiosanches, kloon, rodrigosprimo, peterfabian1000, vedjain, jamosova, obliviousharmony
 Tags: ecommerce, e-commerce, store, sales, sell, shop, cart, checkout, downloadable, downloads, payments, paypal, storefront, stripe, woo commerce, woo
-Requires at least: 4.9
-Tested up to: 5.2
-Requires PHP: 5.6
-Stable tag: 3.7.1
+Requires at least: 5.0
+Tested up to: 5.3
+Requires PHP: 7.0
+Stable tag: 4.0.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -179,116 +179,86 @@ INTERESTED IN DEVELOPMENT?
 
 == Changelog ==
 
-= 3.7.1 - 2019-10-09 =
-* Security - Add an exit after the redirect when checking author archive capabilities for customers.
-* Security - Ensure 404 pages with single product urls cannot be exploited using Open Redirect.
+= 4.0.0 - 2020-03-10 =
 
-= 3.7.0 - 2019-08-12 =
-* Enhancement - Added table ENGINE to system status report for debugging purposes. #23101
-* Enhancement - Format empty cart message as information notice. #23152
-* Enhancement - Add taxonomy-specific classes to active filters widget. #23122
-* Enhancement - Allow emails `Thanks` wording to be modified via the email settings. #22927
-* Enhancement - Move tax classes from WordPress Options to a new `wc_tax_rate_classes` table. #23093
-* Enhancement - Make WooCommerce shop roles translatable. #23150
-* Enhancement - Prevent the Cart, Checkout and My Account pages from being set to the same pages. #23479
-* Enhancement - New coupon code generate button on the coupon page. #24069
-* Enhancement - Add `tag_operator` paramater to the `[products]` shortcode for use with the `tag` paramater ie. `[products tag='tag1,tag2' tag_operator='AND']`. #24111
-* Tweak - When cleaning up variations due to product type change, force delete them instead of trashing. #23478
-* Tweak - Change wording on the link to change the address so reflect if an address is already present or not. #23532
-* Tweak - If variations are missing prices, show a notice in the product data panel. #23133
-* Tweak - Use `determine_locale()` to properly load custom translation files. #23785
-* Tweak - OBW: Switch shipping labels and shipping zones placement. #23781
-* Tweak - Show the quantity refunded on customer facing order screens. #23038
-* Tweak - CSV product import now allows true/false values for the published field, as well as the original 0 (private), -1 (draft), 1 (publish) values. #23207
-* Tweak - Update product attribute sorting tooltip to clarify usage. #23222
-* Tweak - Store tax rate percentage in the tax line items on orders. #23268
-* Tweak - Remove the left and right margin from the logo in emails. #23360
-* Tweak - Use the high res version of the WP spinner in the coupon Block UI. #23364
-* Tweak - Improve user registration validation messages. #23468
-* Tweak - Auto generate a new username when a username is blacklisted by WordPress. #23672
-* Tweak - Guest cart sessions now gets deleted when a user logs in, preventing duplicate cart sessions. #23687
-* Tweak - Include the store's base postcode and city when calculating order taxes. #23695
-* Tweak - Update the generate username setting description label to reflect how the username is actually generated. #23911
-* Tweak - OBW: Adjust plugin highlight container sizes to avoid overlap. #23997
-* Tweak - Round tax amounts late when the round at subtotal level setting is enabled to reduce rounding errors. #24024
-* Tweak - OBW: Now includes WooCommerce Admin as a recommended plugin. #24058 
-* Template - Review and update all template files escaping. #23460
-* Template - Remove mention of shipping section from the checkout/form-login.php template as shipping is not always a requirement for an order. #23941
-* Template - Add new filter `woocommerce_before_thankyou` to the checkout/thankyou.php template. #23538
-* Template - Add new `woocommerce_widget_shopping_cart_total` hook to replace hardcoded subtotal in cart/mini-cart.php template. #24145
-* Template - Add new `woocommerce_widget_shopping_cart_after_buttons` hook in cart/mini-cart.php template. #24145
-* Template - Add new `woocommerce_before_cart_collaterals` hook in cart/cart.php template. #24145
-* Template - Correct the plural forms usage in loop/result-count.php template. #24005
-* Dev - Introduce new PHP 5.6 minimum requirement. #23924
-* Dev - Introduce new WordPress 4.9 minimum requirement. #24156
-* Dev - Move the settings save functionality from the `settings_page_init` function to the `wp_loaded` action so it is not saved after the settings page renders. #23091
-* Dev - Add quantity input action hooks `woocommerce_before_add_to_cart_quantity` and `woocommerce_after_add_to_cart_quantity`. #23166
-* Dev - Add `$this` parameter to email class filters. #23250
-* Dev - Add new `WC_Abstract_Order::get_coupons()` method for returning all coupon line item objects on an order. #23663
-* Dev - Added new action `woocommerce_product_read` to `WC_Product_Data_Store_CPT::read()`. #23181
-* Dev - Add new filter `woocommerce_admin_order_buyer_name` to the `WC_Admin_List_Table_Orders::render_order_number_column()` method to change the buyer name in orders list screen. #23741
-* Dev - Add new actions to `WC_Helper` class for when WooCommerce.com Product Subscription statuses change `woocommerce_helper_subscription_activate_success`, `woocommerce_helper_subscription_activate_error`, `woocommerce_helper_subscription_deactivate_success`, and `woocommerce_helper_subscription_deactivate_error`. #23041
-* Dev - Extend usage and event tracking (if opted in) to system status, admin order and admin coupon pages. #23190 #23189 #23883
-* Dev - Add `woocommerce_after_X_object_save` actions, and passed objects to `woocommerce_new_x` and `woocommerce_update_x` actions. #23338
-* Dev - Update customer order and lifetime spend totals in `wc_update_new_customer_past_orders()` to trigger `customer.updated` webhooks for paid orders. #23402
-* Dev - Preserve the State field's custom css classes when selecting an option from the Country dropdown. #23433
-* Dev - Add new `woocommerce_product_related_posts_shuffle` filter in `wc_get_related_products()` to enable/disable related product shuffling, defaults to true. #23562
-* Dev - Deprecate the `WC_Abstract_Order::get_used_coupons()` method and replace it with a new method `WC_Abstract_Order::get_coupon_codes()`. #23689
-* Dev - Add new `woocommerce_prices_include_tax` filter in the `wc_prices_include_tax()` function. #23697
-* Dev - Add new `woocommerce_admin_after_product_gallery_item` filter in the `WC_Meta_Box_Product_Images::output()` method for adding additional markup after product gallery items. #23743
-* Dev - Remove unused images `assets/images/klarna-white.png` and `assets/images/square-white.png`. #23748
-* Dev - Move Free Shipping method JavaScript code from outputting on all shipping setting pages to just the Free Shipping page using the `admin_footer` hook. #23776
-* Dev - Prevent PHP fatal error while throwing exceptions in `woocommerce_rest_insert_{post_type}_object` hooks. #23793
-* Dev - Add new `woocommerce_enforce_password_strength_meter_on_checkout` filter in the `WC_Frontend_Scripts::get_script_data()` method to allow enforcing the password strength meter on checkout. #23811
-* Dev - Add new `woocommerce_search_products_post_statuses` filter in the `WC_Product_Data_Store_CPT::search_products()` method for controlling what post statuses to include in product searches. #23838
-* Dev - Allow filtering `woocommerce_order_formatted_shipping_address` even when no shipping address is defined. #23859
-* Dev - Change the query in the `WC_Product_Data_Store::find_matching_product_variation()` method to always respect the ordering of variations. #23881
-* Dev - Move all feature plugin features out from the WooCommerce codebase and utilize composer and an autoloader for including it in WooCommerce core, affects WC REST API and WC Blocks. #23957
-* Dev - Allow displaying multiple error messages through the registration validation. #23968
-* Dev - Add new `woocommerce_cart_item_removed_notice_type`, `woocommerce_cart_updated_notice_type` and `woocommerce_add_to_cart_notice_type` filters for changing the default notice types for cart notices. #24021
-* Dev - Add namespaced support for Jetpack 7.5 tracking library. #24140
-* Dev - Add support for an improved WooCommerce.com Marketplace browse and purchase experience (in progress). #24075 #24123
-* Dev - Added `$order` and `$product` as parameters to the `woocommerce_ajax_order_item` filter in `WC_Ajax::add_order_item()`. #24108
-* Dev - Add new `woocommerce_product_import_image_separator` filter in `WC_Product_CSV_Importer::parse_images_field()` for adjusting the product images seperator. #24120
-* Dev - Add new `woocommerce_widget_shopping_cart_subtotal()` template function that hooks into the `woocommerce_widget_shopping_cart_total` action to output the mini cart subtotal. #24145
-* Dev - Deprecate the `woocommerce_before_cart_item_quantity_zero` action from `WC_Cart::restore_cart_item()` in favor of existing `woocommerce_cart_item_removed` action. #23112
-* Dev - Deprecate WC_Tax::maybe_remove_tax_class_rates which hooked into the WP Options update hook for taxes in favor of new function WC_Tax::delete_tax_class_by which works on the new tax classes table. #24213
-* Fix - Use version_compare for determining the maximum WooCommerce database version number. #23092
-* Fix - Missing space and closing `<strong>` tag in WooCommerce.com disconnect message. #24073
-* Fix - CSV Importer - Skip rows during update if a SKU column exists, but the value is empty. #23262
-* Fix - Allow matching `Any` attributes when calling `WC_Product_Data_Store::find_matching_product_variation()`. #23067
-* Fix - Switch coupon amount validation based on decimal seperator setting. #23137
-* Fix - Show the correct results for shortcodes on static homepages when sorting. #23159
-* Fix - Queue AJAX add to cart events to avoid overwriting session data. #23293
-* Fix - Wrong subtotals when changing tax classes via the `woocommerce_product_get_tax_class` filter. #23344
-* Fix - Fatal error on plain text order emails where products were deleted. #23754
-* Fix - Do not pass the `no_shipping` argument to PayPal when the order contains shippable items. #23773
-* Fix - Product review form does respects the `require_name_email` WordPress core option. #23786
-* Fix - Do not cache expired sessions, negative expiry causes errors in some caching modules. #23863
-* Fix - WC_Log_Handler_DB logs now uses the same timestamp format as text logs, Y-m-d H:i:s. #23863
-* Fix - Display line breaks for customer notes in emails, and order details. #23969
-* Fix - Correct plural forms usage in `WC_Admin_Report` class. #24020
-* Fix - System status database info section throwing a PHP notice on some DB environments. #24023
-* Fix - On the system status database info section display a message informing users that WooCommerce was unable to get database information instead of an error, when a database sharding plugin is active. #24034
-* Fix - Usage and event tracking (if opted in) was not working correctly in the OBW. #24056
-* Fix - Fatal error on downloads report when some download files were missing. #24118
-* Fix - Prevents the taxes columns from being removed when the order is no longer editable in admin. #23884
-* Fix - State field overwritten with blank value when saving orders via wp-admin. #24301
-* Performance - Improve the speed of the admin dashboard by only updating transients once per class. #23011
-* Performance - Reduce number of queries needed to populate variations data by priming post caches. #23272
-* Performance - Persistant cart improvements, only update the persistent cart if the cart items actually change. #23112
-* Performance - Exclude `action_log` comment types from `wp_count_comments`. #24071
-* Localization - Added validation for Italian postcodes. #23269
-* Localization - Remove unused tax locale defaults since we now promote auto tax services instead. #23431
-* Localization - Define correct address format for Uganda. #23178
-* Localization - Hide the postcode and update the state label to "Province" for Mozambique. #23764
-* Localization - OBW: Make postal code optional based on locale data. #23915
-* Localization - Add new currency for São Tomé, Príncipe dobra and Mauritanian ouguiya. #23950
-* Localization - Change Canada poscode label to `Postal code`. #23740
+* Enhancement - Included information about packages in the System Status Report. #25584
+* Enhancement - New WooCommerce Admin. #25011
+* Enhancement - Update dependency woocommerce/woocommerce-blocks to v2.5.12 #25587
+* Enhancement - Updated Action Scheduler to 3.0.1. #25566
+* Enhancement - Update dependency woocommerce/woocommerce-admin to v0.25.1. #25620
+* Enhancement - Update dependency woocommerce/woocommerce-blocks to v2.5.13. #25696
+* Enhancement - Added the WC Admin enabled db update notice. #25736
+* Enhancement - Update Action Scheduler to version 3.1.1. #25745
+* Enhancement - Update dependency woocommerce/woocommerce-blocks to v2.5.14. #25807
+* Enhancement - Update dependency woocommerce/woocommerce-admin to v1.0. #25822
+* Enhancement - Update dependency woocommerce/action-scheduler to v3.1.2. #25859
+* Performance - Improved the client-side preparation for variation saving. #25382
+* Tweak - Enhance order details and payment summary. #25504
+* Tweak - Increase new onboarding group test to 50%. #25501
+* Tweak - Increased range and precision for `min_price` and `max_price` in the product meta lookup table. #25253
+* Tweak - Move action scheduler to external via composer. #25404
+* Tweak - Only update the customer IP address when order gets created from admin. #25137
+* Tweak - Remove WooCommerce Admin install alert. #25502
+* Tweak - Removed WC Admin from the Setup Wizard if it's already active. #25562
+* Tweak - Set email header table width to 100% for full width. #25294
+* Tweak - Simplified MaxMind integration title. #25522
+* Tweak - Update 'Country' to 'Country / Region' label. #25530
+* Tweak - WooCommerce.com plugins auto-install and update improvement. #25532
+* Fix - Add missing closing tag. #25319
+* Fix - Added validation to the cost field for flat rate shipping. #24919
+* Fix - Address in shipping calculator malformed for Canada. #25149
+* Fix - Adjusted package shipping rates to only be visible when a full address is entered. #25128
+* Fix - Check for WooCommerce Admin feature plugin class before adding install notice. #25395
+* Fix - Corrected the performance issues caused by the Cash-On-Delivery plugin's initialization process. #25512
+* Fix - Duplicate webhook deliveries. #25183
+* Fix - Fix fatal error that would occur when calling the WC_Payment_Gateways::set_current_gateway() function and there is no WC session. #25322
+* Fix - Fixed adding multiple items to cart from any product listing page. #24818
+* Fix - Fixed get_discount function return type. #25567
+* Fix - Fixed possible multiple is_vat_exempt order meta in order creation. #25426
+* Fix - Fixed wrong context help for translators. #25496
+* Fix - Make `WC_Shipping::is` package shippable less strict. #25386
+* Fix - Prevent undefined `wp_delete_user()` error while removing inactive accounts. #25489
+* Fix - Removed constants and autoloader from the uninstall script. #25589
+* Fix - Removed the lowercase conversion for product search terms that caused incorrect results to case sensitive searches. #25314
+* Fix - Restored the default behavior of "Shipping destination" option. #25571
+* Fix - Set image CSS on emails to be `max-width: 100%` so that they don't break the email template. #24764
+* Fix - Setup wizard shipping setup verification logic correction. #25540
+* Fix - Fixed typo in label. #25645
+* Fix - Added the missing "bestRating" and "worstRating" params to structured schema data. #25667
+* Fix - Replaced deprecated Jetpack::is_staging_site call. #25670
+* Fix - Avoid `Automattic\Jetpack\Constants` in main woocommerce class. #25697
+* Fix - Change the namespace of the WC Admin Package class and update WC Admin package. #25701
+* Fix - Unmark completed AS migration during the update to make sure AS migration happens. #25707
+* Fix - configure Jetpack plugin before trying to connect/register. #25742
+* Fix - Check configure exists before calling to support older JP versions. #25747
+* Fix - Prevent edited attribute notice being hidden by new dashboard. #25757
+* Fix - Corrected the cache invalidation behavior of order item CRUD actions. #25734
+* Fix - Don't show duplicated update notifications on Woo Screens. #25828
+* Fix - Escape MaxMind database URL. #25682
+* Fix - System status report should correctly identify inactive package. #25830
+* Dev - Added support for placeholder attribute in quantity inputs. #25418
+* Dev - Added `tax_status` and `tax_class` columns to the product meta data lookup table. #25428
+* Dev - Introduced `woocommerce_top_rated_widget_args` filter. #25320
+* Dev - Introduced `woocommerce_admin_process_variation_object` hook. #24929
+* Dev - Added actions before and after grouped product list to allow adding custom rows. #25093
+* Dev - Added filter to tweak whether a product has enough stock while attempting to pay for an order. #25230
+* Dev - Added the `automattic/jetpack-constants` package and replace PHP constant definition checks with it. #25516
+* Dev - Added a `triggerHandler` called `checkout_place_order_success` on a successful order during the checkout process. #25289
+* Dev - Allow filtering of default meta value inside `WC_Data::get_meta` even if meta key not found. #24066
+* Dev - Includes Emogrifier composer package instead of including into `includes/libraries`. #25525
+* Dev - Introduce `WC_Countries::get_vat_countries` for returning a list of countries that uses VAT and refactor `WC_Countries::get_european_union_countries` with backward compatibility and deprecation to remove the VAT functionality from there. Brexit, remove GB from `WC_Countries::get_european_union_countries`. #24943
+* Dev - Introduced `woocommerce_download_product_filepath` filter. #25485
+* Dev - Introduced `woocommerce_email_content_type` filter. #25405
+* Dev - Updated `woocommerce_email_from_name` and `woocommerce_email_from_address` filter arguments to include `wp_email()` default data. #25405
+* Dev - Introduced `woocommerce_shortcode_products_query_results` filter. #25573
+* Dev - Removed `hash_equals()` polyfill as it was no longer needed. #25474
+* Dev - Removed unused `.order-actions` CSS. #25581
+* Dev - Applies woocommerce_maxmind_geolocation_database_path in MaxMind database migration. #25681
+* Dev - Support both .data() and .dataset for formdata in add to cart requests. #25726
 
 [See changelog for all versions](https://raw.githubusercontent.com/woocommerce/woocommerce/master/CHANGELOG.txt).
 
 == Upgrade Notice ==
 
-= 3.0 =
-3.0 is a major update. Make a full site backup, update your theme and extensions, and [review update best practices](https://docs.woocommerce.com/document/how-to-update-your-site) before upgrading.
+= 4.0 =
+4.0 is a major update. Make a full site backup, update your theme and extensions, and [review update best practices](https://docs.woocommerce.com/document/how-to-update-your-site) before upgrading.

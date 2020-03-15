@@ -25,7 +25,9 @@ class Library {
 	 * Register blocks, hooking up assets and render functions as needed.
 	 */
 	public static function register_blocks() {
+		global $wp_version;
 		$blocks = [
+			'AllReviews',
 			'FeaturedCategory',
 			'FeaturedProduct',
 			'HandpickedProducts',
@@ -36,8 +38,19 @@ class Library {
 			'ProductOnSale',
 			'ProductsByAttribute',
 			'ProductTopRated',
+			'ReviewsByProduct',
+			'ReviewsByCategory',
+			'ProductSearch',
 			'ProductTag',
 		];
+		// @todo after refactoring dynamic block registration, this will be moved
+		// to block level config.
+		if ( version_compare( $wp_version, '5.2', '>' ) ) {
+			$blocks[] = 'AllProducts';
+			$blocks[] = 'PriceFilter';
+			$blocks[] = 'AttributeFilter';
+			$blocks[] = 'ActiveFilters';
+		}
 		foreach ( $blocks as $class ) {
 			$class    = __NAMESPACE__ . '\\BlockTypes\\' . $class;
 			$instance = new $class();

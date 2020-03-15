@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Automattic\\Jetpack\\Constants' => $vendorDir . '/automattic/jetpack-constants/src/class-constants.php',
     'WC_REST_CRUD_Controller' => $baseDir . '/packages/woocommerce-rest-api/src/Controllers/Version3/class-wc-rest-crud-controller.php',
     'WC_REST_Controller' => $baseDir . '/packages/woocommerce-rest-api/src/Controllers/Version3/class-wc-rest-controller.php',
     'WC_REST_Coupons_Controller' => $baseDir . '/packages/woocommerce-rest-api/src/Controllers/Version3/class-wc-rest-coupons-controller.php',

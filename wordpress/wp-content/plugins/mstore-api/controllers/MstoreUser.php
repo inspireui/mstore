@@ -31,6 +31,77 @@ class JSON_API_MStore_User_Controller
         // }
     }
 
+    public function upload_config() {
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+        require_once( ABSPATH . 'wp-admin/includes/file.php' );
+        require_once( ABSPATH . 'wp-admin/includes/media.php' );
+        require_once( ABSPATH . WPINC . '/functions.php');
+        $url = str_replace("plugins/mstore-api/controllers","uploads",dirname(__FILE__)).'/2000/01/config.json';
+        $delete = unlink($url);
+        $file = wp_handle_upload( $_FILES[ 'my_file_upload' ], array( 'test_form' => false ), '2000-01-01' );
+ 
+        if ( isset( $file['error'] ) ) {
+            return new WP_Error( 'upload_error', $file['error'] );
+        }
+         
+        return array(
+            "url" => $file['url'],
+            "time" => current_time('mysql'),
+            "delete" => $delete,
+            "path_delete" => $url
+        );
+    }
+
+    public function upload_media() {
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+        require_once( ABSPATH . 'wp-admin/includes/file.php' );
+        require_once( ABSPATH . 'wp-admin/includes/media.php' );
+
+        $attachment_id = media_handle_upload( 'my_image_upload', 0);
+             
+        if ( is_wp_error( $attachment_id ) ) {
+            echo 'There was an error uploading the image.';
+        } else {
+            return wp_get_attachment_url($attachment_id);
+        }
+    }
+
+    public function update_user_profile() {
+        global $json_api;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $json = file_get_contents('php://input');
+            $params = json_decode($json);
+        } else {
+            echo 'Not found url. :))';
+        }
+        if (!$params->user_id) {
+            $json_api->error("You must include a 'user_id' var in your request.");
+        }
+        $user_update = array( 'ID' => $params->user_id);
+        if ($params->user_pass) {
+            $user_update['user_pass'] = $params->user_pass;
+        }
+        if ($params->user_nicename) {
+            $user_update['user_nicename'] = $params->user_nicename;
+        }
+        if ($params->user_email) {
+            $user_update['user_email'] = $params->user_email;
+        }
+        if ($params->user_url) {
+            $user_update['user_url'] = $params->user_url;
+        }
+        if ($params->display_name) {
+            $user_update['display_name'] = $params->display_name;
+        }
+        $user_data = wp_update_user($user_update);
+ 
+        if ( is_wp_error( $user_data ) ) {
+          // There was an error; possibly this user doesn't exist.
+            echo 'Error.';
+        }
+        return get_userdata($params->user_id);
+    }
+
     public function register()
     {
         global $json_api;
@@ -292,6 +363,7 @@ class JSON_API_MStore_User_Controller
                 "nickname" => $user->nickname,
                 "description" => $user->user_description,
                 "capabilities" => $user->wp_capabilities,
+                "role" => $user->roles,
                 "avatar" => $avatar[1],
 
             ),
@@ -317,18 +389,7 @@ class JSON_API_MStore_User_Controller
 		}else{	
             $url='https://graph.facebook.com/me/?fields='.$fields.'&access_token='.$json_api->query->access_token;
                 
-                //  Initiate curl
-            $ch = curl_init();
-            // Enable SSL verification
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $enable_ssl);
-            // Will return the response, if false it print the response
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            // Set the url
-            curl_setopt($ch, CURLOPT_URL,$url);
-            // Execute
-            $result=curl_exec($ch);
-            // Closing
-            curl_close($ch);
+            $result = wp_remote_retrieve_body(wp_remote_get($url));
 
                 $result = json_decode($result, true);
                 
@@ -481,8 +542,74 @@ class JSON_API_MStore_User_Controller
         if (!$json_api->query->phone) {
             $json_api->error("You must include a 'phone' variable.");
         } else {
+            $domain = $_SERVER['SERVER_NAME'];
+            if (count(explode(".",$domain)) == 1) {
+                $domain = "mstore.io";
+            }
             $user_name = $json_api->query->phone;
-            $user_email = $json_api->query->phone."@mstore.io";
+            $user_email = $json_api->query->phone."@".$domain;
+            $email_exists = email_exists($user_email);
+            $user_pass = wp_generate_password($length = 12, $include_standard_special_chars = false);
+            if ($email_exists) {
+                $user = get_user_by('email', $user_email);
+                $user_id = $user->ID;
+                $user_name = $user->user_login;
+                wp_update_user( array( 'ID' => $user_id, 'user_pass' => $user_pass ) );
+            }
+
+
+            if (!$user_id && $email_exists == false) {
+
+                while (username_exists($user_name)) {
+                    $i++;
+                    $user_name = strtolower($user_name) . '.' . $i;
+
+                }
+
+                $userdata = array(
+                    'user_login' => $user_name,
+                    'user_email' => $user_email,
+                    'user_pass' => $user_pass,
+                    'display_name' => $user_name,
+                    'first_name' => $user_name,
+                    'last_name' => ""
+                );
+
+                $user_id = wp_insert_user($userdata);
+                if ($user_id) $user_account = 'user registered.';
+
+            } else {
+
+                if ($user_id) $user_account = 'user logged in.';
+            }
+            $user_info = get_userdata($user_id);
+
+            $expiration = time() + apply_filters('auth_cookie_expiration', 120960000, $user_id, true);
+            $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in');
+
+            $response['msg'] = $user_account;
+            $response['wp_user_id'] = $user_id;
+            $response['cookie'] = $cookie;
+            $response['user_login'] = $user_name;
+            $response['user'] = $user_info;
+            $response['user_pass'] = $user_pass;
+        }
+
+        return $response;
+
+    }
+
+    public function apple_login()
+    {
+
+        global $json_api;
+
+        if (!$json_api->query->email) {
+            $json_api->error("You must include a 'email' variable.");
+        } else {
+            $display_name = $json_api->query->display_name;
+            $user_name = $json_api->query->user_name;
+            $user_email = $json_api->query->email;
             $email_exists = email_exists($user_email);
 
             if ($email_exists) {
@@ -505,8 +632,8 @@ class JSON_API_MStore_User_Controller
                     'user_login' => $user_name,
                     'user_email' => $user_email,
                     'user_pass' => $random_password,
-                    'display_name' => $user_name,
-                    'first_name' => $user_name,
+                    'display_name' => $display_name,
+                    'first_name' => $display_name,
                     'last_name' => ""
                 );
 
@@ -530,6 +657,73 @@ class JSON_API_MStore_User_Controller
 
         return $response;
 
+    }
+
+    public function google_login()
+    {
+        global $json_api;
+	
+        if (!$json_api->query->access_token) {
+            $json_api->error("You must include a 'access_token' variable. Get the valid access_token for this app from Facebook API.");
+        } else {
+            $url = 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' . $json_api->query->access_token;
+
+            $result = wp_remote_retrieve_body(wp_remote_get($url));
+
+            $result = json_decode($result, true);
+            if (isset($result["email"])) {
+                $firstName = $result["given_name"];
+                $lastName = $result["family_name"];
+                $email = $result["email"];
+                $avatar = $result["picture"];
+
+                $display_name = $firstName." ".$lastName;
+                $user_name = $firstName.".".$lastName;
+                $user_email = $email;
+                $email_exists = email_exists($user_email);
+    
+                if ($email_exists) {
+                    $user = get_user_by('email', $user_email);
+                    $user_id = $user->ID;
+                    $user_name = $user->user_login;
+                }
+    
+                if (!$user_id && $email_exists == false) {
+                    while (username_exists($user_name)) {
+                        $i++;
+                        $user_name = strtolower($user_name) . '.' . $i;
+                    }
+    
+                    $random_password = wp_generate_password($length = 12, $include_standard_special_chars = false);
+                    $userdata = array(
+                        'user_login' => $user_name,
+                        'user_email' => $user_email,
+                        'user_pass' => $random_password,
+                        'display_name' => $display_name,
+                        'first_name' => $display_name,
+                        'last_name' => ""
+                    );
+    
+                    $user_id = wp_insert_user($userdata);
+                    if ($user_id) $user_account = 'user registered.';
+    
+                } else {
+                    if ($user_id) $user_account = 'user logged in.';
+                }
+    
+                $expiration = time() + apply_filters('auth_cookie_expiration', 120960000, $user_id, true);
+                $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in');
+    
+                $response['msg'] = $user_account;
+                $response['wp_user_id'] = $user_id;
+                $response['cookie'] = $cookie;
+                $response['user_login'] = $user_name;
+                $response['user'] = $result;
+                return $response;
+            }else{
+                $json_api->error("Your 'token' did not return email of the user. Without 'email' user can't be logged in or registered. Get user email extended permission while joining the Google app.");
+            }   
+        } 
     }
 
     /*
@@ -611,7 +805,8 @@ class JSON_API_MStore_User_Controller
 				"lastname" => $user->last_name,
 				"nickname" => $user->nickname,
 				"description" => $user->user_description,
-				"capabilities" => $user->wp_capabilities,
+                "capabilities" => $user->wp_capabilities,
+                "role" => $user->roles,
 				"avatar" => $avatar[1]
 			)
 		);

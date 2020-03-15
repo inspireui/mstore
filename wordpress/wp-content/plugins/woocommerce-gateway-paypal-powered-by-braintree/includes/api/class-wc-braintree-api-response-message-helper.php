@@ -18,7 +18,7 @@
  *
  * @package   WC-Braintree/Gateway/API/Response-Message-Helper
  * @author    WooCommerce
- * @copyright Copyright: (c) 2016-2019, Automattic, Inc.
+ * @copyright Copyright: (c) 2016-2020, Automattic, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 

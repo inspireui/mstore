@@ -2,8 +2,8 @@
 Contributors: razorpay
 Tags: razorpay, payments, india, woocommerce, ecommerce
 Requires at least: 3.9.2
-Tested up to: 5.2.2
-Stable tag: 2.2.0
+Tested up to: 5.2.4
+Stable tag: 2.4.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -40,6 +40,25 @@ This is compatible with WooCommerce>=2.4, including the new 3.0 release. It has 
 * Switches from WooCommerce side currency conversion to Razorpay's native multi currency support. 
 
 == Changelog ==
+
+= 2.4.0 =
+* Added webhook for handling refund create and change order status
+* Bug fix for cart is reset if payment fails or is cancelled
+* Tested upto WordPress 5.2.4 and WooCommerce 3.7.1
+
+= 2.3.2 =
+* Added RAZORPAY ORDER ID in order notes.
+* Tested upto WordPress 5.2.4 and WooCommerce 3.7.1
+
+= 2.3.1 =
+* Bug fix for hosted checkout.
+* Tested upto WordPress 5.2.4 and WooCommerce 3.7.1
+
+
+= 2.3.0 =
+* Support for hosted checkout.
+* Tested upto WordPress 5.2.4 and WooCommerce 3.7.1
+
 
 = 2.2.0 =
 * Adds webhook for handling subscription cancellation.

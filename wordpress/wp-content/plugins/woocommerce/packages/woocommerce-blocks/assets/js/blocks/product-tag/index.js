@@ -3,6 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
+import { DEFAULT_COLUMNS, DEFAULT_ROWS } from '@woocommerce/block-settings';
+import { IconProductTag } from '@woocommerce/block-components/icons';
 
 /**
  * Internal dependencies
@@ -14,20 +16,25 @@ import Block from './block';
  * Register and run the "Products by Tag" block.
  */
 registerBlockType( 'woocommerce/product-tag', {
-	title: __( 'Products by Tag', 'woo-gutenberg-products-block' ),
+	title: __( 'Products by Tag', 'woocommerce' ),
 	icon: {
-		src: 'tag',
+		src: <IconProductTag />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
-	keywords: [ __( 'WooCommerce', 'woo-gutenberg-products-block' ) ],
+	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
-		'Display a grid of products from selected tags.',
-		'woo-gutenberg-products-block'
+		'Display a grid of products from your selected tags.',
+		'woocommerce'
 	),
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+	},
+	example: {
+		attributes: {
+			isPreview: true,
+		},
 	},
 	attributes: {
 		/**
@@ -35,7 +42,7 @@ registerBlockType( 'woocommerce/product-tag', {
 		 */
 		columns: {
 			type: 'number',
-			default: wc_product_block_data.default_columns,
+			default: DEFAULT_COLUMNS,
 		},
 
 		/**
@@ -43,7 +50,7 @@ registerBlockType( 'woocommerce/product-tag', {
 		 */
 		rows: {
 			type: 'number',
-			default: wc_product_block_data.default_rows,
+			default: DEFAULT_ROWS,
 		},
 
 		/**
@@ -89,6 +96,14 @@ registerBlockType( 'woocommerce/product-tag', {
 		orderby: {
 			type: 'string',
 			default: 'date',
+		},
+
+		/**
+		 * Are we previewing?
+		 */
+		isPreview: {
+			type: 'boolean',
+			default: false,
 		},
 	},
 

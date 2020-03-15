@@ -18,7 +18,7 @@
  *
  * @package   WC-Braintree/Gateway/API/Requests/Customer
  * @author    WooCommerce
- * @copyright Copyright: (c) 2016-2019, Automattic, Inc.
+ * @copyright Copyright: (c) 2016-2020, Automattic, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -54,7 +54,7 @@ class WC_Braintree_API_Customer_Request extends WC_Braintree_API_Vault_Request {
 		$this->request_data = array(
 			'company'            => WC_Braintree_Framework\SV_WC_Order_Compatibility::get_prop( $order, 'billing_company' ),
 			'email'              => WC_Braintree_Framework\SV_WC_Order_Compatibility::get_prop( $order, 'billing_email' ),
-			'phone'              => WC_Braintree_Framework\SV_WC_Helper::str_truncate( preg_replace( '/[^\d-().]/', '', WC_Braintree_Framework\SV_WC_Order_Compatibility::get_prop( $order, 'billing_phone' ) ),  14, '' ),
+			'phone'              => WC_Braintree_Framework\SV_WC_Helper::str_truncate( preg_replace( '/[^\d\-().]/', '', WC_Braintree_Framework\SV_WC_Order_Compatibility::get_prop( $order, 'billing_phone' ) ),  14, '' ),
 			'firstName'          => WC_Braintree_Framework\SV_WC_Order_Compatibility::get_prop( $order, 'billing_first_name' ),
 			'lastName'           => WC_Braintree_Framework\SV_WC_Order_Compatibility::get_prop( $order, 'billing_last_name' ),
 			'paymentMethodNonce' => $order->payment->nonce,

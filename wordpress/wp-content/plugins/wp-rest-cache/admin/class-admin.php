@@ -87,11 +87,22 @@ class Admin {
 	 * Add a new menu item under Settings.
 	 */
 	public function create_menu() {
+		/**
+		 * Change who can see (and alter) the settings for the WP REST Cache.
+		 *
+		 * Allows to change the capability for the WP REST Cache settings page.
+		 *
+		 * @since 2019.4.3
+		 *
+		 * @param string $capability The capability for the settings page.
+		 */
+		$capability = apply_filters( 'wp_rest_cache/settings_capability', 'administrator' );
+
 		$hook = add_submenu_page(
 			'options-general.php',
 			'WP REST Cache',
 			'WP REST Cache',
-			'administrator',
+			$capability,
 			'wp-rest-cache',
 			[
 				$this,
@@ -175,6 +186,10 @@ class Admin {
 	 * Add a 'Clear REST cache' button to the wp-admin top bar.
 	 */
 	public function admin_bar_item() {
+		/** This filter is documented in the function create_menu(). */
+		if ( ! current_user_can( apply_filters( 'wp_rest_cache/settings_capability', 'administrator' ) ) ) {
+			return;
+		}
 		/**
 		 * Show or hide the 'Clear REST cache' button in the wp-admin bar.
 		 *

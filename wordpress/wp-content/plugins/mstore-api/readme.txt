@@ -1,27 +1,19 @@
 === MStore API ===
+Contributors:      InspireUI Ltd
+Tags:              mstore, fluxstore, react native, flutter, inspireui, ios, android
+Requires at least: 4.4
+Tested up to:      5.3
+Stable tag:        2.0.6
+License:           GPL-2.0
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Contributors: InsireUI
-
-Plugin link: https://github.com/inspireui/mstore-api
-
-Tags: mstore, react native, mobile plugin
-
-Requires at least: 4.0
-
-Tested up to: 4.6
-
-Stable tag: 1.3.0
-
-License: GPLv2 or later
-
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-
-
-The MStore Settings and APIs for supporting the mobile app by React Native framework
+The plugin is used for config the Mstore/FluxStore mobile and support RestAPI to connect to the app.
 
 == Description ==
 
 The plugin is used for config the Mstore/FluxStore mobile and support RestAPI to connect to the app.
+
+[youtube https://youtu.be/sYnHhnS5WnQ]
 
 Fluxstore is a universal e-commerce app inspired by Flutter framework, made by Google. With the mission of reducing thousands of hours of business spent on designing, developing and testing a mobile app, Fluxstore comes as a complete solution for optimizing to deliver your app to the market with high productivity and cost efficiency. It could be able to satisfy all of the business requirements including e-commerce functionalities, impressive UX design and smooth performance on both iOS and Android devices.
 
@@ -31,10 +23,12 @@ Either you are business people with raising sale ambition or developers with fas
 Faster- Smoother- Closer. 
 
 ### Reference links
-- Company Website: https://inspireui.com
-- iOS demo:	https://apps.apple.com/us/app/mstore-flutter/id1469772800
-- Android demo: https://play.google.com/store/apps/details?id=com.inspireui.fluxstore
-- Youtube Channel: https://www.youtube.com/inspireui
+- Company Website: [https://inspireui.com](https://inspireui.com)
+- App demo: [iOS](https://apps.apple.com/us/app/mstore-flutter/id1469772800), [Android](https://play.google.com/store/apps/details?id=com.inspireui.fluxstore)
+- Youtube Channel: [https://www.youtube.com/inspireui](https://www.youtube.com/inspireui)
+- Document: [https://docs.inspireui.com](https://docs.inspireui.com)
+- MStore website: [https://mstore.io](https://mstore.io)
+- Fluxstore website: [https://fluxstore.app](https://fluxstore.app)
 
 == Installation ==
 
@@ -49,12 +43,21 @@ Faster- Smoother- Closer.
 1. Click Install.
 
 == Changelog ==
+= 2.0.0 =
+  * Major update to remove the depend on JSON API plugins
+  * Add category caching API
+  * Fix security issues
+
+= 1.4.0 =
+  * Update Caching
+
 = 1.3.0 =
 * Add firebase phone auth
 
 == Changelog ==
 = 1.2.0 =
 * Support FluxStore
+* Update SMS Firebase Login
 
 == Changelog ==
 = 1.0.0 =

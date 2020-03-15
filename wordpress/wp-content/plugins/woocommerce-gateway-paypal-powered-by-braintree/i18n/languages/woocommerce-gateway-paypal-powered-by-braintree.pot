@@ -1,15 +1,15 @@
-# Copyright (C) 2019 WooCommerce
+# Copyright (C) 2020 WooCommerce
 # This file is distributed under the same license as the WooCommerce PayPal Powered by Braintree Gateway package.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce PayPal Powered by Braintree Gateway 2.3.0\n"
+"Project-Id-Version: WooCommerce PayPal Powered by Braintree Gateway 2.3.8\n"
 "Report-Msgid-Bugs-To: "
 "https://woocommerce.com/my-account/marketplace-ticket-form/\n"
-"POT-Creation-Date: 2019-10-03 05:34:51+00:00\n"
+"POT-Creation-Date: 2020-03-10 23:20:29+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
@@ -166,27 +166,35 @@ msgstr ""
 msgid "Allow customers to securely pay using their credit card via Braintree."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:179
-msgid "Basic"
+#: includes/class-wc-gateway-braintree-credit-card.php:169
+msgid "First name contains unsupported characters"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:180
-msgid "Advanced"
-msgstr ""
-
-#: includes/class-wc-gateway-braintree-credit-card.php:185
-msgid "Kount Direct"
-msgstr ""
-
-#: includes/class-wc-gateway-braintree-credit-card.php:192
-msgid "Fraud Settings"
-msgstr ""
-
-#: includes/class-wc-gateway-braintree-credit-card.php:196
-msgid "Fraud Tool"
+#: includes/class-wc-gateway-braintree-credit-card.php:170
+msgid "Last name contains unsupported characters"
 msgstr ""
 
 #: includes/class-wc-gateway-braintree-credit-card.php:199
+msgid "Basic"
+msgstr ""
+
+#: includes/class-wc-gateway-braintree-credit-card.php:200
+msgid "Advanced"
+msgstr ""
+
+#: includes/class-wc-gateway-braintree-credit-card.php:205
+msgid "Kount Direct"
+msgstr ""
+
+#: includes/class-wc-gateway-braintree-credit-card.php:212
+msgid "Fraud Settings"
+msgstr ""
+
+#: includes/class-wc-gateway-braintree-credit-card.php:216
+msgid "Fraud Tool"
+msgstr ""
+
+#: includes/class-wc-gateway-braintree-credit-card.php:219
 msgid ""
 "Select the fraud tool you want to use. Basic is enabled by default and "
 "requires no additional configuration. Advanced requires you to enable "
@@ -194,65 +202,65 @@ msgid ""
 "you must contact Braintree support."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:203
+#: includes/class-wc-gateway-braintree-credit-card.php:223
 msgid "Kount merchant ID"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:206
+#: includes/class-wc-gateway-braintree-credit-card.php:226
 msgid "Speak with your account management team at Braintree to get this."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:238
+#: includes/class-wc-gateway-braintree-credit-card.php:258
 msgid "3D Secure"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:240
+#: includes/class-wc-gateway-braintree-credit-card.php:260
 msgid ""
 "3D Secure benefits cardholders and merchants by providing an additional "
 "layer of verification using Verified by Visa, MasterCard SecureCode, and "
 "American Express SafeKey. %1$sLearn more about 3D Secure%2$s."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:243
+#: includes/class-wc-gateway-braintree-credit-card.php:263
 msgid "Level"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:245
+#: includes/class-wc-gateway-braintree-credit-card.php:265
 msgid "Only accept payments when the liability is shifted"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:248
+#: includes/class-wc-gateway-braintree-credit-card.php:268
 msgid "Standard"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:249
+#: includes/class-wc-gateway-braintree-credit-card.php:269
 msgid "Strict"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:253
+#: includes/class-wc-gateway-braintree-credit-card.php:273
 msgid "Supported Card Types"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:256
+#: includes/class-wc-gateway-braintree-credit-card.php:276
 msgid "3D Secure validation will only occur for these cards."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:278
+#: includes/class-wc-gateway-braintree-credit-card.php:298
 msgid "Card Verification (CSC)"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:279
+#: includes/class-wc-gateway-braintree-credit-card.php:299
 msgid "Display and Require the Card Security Code (CVV/CID) field on checkout"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:930
+#: includes/class-wc-gateway-braintree-credit-card.php:950
 #: includes/payment-forms/class-wc-braintree-hosted-fields-payment-form.php:138
 msgid ""
 "We cannot process your order with the payment information that you "
 "provided. Please use an alternate payment method."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree-credit-card.php:938
+#: includes/class-wc-gateway-braintree-credit-card.php:958
 #: includes/class-wc-gateway-braintree.php:157
 msgid ""
 "Oops, there was a temporary payment error. Please try another payment "
@@ -375,7 +383,7 @@ msgid "%1$s %2$s %3$s Approved"
 msgstr ""
 
 #: includes/class-wc-gateway-braintree-paypal.php:538
-#: includes/class-wc-gateway-braintree.php:1337
+#: includes/class-wc-gateway-braintree.php:1336
 msgid "Sandbox"
 msgstr ""
 
@@ -540,31 +548,31 @@ msgstr ""
 msgid "Click button to create an account with Braintree and start transacting."
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:607
+#: includes/class-wc-gateway-braintree.php:606
 msgid "Add merchant account ID for %s"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:614
+#: includes/class-wc-gateway-braintree.php:613
 msgid "Add merchant account ID"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:713
+#: includes/class-wc-gateway-braintree.php:712
 msgid "Add merchant account ID for "
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:811
+#: includes/class-wc-gateway-braintree.php:810
 msgid "Merchant Account ID (%s)"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:822
+#: includes/class-wc-gateway-braintree.php:821
 msgid "Enter merchant account ID"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:823
+#: includes/class-wc-gateway-braintree.php:822
 msgid "Remove this merchant account ID"
 msgstr ""
 
-#: includes/class-wc-gateway-braintree.php:1337
+#: includes/class-wc-gateway-braintree.php:1336
 msgid "Production"
 msgstr ""
 

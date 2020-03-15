@@ -5,7 +5,7 @@
  * From your plugin include this file with:
  * require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
  *
- * @package Automattic\Jetpack\Autoloader
+ * @package automattic/jetpack-autoloader
  */
 
 // phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
@@ -81,8 +81,10 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Automattic\Jetpack\Connection\Manager',
 						'Automattic\Jetpack\Connection\Manager_Interface',
 						'Automattic\Jetpack\Connection\XMLRPC_Connector',
+						'Jetpack_IXR_Client',
 						'Jetpack_Options',
 						'Jetpack_Signature',
+						'Jetpack_XMLRPC_Server',
 						'Automattic\Jetpack\Sync\Main',
 						'Automattic\Jetpack\Constants',
 						'Automattic\Jetpack\Tracking',
@@ -95,7 +97,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						esc_html( $class_name ),
 						sprintf(
 							/* translators: %s Name of a PHP Class */
-							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
+							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'woocommerce' ),
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$class_name
 						),
@@ -120,10 +122,23 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 /**
  * Prepare all the classes for autoloading.
  */
-function enqueue_packages_84c9dc95b0916398d61af1992eee291e() {
+function enqueue_packages_fc8506bec9c8680eacf0dbc12b90570e() {
 	$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 	foreach ( $class_map as $class_name => $class_info ) {
 		enqueue_package_class( $class_name, $class_info['version'], $class_info['path'] );
 	}
+
+	$autoload_file = __DIR__ . '/composer/autoload_files.php';
+	$includeFiles = file_exists( $autoload_file )
+		? require $autoload_file
+		: [];
+
+	foreach ( $includeFiles as $fileIdentifier => $file ) {
+		if ( empty( $GLOBALS['__composer_autoload_files'][ $fileIdentifier ] ) ) {
+			require $file;
+
+			$GLOBALS['__composer_autoload_files'][ $fileIdentifier ] = true;
+		}
+	}
 }
-enqueue_packages_84c9dc95b0916398d61af1992eee291e();
+enqueue_packages_fc8506bec9c8680eacf0dbc12b90570e();

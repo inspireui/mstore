@@ -2,9 +2,9 @@
 Contributors: automattic, akeda, allendav, royho, slash1andy, woosteve, spraveenitpro, mikedmoore, fernashes, shellbeezy, danieldudzic, dsmithweb, fullysupportedphil, corsonr, zandyring, skyverge
 Tags: ecommerce, e-commerce, commerce, woothemes, wordpress ecommerce, store, sales, sell, shop, shopping, cart, checkout, configurable, paypal, braintree
 Requires at least: 4.4
-Tested up to: 5.2.3
+Tested up to: 5.3.2
 Requires PHP: 5.4
-Stable tag: 2.3.0
+Stable tag: 2.3.8
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -123,6 +123,31 @@ New feature requests and bugs reports can be made in the plugin forum.
 7. Checkout with PayPal or credit / debit cards.
 
 == Changelog ==
+
+2020.03.10 - version 2.3.8
+ * Misc - Add support for WooCommerce 4.0
+
+= 2020.02.05 - version 2.3.7 =
+* Fix - Prevent error with payment fields shown in the Checkout page on WooCommerce 3.9 when the address fields are updated
+
+= 2020.01.05 - version 2.3.6 =
+* Misc - Add support for WooCommerce 3.9
+
+= 2019.12.12 - version 2.3.5 =
+* Fix - Fix redirect URL encoding when connecting via Braintree Auth
+
+= 2019.12.10 - version 2.3.4 =
+* Tweak - Display informative message when 3D Secure fails due to unsupported characters in the customer name
+
+= 2019.11.28 - version 2.3.3 =
+* Fix - Catch CardinalCommerce JS errors in unsupported browsers to prevent hung checkouts
+
+= 2019.10.21 - version 2.3.2 =
+* Misc - Add support for WooCommerce 3.8
+
+= 2019.10.16 - version 2.3.1 =
+* Fix - Prevent 3D Secure errors trying to purchase free trial subscriptions
+* Fix - Fix a bug with regular expressions being used in PHP 7.3+
 
 = 2019.10.03 - version 2.3.0 =
 * Feature - PayPal buy-now buttons can now be added to product pages

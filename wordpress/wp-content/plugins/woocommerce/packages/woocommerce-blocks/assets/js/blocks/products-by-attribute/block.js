@@ -18,14 +18,11 @@ import {
 import { Component, Fragment } from '@wordpress/element';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import GridContentControl from '../../components/grid-content-control';
-import GridLayoutControl from '../../components/grid-layout-control';
-import ProductAttributeControl from '../../components/product-attribute-control';
-import ProductOrderbyControl from '../../components/product-orderby-control';
+import GridContentControl from '@woocommerce/block-components/grid-content-control';
+import GridLayoutControl from '@woocommerce/block-components/grid-layout-control';
+import ProductAttributeTermControl from '@woocommerce/block-components/product-attribute-term-control';
+import ProductOrderbyControl from '@woocommerce/block-components/product-orderby-control';
+import { gridBlockPreview } from '@woocommerce/resource-previews';
 
 /**
  * Component to handle edit mode of "Products by Attribute".
@@ -46,7 +43,7 @@ class ProductsByAttributeBlock extends Component {
 		return (
 			<InspectorControls key="inspector">
 				<PanelBody
-					title={ __( 'Layout', 'woo-gutenberg-products-block' ) }
+					title={ __( 'Layout', 'woocommerce' ) }
 					initialOpen
 				>
 					<GridLayoutControl
@@ -57,28 +54,34 @@ class ProductsByAttributeBlock extends Component {
 					/>
 				</PanelBody>
 				<PanelBody
-					title={ __( 'Content', 'woo-gutenberg-products-block' ) }
+					title={ __( 'Content', 'woocommerce' ) }
 					initialOpen
 				>
 					<GridContentControl
 						settings={ contentVisibility }
-						onChange={ ( value ) => setAttributes( { contentVisibility: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { contentVisibility: value } )
+						}
 					/>
 				</PanelBody>
 				<PanelBody
 					title={ __(
 						'Filter by Product Attribute',
-						'woo-gutenberg-products-block'
+						'woocommerce'
 					) }
 					initialOpen={ false }
 				>
-					<ProductAttributeControl
+					<ProductAttributeTermControl
 						selected={ attributes }
 						onChange={ ( value = [] ) => {
-							const result = value.map( ( { id, attr_slug } ) => ( { // eslint-disable-line camelcase
-								id,
-								attr_slug,
-							} ) );
+							/* eslint-disable camelcase */
+							const result = value.map(
+								( { id, attr_slug } ) => ( {
+									id,
+									attr_slug,
+								} )
+							);
+							/* eslint-enable camelcase */
 							setAttributes( { attributes: result } );
 						} }
 						operator={ attrOperator }
@@ -88,7 +91,7 @@ class ProductsByAttributeBlock extends Component {
 					/>
 				</PanelBody>
 				<PanelBody
-					title={ __( 'Order By', 'woo-gutenberg-products-block' ) }
+					title={ __( 'Order By', 'woocommerce' ) }
 					initialOpen={ false }
 				>
 					<ProductOrderbyControl
@@ -108,7 +111,7 @@ class ProductsByAttributeBlock extends Component {
 			debouncedSpeak(
 				__(
 					'Showing Products by Attribute block preview.',
-					'woo-gutenberg-products-block'
+					'woocommerce'
 				)
 			);
 		};
@@ -116,21 +119,28 @@ class ProductsByAttributeBlock extends Component {
 		return (
 			<Placeholder
 				icon={ <Gridicon icon="custom-post-type" /> }
-				label={ __( 'Products by Attribute', 'woo-gutenberg-products-block' ) }
+				label={ __(
+					'Products by Attribute',
+					'woocommerce'
+				) }
 				className="wc-block-products-grid wc-block-products-by-attribute"
 			>
 				{ __(
 					'Display a grid of products from your selected attributes.',
-					'woo-gutenberg-products-block'
+					'woocommerce'
 				) }
 				<div className="wc-block-products-by-attribute__selection">
-					<ProductAttributeControl
+					<ProductAttributeTermControl
 						selected={ blockAttributes.attributes }
 						onChange={ ( value = [] ) => {
-							const result = value.map( ( { id, attr_slug } ) => ( { // eslint-disable-line camelcase
-								id,
-								attr_slug,
-							} ) );
+							/* eslint-disable camelcase */
+							const result = value.map(
+								( { id, attr_slug } ) => ( {
+									id,
+									attr_slug,
+								} )
+							);
+							/* eslint-enable camelcase */
 							setAttributes( { attributes: result } );
 						} }
 						operator={ blockAttributes.attrOperator }
@@ -139,7 +149,7 @@ class ProductsByAttributeBlock extends Component {
 						}
 					/>
 					<Button isDefault onClick={ onDone }>
-						{ __( 'Done', 'woo-gutenberg-products-block' ) }
+						{ __( 'Done', 'woocommerce' ) }
 					</Button>
 				</div>
 			</Placeholder>
@@ -150,6 +160,10 @@ class ProductsByAttributeBlock extends Component {
 		const { attributes, name, setAttributes } = this.props;
 		const { editMode } = attributes;
 
+		if ( attributes.isPreview ) {
+			return gridBlockPreview;
+		}
+
 		return (
 			<Fragment>
 				<BlockControls>
@@ -158,7 +172,8 @@ class ProductsByAttributeBlock extends Component {
 							{
 								icon: 'edit',
 								title: __( 'Edit' ),
-								onClick: () => setAttributes( { editMode: ! editMode } ),
+								onClick: () =>
+									setAttributes( { editMode: ! editMode } ),
 								isActive: editMode,
 							},
 						] }
@@ -169,7 +184,10 @@ class ProductsByAttributeBlock extends Component {
 					this.renderEditMode()
 				) : (
 					<Disabled>
-						<ServerSideRender block={ name } attributes={ attributes } />
+						<ServerSideRender
+							block={ name }
+							attributes={ attributes }
+						/>
 					</Disabled>
 				) }
 			</Fragment>

@@ -644,6 +644,9 @@ RewriteRule . - [L]
 ```
 If you got any further questions, look at, or comment on [this topic](https://wordpress.org/support/topic/can-i-make-an-exception-for-specific-post-image/)
 
+### Update failed and cannot reinstall
+The 0.17.0 release contained binaries with dots in their filenames, which caused the unpacking during update to fail on a few systems. This failure could leave an incomplete installation. With important files missing - such as the main plugin file - Wordpress no longer registers that the plugin is there (it is missing from the list). However, the folder is there in the file system and trying to install WebP Express again fails because Wordpress complains about just that. The solution is to remove the "webp-express" folder in "plugins" manually (via ftp or a plugin, such as File Manager) and then install WebP Express anew. The setting will be intact. The filenames that caused the trouble where fixed in 0.17.2.
+
 ### When is feature X coming? / Roadmap
 No schedule. I move forward as time allows. I currently spend a lot of time answering questions in the support forum. If someone would be nice and help out answering questions here, it would allow me to spend that time developing. Also, donations would allow me to turn down some of the more boring requests from my customers, and speed things up here.
 
@@ -651,11 +654,24 @@ Here are my current plans ahead: 0.17 will probably be a file manager-like inter
 
 If you wish to affect priorities, it is certainly possible. You can try to argue your case in the forum or you can simply let the money do the talking. By donating as little as a cup of coffee on [ko-fi.com/rosell](https://ko-fi.com/rosell), you can leave a wish. I shall take these wishes into account when prioritizing between new features.
 
+## 0.17.3
+*(released: 3 Feb 2020)*
+
+* Fixed critical bug: Fatal error after updating plugin (if one had been postponing updating WebP Express for a while and then updated Wordpress and THEN updated WebP Express)
+* A critical bug was fixed in the webp-convert library (PHP 7.4 related)
+* A critical bug was fixed in dom-util-for-webp library (PHP 7.4 related)
+* Alter HTML now processes the "poster" attribute in Video tags. Thanks to @MikhailRoot from Russia for the PR on github.
+* On some Litespeed hosts, WebP Express reported that mod_headers was not available even though it was. Thanks to @lubieowoce from Poland for the PR on github)
+
+For more info, see the closed issues on the 0.17.3 milestone on the github repository: https://github.com/rosell-dk/webp-express/milestone/31?closed=1
+
 ## Changes in 0.17.2
 *(released: 5 Oct 2019)*
 
 * Fixed bug: Updating plugin failed on some systems (in the unzip phase). Problem was introduced in 0.17.0 with the updated binaries.
 * Fixed bug: Alter HTML used the protocol (http/https) for the site for generated links (rather than keeping the protocol for the link). Thanks to Jacob Gullberg from Sweden for discovering this bug.
+
+If you experienced update problems due to the update bug, you will probably be left with an incomplete installation. Some of the plugin files are there, but not all. Especially, the main plugin file (webp-express.php) is missing, which means that Wordpress don't "see" the plugin (it is missing from the list). Trying to install WebP Express again will probably not work, because the "webp-express" folder is already there. You will then have to remove the "webp-express" folder in "plugins" manually (via ftp or a plugin, such as File Manager).
 
 For more info, see the closed issues on the 0.17.2 milestone on the github repository: https://github.com/rosell-dk/webp-express/milestone/29?closed=1
 

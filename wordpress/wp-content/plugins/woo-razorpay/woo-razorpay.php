@@ -3,10 +3,10 @@
  * Plugin Name: Razorpay for WooCommerce
  * Plugin URI: https://razorpay.com
  * Description: Razorpay Payment Gateway Integration for WooCommerce
- * Version: 2.2.0
- * Stable tag: 2.2.0
+ * Version: 2.4.0
+ * Stable tag: 2.4.0
  * Author: Team Razorpay
- * WC tested up to: 3.7.0
+ * WC tested up to: 3.7.1
  * Author URI: https://razorpay.com
 */
 
@@ -39,6 +39,7 @@ function woocommerce_razorpay_init()
         const RAZORPAY_PAYMENT_ID            = 'razorpay_payment_id';
         const RAZORPAY_ORDER_ID              = 'razorpay_order_id';
         const RAZORPAY_SIGNATURE             = 'razorpay_signature';
+        const RAZORPAY_WC_FORM_SUBMIT        = 'razorpay_wc_form_submit';
 
         const INR                            = 'INR';
         const CAPTURE                        = 'capture';
@@ -505,6 +506,11 @@ function woocommerce_razorpay_init()
 
             $woocommerce->session->set($sessionKey, $razorpayOrderId);
 
+            //update it in order comments
+            $order = new WC_Order($orderId);
+
+            $order->add_order_note("Razorpay OrderId: $razorpayOrderId");
+
             return $razorpayOrderId;
         }
 
@@ -566,12 +572,20 @@ function woocommerce_razorpay_init()
 
         private function enqueueCheckoutScripts($data)
         {
-            wp_register_script('razorpay_checkout',
-                'https://checkout.razorpay.com/v1/checkout.js',
+            if($data === 'checkoutForm')
+            {
+                wp_register_script('razorpay_wc_script', plugin_dir_url(__FILE__)  . 'script.js',
                 null, null);
-
-            wp_register_script('razorpay_wc_script', plugin_dir_url(__FILE__)  . 'script.js',
+            }
+            else
+            {
+                wp_register_script('razorpay_wc_script', plugin_dir_url(__FILE__)  . 'script.js',
                 array('razorpay_checkout'));
+
+                wp_register_script('razorpay_checkout',
+                    'https://checkout.razorpay.com/v1/checkout.js',
+                    null, null);
+            }
 
             wp_localize_script('razorpay_wc_script',
                 'razorpay_wc_checkout_vars',
@@ -581,15 +595,58 @@ function woocommerce_razorpay_init()
             wp_enqueue_script('razorpay_wc_script');
         }
 
+        private function hostCheckoutScripts($data)
+        {
+            $url = Api::getFullUrl("checkout/embedded");
+
+            $formFields = "";
+            foreach ($data as $fieldKey => $val) {
+                if(in_array($fieldKey, array('notes', 'prefill', '_')))
+                {
+                    foreach ($data[$fieldKey] as $field => $fieldVal) {
+                        $formFields .= "<input type='hidden' name='$fieldKey" ."[$field]"."' value='$fieldVal'> \n";
+                    }
+                }
+            }
+
+            return '<form method="POST" action="'.$url.'" id="checkoutForm">
+                    <input type="hidden" name="key_id" value="'.$data['key'].'">
+                    <input type="hidden" name="order_id" value="'.$data['order_id'].'">
+                    <input type="hidden" name="name" value="'.$data['name'].'">
+                    <input type="hidden" name="description" value="'.$data['description'].'">
+                    <input type="hidden" name="image" value="'.$data['preference']['image'].'">
+                    <input type="hidden" name="callback_url" value="'.$data['callback_url'].'">
+                    <input type="hidden" name="cancel_url" value="'.$data['cancel_url'].'">
+                    '. $formFields .'
+                </form>';
+
+        }
+
+
         /**
          * Generates the order form
          **/
         function generateOrderForm($data)
         {
             $redirectUrl = $this->getRedirectUrl();
-            $this->enqueueCheckoutScripts($data);
+            $data['cancel_url'] = wc_get_checkout_url();
 
-            return <<<EOT
+            $api = new Api($this->getSetting('key_id'),"");
+
+            $merchantPreferences = $api->request->request("GET", "preferences");
+
+            if(isset($merchantPreferences['options']['redirect']) && $merchantPreferences['options']['redirect'] === true)
+            {
+                $this->enqueueCheckoutScripts('checkoutForm');
+
+                $data['preference']['image'] = $merchantPreferences['options']['image'];
+
+                return $this->hostCheckoutScripts($data);
+
+            } else {
+                $this->enqueueCheckoutScripts($data);
+
+                return <<<EOT
 <form name='razorpayform' action="$redirectUrl" method="POST">
     <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
     <input type="hidden" name="razorpay_signature"  id="razorpay_signature" >
@@ -604,6 +661,7 @@ Please wait while we are processing your payment.
     <button id="btn-razorpay-cancel" onclick="document.razorpayform.submit()">Cancel</button>
 </p>
 EOT;
+            }
         }
 
         /**
@@ -739,9 +797,22 @@ EOT;
             }
             else
             {
-                $success = false;
-                $error = 'Customer cancelled the payment';
+                if($_POST[self::RAZORPAY_WC_FORM_SUBMIT] ==1)
+                {
+                    $success = false;
+                    $error = 'Customer cancelled the payment';
+                }
+                else
+                {
+                    $success = false;
+                    $error = "Payment Failed.";
+                }
+
                 $this->handleErrorCase($order);
+                $this->updateOrder($order, $success, $error, $razorpayPaymentId);
+
+                wp_redirect(wc_get_checkout_url());
+                exit;
             }
 
             $this->updateOrder($order, $success, $error, $razorpayPaymentId);

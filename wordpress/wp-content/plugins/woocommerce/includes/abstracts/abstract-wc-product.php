@@ -1517,11 +1517,11 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		if ( '' !== (string) $this->get_sale_price( $context ) && $this->get_regular_price( $context ) > $this->get_sale_price( $context ) ) {
 			$on_sale = true;
 
-			if ( $this->get_date_on_sale_from( $context ) && $this->get_date_on_sale_from( $context )->getTimestamp() > current_time( 'timestamp', true ) ) {
+			if ( $this->get_date_on_sale_from( $context ) && $this->get_date_on_sale_from( $context )->getTimestamp() > time() ) {
 				$on_sale = false;
 			}
 
-			if ( $this->get_date_on_sale_to( $context ) && $this->get_date_on_sale_to( $context )->getTimestamp() < current_time( 'timestamp', true ) ) {
+			if ( $this->get_date_on_sale_to( $context ) && $this->get_date_on_sale_to( $context )->getTimestamp() < time() ) {
 				$on_sale = false;
 			}
 		} else {
@@ -1859,7 +1859,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		}
 
 		if ( ! $image && $placeholder ) {
-			$image = wc_placeholder_img( $size );
+			$image = wc_placeholder_img( $size, $attr );
 		}
 
 		return apply_filters( 'woocommerce_product_get_image', $image, $this, $size, $attr, $placeholder, $image );
@@ -2002,6 +2002,8 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 			$availability = __( 'Out of stock', 'woocommerce' );
 		} elseif ( $this->managing_stock() && $this->is_on_backorder( 1 ) ) {
 			$availability = $this->backorders_require_notification() ? __( 'Available on backorder', 'woocommerce' ) : '';
+		} elseif ( ! $this->managing_stock() && $this->is_on_backorder( 1 ) ) {
+			$availability = __( 'Available on backorder', 'woocommerce' );
 		} elseif ( $this->managing_stock() ) {
 			$availability = wc_format_stock_for_display( $this );
 		} else {
@@ -2018,7 +2020,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	protected function get_availability_class() {
 		if ( ! $this->is_in_stock() ) {
 			$class = 'out-of-stock';
-		} elseif ( $this->managing_stock() && $this->is_on_backorder( 1 ) ) {
+		} elseif ( ( $this->managing_stock() && $this->is_on_backorder( 1 ) ) || ( ! $this->managing_stock() && $this->is_on_backorder( 1 ) ) ) {
 			$class = 'available-on-backorder';
 		} else {
 			$class = 'in-stock';

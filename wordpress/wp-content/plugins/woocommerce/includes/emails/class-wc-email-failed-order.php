@@ -29,7 +29,7 @@ if ( ! class_exists( 'WC_Email_Failed_Order', false ) ) :
 		public function __construct() {
 			$this->id             = 'failed_order';
 			$this->title          = __( 'Failed order', 'woocommerce' );
-			$this->description    = __( 'Failed order emails are sent to chosen recipient(s) when orders have been marked failed (if they were previously processing or on-hold).', 'woocommerce' );
+			$this->description    = __( 'Failed order emails are sent to chosen recipient(s) when orders have been marked failed (if they were previously pending or on-hold).', 'woocommerce' );
 			$this->template_html  = 'emails/admin-failed-order.php';
 			$this->template_plain = 'emails/plain/admin-failed-order.php';
 			$this->placeholders   = array(
@@ -139,7 +139,7 @@ if ( ! class_exists( 'WC_Email_Failed_Order', false ) ) :
 		 * @return string
 		 */
 		public function get_default_additional_content() {
-			return __( 'Hopefully they’ll be back. Read more about <a href="https://docs.woocommerce.com/document/managing-orders/#section-10">troubleshooting failed payments</a>.', 'woocommerce' );
+			return __( 'Hopefully they’ll be back. Read more about <a href="https://docs.woocommerce.com/document/managing-orders/">troubleshooting failed payments</a>.', 'woocommerce' );
 		}
 
 		/**
@@ -149,13 +149,13 @@ if ( ! class_exists( 'WC_Email_Failed_Order', false ) ) :
 			/* translators: %s: list of placeholders */
 			$placeholder_text  = sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>' . esc_html( implode( '</code>, <code>', array_keys( $this->placeholders ) ) ) . '</code>' );
 			$this->form_fields = array(
-				'enabled'    => array(
+				'enabled'            => array(
 					'title'   => __( 'Enable/Disable', 'woocommerce' ),
 					'type'    => 'checkbox',
 					'label'   => __( 'Enable this email notification', 'woocommerce' ),
 					'default' => 'yes',
 				),
-				'recipient'  => array(
+				'recipient'          => array(
 					'title'       => __( 'Recipient(s)', 'woocommerce' ),
 					'type'        => 'text',
 					/* translators: %s: WP admin email */
@@ -164,7 +164,7 @@ if ( ! class_exists( 'WC_Email_Failed_Order', false ) ) :
 					'default'     => '',
 					'desc_tip'    => true,
 				),
-				'subject'    => array(
+				'subject'            => array(
 					'title'       => __( 'Subject', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -172,7 +172,7 @@ if ( ! class_exists( 'WC_Email_Failed_Order', false ) ) :
 					'placeholder' => $this->get_default_subject(),
 					'default'     => '',
 				),
-				'heading'    => array(
+				'heading'            => array(
 					'title'       => __( 'Email heading', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -189,7 +189,7 @@ if ( ! class_exists( 'WC_Email_Failed_Order', false ) ) :
 					'default'     => $this->get_default_additional_content(),
 					'desc_tip'    => true,
 				),
-				'email_type' => array(
+				'email_type'         => array(
 					'title'       => __( 'Email type', 'woocommerce' ),
 					'type'        => 'select',
 					'description' => __( 'Choose which format of email to send.', 'woocommerce' ),

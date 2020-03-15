@@ -26,8 +26,9 @@ class RZP_Webhook
     const PAYMENT_AUTHORIZED        = 'payment.authorized';
     const PAYMENT_FAILED            = 'payment.failed';
     const SUBSCRIPTION_CANCELLED    = 'subscription.cancelled';
+    const REFUNDED_CREATED          = 'refund.created';
 
-    function __construct()
+    public function __construct()
     {
         $this->razorpay = new WC_Razorpay(false);
 
@@ -41,10 +42,14 @@ class RZP_Webhook
      *
      * It passes on the webhook in the following cases:
      * - invoice_id set in payment.authorized
+     * - order refunded
      * - Invalid JSON
      * - Signature mismatch
      * - Secret isn't setup
      * - Event not recognized
+     *
+     * @return void|WP_Error
+     * @throws Exception
      */
     public function process()
     {
@@ -102,6 +107,9 @@ class RZP_Webhook
 
                     case self::SUBSCRIPTION_CANCELLED:
                         return $this->subscriptionCancelled($data);
+
+                    case self::REFUNDED_CREATED:
+                        return $this->refundedCreated($data);
 
                     default:
                         return;
@@ -247,5 +255,89 @@ class RZP_Webhook
         }
 
         return (int) round($order->order_total * 100);
+    }
+
+    /**
+     * Process Order Refund through Webhook
+     * @param array $data
+     * @return void|WP_Error
+     * @throws Exception
+     */
+    public function refundedCreated(array $data)
+    {
+        // We don't process subscription/invoice payments here
+        if (isset($data['payload']['payment']['entity']['invoice_id']) === true)
+        {
+            return;
+        }
+
+        $razorpayPaymentId = $data['payload']['refund']['entity']['payment_id'];
+
+        $payment = $this->getPaymentEntity($razorpayPaymentId, $data);
+
+        //
+        // Order entity should be sent as part of the webhook payload
+        //
+        $orderId = $payment['notes']['woocommerce_order_id'];
+
+        $order = new WC_Order($orderId);
+
+        // If it is already marked as unpaid, ignore the event
+        if ($order->needs_payment() === true)
+        {
+            return;
+        }
+
+        // If it's something else such as a WC_Order_Refund, we don't want that.
+        if( ! is_a( $order, 'WC_Order') )
+        {
+            $log = array(
+                'Error' =>  'Provided ID is not a WC Order',
+            );
+
+            error_log(json_encode($log));
+        }
+
+        if( 'refunded' == $order->get_status() )
+        {
+            $log = array(
+                'Error' =>  'Order has been already refunded for Order Id -'. $orderId,
+            );
+
+            error_log(json_encode($log));
+        }
+
+        $refund_amount = round(($data['payload']['refund']['entity']['amount'] / 100), 2);
+
+        $refund_reason = $data['payload']['refund']['entity']['notes']['comment'];
+
+        try
+        {
+            wc_create_refund( array(
+                'amount'         => $refund_amount,
+                'reason'         => $refund_reason,
+                'order_id'       => $orderId,
+                'line_items'     => array(),
+                'refund_payment' => false
+            ));
+
+        }
+        catch (Exception $e)
+        {
+            //
+            // Capture will fail if the payment is already captured
+            //
+            $log = array(
+                'message' => $e->getMessage(),
+                'payment_id' => $razorpayPaymentId,
+                'event' => $data['event']
+            );
+
+            error_log(json_encode($log));
+
+        }
+
+        // Graceful exit since payment is now refunded.
+        exit();
     }
 }

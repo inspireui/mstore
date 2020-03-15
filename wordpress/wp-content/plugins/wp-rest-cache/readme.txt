@@ -2,7 +2,7 @@
 Contributors: acato, rockfire, yoeridekker
 Tags: cache, wp-rest, wp-rest-api, api, rest, rest cache, rest api cache
 Requires at least: 4.7
-Tested up to: 5.2
+Tested up to: 5.4
 Requires PHP: 5.5
 Stable tag: trunk
 License: GPLv3
@@ -147,6 +147,16 @@ Yes you can! There are two options for this:
 }
 add_filter('wp_rest_cache/cacheable_request_headers', 'wprc_add_cacheable_request_headers', 10, 1);`
 
+= Can I change which users can change the settings and flush caches? =
+
+Yes you can! Use the hook `wp_rest_cache/settings_capability` like this:
+
+`function wprc_change_settings_capability( $capability ) {
+    // Change the capability to users who can edit posts.
+    return 'edit_posts';
+}
+add_filter('wp_rest_cache/settings_capability', 'wprc_change_settings_capability', 10, 1);`
+
 == Screenshots ==
 
 1. Settings for the WP REST Cache plugin.
@@ -157,8 +167,39 @@ add_filter('wp_rest_cache/cacheable_request_headers', 'wprc_add_cacheable_reques
 
 == Changelog ==
 
+= 2020.1.1 =
+Release Date: March 12th, 2020
+
+Bugfix: Allow usage of rest_route parameter.
+Bugfix: WordPress database error: specified key was too long.
+
+= 2020.1.0 =
+Release Date: January 16th, 2020
+
+Feature: Added a filter to ignore specific query string parameters.
+Feature: Make allowed request methods filterable.
+Bugfix: Make options not autoload.
+
+= 2019.4.5 =
+Release Date: November 22nd, 2019
+
+Bugfix: Do not update database table on each load.
+Bugfix: WordPress database error: specified key was too long.
+
+= 2019.4.4 =
+Release Date: November 14th, 2019
+
+Hotfix: Fixing WordPress database error.
+
+= 2019.4.3 =
+Release Date: November 12th, 2019
+
+Feature: Added filter for Settings page capability.
+Bugfix: Problem with non-existing tables after multisite duplication.
+
 = 2019.4.2 =
 Release Date: October 15th, 2019
+
 Bugfix: Prevent fatal error after WordPress security update.
 
 = 2019.4.1 =

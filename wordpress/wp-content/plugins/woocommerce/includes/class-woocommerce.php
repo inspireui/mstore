@@ -20,7 +20,7 @@ final class WooCommerce {
 	 *
 	 * @var string
 	 */
-	public $version = '3.7.1';
+	public $version = '4.0.0';
 
 	/**
 	 * The single instance of the class.
@@ -199,7 +199,7 @@ final class WooCommerce {
 	 */
 	public function log_errors() {
 		$error = error_get_last();
-		if ( in_array( $error['type'], array( E_ERROR, E_PARSE, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR ), true ) ) {
+		if ( $error && in_array( $error['type'], array( E_ERROR, E_PARSE, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR ), true ) ) {
 			$logger = wc_get_logger();
 			$logger->critical(
 				/* translators: 1: error message 2: file name and path 3: line number */
@@ -229,8 +229,9 @@ final class WooCommerce {
 		$this->define( 'WC_LOG_DIR', $upload_dir['basedir'] . '/wc-logs/' );
 		$this->define( 'WC_SESSION_CACHE_GROUP', 'wc_session_id' );
 		$this->define( 'WC_TEMPLATE_DEBUG_MODE', false );
-		$this->define( 'WC_NOTICE_MIN_PHP_VERSION', '5.6.20' );
-		$this->define( 'WC_NOTICE_MIN_WP_VERSION', '4.9' );
+		$this->define( 'WC_NOTICE_MIN_PHP_VERSION', '7.0' );
+		$this->define( 'WC_NOTICE_MIN_WP_VERSION', '5.0' );
+		$this->define( 'WC_PHP_MIN_REQUIREMENTS_NOTICE', 'wp_php_min_requirements_' . WC_NOTICE_MIN_PHP_VERSION . '_' . WC_NOTICE_MIN_WP_VERSION );
 	}
 
 	/**
@@ -337,6 +338,11 @@ final class WooCommerce {
 		include_once WC_ABSPATH . 'includes/interfaces/class-wc-queue-interface.php';
 
 		/**
+		 * Core traits.
+		 */
+		include_once WC_ABSPATH . 'includes/traits/trait-wc-item-totals.php';
+
+		/**
 		 * Abstract classes.
 		 */
 		include_once WC_ABSPATH . 'includes/abstracts/abstract-wc-data.php';
@@ -440,9 +446,9 @@ final class WooCommerce {
 		include_once WC_ABSPATH . 'includes/wccom-site/class-wc-wccom-site.php';
 
 		/**
-		 * Libraries
+		 * Libraries and packages.
 		 */
-		include_once WC_ABSPATH . 'includes/libraries/action-scheduler/action-scheduler.php';
+		include_once WC_ABSPATH . 'packages/action-scheduler/action-scheduler.php';
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			include_once WC_ABSPATH . 'includes/class-wc-cli.php';
@@ -472,7 +478,7 @@ final class WooCommerce {
 	 * @since 3.3.0
 	 */
 	private function theme_support_includes() {
-		if ( wc_is_active_theme( array( 'twentynineteen', 'twentyseventeen', 'twentysixteen', 'twentyfifteen', 'twentyfourteen', 'twentythirteen', 'twentyeleven', 'twentytwelve', 'twentyten' ) ) ) {
+		if ( wc_is_wp_default_theme_active() ) {
 			switch ( get_template() ) {
 				case 'twentyten':
 					include_once WC_ABSPATH . 'includes/theme-support/class-wc-twenty-ten.php';
@@ -500,6 +506,9 @@ final class WooCommerce {
 					break;
 				case 'twentynineteen':
 					include_once WC_ABSPATH . 'includes/theme-support/class-wc-twenty-nineteen.php';
+					break;
+				case 'twentytwenty':
+					include_once WC_ABSPATH . 'includes/theme-support/class-wc-twenty-twenty.php';
 					break;
 			}
 		}
@@ -872,5 +881,15 @@ final class WooCommerce {
 			'https://github.com/woocommerce/woocommerce/releases'
 		);
 		printf( '<div class="error"><p>%s %s</p></div>', $message_one, $message_two ); /* WPCS: xss ok. */
+	}
+
+	/**
+	 * Is the WooCommerce Admin actively included in the WooCommerce core?
+	 * Based on presence of a basic WC Admin function.
+	 *
+	 * @return boolean
+	 */
+	public function is_wc_admin_active() {
+		return function_exists( 'wc_admin_url' );
 	}
 }

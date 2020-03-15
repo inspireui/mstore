@@ -153,7 +153,7 @@ class WC_Settings_Advanced extends WC_Settings_Page {
 						'id'    => 'checkout_process_options',
 					),
 
-					'force_ssl_checkout' => array(
+					'force_ssl_checkout'   => array(
 						'title'           => __( 'Secure checkout', 'woocommerce' ),
 						'desc'            => __( 'Force secure checkout', 'woocommerce' ),
 						'id'              => 'woocommerce_force_ssl_checkout',
@@ -183,7 +183,7 @@ class WC_Settings_Advanced extends WC_Settings_Page {
 						'title' => __( 'Checkout endpoints', 'woocommerce' ),
 						'type'  => 'title',
 						'desc'  => __( 'Endpoints are appended to your page URLs to handle specific actions during the checkout process. They should be unique.', 'woocommerce' ),
-						'id'    => 'account_endpoint_options',
+						'id'    => 'checkout_endpoint_options',
 					),
 
 					array(

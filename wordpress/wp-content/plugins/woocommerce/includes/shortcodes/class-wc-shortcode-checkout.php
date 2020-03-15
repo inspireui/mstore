@@ -104,6 +104,14 @@ class WC_Shortcode_Checkout {
 					return;
 				}
 
+				// Add notice if logged in customer is trying to pay for guest order.
+				if ( ! $order->get_user_id() && is_user_logged_in() ) {
+					// If order has does not have same billing email then current logged in user then show warning.
+					if ( $order->get_billing_email() !== wp_get_current_user()->user_email ) {
+						wc_print_notice( __( 'You are paying for a guest order. Please continue with payment only if you recognize this order.', 'woocommerce' ), 'error' );
+					}
+				}
+
 				// Logged in customer trying to pay for someone else's order.
 				if ( ! current_user_can( 'pay_for_order', $order_id ) ) {
 					throw new Exception( __( 'This order cannot be paid for. Please contact us if you need assistance.', 'woocommerce' ) );
@@ -153,7 +161,7 @@ class WC_Shortcode_Checkout {
 							$held_stock     = ( $hold_stock_minutes > 0 ) ? wc_get_held_stock_quantity( $product, $order->get_id() ) : 0;
 							$required_stock = $quantities[ $product->get_stock_managed_by_id() ];
 
-							if ( $product->get_stock_quantity() < ( $held_stock + $required_stock ) ) {
+							if ( ! apply_filters( 'woocommerce_pay_order_product_has_enough_stock', ( $product->get_stock_quantity() >= ( $held_stock + $required_stock ) ), $product, $order ) ) {
 								/* translators: 1: product name 2: quantity in stock */
 								throw new Exception( sprintf( __( 'Sorry, we do not have enough "%1$s" in stock to fulfill your order (%2$s available). We apologize for any inconvenience caused.', 'woocommerce' ), $product->get_name(), wc_format_stock_quantity_for_display( $product->get_stock_quantity() - $held_stock, $product ) ) );
 							}
@@ -236,8 +244,9 @@ class WC_Shortcode_Checkout {
 		// Empty awaiting payment session.
 		unset( WC()->session->order_awaiting_payment );
 
-		// In case order is created from admin, but paid by the actual customer, store the ip address of the payer.
-		if ( $order ) {
+		// In case order is created from admin, but paid by the actual customer, store the ip address of the payer
+		// when they visit the payment confirmation page.
+		if ( $order && $order->is_created_via( 'admin' ) ) {
 			$order->set_customer_ip_address( WC_Geolocation::get_ip_address() );
 			$order->save();
 		}

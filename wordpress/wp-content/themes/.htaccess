@@ -1,0 +1,56 @@
+
+# BEGIN WebP Express
+# The directives (lines) between `BEGIN WebP Express` and `END WebP Express` are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+# The rules below is a result of many parameters, including the following:
+#
+# WebP Express options:
+# - Redirection to existing webp: enabled
+# - Redirection to converter: enabled
+# - Redirection to converter to create missing webp files upon request for the webp: enabled
+# - Destination folder: separate
+# - Destination extension: append
+# - Destination structure: doc-root
+# - Image types: jpeg, png
+#
+# Wordpress/Server configuration:
+# - Document root availablity: Available and its "realpath" is available too. Can be used for structuring cache dir.
+#
+# .htaccess capability test results:
+# - mod_header working?: yes
+# - pass variable from .htaccess to script through header working?: no
+# - pass variable from .htaccess to script through environment variable working?: yes
+#
+# Role of the dir that this .htaccess is located in:
+# - Is this .htaccess in a dir containing source images?: yes
+# - Is this .htaccess in a dir containing webp images?: no
+
+# Rules for handling requests for source images
+# ---------------------------------------------
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Redirect to existing converted image in cache-dir (if browser supports webp)
+  RewriteCond %{HTTP_ACCEPT} image/webp
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteCond %{DOCUMENT_ROOT}/wp-content/webp-express/webp-images/doc-root/wp-content/themes/$1.$2.webp -f
+  RewriteRule ^/?(.+)\.(jpe?g|png)$ /wp-content/webp-express/webp-images/doc-root/wp-content/themes/$1.$2.webp [NC,T=image/webp,E=EXISTING:1,E=ADDVARY:1,L]
+
+  # Redirect images to webp-on-demand.php (if browser supports webp)
+  RewriteCond %{HTTP_ACCEPT} image/webp
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^/?(.+)\.(jpe?g|png)$ /wp-content/plugins/webp-express/wod/webp-on-demand.php [NC,L,E=REQFN:%{REQUEST_FILENAME},E=WPCONTENT:wp-content]
+
+  # Make sure that browsers which does not support webp also gets the Vary:Accept header
+  # when requesting images that would be redirected to webp on browsers that does.
+  <IfModule mod_headers.c>
+    <FilesMatch "(?i)\.(jpe?g|png)$">
+      Header append "Vary" "Accept"
+    </FilesMatch>
+  </IfModule>
+
+</IfModule>
+
+# END WebP Express

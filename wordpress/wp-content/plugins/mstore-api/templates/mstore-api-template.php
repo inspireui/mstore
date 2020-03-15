@@ -8,11 +8,14 @@ function getValue(&$val, $default = '')
     return isset($val) ? $val : $default;
 }
 
-
-if (filter_has_var(INPUT_GET, 'order')):
-    global $woocommerce;
+if(isset($_POST['order'])){
+    $data = json_decode(urldecode(base64_decode($_POST['order'])), true);
+}elseif (filter_has_var(INPUT_GET, 'order')) {
     $data = filter_has_var(INPUT_GET, 'order') ? json_decode(urldecode(base64_decode(filter_input(INPUT_GET, 'order'))), true) : [];
+}
 
+if (isset($data)):
+    global $woocommerce;
     // Validate the cookie token
     $userId = wp_validate_auth_cookie($data['token'], 'logged_in');
 
@@ -28,8 +31,8 @@ if (filter_has_var(INPUT_GET, 'order')):
             wp_set_current_user($userId, $user->user_login);
             wp_set_auth_cookie($userId);
 
-            $url = filter_has_var(INPUT_SERVER, 'REQUEST_URI') ? filter_input(INPUT_SERVER, 'REQUEST_URI') : '';
-            header("Refresh: 0; url=$url");
+            // $url = filter_has_var(INPUT_SERVER, 'REQUEST_URI') ? filter_input(INPUT_SERVER, 'REQUEST_URI') : '';
+            // header("Refresh: 0; url=$url");
         }
     }
     $woocommerce->session->set('refresh_totals', true);
@@ -364,12 +367,12 @@ if (filter_has_var(INPUT_GET, 'order')):
                                                             ?>
                                                             <tr class="<?= esc_attr(apply_filters('woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key)); ?>">
                                                                 <td class="product-name">
-                                                                    <?= esc_html(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key)) . '&nbsp;'; ?>
-                                                                    <?= esc_html(apply_filters('woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf('&times; %s', $cart_item['quantity']) . '</strong>', $cart_item, $cart_item_key)); ?>
-                                                                    <?= esc_html(WC()->cart->get_item_data($cart_item)); ?>
+                                                                    <?= apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key) . '&nbsp;'; ?>
+                                                                    <?= apply_filters('woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf('&times; %s', $cart_item['quantity']) . '</strong>', $cart_item, $cart_item_key); ?>
+                                                                    <?= WC()->cart->get_item_data($cart_item); ?>
                                                                 </td>
                                                                 <td class="product-total">
-                                                                    <?= esc_html(apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key)); ?>
+                                                                    <?= apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); ?>
                                                                 </td>
                                                             </tr>
                                                             <?php
@@ -451,7 +454,7 @@ if (filter_has_var(INPUT_GET, 'order')):
 
                                                     <?php do_action('woocommerce_review_order_before_submit'); ?>
 
-                                                    <?= esc_html(apply_filters('woocommerce_order_button_html', '<input type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="" />')); ?>
+                                                    <?= apply_filters('woocommerce_order_button_html', '<input type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="" />'); ?>
 
                                                     <?php do_action('woocommerce_review_order_after_submit'); ?>
 

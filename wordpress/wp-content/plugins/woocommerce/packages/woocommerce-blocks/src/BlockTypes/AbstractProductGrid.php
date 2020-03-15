@@ -9,6 +9,8 @@ namespace Automattic\WooCommerce\Blocks\BlockTypes;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\WooCommerce\Blocks\Utils\BlocksWpQuery;
+
 /**
  * AbstractProductGrid class.
  */
@@ -53,6 +55,7 @@ abstract class AbstractProductGrid extends AbstractDynamicBlock {
 			'contentVisibility' => $this->get_schema_content_visibility(),
 			'align'             => $this->get_schema_align(),
 			'alignButtons'      => $this->get_schema_boolean( false ),
+			'isPreview'         => $this->get_schema_boolean( false ),
 		);
 	}
 
@@ -68,8 +71,13 @@ abstract class AbstractProductGrid extends AbstractDynamicBlock {
 		$this->content    = $content;
 		$this->query_args = $this->parse_query_args();
 		$products         = $this->get_products();
-		$classes          = $this->get_container_classes();
-		$output           = implode( '', array_map( array( $this, 'render_product' ), $products ) );
+
+		if ( ! $products ) {
+			return '';
+		}
+
+		$classes = $this->get_container_classes();
+		$output  = implode( '', array_map( array( $this, 'render_product' ), $products ) );
 
 		return sprintf( '<div class="%s"><ul class="wc-block-grid__products">%s</ul></div>', esc_attr( $classes ), $output );
 	}
@@ -223,20 +231,18 @@ abstract class AbstractProductGrid extends AbstractDynamicBlock {
 		$product_visibility_terms  = wc_get_product_visibility_term_ids();
 		$product_visibility_not_in = array( $product_visibility_terms['exclude-from-catalog'] );
 
-		// Hide out of stock products.
 		if ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) ) {
 			$product_visibility_not_in[] = $product_visibility_terms['outofstock'];
 		}
 
-		if ( ! empty( $product_visibility_not_in ) ) {
-			$query_args['tax_query'][] = array(
-				'taxonomy' => 'product_visibility',
-				'field'    => 'term_taxonomy_id',
-				'terms'    => $product_visibility_not_in,
-				'operator' => 'NOT IN',
-			);
-		}
+		$query_args['tax_query'][] = array(
+			'taxonomy' => 'product_visibility',
+			'field'    => 'term_taxonomy_id',
+			'terms'    => $product_visibility_not_in,
+			'operator' => 'NOT IN',
+		);
 	}
+
 	/**
 	 * Works out the item limit based on rows and columns, or returns default.
 	 *
@@ -255,25 +261,14 @@ abstract class AbstractProductGrid extends AbstractDynamicBlock {
 	 * @return array List of product IDs
 	 */
 	protected function get_products() {
-		$query_hash        = md5( wp_json_encode( $this->query_args ) . __CLASS__ );
-		$transient_name    = 'wc_block_' . $query_hash;
-		$transient_value   = get_transient( $transient_name );
+		$is_cacheable      = (bool) apply_filters( 'woocommerce_blocks_product_grid_is_cacheable', true, $this->query_args );
 		$transient_version = \WC_Cache_Helper::get_transient_version( 'product_query' );
 
-		if ( isset( $transient_value['value'], $transient_value['version'] ) && $transient_value['version'] === $transient_version ) {
-			$results = $transient_value['value'];
-		} else {
-			$query           = new \WP_Query( $this->query_args );
-			$results         = wp_parse_id_list( $query->posts );
-			$transient_value = array(
-				'version' => $transient_version,
-				'value'   => $results,
-			);
-			set_transient( $transient_name, $transient_value, DAY_IN_SECONDS * 30 );
+		$query   = new BlocksWpQuery( $this->query_args );
+		$results = wp_parse_id_list( $is_cacheable ? $query->get_cached_posts( $transient_version ) : $query->get_posts() );
 
-			// Remove ordering query arguments which may have been added by get_catalog_ordering_args.
-			WC()->query->remove_ordering_args();
-		}
+		// Remove ordering query arguments which may have been added by get_catalog_ordering_args.
+		WC()->query->remove_ordering_args();
 
 		// Prime caches to reduce future queries.
 		if ( is_callable( '_prime_post_caches' ) ) {
@@ -432,7 +427,10 @@ abstract class AbstractProductGrid extends AbstractDynamicBlock {
 			return;
 		}
 
-		return '<span class="wc-block-grid__product-onsale">' . esc_html__( 'Sale!', 'woocommerce' ) . '</span>';
+		return '<span class="wc-block-grid__product-onsale">
+			<span aria-hidden="true">' . esc_html__( 'Sale!', 'woocommerce' ) . '</span>
+			<span class="screen-reader-text">' . esc_html__( 'Product on sale', 'woocommerce' ) . '</span>
+		</span>';
 	}
 
 	/**

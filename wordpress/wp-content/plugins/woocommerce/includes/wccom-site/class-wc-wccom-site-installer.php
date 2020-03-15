@@ -16,6 +16,13 @@ defined( 'ABSPATH' ) || exit;
 class WC_WCCOM_Site_Installer {
 
 	/**
+	 * Error message returned install_package if the folder already exists.
+	 *
+	 * @var string
+	 */
+	private static $folder_exists = 'folder_exists';
+
+	/**
 	 * Default state.
 	 *
 	 * @var array
@@ -122,6 +129,10 @@ class WC_WCCOM_Site_Installer {
 		$args = array(
 			'products' => $products,
 		);
+
+		// Clear the cache of customer's subscription before asking for them.
+		// Thus, they will be re-fetched from WooCommerce.com after a purchase.
+		WC_Helper::_flush_subscriptions_cache();
 
 		WC()->queue()->cancel_all( 'woocommerce_wccom_install_products', $args );
 		WC()->queue()->add( 'woocommerce_wccom_install_products', $args );
@@ -236,6 +247,7 @@ class WC_WCCOM_Site_Installer {
 				case 'get_product_info':
 					$state_steps[ $product_id ]['download_url'] = $result['download_url'];
 					$state_steps[ $product_id ]['product_type'] = $result['product_type'];
+					$state_steps[ $product_id ]['product_name'] = $result['product_name'];
 					break;
 				case 'download_product':
 					$state_steps[ $product_id ]['download_path'] = $result;
@@ -245,6 +257,12 @@ class WC_WCCOM_Site_Installer {
 					break;
 				case 'move_product':
 					$state_steps[ $product_id ]['installed_path'] = $result['destination'];
+					if ( isset( $result[ self::$folder_exists ] ) ) {
+						$state_steps[ $product_id ]['warning'] = array(
+							'message'     => self::$folder_exists,
+							'plugin_info' => self::get_plugin_info( $state_steps[ $product_id ]['installed_path'] ),
+						);
+					}
 					break;
 			}
 		}
@@ -257,7 +275,7 @@ class WC_WCCOM_Site_Installer {
 	 *
 	 * @since 3.7.0
 	 * @param int $product_id Product ID.
-	 * @return bool|\WP_Error
+	 * @return array|\WP_Error
 	 */
 	private static function get_product_info( $product_id ) {
 		$product_info = array(
@@ -283,6 +301,7 @@ class WC_WCCOM_Site_Installer {
 		$result = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		$product_info['product_type'] = $result['_product_type'];
+		$product_info['product_name'] = $result['name'];
 
 		if ( ! empty( $result['_wporg_product'] ) && ! empty( $result['download_link'] ) ) {
 			// For wporg product, download is set already from info response.
@@ -365,7 +384,18 @@ class WC_WCCOM_Site_Installer {
 			),
 		);
 
-		return $upgrader->install_package( $package );
+		$result = $upgrader->install_package( $package );
+
+		/**
+		 * If install package returns error 'folder_exists' threat as success.
+		 */
+		if ( is_wp_error( $result ) && array_key_exists( self::$folder_exists, $result->errors ) ) {
+			return array(
+				self::$folder_exists => true,
+				'destination'        => $result->error_data[ self::$folder_exists ],
+			);
+		}
+		return $result;
 	}
 
 	/**
@@ -505,6 +535,43 @@ class WC_WCCOM_Site_Installer {
 			}
 		}
 
+		return false;
+	}
+
+
+	/**
+	 * Get plugin info
+	 *
+	 * @since 3.9.0
+	 * @param string $dir Directory name of the plugin.
+	 * @return bool|array
+	 */
+	private static function get_plugin_info( $dir ) {
+		$plugin_folder = basename( $dir );
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$plugins = get_plugins();
+
+		$related_plugins = array_filter(
+			$plugins,
+			function( $key ) use ( $plugin_folder ) {
+				return strpos( $key, $plugin_folder . '/' ) === 0;
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		if ( 1 === count( $related_plugins ) ) {
+			$plugin_key  = array_keys( $related_plugins )[0];
+			$plugin_data = $plugins[ $plugin_key ];
+			return array(
+				'name'    => $plugin_data['Name'],
+				'version' => $plugin_data['Version'],
+				'active'  => is_plugin_active( $plugin_key ),
+			);
+		}
 		return false;
 	}
 }

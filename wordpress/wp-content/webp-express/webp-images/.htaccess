@@ -1,0 +1,63 @@
+
+# BEGIN WebP Express
+# The directives (lines) between `BEGIN WebP Express` and `END WebP Express` are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+# The rules below is a result of many parameters, including the following:
+#
+# WebP Express options:
+# - Redirection to existing webp: enabled
+# - Redirection to converter: enabled
+# - Redirection to converter to create missing webp files upon request for the webp: enabled
+# - Destination folder: separate
+# - Destination extension: append
+# - Destination structure: doc-root
+# - Image types: jpeg, png
+#
+# Wordpress/Server configuration:
+# - Document root availablity: Available and its "realpath" is available too. Can be used for structuring cache dir.
+#
+# .htaccess capability test results:
+# - mod_header working?: yes
+# - pass variable from .htaccess to script through header working?: no
+# - pass variable from .htaccess to script through environment variable working?: yes
+#
+# Role of the dir that this .htaccess is located in:
+# - Is this .htaccess in a dir containing source images?: no
+# - Is this .htaccess in a dir containing webp images?: yes
+
+
+# Rules for handling requests for webp images
+# ---------------------------------------------
+
+# WebP Realizer: Redirect non-existing webp images to webp-realizer.php, which will locate corresponding jpg/png, 
+# convert it, and deliver the freshly converted webp
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^/?(.+)\.(webp)$ /wp-content/plugins/webp-express/wod/webp-realizer.php [E=DESTINATIONREL:wp-content/webp-express/webp-images/$0,E=WPCONTENT:wp-content,NC,L]
+
+</IfModule>
+
+# Set Vary:Accept header if we came here by way of our redirect, which set the ADDVARY environment variable
+# The purpose is to make proxies and CDNs aware that the response varies with the Accept header
+<IfModule mod_headers.c>
+  <IfModule mod_setenvif.c>
+    # Apache appends "REDIRECT_" in front of the environment variables defined in mod_rewrite, but LiteSpeed does not
+    # So, the next lines are for Apache, in order to set environment variables without "REDIRECT_"
+    SetEnvIf REDIRECT_EXISTING 1 EXISTING=1
+    SetEnvIf REDIRECT_ADDVARY 1 ADDVARY=1
+
+    Header append "Vary" "Accept" env=ADDVARY
+
+    # Set X-WebP-Express header for diagnose purposes
+    Header set "X-WebP-Express" "Redirected directly to existing webp" env=EXISTING
+  </IfModule>
+</IfModule>
+
+# Register webp mime type 
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+</IfModule>
+
+# END WebP Express

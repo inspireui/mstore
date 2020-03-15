@@ -51,6 +51,12 @@ class WC_REST_WCCOM_Site_Installer_Controller extends WC_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'install' ),
 					'permission_callback' => array( $this, 'check_permission' ),
+					'args'                => array(
+						'products' => array(
+							'required' => true,
+							'type'     => 'array',
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
@@ -69,8 +75,25 @@ class WC_REST_WCCOM_Site_Installer_Controller extends WC_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function check_permission( $request ) {
-		if ( ! current_user_can( 'install_plugins' ) || ! current_user_can( 'install_themes' ) ) {
-			return new WP_Error( 'woocommerce_rest_cannot_install_product', __( 'You do not have permission to install plugin or theme', 'woocommerce' ), array( 'status' => 401 ) );
+		$current_user = wp_get_current_user();
+
+		if ( empty( $current_user ) || ( $current_user instanceof WP_User && ! $current_user->exists() ) ) {
+			return apply_filters(
+				WC_WCCOM_Site::AUTH_ERROR_FILTER_NAME,
+				new WP_Error(
+					WC_REST_WCCOM_Site_Installer_Errors::NOT_AUTHENTICATED_CODE,
+					WC_REST_WCCOM_Site_Installer_Errors::NOT_AUTHENTICATED_MESSAGE,
+					array( 'status' => WC_REST_WCCOM_Site_Installer_Errors::NOT_AUTHENTICATED_HTTP_CODE )
+				)
+			);
+		}
+
+		if ( ! user_can( $current_user, 'install_plugins' ) || ! user_can( $current_user, 'install_themes' ) ) {
+			return new WP_Error(
+				WC_REST_WCCOM_Site_Installer_Errors::NO_PERMISSION_CODE,
+				WC_REST_WCCOM_Site_Installer_Errors::NO_PERMISSION_MESSAGE,
+				array( 'status' => WC_REST_WCCOM_Site_Installer_Errors::NO_PERMISSION_HTTP_CODE )
+			);
 		}
 
 		return true;
@@ -84,6 +107,11 @@ class WC_REST_WCCOM_Site_Installer_Controller extends WC_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function get_install_state( $request ) {
+		$requirements_met = WC_WCCOM_Site_Installer_Requirements_Check::met_requirements();
+		if ( is_wp_error( $requirements_met ) ) {
+			return $requirements_met;
+		}
+
 		return rest_ensure_response( WC_WCCOM_Site_Installer::get_state() );
 	}
 
@@ -95,6 +123,11 @@ class WC_REST_WCCOM_Site_Installer_Controller extends WC_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function install( $request ) {
+		$requirements_met = WC_WCCOM_Site_Installer_Requirements_Check::met_requirements();
+		if ( is_wp_error( $requirements_met ) ) {
+			return $requirements_met;
+		}
+
 		if ( empty( $request['products'] ) ) {
 			return new WP_Error( 'missing_products', __( 'Missing products in request body.', 'woocommerce' ), array( 'status' => 400 ) );
 		}

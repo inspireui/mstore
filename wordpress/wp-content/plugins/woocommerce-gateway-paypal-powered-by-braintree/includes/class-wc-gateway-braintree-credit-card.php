@@ -18,7 +18,7 @@
  *
  * @package   WC-Braintree/Gateway/Credit-Card
  * @author    WooCommerce
- * @copyright Copyright: (c) 2016-2019, Automattic, Inc.
+ * @copyright Copyright: (c) 2016-2020, Automattic, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -150,6 +150,26 @@ class WC_Gateway_Braintree_Credit_Card extends WC_Gateway_Braintree {
 				wp_enqueue_script( 'braintree-js-3d-secure', 'https://js.braintreegateway.com/web/' . WC_Braintree::BRAINTREE_JS_SDK_VERSION . '/js/three-d-secure.min.js', array(), WC_Braintree::VERSION, true );
 			}
 		}
+	}
+
+
+	/**
+	 * Gets the payment form JS localized script params.
+	 *
+	 * Adds a couple of name params to the framework base.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @return array
+	 */
+	protected function get_payment_form_js_localized_script_params() {
+
+		$params = parent::get_payment_form_js_localized_script_params();
+
+		$params['first_name_unsupported_characters'] = __( 'First name contains unsupported characters', 'woocommerce-gateway-paypal-powered-by-braintree' );
+		$params['last_name_unsupported_characters']  = __( 'Last name contains unsupported characters', 'woocommerce-gateway-paypal-powered-by-braintree' );
+
+		return $params;
 	}
 
 

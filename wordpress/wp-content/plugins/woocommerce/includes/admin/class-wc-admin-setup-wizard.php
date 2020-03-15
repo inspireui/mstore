@@ -8,6 +8,8 @@
  * @version     2.6.0
  */
 
+use Automattic\Jetpack\Constants;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -49,6 +51,13 @@ class WC_Admin_Setup_Wizard {
 	);
 
 	/**
+	 * The version of WordPress required to run the WooCommerce Admin plugin
+	 *
+	 * @var string
+	 */
+	private $wc_admin_plugin_minimum_wordpress_version = '5.3';
+
+	/**
 	 * Hook in tabs.
 	 */
 	public function __construct() {
@@ -73,34 +82,13 @@ class WC_Admin_Setup_Wizard {
 	 * @return boolean
 	 */
 	protected function should_show_theme() {
-		$support_woocommerce = current_theme_supports( 'woocommerce' ) && ! $this->is_default_theme();
+		$support_woocommerce = current_theme_supports( 'woocommerce' ) && ! wc_is_wp_default_theme_active();
 
 		return (
 			current_user_can( 'install_themes' ) &&
 			current_user_can( 'switch_themes' ) &&
 			! is_multisite() &&
 			! $support_woocommerce
-		);
-	}
-
-	/**
-	 * Is the user using a default WP theme?
-	 *
-	 * @return boolean
-	 */
-	protected function is_default_theme() {
-		return wc_is_active_theme(
-			array(
-				'twentynineteen',
-				'twentyseventeen',
-				'twentysixteen',
-				'twentyfifteen',
-				'twentyfourteen',
-				'twentythirteen',
-				'twentyeleven',
-				'twentytwelve',
-				'twentyten',
-			)
 		);
 	}
 
@@ -145,14 +133,48 @@ class WC_Admin_Setup_Wizard {
 	}
 
 	/**
+	 * Is the WooCommerce Admin actively included in the WooCommerce core?
+	 * Based on presence of a basic WC Admin function.
+	 *
+	 * @return boolean
+	 */
+	protected function is_wc_admin_active() {
+		return function_exists( 'wc_admin_url' );
+	}
+
+	/**
 	 * Should we show the WooCommerce Admin install option?
 	 * True only if the user can install plugins,
-	 * and up until the end date of the recommendation.
+	 * and is running the correct version of WordPress.
+	 *
+	 * @see WC_Admin_Setup_Wizard::$wc_admin_plugin_minimum_wordpress_version
 	 *
 	 * @return boolean
 	 */
 	protected function should_show_wc_admin() {
-		return current_user_can( 'install_plugins' );
+		$wordpress_minimum_met = version_compare( get_bloginfo( 'version' ), $this->wc_admin_plugin_minimum_wordpress_version, '>=' );
+		return current_user_can( 'install_plugins' ) && $wordpress_minimum_met && ! $this->is_wc_admin_active();
+	}
+
+	/**
+	 * Should we show the new WooCommerce Admin onboarding experience?
+	 *
+	 * @return boolean
+	 */
+	protected function should_show_wc_admin_onboarding() {
+		if ( ! $this->should_show_wc_admin() && ! $this->is_wc_admin_active() ) {
+			return false;
+		}
+
+		$ab_test = get_option( 'woocommerce_setup_ab_wc_admin_onboarding' );
+
+		// If it doesn't exist yet, generate it for later use and save it, so we always show the same to this user.
+		if ( ! $ab_test ) {
+			$ab_test = 1 !== rand( 1, 2 ) ? 'a' : 'b'; // 50% of users. b gets the new experience.
+			update_option( 'woocommerce_setup_ab_wc_admin_onboarding', $ab_test );
+		}
+
+		return 'b' === $ab_test;
 	}
 
 	/**
@@ -177,11 +199,12 @@ class WC_Admin_Setup_Wizard {
 	public function enqueue_scripts() {
 		// Whether or not there is a pending background install of Jetpack.
 		$pending_jetpack = ! class_exists( 'Jetpack' ) && get_option( 'woocommerce_setup_background_installing_jetpack' );
-		$suffix          = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$suffix          = Constants::is_true( 'SCRIPT_DEBUG' ) ? '' : '.min';
+		$version         = Constants::get_constant( 'WC_VERSION' );
 
 		wp_register_script( 'jquery-blockui', WC()->plugin_url() . '/assets/js/jquery-blockui/jquery.blockUI' . $suffix . '.js', array( 'jquery' ), '2.70', true );
 		wp_register_script( 'selectWoo', WC()->plugin_url() . '/assets/js/selectWoo/selectWoo.full' . $suffix . '.js', array( 'jquery' ), '1.0.6' );
-		wp_register_script( 'wc-enhanced-select', WC()->plugin_url() . '/assets/js/admin/wc-enhanced-select' . $suffix . '.js', array( 'jquery', 'selectWoo' ), WC_VERSION );
+		wp_register_script( 'wc-enhanced-select', WC()->plugin_url() . '/assets/js/admin/wc-enhanced-select' . $suffix . '.js', array( 'jquery', 'selectWoo' ), $version );
 		wp_localize_script(
 			'wc-enhanced-select',
 			'wc_enhanced_select_params',
@@ -201,10 +224,10 @@ class WC_Admin_Setup_Wizard {
 				'search_customers_nonce'    => wp_create_nonce( 'search-customers' ),
 			)
 		);
-		wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css', array(), WC_VERSION );
-		wp_enqueue_style( 'wc-setup', WC()->plugin_url() . '/assets/css/wc-setup.css', array( 'dashicons', 'install' ), WC_VERSION );
+		wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css', array(), $version );
+		wp_enqueue_style( 'wc-setup', WC()->plugin_url() . '/assets/css/wc-setup.css', array( 'dashicons', 'install' ), $version );
 
-		wp_register_script( 'wc-setup', WC()->plugin_url() . '/assets/js/admin/wc-setup' . $suffix . '.js', array( 'jquery', 'wc-enhanced-select', 'jquery-blockui', 'wp-util', 'jquery-tiptip' ), WC_VERSION );
+		wp_register_script( 'wc-setup', WC()->plugin_url() . '/assets/js/admin/wc-setup' . $suffix . '.js', array( 'jquery', 'wc-enhanced-select', 'jquery-blockui', 'wp-util', 'jquery-tiptip', 'backbone', 'wc-backbone-modal' ), $version );
 		wp_localize_script(
 			'wc-setup',
 			'wc_setup_params',
@@ -251,37 +274,47 @@ class WC_Admin_Setup_Wizard {
 			return;
 		}
 		$default_steps = array(
-			'store_setup' => array(
+			'new_onboarding' => array(
+				'name'    => '',
+				'view'    => array( $this, 'wc_setup_new_onboarding' ),
+				'handler' => array( $this, 'wc_setup_new_onboarding_save' ),
+			),
+			'store_setup'    => array(
 				'name'    => __( 'Store setup', 'woocommerce' ),
 				'view'    => array( $this, 'wc_setup_store_setup' ),
 				'handler' => array( $this, 'wc_setup_store_setup_save' ),
 			),
-			'payment'     => array(
+			'payment'        => array(
 				'name'    => __( 'Payment', 'woocommerce' ),
 				'view'    => array( $this, 'wc_setup_payment' ),
 				'handler' => array( $this, 'wc_setup_payment_save' ),
 			),
-			'shipping'    => array(
+			'shipping'       => array(
 				'name'    => __( 'Shipping', 'woocommerce' ),
 				'view'    => array( $this, 'wc_setup_shipping' ),
 				'handler' => array( $this, 'wc_setup_shipping_save' ),
 			),
-			'recommended' => array(
+			'recommended'    => array(
 				'name'    => __( 'Recommended', 'woocommerce' ),
 				'view'    => array( $this, 'wc_setup_recommended' ),
 				'handler' => array( $this, 'wc_setup_recommended_save' ),
 			),
-			'activate'    => array(
+			'activate'       => array(
 				'name'    => __( 'Activate', 'woocommerce' ),
 				'view'    => array( $this, 'wc_setup_activate' ),
 				'handler' => array( $this, 'wc_setup_activate_save' ),
 			),
-			'next_steps'  => array(
+			'next_steps'     => array(
 				'name'    => __( 'Ready!', 'woocommerce' ),
 				'view'    => array( $this, 'wc_setup_ready' ),
 				'handler' => '',
 			),
 		);
+
+		// Hide the new/improved onboarding experience screen if the user is not part of the a/b test.
+		if ( ! $this->should_show_wc_admin_onboarding() ) {
+			unset( $default_steps['new_onboarding'] );
+		}
 
 		// Hide recommended step if nothing is going to be shown there.
 		if ( ! $this->should_show_recommended_step() ) {
@@ -346,6 +379,9 @@ class WC_Admin_Setup_Wizard {
 	 * Setup Wizard Header.
 	 */
 	public function setup_wizard_header() {
+		// same as default WP from wp-admin/admin-header.php.
+		$wp_version_class = 'branch-' . str_replace( array( '.', ',' ), '-', floatval( get_bloginfo( 'version' ) ) );
+
 		set_current_screen();
 		?>
 		<!DOCTYPE html>
@@ -359,8 +395,8 @@ class WC_Admin_Setup_Wizard {
 			<?php do_action( 'admin_print_styles' ); ?>
 			<?php do_action( 'admin_head' ); ?>
 		</head>
-		<body class="wc-setup wp-core-ui">
-			<h1 id="wc-logo"><a href="https://woocommerce.com/"><img src="<?php echo esc_url( WC()->plugin_url() ); ?>/assets/images/woocommerce_logo.png" alt="WooCommerce" /></a></h1>
+		<body class="wc-setup wp-core-ui <?php echo esc_attr( 'wc-setup-step__' . $this->step ); ?> <?php echo esc_attr( $wp_version_class ); ?>">
+		<h1 class="wc-logo"><a href="https://woocommerce.com/"><img src="<?php echo esc_url( WC()->plugin_url() ); ?>/assets/images/woocommerce_logo.png" alt="<?php esc_attr_e( 'WooCommerce', 'woocommerce' ); ?>" /></a></h1>
 		<?php
 	}
 
@@ -369,7 +405,9 @@ class WC_Admin_Setup_Wizard {
 	 */
 	public function setup_wizard_footer() {
 		?>
-			<?php if ( 'store_setup' === $this->step ) : ?>
+			<?php if ( 'new_onboarding' === $this->step ) : ?>
+				<a class="wc-setup-footer-links" href="<?php echo esc_url( $this->get_next_step_link() ); ?>"><?php esc_html_e( 'Continue with the old setup wizard', 'woocommerce' ); ?></a>
+			<?php elseif ( 'store_setup' === $this->step ) : ?>
 				<a class="wc-setup-footer-links" href="<?php echo esc_url( admin_url() ); ?>"><?php esc_html_e( 'Not right now', 'woocommerce' ); ?></a>
 			<?php elseif ( 'recommended' === $this->step || 'activate' === $this->step ) : ?>
 				<a class="wc-setup-footer-links" href="<?php echo esc_url( $this->get_next_step_link() ); ?>"><?php esc_html_e( 'Skip this step', 'woocommerce' ); ?></a>
@@ -392,6 +430,8 @@ class WC_Admin_Setup_Wizard {
 		if ( class_exists( 'Jetpack' ) && Jetpack::is_active() && empty( $selected_features ) && 'yes' !== get_transient( 'wc_setup_activated' ) ) {
 			unset( $output_steps['activate'] );
 		}
+
+		unset( $output_steps['new_onboarding'] );
 
 		?>
 		<ol class="wc-setup-steps">
@@ -432,6 +472,74 @@ class WC_Admin_Setup_Wizard {
 	}
 
 	/**
+	 * Display's a prompt for users to try out the new improved WooCommerce onboarding experience in WooCommerce Admin.
+	 */
+	public function wc_setup_new_onboarding() {
+		?>
+			<div class="wc-setup-step__new_onboarding-wrapper">
+				<p class="wc-setup-step__new_onboarding-welcome"><?php esc_html_e( 'Welcome to', 'woocommerce' ); ?></p>
+				<h1 class="wc-logo"><a href="https://woocommerce.com/"><img src="<?php echo esc_url( WC()->plugin_url() ); ?>/assets/images/woocommerce_logo.png" alt="<?php esc_attr_e( 'WooCommerce', 'woocommerce' ); ?>" /></a></h1>
+				<p><?php esc_html_e( 'Get your store up and running more quickly with our new and improved setup experience', 'woocommerce' ); ?></p>
+
+				<form method="post" class="activate-new-onboarding">
+					<?php wp_nonce_field( 'wc-setup' ); ?>
+					<input type="hidden" name="save_step" value="new_onboarding" />
+					<p class="wc-setup-actions step">
+						<button class="button-primary button button-large" value="<?php esc_attr_e( 'Yes please', 'woocommerce' ); ?>" name="save_step"><?php esc_html_e( 'Yes please', 'woocommerce' ); ?></button>
+					</p>
+				</form>
+				<?php if ( ! $this->is_wc_admin_active() ) : ?>
+					<p class="wc-setup-step__new_onboarding-plugin-info"><?php esc_html_e( 'The "WooCommerce Admin" plugin will be installed and activated', 'woocommerce' ); ?></p>
+				<?php endif; ?>
+			</div>
+		<?php
+	}
+
+	/**
+	 * Installs WooCommerce admin and redirects to the new onboarding experience.
+	 */
+	public function wc_setup_new_onboarding_save() {
+		check_admin_referer( 'wc-setup' );
+
+		if ( $this->is_wc_admin_active() ) {
+			$this->wc_setup_redirect_to_wc_admin_onboarding();
+		}
+
+		WC_Install::background_installer(
+			'woocommerce-admin',
+			array(
+				'name'      => __( 'WooCommerce Admin', 'woocommerce' ),
+				'repo-slug' => 'woocommerce-admin',
+			)
+		);
+
+		// The plugin was not successfully installed, so continue with normal setup.
+		if ( ! $this->is_wc_admin_active() ) {
+			wp_safe_redirect( esc_url_raw( $this->get_next_step_link() ) );
+			exit;
+		}
+
+		$this->wc_setup_redirect_to_wc_admin_onboarding();
+	}
+
+	/**
+	 * Redirects to the onboarding wizard in WooCommerce Admin.
+	 */
+	private function wc_setup_redirect_to_wc_admin_onboarding() {
+		if ( ! $this->is_wc_admin_active() ) {
+			return;
+		}
+
+		// Renables the wizard.
+		$profile_updates = array( 'completed' => false );
+		$onboarding_data = get_option( 'woocommerce_onboarding_profile', array() );
+		update_option( 'woocommerce_onboarding_profile', array_merge( $onboarding_data, $profile_updates ) );
+
+		wp_safe_redirect( wc_admin_url( '&enable_onboarding=1' ) );
+		exit;
+	}
+
+	/**
 	 * Initial "store setup" step.
 	 * Location, product type, page setup, and tracking opt-in.
 	 */
@@ -456,13 +564,14 @@ class WC_Admin_Setup_Wizard {
 		$currency_by_country = wp_list_pluck( $locale_info, 'currency_code' );
 		?>
 		<form method="post" class="address-step">
+			<input type="hidden" name="save_step" value="store_setup" />
 			<?php wp_nonce_field( 'wc-setup' ); ?>
 			<p class="store-setup"><?php esc_html_e( 'The following wizard will help you configure your store and get you started quickly.', 'woocommerce' ); ?></p>
 
 			<div class="store-address-container">
 
 				<label for="store_country" class="location-prompt"><?php esc_html_e( 'Where is your store based?', 'woocommerce' ); ?></label>
-				<select id="store_country" name="store_country" required data-placeholder="<?php esc_attr_e( 'Choose a country&hellip;', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Country', 'woocommerce' ); ?>" class="location-input wc-enhanced-select dropdown">
+				<select id="store_country" name="store_country" required data-placeholder="<?php esc_attr_e( 'Choose a country / region&hellip;', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Country / Region', 'woocommerce' ); ?>" class="location-input wc-enhanced-select dropdown">
 					<?php foreach ( WC()->countries->get_countries() as $code => $label ) : ?>
 						<option <?php selected( $code, $country ); ?> value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
@@ -537,6 +646,7 @@ class WC_Admin_Setup_Wizard {
 			</select>
 			</div>
 
+			<div class="sell-in-person-container">
 			<input
 				type="checkbox"
 				id="woocommerce_sell_in_person"
@@ -547,23 +657,64 @@ class WC_Admin_Setup_Wizard {
 			<label class="location-prompt" for="woocommerce_sell_in_person">
 				<?php esc_html_e( 'I will also be selling products or services in person.', 'woocommerce' ); ?>
 			</label>
-
-			<div class="woocommerce-tracker">
-				<p class="checkbox">
-					<input type="checkbox" id="wc_tracker_checkbox" name="wc_tracker_checkbox" value="yes" checked />
-					<label for="wc_tracker_checkbox"><?php esc_html_e( 'Help WooCommerce improve with usage tracking.', 'woocommerce' ); ?></label>
-				</p>
-				<p>
-				<?php
-				esc_html_e( 'Gathering usage data allows us to make WooCommerce better &mdash; your store will be considered as we evaluate new features, judge the quality of an update, or determine if an improvement makes sense. If you would rather opt-out, and do not check this box, we will not know this store exists and we will not collect any usage data.', 'woocommerce' );
-				echo ' <a target="_blank" href="https://woocommerce.com/usage-tracking/">' . esc_html__( 'Read more about what we collect.', 'woocommerce' ) . '</a>';
-				?>
-				</p>
 			</div>
+
+			<input type="checkbox" id="wc_tracker_checkbox" name="wc_tracker_checkbox" value="yes" <?php checked( 'yes', get_option( 'woocommerce_allow_tracking', 'no' ) ); ?> />
+
+			<?php $this->tracking_modal(); ?>
+
 			<p class="wc-setup-actions step">
-				<button type="submit" class="button-primary button button-large button-next" value="<?php esc_attr_e( "Let's go!", 'woocommerce' ); ?>" name="save_step"><?php esc_html_e( "Let's go!", 'woocommerce' ); ?></button>
+				<button class="button-primary button button-large" value="<?php esc_attr_e( "Let's go!", 'woocommerce' ); ?>" name="save_step"><?php esc_html_e( "Let's go!", 'woocommerce' ); ?></button>
 			</p>
 		</form>
+		<?php
+	}
+
+	/**
+	 * Template for the usage tracking modal.
+	 */
+	public function tracking_modal() {
+		?>
+		<script type="text/template" id="tmpl-wc-modal-tracking-setup">
+			<div class="wc-backbone-modal woocommerce-tracker">
+				<div class="wc-backbone-modal-content">
+					<section class="wc-backbone-modal-main" role="main">
+						<header class="wc-backbone-modal-header">
+							<h1><?php esc_html_e( 'Help improve WooCommerce with usage tracking', 'woocommerce' ); ?></h1>
+						</header>
+						<article>
+							<p>
+							<?php
+								printf(
+									wp_kses(
+										/* translators: %1$s: usage tracking help link */
+										__( 'Learn more about how usage tracking works, and how you\'ll be helping in our <a href="%1$s" target="_blank">usage tracking documentation</a>.', 'woocommerce' ),
+										array(
+											'a' => array(
+												'href'   => array(),
+												'target' => array(),
+											),
+										)
+									),
+									'https://woocommerce.com/usage-tracking/'
+								);
+							?>
+							</p>
+							<p class="woocommerce-tracker-checkbox">
+								<input type="checkbox" id="wc_tracker_checkbox_dialog" name="wc_tracker_checkbox_dialog" value="yes" <?php checked( 'yes', get_option( 'woocommerce_allow_tracking', 'no' ) ); ?> />
+								<label for="wc_tracker_checkbox_dialog"><?php esc_html_e( 'Enable usage tracking and help improve WooCommerce', 'woocommerce' ); ?></label>
+							</p>
+						</article>
+						<footer>
+							<div class="inner">
+								<button class="button button-primary button-large" id="wc_tracker_submit" aria-label="<?php esc_attr_e( 'Continue', 'woocommerce' ); ?>"><?php esc_html_e( 'Continue', 'woocommerce' ); ?></button>
+							</div>
+						</footer>
+					</section>
+				</div>
+			</div>
+			<div class="wc-backbone-modal-backdrop modal-close"></div>
+		</script>
 		<?php
 	}
 
@@ -657,7 +808,7 @@ class WC_Admin_Setup_Wizard {
 	public function run_deferred_actions() {
 		$this->close_http_connection();
 		foreach ( $this->deferred_actions as $action ) {
-			call_user_func_array( $action['func'], $action['args'] );
+			$action['func']( ...$action['args'] );
 
 			// Clear the background installation flag if this is a plugin.
 			if (
@@ -1078,7 +1229,7 @@ class WC_Admin_Setup_Wizard {
 
 			<p class="wc-setup-actions step">
 				<?php $this->plugin_install_info(); ?>
-				<button type="submit" class="button-primary button button-large button-next" value="<?php esc_attr_e( 'Continue', 'woocommerce' ); ?>" name="save_step"><?php esc_html_e( 'Continue', 'woocommerce' ); ?></button>
+				<button class="button-primary button button-large button-next" value="<?php esc_attr_e( 'Continue', 'woocommerce' ); ?>" name="save_step"><?php esc_html_e( 'Continue', 'woocommerce' ); ?></button>
 				<?php wp_nonce_field( 'wc-setup' ); ?>
 			</p>
 		</form>
@@ -1143,13 +1294,19 @@ class WC_Admin_Setup_Wizard {
 
 			// Save chosen shipping method settings (using REST controller for convenience).
 			if ( ! empty( $_POST['shipping_zones']['domestic'][ $domestic_method ] ) ) { // WPCS: input var ok.
+
+				// Sanitize the cost field.
+				$domestic_cost = wc_clean( wp_unslash( $_POST['shipping_zones']['domestic'][ $domestic_method ] ) );
+				$domestic_cost = str_replace( array( get_woocommerce_currency_symbol(), html_entity_decode( get_woocommerce_currency_symbol() ) ), '', $domestic_cost );
+
+				// Build and make a REST request to save the shipping zone and method set.
 				$request = new WP_REST_Request( 'POST', "/wc/v3/shipping/zones/{$zone_id}/methods" );
 				$request->add_header( 'Content-Type', 'application/json' );
 				$request->set_body(
 					wp_json_encode(
 						array(
 							'method_id' => $domestic_method,
-							'settings'  => wc_clean( wp_unslash( $_POST['shipping_zones']['domestic'][ $domestic_method ] ) ),
+							'settings'  => $domestic_cost,
 						)
 					)
 				);
@@ -1161,13 +1318,19 @@ class WC_Admin_Setup_Wizard {
 		if ( $setup_intl ) {
 			// Save chosen shipping method settings (using REST controller for convenience).
 			if ( ! empty( $_POST['shipping_zones']['intl'][ $intl_method ] ) ) { // WPCS: input var ok.
+
+				// Sanitize the cost field.
+				$intl_cost = wc_clean( wp_unslash( $_POST['shipping_zones']['intl'][ $intl_method ] ) );
+				$intl_cost = str_replace( array( get_woocommerce_currency_symbol(), html_entity_decode( get_woocommerce_currency_symbol() ) ), '', $intl_cost );
+
+				// Build and make a REST request to save the shipping zone and method set.
 				$request = new WP_REST_Request( 'POST', '/wc/v3/shipping/zones/0/methods' );
 				$request->add_header( 'Content-Type', 'application/json' );
 				$request->set_body(
 					wp_json_encode(
 						array(
 							'method_id' => $intl_method,
-							'settings'  => wc_clean( wp_unslash( $_POST['shipping_zones']['intl'][ $intl_method ] ) ),
+							'settings'  => $intl_cost,
 						)
 					)
 				);
@@ -1540,7 +1703,7 @@ class WC_Admin_Setup_Wizard {
 			if ( in_array( $klarna_or_square, array( 'klarna_checkout', 'klarna_payments' ), true ) ) {
 				$gateways[ $klarna_or_square ]['enabled']  = true;
 				$gateways[ $klarna_or_square ]['featured'] = false;
-				$offered_gateways                          += array(
+				$offered_gateways                         += array(
 					$klarna_or_square => $gateways[ $klarna_or_square ],
 				);
 			} else {
@@ -2132,7 +2295,7 @@ class WC_Admin_Setup_Wizard {
 				<img
 					class="jetpack-logo"
 					src="<?php echo esc_url( WC()->plugin_url() . '/assets/images/jetpack_horizontal_logo.png' ); ?>"
-					alt="Jetpack logo"
+					alt="<?php esc_attr_e( 'Jetpack logo', 'woocommerce' ); ?>"
 				/>
 				<img
 					class="wcs-notice"
@@ -2143,7 +2306,7 @@ class WC_Admin_Setup_Wizard {
 			<img
 				class="jetpack-logo"
 				src="<?php echo esc_url( WC()->plugin_url() . '/assets/images/jetpack_vertical_logo.png' ); ?>"
-				alt="Jetpack logo"
+				alt="<?php esc_attr_e( 'Jetpack logo', 'woocommerce' ); ?>"
 			/>
 		<?php endif; ?>
 
@@ -2265,6 +2428,11 @@ class WC_Admin_Setup_Wizard {
 		}
 
 		Jetpack::maybe_set_version_option();
+		$jetpack = Jetpack::init();
+		// Older versions of jetpack may not have this method.
+		if ( method_exists( $jetpack, 'configure' ) ) {
+			$jetpack->configure();
+		}
 		$register_result = Jetpack::try_registration();
 
 		if ( is_wp_error( $register_result ) ) {
@@ -2291,7 +2459,7 @@ class WC_Admin_Setup_Wizard {
 	 */
 	public function wc_setup_ready() {
 		// We've made it! Don't prompt the user to run the wizard again.
-		WC_Admin_Notices::remove_notice( 'install' );
+		WC_Admin_Notices::remove_notice( 'install', true );
 
 		$user_email   = $this->get_current_user_email();
 		$videos_url   = 'https://docs.woocommerce.com/document/woocommerce-guided-tour-videos/?utm_source=setupwizard&utm_medium=product&utm_content=videos&utm_campaign=woocommerceplugin';
@@ -2320,7 +2488,7 @@ class WC_Admin_Setup_Wizard {
 					<p class="wc-setup-actions step newsletter-form-button-container">
 						<button
 							type="submit"
-							value="<?php esc_html_e( 'Yes please!', 'woocommerce' ); ?>"
+							value="<?php esc_attr_e( 'Yes please!', 'woocommerce' ); ?>"
 							name="subscribe"
 							id="mc-embedded-subscribe"
 							class="button-primary button newsletter-form-button"

@@ -21,7 +21,7 @@ echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
 echo esc_html( wp_strip_all_tags( $email_heading ) );
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 
-/* translators: %s: Customer first name */
+/* translators: %s: Customer username */
 echo sprintf( esc_html__( 'Hi %s,', 'woocommerce' ), esc_html( $user_login ) ) . "\n\n";
 /* translators: %s: Store name */
 echo sprintf( esc_html__( 'Someone has requested a new password for the following account on %s:', 'woocommerce' ), esc_html( wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) ) ) . "\n\n";
@@ -33,7 +33,7 @@ echo esc_url( add_query_arg( array( 'key' => $reset_key, 'id' => $user_id ), wc_
 echo "\n\n----------------------------------------\n\n";
 
 /**
- * Show user-defined additonal content - this is set in each email's settings.
+ * Show user-defined additional content - this is set in each email's settings.
  */
 if ( $additional_content ) {
 	echo esc_html( wp_strip_all_tags( wptexturize( $additional_content ) ) );

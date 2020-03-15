@@ -18,7 +18,7 @@
  *
  * @package   WC-Braintree/Gateway
  * @author    WooCommerce
- * @copyright Copyright: (c) 2016-2019, Automattic, Inc.
+ * @copyright Copyright: (c) 2016-2020, Automattic, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -88,7 +88,7 @@ class WC_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_Plugin {
 
 
 	/** plugin version number */
-	const VERSION = '2.3.0';
+	const VERSION = '2.3.8';
 
 	/** Braintree JS SDK version  */
 	const BRAINTREE_JS_SDK_VERSION = '3.48.0';

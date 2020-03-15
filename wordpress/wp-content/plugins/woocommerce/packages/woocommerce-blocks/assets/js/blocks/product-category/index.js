@@ -11,26 +11,33 @@ import { without } from 'lodash';
 import './editor.scss';
 import Block from './block';
 import { deprecatedConvertToShortcode } from '../../utils/deprecations';
-import sharedAttributes, { sharedAttributeBlockTypes } from '../../utils/shared-attributes';
+import sharedAttributes, {
+	sharedAttributeBlockTypes,
+} from '../../utils/shared-attributes';
 
 /**
  * Register and run the "Products by Category" block.
  */
 registerBlockType( 'woocommerce/product-category', {
-	title: __( 'Products by Category', 'woo-gutenberg-products-block' ),
+	title: __( 'Products by Category', 'woocommerce' ),
 	icon: {
 		src: 'category',
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
-	keywords: [ __( 'WooCommerce', 'woo-gutenberg-products-block' ) ],
+	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
 		'Display a grid of products from your selected categories.',
-		'woo-gutenberg-products-block'
+		'woocommerce'
 	),
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+	},
+	example: {
+		attributes: {
+			isPreview: true,
+		},
 	},
 	attributes: {
 		...sharedAttributes,
@@ -56,11 +63,15 @@ registerBlockType( 'woocommerce/product-category', {
 		from: [
 			{
 				type: 'block',
-				blocks: without( sharedAttributeBlockTypes, 'woocommerce/product-category' ),
-				transform: ( attributes ) => createBlock(
-					'woocommerce/product-category',
-					{ ...attributes, editMode: false }
+				blocks: without(
+					sharedAttributeBlockTypes,
+					'woocommerce/product-category'
 				),
+				transform: ( attributes ) =>
+					createBlock( 'woocommerce/product-category', {
+						...attributes,
+						editMode: false,
+					} ),
 			},
 		],
 	},
@@ -79,7 +90,9 @@ registerBlockType( 'woocommerce/product-category', {
 					default: 'date',
 				},
 			},
-			save: deprecatedConvertToShortcode( 'woocommerce/product-category' ),
+			save: deprecatedConvertToShortcode(
+				'woocommerce/product-category'
+			),
 		},
 	],
 

@@ -18,7 +18,7 @@
  *
  * @package   WC-Braintree/Gateway
  * @author    WooCommerce
- * @copyright Copyright: (c) 2016-2019, Automattic, Inc.
+ * @copyright Copyright: (c) 2016-2020, Automattic, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -523,8 +523,7 @@ class WC_Gateway_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_
 		$production_connect_url = 'https://connect.woocommerce.com/login/braintree';
 		$sandbox_connect_url    = 'https://connect.woocommerce.com/login/braintreesandbox';
 
-		$redirect_url = wp_nonce_url( $this->get_plugin()->get_payment_gateway_configuration_url( $this->get_id() ), 'connect_paypal_braintree', 'wc_paypal_braintree_admin_nonce' );
-
+		$redirect_url = add_query_arg( 'wc_paypal_braintree_admin_nonce', wp_create_nonce( 'connect_paypal_braintree' ), $this->get_plugin()->get_payment_gateway_configuration_url( $this->get_id() ) );
 		$current_user = wp_get_current_user();
 
 		// Note:  We doubly urlencode the redirect url to avoid Braintree's server
@@ -1416,7 +1415,7 @@ class WC_Gateway_Braintree extends WC_Braintree_Framework\SV_WC_Payment_Gateway_
 		}
 
 		// check for invalid characters
-		if ( $invalid_characters = preg_replace( '/[\d-().]/', '', $value ) ) {
+		if ( $invalid_characters = preg_replace( '/[\d\-().]/', '', $value ) ) {
 			return false;
 		}
 

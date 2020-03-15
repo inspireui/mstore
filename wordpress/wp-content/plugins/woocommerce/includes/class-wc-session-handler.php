@@ -10,6 +10,8 @@
  * @package  WooCommerce/Classes
  */
 
+use Automattic\Jetpack\Constants;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -93,9 +95,9 @@ class WC_Session_Handler extends WC_Session {
 			$this->_data               = $this->get_session_data();
 
 			// If the user logs in, update session.
-			if ( is_user_logged_in() && get_current_user_id() !== $this->_customer_id ) {
-				$guest_session_id = $this->_customer_id;
-				$this->_customer_id = get_current_user_id();
+			if ( is_user_logged_in() && strval( get_current_user_id() ) !== $this->_customer_id ) {
+				$guest_session_id   = $this->_customer_id;
+				$this->_customer_id = strval( get_current_user_id() );
 				$this->_dirty       = true;
 				$this->save_data( $guest_session_id );
 				$this->set_customer_session_cookie( true );
@@ -173,7 +175,7 @@ class WC_Session_Handler extends WC_Session {
 		$customer_id = '';
 
 		if ( is_user_logged_in() ) {
-			$customer_id = get_current_user_id();
+			$customer_id = strval( get_current_user_id() );
 		}
 
 		if ( empty( $customer_id ) ) {
@@ -302,7 +304,7 @@ class WC_Session_Handler extends WC_Session {
 		$wpdb->query( $wpdb->prepare( "DELETE FROM $this->_table WHERE session_expiry < %d", time() ) ); // @codingStandardsIgnoreLine.
 
 		if ( class_exists( 'WC_Cache_Helper' ) ) {
-			WC_Cache_Helper::incr_cache_prefix( WC_SESSION_CACHE_GROUP );
+			WC_Cache_Helper::invalidate_cache_group( WC_SESSION_CACHE_GROUP );
 		}
 	}
 
@@ -316,7 +318,7 @@ class WC_Session_Handler extends WC_Session {
 	public function get_session( $customer_id, $default = false ) {
 		global $wpdb;
 
-		if ( defined( 'WP_SETUP_CONFIG' ) ) {
+		if ( Constants::is_defined( 'WP_SETUP_CONFIG' ) ) {
 			return false;
 		}
 

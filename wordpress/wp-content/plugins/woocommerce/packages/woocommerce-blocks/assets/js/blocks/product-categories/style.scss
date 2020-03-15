@@ -10,6 +10,14 @@
 	}
 }
 
+.wc-block-product-categories-list-item-count::before {
+	content: " (";
+}
+
+.wc-block-product-categories-list-item-count::after {
+	content: ")";
+}
+
 .wp-block-woocommerce-product-categories.is-loading .wc-block-product-categories__placeholder {
 	display: inline-block;
 	height: 1em;
@@ -27,7 +35,6 @@
 	margin: 0;
 	border: none;
 	cursor: pointer;
-	-webkit-appearance: none;
 	background: none;
 	padding: 8px;
 	color: #555d66;
@@ -37,9 +44,9 @@
 	svg {
 		fill: currentColor;
 		outline: none;
-	}
-	.screen-reader-text {
-		height: auto;
+		.rtl & {
+			transform: rotate(180deg);
+		}
 	}
 	&:active {
 		color: currentColor;

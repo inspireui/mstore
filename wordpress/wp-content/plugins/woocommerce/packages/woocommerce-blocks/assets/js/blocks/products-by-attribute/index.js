@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import Gridicon from 'gridicons';
 import { registerBlockType } from '@wordpress/blocks';
+import { DEFAULT_COLUMNS, DEFAULT_ROWS } from '@woocommerce/block-settings';
 
 /**
  * Internal dependencies
@@ -15,20 +16,25 @@ import { deprecatedConvertToShortcode } from '../../utils/deprecations';
 const blockTypeName = 'woocommerce/products-by-attribute';
 
 registerBlockType( blockTypeName, {
-	title: __( 'Products by Attribute', 'woo-gutenberg-products-block' ),
+	title: __( 'Products by Attribute', 'woocommerce' ),
 	icon: {
 		src: <Gridicon icon="custom-post-type" />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
-	keywords: [ __( 'WooCommerce', 'woo-gutenberg-products-block' ) ],
+	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
 		'Display a grid of products from your selected attributes.',
-		'woo-gutenberg-products-block'
+		'woocommerce'
 	),
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+	},
+	example: {
+		attributes: {
+			isPreview: true,
+		},
 	},
 	attributes: {
 		/**
@@ -52,7 +58,7 @@ registerBlockType( blockTypeName, {
 		 */
 		columns: {
 			type: 'number',
-			default: wc_product_block_data.default_columns,
+			default: DEFAULT_COLUMNS,
 		},
 
 		/**
@@ -89,13 +95,21 @@ registerBlockType( blockTypeName, {
 		 */
 		rows: {
 			type: 'number',
-			default: wc_product_block_data.default_rows,
+			default: DEFAULT_ROWS,
 		},
 
 		/**
 		 * How to align cart buttons.
 		 */
 		alignButtons: {
+			type: 'boolean',
+			default: false,
+		},
+
+		/**
+		 * Are we previewing?
+		 */
+		isPreview: {
 			type: 'boolean',
 			default: false,
 		},
@@ -115,7 +129,7 @@ registerBlockType( blockTypeName, {
 				},
 				columns: {
 					type: 'number',
-					default: wc_product_block_data.default_columns,
+					default: DEFAULT_COLUMNS,
 				},
 				editMode: {
 					type: 'boolean',
@@ -136,7 +150,7 @@ registerBlockType( blockTypeName, {
 				},
 				rows: {
 					type: 'number',
-					default: wc_product_block_data.default_rows,
+					default: DEFAULT_ROWS,
 				},
 			},
 			save: deprecatedConvertToShortcode( blockTypeName ),
