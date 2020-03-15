@@ -2,7 +2,6 @@
 /**
  * Storefront Plugin Install Class
  *
- * @author   WooThemes
  * @package  storefront
  * @since    2.2.0
  */
@@ -40,7 +39,7 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 
 			wp_enqueue_script( 'storefront-plugin-install', get_template_directory_uri() . '/assets/js/admin/plugin-install' . $suffix . '.js', array( 'jquery', 'updates' ), $storefront_version, 'all' );
 
-			wp_enqueue_style( 'storefront-plugin-install', get_template_directory_uri() . '/assets/sass/admin/plugin-install.css', array(), $storefront_version, 'all' );
+			wp_enqueue_style( 'storefront-plugin-install', get_template_directory_uri() . '/assets/css/admin/plugin-install.css', array(), $storefront_version, 'all' );
 		}
 
 		/**
@@ -49,11 +48,16 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 		 *
 		 * @param string $plugin_slug The plugin slug.
 		 * @param string $plugin_file The plugin file.
+		 * @param string $plugin_name The plugin name.
+		 * @param string $classes CSS classes.
+		 * @param string $activated Button activated text.
+		 * @param string $activate Button activate text.
+		 * @param string $install Button install text.
 		 */
 		public static function install_plugin_button( $plugin_slug, $plugin_file, $plugin_name, $classes = array(), $activated = '', $activate = '', $install = '' ) {
 			if ( current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ) ) {
 				if ( is_plugin_active( $plugin_slug . '/' . $plugin_file ) ) {
-					// The plugin is already active
+					// The plugin is already active.
 					$button = array(
 						'message' => esc_attr__( 'Activated', 'storefront' ),
 						'url'     => '#',
@@ -63,12 +67,14 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 					if ( '' !== $activated ) {
 						$button['message'] = esc_attr( $activated );
 					}
-				} elseif ( $url = self::_is_plugin_installed( $plugin_slug ) ) {
+				} elseif ( self::_is_plugin_installed( $plugin_slug ) ) {
+					$url = self::_is_plugin_installed( $plugin_slug );
+
 					// The plugin exists but isn't activated yet.
 					$button = array(
 						'message' => esc_attr__( 'Activate', 'storefront' ),
 						'url'     => $url,
-						'classes' => array( 'storefront-button', 'activate-now' ),
+						'classes' => array( 'activate-now' ),
 					);
 
 					if ( '' !== $activate ) {
@@ -76,14 +82,18 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 					}
 				} else {
 					// The plugin doesn't exist.
-					$url = wp_nonce_url( add_query_arg( array(
-						'action' => 'install-plugin',
-						'plugin' => $plugin_slug,
-					), self_admin_url( 'update.php' ) ), 'install-plugin_' . $plugin_slug );
+					$url    = wp_nonce_url(
+						add_query_arg(
+							array(
+								'action' => 'install-plugin',
+								'plugin' => $plugin_slug,
+							), self_admin_url( 'update.php' )
+						), 'install-plugin_' . $plugin_slug
+					);
 					$button = array(
 						'message' => esc_attr__( 'Install now', 'storefront' ),
 						'url'     => $url,
-						'classes' => array( 'storefront-button', 'sf-install-now', 'install-now', 'install-' . $plugin_slug ),
+						'classes' => array( 'sf-install-now', 'install-now', 'install-' . $plugin_slug ),
 					);
 
 					if ( '' !== $install ) {
@@ -98,10 +108,10 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 				$button['classes'] = implode( ' ', $button['classes'] );
 
 				?>
-				<span class="sf-plugin-card plugin-card-<?php echo esc_attr( $plugin_slug ); ?>">
+				<span class="plugin-card-<?php echo esc_attr( $plugin_slug ); ?>">
 					<a href="<?php echo esc_url( $button['url'] ); ?>" class="<?php echo esc_attr( $button['classes'] ); ?>" data-originaltext="<?php echo esc_attr( $button['message'] ); ?>" data-name="<?php echo esc_attr( $plugin_name ); ?>" data-slug="<?php echo esc_attr( $plugin_slug ); ?>" aria-label="<?php echo esc_attr( $button['message'] ); ?>"><?php echo esc_attr( $button['message'] ); ?></a>
-				</span>
-				<a href="https://wordpress.org/plugins/<?php echo esc_attr( $plugin_slug ); ?>" target="_blank"><?php esc_attr_e( 'Learn more', 'storefront' ); ?></a>
+				</span> <?php echo esc_html( _x( 'or', 'Translators: conjunction of two alternative options user can choose (in missing plugin admin notice). Example: "Activate WooCommerce or learn more"', 'storefront' ) ); ?>
+				<a href="https://wordpress.org/plugins/<?php echo esc_attr( $plugin_slug ); ?>" target="_blank"><?php esc_attr_e( 'learn more', 'storefront' ); ?></a>
 				<?php
 			}
 		}
@@ -117,10 +127,14 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 				if ( ! empty( $plugins ) ) {
 					$keys        = array_keys( $plugins );
 					$plugin_file = $plugin_slug . '/' . $keys[0];
-					$url         = wp_nonce_url( add_query_arg( array(
-						'action' => 'activate',
-						'plugin' => $plugin_file,
-					), admin_url( 'plugins.php' ) ), 'activate-plugin_' . $plugin_file );
+					$url         = wp_nonce_url(
+						add_query_arg(
+							array(
+								'action' => 'activate',
+								'plugin' => $plugin_file,
+							), admin_url( 'plugins.php' )
+						), 'activate-plugin_' . $plugin_file
+					);
 					return $url;
 				}
 			}

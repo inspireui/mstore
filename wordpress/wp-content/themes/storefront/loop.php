@@ -3,14 +3,15 @@
  * The loop template file.
  *
  * Included on pages like index.php, archive.php and search.php to display a loop of posts
- * Learn more: http://codex.wordpress.org/The_Loop
+ * Learn more: https://codex.wordpress.org/The_Loop
  *
  * @package storefront
  */
 
 do_action( 'storefront_loop_before' );
 
-while ( have_posts() ) : the_post();
+while ( have_posts() ) :
+	the_post();
 
 	/**
 	 * Include the Post-Format-specific template for the content.

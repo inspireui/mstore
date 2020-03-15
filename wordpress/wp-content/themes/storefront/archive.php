@@ -2,7 +2,7 @@
 /**
  * The template for displaying archive pages.
  *
- * Learn more: http://codex.wordpress.org/Template_Hierarchy
+ * Learn more: https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
  * @package storefront
  */
@@ -21,13 +21,15 @@ get_header(); ?>
 				?>
 			</header><!-- .page-header -->
 
-			<?php get_template_part( 'loop' );
+			<?php
+			get_template_part( 'loop' );
 
 		else :
 
 			get_template_part( 'content', 'none' );
 
-		endif; ?>
+		endif;
+		?>
 
 		</main><!-- #main -->
 	</div><!-- #primary -->

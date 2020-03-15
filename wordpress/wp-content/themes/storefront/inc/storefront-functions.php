@@ -1,6 +1,6 @@
 <?php
 /**
- * Storefront  functions.
+ * Storefront functions.
  *
  * @package storefront
  */
@@ -11,22 +11,6 @@ if ( ! function_exists( 'storefront_is_woocommerce_activated' ) ) {
 	 */
 	function storefront_is_woocommerce_activated() {
 		return class_exists( 'WooCommerce' ) ? true : false;
-	}
-}
-
-/**
- * Checks if the current page is a product archive
- * @return boolean
- */
-function storefront_is_product_archive() {
-	if ( storefront_is_woocommerce_activated() ) {
-		if ( is_shop() || is_product_taxonomy() || is_product_category() || is_product_tag() ) {
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
 	}
 }
 
@@ -72,7 +56,7 @@ function storefront_get_content_background_color() {
 	$bg_color = str_replace( '#', '', get_theme_mod( 'background_color' ) );
 
 	if ( class_exists( 'Storefront_Powerpack' ) || class_exists( 'Storefront_Designer' ) ) {
-		if ( $content_bg_color && ( 'true' == $content_frame || 'frame' == $content_frame ) ) {
+		if ( $content_bg_color && ( 'true' === $content_frame || 'frame' === $content_frame ) ) {
 			$bg_color = str_replace( '#', '', $content_bg_color );
 		}
 	}
@@ -125,7 +109,7 @@ function storefront_homepage_content_styles() {
 
 	if ( '' !== $background_image ) {
 		$styles['background-image'] = $background_image;
-	}	
+	}
 
 	$styles = apply_filters( 'storefront_homepage_content_styles', $styles );
 
@@ -145,28 +129,28 @@ function storefront_homepage_content_styles() {
  */
 function storefront_adjust_color_brightness( $hex, $steps ) {
 	// Steps should be between -255 and 255. Negative = darker, positive = lighter.
-	$steps  = max( -255, min( 255, $steps ) );
+	$steps = max( -255, min( 255, $steps ) );
 
 	// Format the hex color string.
-	$hex    = str_replace( '#', '', $hex );
+	$hex = str_replace( '#', '', $hex );
 
-	if ( 3 == strlen( $hex ) ) {
-		$hex    = str_repeat( substr( $hex, 0, 1 ), 2 ) . str_repeat( substr( $hex, 1, 1 ), 2 ) . str_repeat( substr( $hex, 2, 1 ), 2 );
+	if ( 3 === strlen( $hex ) ) {
+		$hex = str_repeat( substr( $hex, 0, 1 ), 2 ) . str_repeat( substr( $hex, 1, 1 ), 2 ) . str_repeat( substr( $hex, 2, 1 ), 2 );
 	}
 
 	// Get decimal values.
-	$r  = hexdec( substr( $hex, 0, 2 ) );
-	$g  = hexdec( substr( $hex, 2, 2 ) );
-	$b  = hexdec( substr( $hex, 4, 2 ) );
+	$r = hexdec( substr( $hex, 0, 2 ) );
+	$g = hexdec( substr( $hex, 2, 2 ) );
+	$b = hexdec( substr( $hex, 4, 2 ) );
 
 	// Adjust number of steps and keep it inside 0 to 255.
-	$r  = max( 0, min( 255, $r + $steps ) );
-	$g  = max( 0, min( 255, $g + $steps ) );
-	$b  = max( 0, min( 255, $b + $steps ) );
+	$r = max( 0, min( 255, $r + $steps ) );
+	$g = max( 0, min( 255, $g + $steps ) );
+	$b = max( 0, min( 255, $b + $steps ) );
 
-	$r_hex  = str_pad( dechex( $r ), 2, '0', STR_PAD_LEFT );
-	$g_hex  = str_pad( dechex( $g ), 2, '0', STR_PAD_LEFT );
-	$b_hex  = str_pad( dechex( $b ), 2, '0', STR_PAD_LEFT );
+	$r_hex = str_pad( dechex( $r ), 2, '0', STR_PAD_LEFT );
+	$g_hex = str_pad( dechex( $g ), 2, '0', STR_PAD_LEFT );
+	$b_hex = str_pad( dechex( $b ), 2, '0', STR_PAD_LEFT );
 
 	return '#' . $r_hex . $g_hex . $b_hex;
 }
@@ -201,63 +185,7 @@ function storefront_sanitize_choices( $input, $setting ) {
  * @since  1.5.0
  */
 function storefront_sanitize_checkbox( $checked ) {
-	return ( ( isset( $checked ) && true == $checked ) ? true : false );
-}
-
-if ( ! function_exists( 'is_woocommerce_activated' ) ) {
-	/**
-	 * Query WooCommerce activation
-	 */
-	function is_woocommerce_activated() {
-		_deprecated_function( 'is_woocommerce_activated', '2.1.6', 'storefront_is_woocommerce_activated' );
-
-		return class_exists( 'woocommerce' ) ? true : false;
-	}
-}
-
-/**
- * Schema type
- *
- * @return void
- */
-function storefront_html_tag_schema() {
-	_deprecated_function( 'storefront_html_tag_schema', '2.0.2' );
-
-	$schema = 'http://schema.org/';
-	$type   = 'WebPage';
-
-	if ( is_singular( 'post' ) ) {
-		$type = 'Article';
-	} elseif ( is_author() ) {
-		$type = 'ProfilePage';
-	} elseif ( is_search() ) {
-		$type 	= 'SearchResultsPage';
-	}
-
-	echo 'itemscope="itemscope" itemtype="' . esc_attr( $schema ) . esc_attr( $type ) . '"';
-}
-
-/**
- * Sanitizes the layout setting
- *
- * Ensures only array keys matching the original settings specified in add_control() are valid
- *
- * @param array $input the layout options.
- * @since 1.0.3
- */
-function storefront_sanitize_layout( $input ) {
-	_deprecated_function( 'storefront_sanitize_layout', '2.0', 'storefront_sanitize_choices' );
-
-	$valid = array(
-		'right' => 'Right',
-		'left'  => 'Left',
-	);
-
-	if ( array_key_exists( $input, $valid ) ) {
-		return $input;
-	} else {
-		return '';
-	}
+	return ( ( isset( $checked ) && true === $checked ) ? true : false );
 }
 
 /**
@@ -279,36 +207,4 @@ function storefront_sanitize_hex_color( $color ) {
 	}
 
 	return null;
-}
-
-/**
- * Returns true if a blog has more than 1 category.
- *
- * @return bool
- * @todo remove in 2.1.
- */
-function storefront_categorized_blog() {
-	_deprecated_function( 'storefront_categorized_blog', '2.0' );
-
-	if ( false === ( $all_the_cool_cats = get_transient( 'storefront_categories' ) ) ) {
-		// Create an array of all the categories that are attached to posts.
-		$all_the_cool_cats = get_categories( array(
-			'fields'     => 'ids',
-			'hide_empty' => 1,
-			// We only need to know if there is more than one category.
-			'number'     => 2,
-		) );
-
-		// Count the number of categories that are attached to the posts.
-		$all_the_cool_cats = count( $all_the_cool_cats );
-		set_transient( 'storefront_categories', $all_the_cool_cats );
-	}
-
-	if ( $all_the_cool_cats > 1 ) {
-		// This blog has more than 1 category so storefront_categorized_blog should return true.
-		return true;
-	} else {
-		// This blog has only 1 category so storefront_categorized_blog should return false.
-		return false;
-	}
 }
