@@ -10,7 +10,7 @@
     - Update file *App/Common/AppConfig.json* to change Wordpress URL.
 
 -   ##### MStore app:
-    -   Update file *src/common/AppConfig.json* to change new Wordpress/Woocommerce URL
+    -   Update file *src/common/Config.json* to change new Wordpress/Woocommerce URL
     
 -   ##### FluxStore app:
     -   Copy file *example/fluxstore/config.dart* and *example/fluxstore/config.json* and override the files in *lib/common* folder
