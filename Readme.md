@@ -6,23 +6,23 @@
 -   Setup your virtual host and change the app config to this Wordpress site.
 -   Account login: root / 12345678 or user / 12345678
 
-- ##### BeoNews app
+- ##### [BeoNews app](https://1.envato.market/WrRoZ)
     - Update file *App/Common/AppConfig.json* to change Wordpress URL.
 
--   ##### MStore app:
+-   ##### [MStore app](https://1.envato.market/zGrdW):
     -   Update file *src/common/AppConfig.json* to change new Wordpress/Woocommerce URL
     
--   ##### FluxStore app:
+-   ##### [FluxStore app](https://1.envato.market/QL4d9):
     -   Copy file *example/fluxstore/config.dart* and *example/fluxstore/config.json* and override the files in *lib/common* folder
     
--   ##### FluxNews app:
+-   ##### [FluxNews app](https://1.envato.market/yA91G):
     -   Copy file *example/fluxstore/config.dart* and *example/fluxstore/config.json* and override the files in *lib/common* folder
     
 ### Credit:
 - The demo data is used from Shophistic template https://github.com/nicoandrade/Shophistic-Lite
 
 ### Support
-Please post the issue ticket with your Envato username and purchase code to ask for installing help or troubleshooting from InspireUI support team - https://github.com/inspireui/support/issues
+Please post the issue ticket with your Envato username and purchase code to ask for installing help or troubleshooting from InspireUI support team - https://support.inspireui.com/
         
 Thank you very much!
 
