@@ -21,6 +21,7 @@ class WC_Shop_Customizer {
 		add_action( 'customize_controls_print_styles', array( $this, 'add_styles' ) );
 		add_action( 'customize_controls_print_scripts', array( $this, 'add_scripts' ), 30 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'add_frontend_scripts' ) );
+		add_action( 'admin_menu', array( $this, 'add_fse_customize_link' ) );
 	}
 
 	/**
@@ -83,6 +84,19 @@ class WC_Shop_Customizer {
 				width: auto;
 				display: inline-block;
 			}
+			<?php
+			// For FSE themes hide the back button so we only surface WooCommerce options.
+			if ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) {
+				?>
+					#sub-accordion-panel-woocommerce .customize-panel-back{
+						display: none;
+					}
+					#customize-controls #sub-accordion-panel-woocommerce .panel-meta.customize-info .accordion-section-title {
+						margin-left: 0;
+					}
+				<?php
+			}
+			?>
 		</style>
 		<?php
 	}
@@ -102,7 +116,7 @@ class WC_Shop_Customizer {
 		$max_notice = __( 'The maximum allowed setting is %d', 'woocommerce' );
 		?>
 		<script type="text/javascript">
-			jQuery( document ).ready( function( $ ) {
+			jQuery( function( $ ) {
 				$( document.body ).on( 'change', '.woocommerce-cropping-control input[type="radio"]', function() {
 					var $wrapper = $( this ).closest( '.woocommerce-cropping-control' ),
 						value    = $wrapper.find( 'input:checked' ).val();
@@ -117,7 +131,7 @@ class WC_Shop_Customizer {
 				} );
 
 				wp.customize.bind( 'ready', function() { // Ready?
-					$( '.woocommerce-cropping-control' ).find( 'input:checked' ).change();
+					$( '.woocommerce-cropping-control' ).find( 'input:checked' ).trigger( 'change' );
 				} );
 
 				wp.customize( 'woocommerce_demo_store', function( setting ) {
@@ -226,7 +240,7 @@ class WC_Shop_Customizer {
 								'max_rows_error',
 								{
 									type   : 'error',
-									message: '<?php echo esc_js( sprintf( $min_notice, $max_rows ) ); ?>'
+									message: '<?php echo esc_js( sprintf( $max_notice, $max_rows ) ); ?>'
 								}
 							) );
 						} else {
@@ -249,6 +263,29 @@ class WC_Shop_Customizer {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * For FSE themes add a "Customize WooCommerce" link to the Appearance menu.
+	 *
+	 * FSE themes hide the "Customize" link in the Appearance menu. In WooCommerce we have several options that can currently
+	 * only be edited via the Customizer. For now, we are thus adding a new link for WooCommerce specific Customizer options.
+	 */
+	public function add_fse_customize_link() {
+
+		// Exit early if the FSE theme feature isn't present or the current theme is not a FSE theme.
+		if ( ! function_exists( 'gutenberg_is_fse_theme' ) || function_exists( 'gutenberg_is_fse_theme' ) && ! gutenberg_is_fse_theme() ) {
+			return;
+		}
+
+		// Add a link to the WooCommerce panel in the Customizer.
+		add_submenu_page(
+			'themes.php',
+			__( 'Customize WooCommerce', 'woocommerce' ),
+			__( 'Customize WooCommerce', 'woocommerce' ),
+			'edit_theme_options',
+			admin_url( 'customize.php?autofocus[panel]=woocommerce' )
+		);
 	}
 
 	/**
@@ -762,10 +799,16 @@ class WC_Shop_Customizer {
 			)
 		);
 
-		$choose_pages = array(
-			'wp_page_for_privacy_policy' => __( 'Privacy policy', 'woocommerce' ),
-			'woocommerce_terms_page_id'  => __( 'Terms and conditions', 'woocommerce' ),
-		);
+		if ( current_user_can( 'manage_privacy_options' ) ) {
+			$choose_pages = array(
+				'wp_page_for_privacy_policy' => __( 'Privacy policy', 'woocommerce' ),
+				'woocommerce_terms_page_id'  => __( 'Terms and conditions', 'woocommerce' ),
+			);
+		} else {
+			$choose_pages = array(
+				'woocommerce_terms_page_id' => __( 'Terms and conditions', 'woocommerce' ),
+			);
+		}
 		$pages        = get_pages(
 			array(
 				'post_type'   => 'page',
@@ -812,7 +855,7 @@ class WC_Shop_Customizer {
 				'description'     => __( 'Optionally add some text about your store privacy policy to show during checkout.', 'woocommerce' ),
 				'section'         => 'woocommerce_checkout',
 				'settings'        => 'woocommerce_checkout_privacy_policy_text',
-				'active_callback' => 'wc_privacy_policy_page_id',
+				'active_callback' => array( $this, 'has_privacy_policy_page_id' ),
 				'type'            => 'textarea',
 			)
 		);
@@ -824,7 +867,7 @@ class WC_Shop_Customizer {
 				'description'     => __( 'Optionally add some text for the terms checkbox that customers must accept.', 'woocommerce' ),
 				'section'         => 'woocommerce_checkout',
 				'settings'        => 'woocommerce_checkout_terms_and_conditions_checkbox_text',
-				'active_callback' => 'wc_terms_and_conditions_page_id',
+				'active_callback' => array( $this, 'has_terms_and_conditions_page_id' ),
 				'type'            => 'text',
 			)
 		);
@@ -858,6 +901,24 @@ class WC_Shop_Customizer {
 	public function sanitize_checkout_field_display( $value ) {
 		$options = array( 'hidden', 'optional', 'required' );
 		return in_array( $value, $options, true ) ? $value : '';
+	}
+
+	/**
+	 * Whether or not a page has been chose for the privacy policy.
+	 *
+	 * @return bool
+	 */
+	public function has_privacy_policy_page_id() {
+		return wc_privacy_policy_page_id() > 0;
+	}
+
+	/**
+	 * Whether or not a page has been chose for the terms and conditions.
+	 *
+	 * @return bool
+	 */
+	public function has_terms_and_conditions_page_id() {
+		return wc_terms_and_conditions_page_id() > 0;
 	}
 }
 

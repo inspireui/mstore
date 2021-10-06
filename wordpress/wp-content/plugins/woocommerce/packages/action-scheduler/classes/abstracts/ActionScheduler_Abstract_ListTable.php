@@ -105,7 +105,7 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
 	/**
 	 * Makes translation easier, it basically just wraps
 	 * `_x` with some default (the package name).
-	 * 
+	 *
 	 * @deprecated 3.0.0
 	 */
 	protected function translate( $text, $context = '' ) {
@@ -140,7 +140,6 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
 		global $wpdb;
 		// Detect when a bulk action is being triggered.
 		$action = $this->current_action();
-
 		if ( ! $action ) {
 			return;
 		}
@@ -161,13 +160,14 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
 	}
 
 	/**
-	 * Default code for deleting entries. We trust ids_sql because it is
+	 * Default code for deleting entries.
 	 * validated already by process_bulk_action()
 	 */
 	protected function bulk_delete( array $ids, $ids_sql ) {
-		global $wpdb;
-
-		$wpdb->query( "DELETE FROM {$this->table_name} WHERE {$this->ID} IN $ids_sql" );
+		$store = ActionScheduler::store();
+		foreach ( $ids as $action_id ) {
+			$store->delete( $action_id );
+		}
 	}
 
 	/**
@@ -177,7 +177,7 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
 	protected function prepare_column_headers() {
 		$this->_column_headers = array(
 			$this->get_columns(),
-			array(),
+			get_hidden_columns( $this->screen ),
 			$this->get_sortable_columns(),
 		);
 	}
@@ -625,7 +625,7 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
 	protected function display_table() {
 		echo '<form id="' . esc_attr( $this->_args['plural'] ) . '-filter" method="get">';
 		foreach ( $_GET as $key => $value ) {
-			if ( '_' === $key[0] || 'paged' === $key ) {
+			if ( '_' === $key[0] || 'paged' === $key || 'ID' === $key ) {
 				continue;
 			}
 			echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
@@ -642,7 +642,6 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
 	 */
 	public function process_actions() {
 		$this->process_bulk_action();
-
 		$this->process_row_actions();
 
 		if ( ! empty( $_REQUEST['_wp_http_referer'] ) ) {

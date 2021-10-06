@@ -5,11 +5,13 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Disabled } from '@wordpress/components';
-import { ENABLE_REVIEW_RATING } from '@woocommerce/block-settings';
-import ErrorPlaceholder from '@woocommerce/block-components/error-placeholder';
+import { getSetting } from '@woocommerce/settings';
+import ErrorPlaceholder from '@woocommerce/editor-components/error-placeholder';
 import LoadMoreButton from '@woocommerce/base-components/load-more-button';
-import ReviewList from '@woocommerce/base-components/review-list';
-import ReviewSortSelect from '@woocommerce/base-components/review-sort-select';
+import {
+	ReviewList,
+	ReviewSortSelect,
+} from '@woocommerce/base-components/reviews';
 import withReviews from '@woocommerce/base-hocs/with-reviews';
 
 /**
@@ -50,9 +52,11 @@ class EditorBlock extends Component {
 			return <NoReviewsPlaceholder attributes={ attributes } />;
 		}
 
+		const reviewRatingsEnabled = getSetting( 'reviewRatingsEnabled', true );
+
 		return (
 			<Disabled>
-				{ attributes.showOrderby && ENABLE_REVIEW_RATING && (
+				{ attributes.showOrderby && reviewRatingsEnabled && (
 					<ReviewSortSelect readOnly value={ attributes.orderby } />
 				) }
 				<ReviewList attributes={ attributes } reviews={ reviews } />

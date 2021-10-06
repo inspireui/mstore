@@ -32,19 +32,26 @@ class Cwebp extends AbstractConverter
         return [];
     }
 
-    protected function createOptions()
+    /**
+    *  Get the options unique for this converter
+     *
+     *  @return  array  Array of options
+     */
+    public function getUniqueOptions($imageType)
     {
-        parent::createOptions();
-
-        $this->options2->addOptions(
-            new StringOption('command-line-options', ''),
-            new SensitiveStringOption('rel-path-to-precompiled-binaries', './Binaries'),
+        return [
             new BooleanOption('try-cwebp', true),
             new BooleanOption('try-common-system-paths', true),
             new BooleanOption('try-discovering-cwebp', true),
-            new BooleanOption('try-supplied-binary-for-os', true)
-        );
+            new BooleanOption('try-supplied-binary-for-os', true),
+            new StringOption('command-line-options', ''),
+            new SensitiveStringOption('rel-path-to-precompiled-binaries', './Binaries'),
+            new StringOption('skip-these-precompiled-binaries', '')
+        ];
     }
+
+
+
 
     // OS-specific binaries included in this library, along with hashes
     // If other binaries are going to be added, notice that the first argument is what PHP_OS returns.
@@ -55,32 +62,45 @@ class Cwebp extends AbstractConverter
     // 2: Set permission to 775. 755 causes unzipping to fail on some hosts
     private static $suppliedBinariesInfo = [
         'WINNT' => [
-            ['cwebp-103-windows-x64.exe', 'b3aaab03ca587e887f11f6ae612293d034ee04f4f7f6bc7a175321bb47a10169'],
+            ['cwebp-120-windows-x64.exe', '2849fd06012a9eb311b02a4f8918ae4b16775693bc21e95f4cc6a382eac299f9', '1.2.0'],
+
+            // Keep the 1.1.0 version a while, in case some may have problems with the 1.2.0 version
+            ['cwebp-110-windows-x64.exe', '442682869402f92ad2c8b3186c02b0ea6d6da68d2f908df38bf905b3411eb9fb', '1.1.0'],
         ],
         'Darwin' => [
-            ['cwebp-103-mac-10_14', '7332ed5f0d4091e2379b1eaa32a764f8c0d51b7926996a1dc8b4ef4e3c441a12'],
+            ['cwebp-110-mac-10_15', 'bfce742da09b959f9f2929ba808fed9ade25c8025530434b6a47d217a6d2ceb5', '1.1.0'],
         ],
         'SunOS' => [
             // Got this from ewww Wordpress plugin, which unfortunately still uses the old 0.6.0 versions
             // Can you help me get a 1.0.3 version?
-            ['cwebp-060-solaris', '1febaffbb18e52dc2c524cda9eefd00c6db95bc388732868999c0f48deb73b4f']
+            ['cwebp-060-solaris', '1febaffbb18e52dc2c524cda9eefd00c6db95bc388732868999c0f48deb73b4f', '0.6.0']
         ],
         'FreeBSD' => [
             // Got this from ewww Wordpress plugin, which unfortunately still uses the old 0.6.0 versions
             // Can you help me get a 1.0.3 version?
-            ['cwebp-060-fbsd', 'e5cbea11c97fadffe221fdf57c093c19af2737e4bbd2cb3cd5e908de64286573']
+            ['cwebp-060-fbsd', 'e5cbea11c97fadffe221fdf57c093c19af2737e4bbd2cb3cd5e908de64286573', '0.6.0']
         ],
         'Linux' => [
-            // Dynamically linked executable.
-            // It seems it is slightly faster than the statically linked
-            ['cwebp-103-linux-x86-64', 'a663215a46d347f63e1ca641c18527a1ae7a2c9a0ae85ca966a97477ea13dfe0'],
+
+            // PS: Some experience the following error with 1.20:
+            // /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found
+            // (see #278)
+
+            ['cwebp-120-linux-x86-64', 'f1b7dc03e95535a6b65852de07c0404be4dba078af48369f434ee39b2abf8f4e', '1.2.0'],
+
+            // As some experience the an error with 1.20 (see #278), we keep the 1.10
+            ['cwebp-110-linux-x86-64', '1603b07b592876dd9fdaa62b44aead800234c9474ff26dc7dd01bc0f4785c9c6', '1.1.0'],
 
             // Statically linked executable
             // It may be that it on some systems works, where the dynamically linked does not (see #196)
-            ['cwebp-103-linux-x86-64-static', 'ab96f01b49336da8b976c498528080ff614112d5985da69943b48e0cb1c5228a'],
+            [
+                'cwebp-103-linux-x86-64-static',
+                'ab96f01b49336da8b976c498528080ff614112d5985da69943b48e0cb1c5228a',
+                '1.0.3'
+            ],
 
-            // Old executable for systems in case both of the above fails
-            ['cwebp-061-linux-x86-64', '916623e5e9183237c851374d969aebdb96e0edc0692ab7937b95ea67dc3b2568'],
+            // Old executable for systems in case all of the above fails
+            ['cwebp-061-linux-x86-64', '916623e5e9183237c851374d969aebdb96e0edc0692ab7937b95ea67dc3b2568', '0.6.1'],
         ]
     ];
 
@@ -89,12 +109,18 @@ class Cwebp extends AbstractConverter
      *
      *  This isn't used when converting, but can be used as a startup check.
      */
-    public function checkAllHashes()
+    public static function checkAllHashes()
     {
         foreach (self::$suppliedBinariesInfo as $os => $arr) {
-            foreach ($arr as $i => list($filename, $hash)) {
-                if ($hash != hash_file("sha256", __DIR__ . '/Binaries/' . $filename)) {
-                    throw new \Exception('Hash for ' . $filename . ' is incorrect!');
+            foreach ($arr as $i => list($filename, $expectedHash)) {
+                $actualHash = hash_file("sha256", __DIR__ . '/Binaries/' . $filename);
+                if ($expectedHash != $actualHash) {
+                    throw new \Exception(
+                        'Hash for ' . $filename . ' is incorrect! ' .
+                        'Checksum is: ' . $actualHash . ', ' .
+                        ', but expected: ' . $expectedHash .
+                        '. Did you transfer with FTP, but not in binary mode? '
+                    );
                 }
             }
         }
@@ -123,13 +149,20 @@ class Cwebp extends AbstractConverter
     {
         //$version = $this->detectVersion($binary);
 
-        $command = ($useNice ? 'nice ' : '') . $binary . ' ' . $commandOptions;
+        // Redirect stderr to same place as stdout with "2>&1"
+        // https://www.brianstorti.com/understanding-shell-script-idiom-redirect/
+
+        $command = ($useNice ? 'nice ' : '') . $binary . ' ' . $commandOptions . ' 2>&1';
 
         //$logger->logLn('command options:' . $commandOptions);
         $this->logLn('Trying to convert by executing the following command:');
+        $startExecuteBinaryTime = self::startTimer();
+        ;
         $this->logLn($command);
         exec($command, $output, $returnCode);
         $this->logExecOutput($output);
+        $this->logTimeSpent($startExecuteBinaryTime, 'Executing cwebp binary took: ');
+        $this->logLn('');
         /*
         if ($returnCode == 255) {
             if (isset($output[0])) {
@@ -226,12 +259,14 @@ class Cwebp extends AbstractConverter
         // Comma-separated list of existing metadata to copy from input to output
         if ($versionNum >= 0.3) {
             $cmdOptions[] = '-metadata ' . $options['metadata'];
+        } else {
+            $this->logLn('Ignoring metadata option (requires cwebp 0.3)', 'italic');
         }
 
         // preset. Appears first in the list as recommended in the docs
         if (!is_null($options['preset'])) {
             if ($options['preset'] != 'none') {
-                $cmdOptions[] = '-preset ' . $options['preset'];
+                $cmdOptions[] = '-preset ' . escapeshellarg($options['preset']);
             }
         }
 
@@ -267,17 +302,12 @@ class Cwebp extends AbstractConverter
         // Near-lossles
         if ($options['near-lossless'] !== 100) {
             if ($versionNum < 0.5) {
-                $this->logLn(
-                    'The near-lossless option is not supported on this (rather old) version of cwebp' .
-                        '- skipping it.',
-                    'italic'
-                );
+                $this->logLn('Ignoring near-lossless option (requires cwebp 0.5)', 'italic');
             } else {
                 // We only let near_lossless have effect when encoding is set to "lossless"
                 // otherwise encoding=auto would not work as expected
-
                 if ($options['encoding'] == 'lossless') {
-                    $cmdOptions[] ='-near_lossless ' . $options['near-lossless'];
+                    $cmdOptions[] = '-near_lossless ' . $options['near-lossless'];
                 } else {
                     $this->logLn(
                         'The near-lossless option ignored for lossy'
@@ -286,9 +316,20 @@ class Cwebp extends AbstractConverter
             }
         }
 
+        // Autofilter
         if ($options['auto-filter'] === true) {
             $cmdOptions[] = '-af';
         }
+
+        // SharpYUV
+        if ($options['sharp-yuv'] === true) {
+            if ($versionNum >= 0.6) {  // #284
+                $cmdOptions[] = '-sharp_yuv';
+            } else {
+                $this->logLn('Ignoring sharp-yuv option (requires cwebp 0.6)', 'italic');
+            }
+        }
+
 
         // Built-in method option
         $cmdOptions[] = '-m ' . strval($options['method']);
@@ -318,22 +359,54 @@ class Cwebp extends AbstractConverter
         // Output
         $cmdOptions[] = '-o ' . escapeshellarg($this->destination);
 
-        // Redirect stderr to same place as stdout
-        // https://www.brianstorti.com/understanding-shell-script-idiom-redirect/
-        $cmdOptions[] = '2>&1';
-
         $commandOptions = implode(' ', $cmdOptions);
         //$this->logLn('command line options:' . $commandOptions);
 
         return $commandOptions;
     }
 
+    private function checkHashForSuppliedBinary($binaryFile, $hash)
+    {
+        // File exists, now generate its hash
+        // hash_file() is normally available, but it is not always
+        // - https://stackoverflow.com/questions/17382712/php-5-3-20-undefined-function-hash
+        // If available, validate that hash is correct.
+
+        if (function_exists('hash_file')) {
+            $this->logLn(
+                'Checking checksum for supplied binary: ' . $binaryFile
+            );
+            $startHashCheckTime = self::startTimer();
+
+            $binaryHash = hash_file('sha256', $binaryFile);
+
+            if ($binaryHash != $hash) {
+                $this->logLn(
+                    'Binary checksum of supplied binary is invalid! ' .
+                    'Did you transfer with FTP, but not in binary mode? ' .
+                    'File:' . $binaryFile . '. ' .
+                    'Expected checksum: ' . $hash . '. ' .
+                    'Actual checksum:' . $binaryHash . '.',
+                    'bold'
+                );
+                return false;
+                ;
+            }
+
+            $this->logTimeSpent($startHashCheckTime, 'Checksum test took: ');
+        }
+        return true;
+    }
+
     /**
-     *  Get path for supplied binary for current OS - and validate hash.
+     *  Get supplied binary info for current OS.
+     *  paths are made absolute and checked. Missing are removed
      *
-     *  @return  array  Array of supplied binaries (which actually exists, and where hash validates)
+     *  @return  array  Two arrays.
+     *                  First array:  array of files (absolute paths)
+     *                  Second array: array of info objects (absolute path, hash and version)
      */
-    private function getSuppliedBinaryPathForOS()
+    private function getSuppliedBinaryInfoForCurrentOS()
     {
         $this->log('Checking if we have a supplied precompiled binary for your OS (' . PHP_OS . ')... ');
 
@@ -344,7 +417,8 @@ class Cwebp extends AbstractConverter
             return [];
         }
 
-        $result = [];
+        $filesFound = [];
+        $info = [];
         $files = self::$suppliedBinariesInfo[PHP_OS];
         if (count($files) == 1) {
             $this->logLn('We do.');
@@ -352,7 +426,11 @@ class Cwebp extends AbstractConverter
             $this->logLn('We do. We in fact have ' . count($files));
         }
 
-        foreach ($files as $i => list($file, $hash)) {
+        $skipThese = explode(',', $this->options['skip-these-precompiled-binaries']);
+
+        //$this->logLn('However, skipping' . print_r($skipThese, true));
+
+        foreach ($files as $i => list($file, $hash, $version)) {
             //$file = $info[0];
             //$hash = $info[1];
 
@@ -366,6 +444,11 @@ class Cwebp extends AbstractConverter
                 $this->logLn('Supplied binary not found! It ought to be here:' . $binaryFile, 'italic');
                 return false;
             }*/
+            if (in_array($file, $skipThese)) {
+                $this->logLn('Skipped: ' . $file . ' (was told to in the "skip-these-precompiled-binaries" option)');
+                continue;
+            }
+
 
             $realPathResult = realpath($binaryFile);
             if ($realPathResult === false) {
@@ -373,35 +456,15 @@ class Cwebp extends AbstractConverter
                 continue;
             }
             $binaryFile = $realPathResult;
-
-            // File exists, now generate its hash
-            // hash_file() is normally available, but it is not always
-            // - https://stackoverflow.com/questions/17382712/php-5-3-20-undefined-function-hash
-            // If available, validate that hash is correct.
-
-            if (function_exists('hash_file')) {
-                $binaryHash = hash_file('sha256', $binaryFile);
-
-                if ($binaryHash != $hash) {
-                    $this->logLn(
-                        'Binary checksum of supplied binary is invalid! ' .
-                        'Did you transfer with FTP, but not in binary mode? ' .
-                        'File:' . $binaryFile . '. ' .
-                        'Expected checksum: ' . $hash . '. ' .
-                        'Actual checksum:' . $binaryHash . '.',
-                        'bold'
-                    );
-                    continue;
-                }
-            }
-            $result[] = $binaryFile;
+            $filesFound[] = $realPathResult;
+            $info[] = [$realPathResult, $hash, $version, $file];
         }
-        return $result;
+        return [$filesFound, $info];
     }
 
     private function who()
     {
-        exec('whoami', $whoOutput, $whoReturnCode);
+        exec('whoami 2>&1', $whoOutput, $whoReturnCode);
         if (($whoReturnCode == 0) && (isset($whoOutput[0]))) {
             return 'user: "' . $whoOutput[0] . '"';
         } else {
@@ -415,7 +478,7 @@ class Cwebp extends AbstractConverter
      */
     private function detectVersion($binary)
     {
-        $command = $binary . ' -version';
+        $command = $binary . ' -version 2>&1';
         $this->log('- Executing: ' . $command);
         exec($command, $output, $returnCode);
 
@@ -427,7 +490,10 @@ class Cwebp extends AbstractConverter
         } else {
             $this->log('. Result: ');
             if ($returnCode == 127) {
-                $this->logLn('*Exec failed* (the cwebp binary was not found at path: ' . $binary. ')');
+                $this->logLn(
+                    '*Exec failed* (the cwebp binary was not found at path: ' . $binary .
+                    ', or it had missing library dependencies)'
+                );
             } else {
                 if ($returnCode == 126) {
                     $this->logLn(
@@ -443,7 +509,7 @@ class Cwebp extends AbstractConverter
             }
             return $returnCode;
         }
-        return '';  // Will not happen. Just so phpstan doesn't complain
+        return ''; // Will not happen. Just so phpstan doesn't complain
     }
 
     /**
@@ -469,12 +535,12 @@ class Cwebp extends AbstractConverter
         return ['detected' => $binariesWithVersions, 'failed' => $binariesWithFailCodes];
     }
 
-    private function logBinariesFound($binaries)
+    private function logBinariesFound($binaries, $startTime)
     {
         if (count($binaries) == 0) {
-            $this->logLn('Found 0 binaries');
+            $this->logLn('Found 0 binaries' . self::getTimeStr($startTime));
         } else {
-            $this->logLn('Found ' . count($binaries) . ' binaries: ');
+            $this->logLn('Found ' . count($binaries) . ' binaries' . self::getTimeStr($startTime));
             foreach ($binaries as $binary) {
                 $this->logLn('- ' . $binary);
             }
@@ -486,7 +552,7 @@ class Cwebp extends AbstractConverter
         if ($this->options[$optionName]) {
             $this->logLn(
                 'Discovering binaries ' . $description . ' ' .
-                 '(to skip this step, disable the "' . $optionName . '" option)'
+                '(to skip this step, disable the "' . $optionName . '" option)'
             );
         } else {
             $this->logLn(
@@ -496,11 +562,56 @@ class Cwebp extends AbstractConverter
         }
     }
 
+    private static function startTimer()
+    {
+        if (function_exists('microtime')) {
+            return microtime(true);
+        } else {
+            return 0;
+        }
+    }
+
+    private static function readTimer($startTime)
+    {
+        if (function_exists('microtime')) {
+            $endTime = microtime(true);
+            $seconds = ($endTime - $startTime);
+            return round(($seconds * 1000));
+        } else {
+            return 0;
+        }
+    }
+
+    private static function getTimeStr($startTime, $pre = ' (spent ', $post = ')')
+    {
+        if (function_exists('microtime')) {
+            $ms = self::readTimer($startTime);
+            return $pre . $ms . ' ms' . $post;
+        }
+        return '';
+    }
+
+    private function logTimeSpent($startTime, $pre = 'Spent: ')
+    {
+        if (function_exists('microtime')) {
+            $ms = self::readTimer($startTime);
+            $this->logLn($pre . $ms . ' ms');
+        }
+    }
+
+    /**
+     *  @return array   Two arrays (in an array).
+     *                  First array: binaries found,
+     *                  Second array: supplied binaries info for current OS
+     */
     private function discoverCwebpBinaries()
     {
         $this->logLn(
             'Looking for cwebp binaries.'
         );
+
+        $startDiscoveryTime = self::startTimer();
+
         $binaries = [];
 
         if (defined('WEBPCONVERT_CWEBP_PATH')) {
@@ -515,15 +626,17 @@ class Cwebp extends AbstractConverter
         }
 
         if ($this->options['try-cwebp']) {
+            $startTime = self::startTimer();
             $this->logLn(
                 'Discovering if a plain cwebp call works (to skip this step, disable the "try-cwebp" option)'
             );
             $result = $this->detectVersion('cwebp');
             if (gettype($result) == 'string') {
-                $this->logLn('We could get the version, so yes, a plain cwebp call works');
+                $this->logLn('We could get the version, so yes, a plain cwebp call works ' .
+                '(spent ' . self::readTimer($startTime) . ' ms)');
                 $binaries[] = 'cwebp';
             } else {
-                $this->logLn('Nope a plain cwebp call does not work');
+                $this->logLn('Nope a plain cwebp call does not work' . self::getTimeStr($startTime));
             }
         } else {
             $this->logLn(
@@ -533,30 +646,38 @@ class Cwebp extends AbstractConverter
         }
 
         // try-discovering-cwebp
+        $startTime = self::startTimer();
         $this->logDiscoverAction('try-discovering-cwebp', 'using "which -a cwebp" command.');
         if ($this->options['try-discovering-cwebp']) {
             $moreBinaries = BinaryDiscovery::discoverInstalledBinaries('cwebp');
-            $this->logBinariesFound($moreBinaries);
+            $this->logBinariesFound($moreBinaries, $startTime);
             $binaries = array_merge($binaries, $moreBinaries);
         }
 
         // 'try-common-system-paths'
+        $startTime = self::startTimer();
         $this->logDiscoverAction('try-common-system-paths', 'by peeking in common system paths');
         if ($this->options['try-common-system-paths']) {
             $moreBinaries = BinaryDiscovery::discoverInCommonSystemPaths('cwebp');
-            $this->logBinariesFound($moreBinaries);
+            $this->logBinariesFound($moreBinaries, $startTime);
             $binaries = array_merge($binaries, $moreBinaries);
         }
 
         // try-supplied-binary-for-os
+        $suppliedBinariesInfo = [[], []];
+        $startTime = self::startTimer();
         $this->logDiscoverAction('try-supplied-binary-for-os', 'which are distributed with the webp-convert library');
         if ($this->options['try-supplied-binary-for-os']) {
-            $moreBinaries = $this->getSuppliedBinaryPathForOS();
-            $this->logBinariesFound($moreBinaries);
-            $binaries = array_merge($binaries, $moreBinaries);
+            $suppliedBinariesInfo = $this->getSuppliedBinaryInfoForCurrentOS();
+            $moreBinaries = $suppliedBinariesInfo[0];
+            $this->logBinariesFound($moreBinaries, $startTime);
+            //$binaries = array_merge($binaries, $moreBinaries);
         }
 
-        return array_values(array_unique($binaries));
+        $this->logTimeSpent($startDiscoveryTime, 'Discovering cwebp binaries took: ');
+        $this->logLn('');
+
+        return [array_values(array_unique($binaries)), $suppliedBinariesInfo];
     }
 
     /**
@@ -600,6 +721,7 @@ class Cwebp extends AbstractConverter
      */
     private function composeMeaningfullErrorMessageNoVersionsWorking($versions)
     {
+        // TODO: Take "supplied" into account
 
         // PS: array_values() is used to reindex
         $uniqueFailCodes = array_values(array_unique(array_values($versions['failed'])));
@@ -636,8 +758,12 @@ class Cwebp extends AbstractConverter
 
     protected function doActualConvert()
     {
-        $binaries = $this->discoverCwebpBinaries();
-        if (count($binaries) == 0) {
+        list($foundBinaries, $suppliedBinariesInfo) = $this->discoverCwebpBinaries();
+        $suppliedBinaries = $suppliedBinariesInfo[0];
+        $allBinaries = array_merge($foundBinaries, $suppliedBinaries);
+
+        //$binaries = $this->discoverCwebpBinaries();
+        if (count($allBinaries) == 0) {
             $this->logLn('No cwebp binaries found!');
 
             $discoverOptions = [
@@ -663,19 +789,45 @@ class Cwebp extends AbstractConverter
                 );
             }
         }
-        $this->logLn(
-            'Detecting versions of the cwebp binaries found'
-        );
-        $versions = $this->detectVersions($binaries);
+
+        $detectedVersions = [];
+        if (count($foundBinaries) > 0) {
+            $this->logLn(
+                'Detecting versions of the cwebp binaries found' .
+                (count($suppliedBinaries) > 0 ? ' (except supplied binaries)' : '.')
+            );
+            $startDetectionTime = self::startTimer();
+            $versions = $this->detectVersions($foundBinaries);
+            $detectedVersions = $versions['detected'];
+
+            $this->logTimeSpent($startDetectionTime, 'Detecting versions took: ');
+        }
+
+        //$suppliedVersions = [];
+        $suppliedBinariesHash = [];
+        $suppliedBinariesFilename = [];
+
+        $binaryVersions = $detectedVersions;
+        foreach ($suppliedBinariesInfo[1] as list($path, $hash, $version, $filename)) {
+            $binaryVersions[$path] = $version;
+            $suppliedBinariesHash[$path] = $hash;
+            $suppliedBinariesFilename[$path] = $filename;
+        }
+
+        //$binaryVersions = array_merge($detectedVersions, $suppliedBinariesInfo);
+
+        // TODO: reimplement
+        /*
+        $versions['supplied'] = $suppliedBinariesInfo;
 
         $binaryVersions = $versions['detected'];
-        if (count($binaryVersions) == 0) {
-            // No working cwebp binaries found.
+        if ((count($binaryVersions) == 0) && (count($suppliedBinaries) == 0)) {
+            // No working cwebp binaries found, no supplied binaries found
 
             throw new SystemRequirementsNotMetException(
                 $this->composeMeaningfullErrorMessageNoVersionsWorking($versions)
             );
-        }
+        }*/
 
         // Sort binaries so those with highest numbers comes first
         arsort($binaryVersions);
@@ -683,31 +835,42 @@ class Cwebp extends AbstractConverter
             'Binaries ordered by version number.'
         );
         foreach ($binaryVersions as $binary => $version) {
-            $this->logLn('- ' . $binary . ': (version: ' . $version .')');
+            $this->logLn('- ' . $binary . ': (version: ' . $version . ')');
         }
 
         // Execute!
         $this->logLn(
-            'Trying the first of these. If that should fail (it should not), the next will be tried and so on.'
+            'Starting conversion, using the first of these. If that should fail, ' .
+            'the next will be tried and so on.'
         );
         $useNice = (($this->options['use-nice']) && self::hasNiceSupport());
         $success = false;
         foreach ($binaryVersions as $binary => $version) {
+            if (isset($suppliedBinariesHash[$binary])) {
+                if (!$this->checkHashForSuppliedBinary($binary, $suppliedBinariesHash[$binary])) {
+                    continue;
+                }
+            }
             if ($this->tryCwebpBinary($binary, $version, $useNice)) {
                 $success = true;
                 break;
+            } else {
+                if (isset($suppliedBinariesFilename[$binary])) {
+                    $this->logLn(
+                        'Note: You can prevent trying this precompiled binary, by setting the ' .
+                        '"skip-these-precompiled-binaries" option to "' . $suppliedBinariesFilename[$binary] . '"'
+                    );
+                }
             }
         }
 
         // cwebp sets file permissions to 664 but instead ..
-        // .. $destination's parent folder's permissions should be used (except executable bits)
-        // (or perhaps the current umask instead? https://www.php.net/umask)
+        // .. $this->source file permissions should be used
 
         if ($success) {
-            $destinationParent = dirname($this->destination);
-            $fileStatistics = stat($destinationParent);
+            $fileStatistics = stat($this->source);
             if ($fileStatistics !== false) {
-                // Apply same permissions as parent folder but strip off the executable bits
+                // Apply same permissions as source file, but strip off the executable bits
                 $permissions = $fileStatistics['mode'] & 0000666;
                 chmod($this->destination, $permissions);
             }

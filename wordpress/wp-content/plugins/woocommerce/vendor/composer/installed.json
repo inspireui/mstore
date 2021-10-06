@@ -1,32 +1,43 @@
 [
     {
         "name": "automattic/jetpack-autoloader",
-        "version": "v1.3.2",
-        "version_normalized": "1.3.2.0",
+        "version": "2.10.1",
+        "version_normalized": "2.10.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-autoloader.git",
-            "reference": "301c2fbcf070d4f0147753447616b6e982bda09e"
+            "reference": "20393c4677765c3e737dcb5aee7a3f7b90dce4b3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/301c2fbcf070d4f0147753447616b6e982bda09e",
-            "reference": "301c2fbcf070d4f0147753447616b6e982bda09e",
+            "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/20393c4677765c3e737dcb5aee7a3f7b90dce4b3",
+            "reference": "20393c4677765c3e737dcb5aee7a3f7b90dce4b3",
             "shasum": ""
         },
         "require": {
-            "composer-plugin-api": "^1.1"
+            "composer-plugin-api": "^1.1 || ^2.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            "automattic/jetpack-changelogger": "^1.1",
+            "yoast/phpunit-polyfills": "0.2.0"
         },
-        "time": "2019-09-24T06:39:29+00:00",
+        "time": "2021-03-30T15:15:59+00:00",
         "type": "composer-plugin",
         "extra": {
-            "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
+            "mirror-repo": "Automattic/jetpack-autoloader",
+            "changelogger": {
+                "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
+            },
+            "branch-alias": {
+                "dev-master": "2.10.x-dev"
+            }
         },
         "installation-source": "dist",
         "autoload": {
+            "classmap": [
+                "src/AutoloadGenerator.php"
+            ],
             "psr-4": {
                 "Automattic\\Jetpack\\Autoloader\\": "src"
             }
@@ -35,27 +46,31 @@
         "license": [
             "GPL-2.0-or-later"
         ],
-        "description": "Creates a custom autoloader for a plugin or theme."
+        "description": "Creates a custom autoloader for a plugin or theme.",
+        "support": {
+            "source": "https://github.com/Automattic/jetpack-autoloader/tree/2.10.1"
+        }
     },
     {
         "name": "automattic/jetpack-constants",
-        "version": "v1.1.3",
-        "version_normalized": "1.1.3.0",
+        "version": "v1.5.1",
+        "version_normalized": "1.5.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-constants.git",
-            "reference": "5fdd94dec1151e7defd684a97e0b64fe6ff1bd3a"
+            "reference": "18f772daddc8be5df76c9f4a92e017a3c2569a5b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/5fdd94dec1151e7defd684a97e0b64fe6ff1bd3a",
-            "reference": "5fdd94dec1151e7defd684a97e0b64fe6ff1bd3a",
+            "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/18f772daddc8be5df76c9f4a92e017a3c2569a5b",
+            "reference": "18f772daddc8be5df76c9f4a92e017a3c2569a5b",
             "shasum": ""
         },
         "require-dev": {
+            "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2019-11-08T21:16:05+00:00",
+        "time": "2020-10-28T19:00:31+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -67,40 +82,47 @@
         "license": [
             "GPL-2.0-or-later"
         ],
-        "description": "A wrapper for defining constants in a more testable way."
+        "description": "A wrapper for defining constants in a more testable way.",
+        "support": {
+            "source": "https://github.com/Automattic/jetpack-constants/tree/v1.5.1"
+        }
     },
     {
         "name": "composer/installers",
-        "version": "v1.7.0",
-        "version_normalized": "1.7.0.0",
+        "version": "v1.12.0",
+        "version_normalized": "1.12.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/composer/installers.git",
-            "reference": "141b272484481432cda342727a427dc1e206bfa0"
+            "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/141b272484481432cda342727a427dc1e206bfa0",
-            "reference": "141b272484481432cda342727a427dc1e206bfa0",
+            "url": "https://api.github.com/repos/composer/installers/zipball/d20a64ed3c94748397ff5973488761b22f6d3f19",
+            "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19",
             "shasum": ""
         },
         "require": {
-            "composer-plugin-api": "^1.0"
+            "composer-plugin-api": "^1.0 || ^2.0"
         },
         "replace": {
             "roundcube/plugin-installer": "*",
             "shama/baton": "*"
         },
         "require-dev": {
-            "composer/composer": "1.0.*@dev",
-            "phpunit/phpunit": "^4.8.36"
+            "composer/composer": "1.6.* || ^2.0",
+            "composer/semver": "^1 || ^3",
+            "phpstan/phpstan": "^0.12.55",
+            "phpstan/phpstan-phpunit": "^0.12.16",
+            "symfony/phpunit-bridge": "^4.2 || ^5",
+            "symfony/process": "^2.3"
         },
-        "time": "2019-08-12T15:00:31+00:00",
+        "time": "2021-09-13T08:19:44+00:00",
         "type": "composer-plugin",
         "extra": {
             "class": "Composer\\Installers\\Plugin",
             "branch-alias": {
-                "dev-master": "1.0-dev"
+                "dev-main": "1.x-dev"
             }
         },
         "installation-source": "dist",
@@ -131,6 +153,7 @@
             "Kanboard",
             "Lan Management System",
             "MODX Evo",
+            "MantisBT",
             "Mautic",
             "Maya",
             "OXID",
@@ -138,6 +161,7 @@
             "Porto",
             "RadPHP",
             "SMF",
+            "Starbug",
             "Thelia",
             "Whmcs",
             "WolfCMS",
@@ -171,13 +195,16 @@
             "majima",
             "mako",
             "mediawiki",
+            "miaoxing",
             "modulework",
             "modx",
             "moodle",
             "osclass",
+            "pantheon",
             "phpbb",
             "piwik",
             "ppi",
+            "processwire",
             "puppet",
             "pxcms",
             "reindex",
@@ -185,12 +212,32 @@
             "shopware",
             "silverstripe",
             "sydes",
+            "sylius",
             "symfony",
+            "tastyigniter",
             "typo3",
             "wordpress",
             "yawik",
             "zend",
             "zikula"
+        ],
+        "support": {
+            "issues": "https://github.com/composer/installers/issues",
+            "source": "https://github.com/composer/installers/tree/v1.12.0"
+        },
+        "funding": [
+            {
+                "url": "https://packagist.com",
+                "type": "custom"
+            },
+            {
+                "url": "https://github.com/composer",
+                "type": "github"
+            },
+            {
+                "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                "type": "tidelift"
+            }
         ]
     },
     {
@@ -253,7 +300,11 @@
             "geoip2",
             "geolocation",
             "maxmind"
-        ]
+        ],
+        "support": {
+            "issues": "https://github.com/maxmind/MaxMind-DB-Reader-php/issues",
+            "source": "https://github.com/maxmind/MaxMind-DB-Reader-php/tree/v1.6.0"
+        }
     },
     {
         "name": "pelago/emogrifier",
@@ -329,31 +380,90 @@
             "css",
             "email",
             "pre-processing"
-        ]
+        ],
+        "support": {
+            "issues": "https://github.com/MyIntervals/emogrifier/issues",
+            "source": "https://github.com/MyIntervals/emogrifier"
+        }
     },
     {
-        "name": "symfony/css-selector",
-        "version": "v3.4.37",
-        "version_normalized": "3.4.37.0",
+        "name": "psr/container",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/symfony/css-selector.git",
-            "reference": "e1b3e1a0621d6e48ee46092b4c7d8280f746b3c5"
+            "url": "https://github.com/php-fig/container.git",
+            "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/css-selector/zipball/e1b3e1a0621d6e48ee46092b4c7d8280f746b3c5",
-            "reference": "e1b3e1a0621d6e48ee46092b4c7d8280f746b3c5",
+            "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+            "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
             "shasum": ""
         },
         "require": {
-            "php": "^5.5.9|>=7.0.8"
+            "php": ">=5.3.0"
         },
-        "time": "2020-01-01T11:03:25+00:00",
+        "time": "2017-02-14T16:28:37+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "3.4-dev"
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Psr\\Container\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "PHP-FIG",
+                "homepage": "http://www.php-fig.org/"
+            }
+        ],
+        "description": "Common Container Interface (PHP FIG PSR-11)",
+        "homepage": "https://github.com/php-fig/container",
+        "keywords": [
+            "PSR-11",
+            "container",
+            "container-interface",
+            "container-interop",
+            "psr"
+        ],
+        "support": {
+            "issues": "https://github.com/php-fig/container/issues",
+            "source": "https://github.com/php-fig/container/tree/master"
+        }
+    },
+    {
+        "name": "symfony/css-selector",
+        "version": "v3.3.6",
+        "version_normalized": "3.3.6.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/css-selector.git",
+            "reference": "4d882dced7b995d5274293039370148e291808f2"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/css-selector/zipball/4d882dced7b995d5274293039370148e291808f2",
+            "reference": "4d882dced7b995d5274293039370148e291808f2",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.9"
+        },
+        "time": "2017-05-01T15:01:29+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.3-dev"
             }
         },
         "installation-source": "dist",
@@ -371,12 +481,12 @@
         ],
         "authors": [
             {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
-            },
-            {
                 "name": "Jean-François Simon",
                 "email": "jeanfrancois.simon@sensiolabs.com"
+            },
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
             },
             {
                 "name": "Symfony Community",
@@ -384,29 +494,32 @@
             }
         ],
         "description": "Symfony CssSelector Component",
-        "homepage": "https://symfony.com"
+        "homepage": "https://symfony.com",
+        "support": {
+            "source": "https://github.com/symfony/css-selector/tree/master"
+        }
     },
     {
         "name": "woocommerce/action-scheduler",
-        "version": "3.1.2",
-        "version_normalized": "3.1.2.0",
+        "version": "3.2.1",
+        "version_normalized": "3.2.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/woocommerce/action-scheduler.git",
-            "reference": "59dbd87de0c8a826b08142fd122279409dffadf7"
+            "reference": "3c24064f115cd55e972d73d5d48f14133ac60b0d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/59dbd87de0c8a826b08142fd122279409dffadf7",
-            "reference": "59dbd87de0c8a826b08142fd122279409dffadf7",
+            "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/3c24064f115cd55e972d73d5d48f14133ac60b0d",
+            "reference": "3c24064f115cd55e972d73d5d48f14133ac60b0d",
             "shasum": ""
         },
         "require-dev": {
-            "phpunit/phpunit": "^5.6",
-            "woocommerce/woocommerce-sniffs": "0.0.8",
-            "wp-cli/wp-cli": "~1.5.1"
+            "phpunit/phpunit": "^7.5",
+            "woocommerce/woocommerce-sniffs": "0.1.0",
+            "wp-cli/wp-cli": "~2.5.0"
         },
-        "time": "2020-03-10T14:45:52+00:00",
+        "time": "2021-06-21T20:21:35+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "scripts-description": {
@@ -421,46 +534,69 @@
             "GPL-3.0-or-later"
         ],
         "description": "Action Scheduler for WordPress and WooCommerce",
-        "homepage": "https://actionscheduler.org/"
+        "homepage": "https://actionscheduler.org/",
+        "support": {
+            "issues": "https://github.com/woocommerce/action-scheduler/issues",
+            "source": "https://github.com/woocommerce/action-scheduler/tree/3.2.1"
+        }
     },
     {
         "name": "woocommerce/woocommerce-admin",
-        "version": "v1.0.0",
-        "version_normalized": "1.0.0.0",
+        "version": "2.6.5",
+        "version_normalized": "2.6.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/woocommerce/woocommerce-admin.git",
-            "reference": "62854c9efb6a7acaaac7b88a64923029dc940b57"
+            "reference": "03d45390fb555d3a649f87c2b3385257c9d7ac02"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/woocommerce/woocommerce-admin/zipball/62854c9efb6a7acaaac7b88a64923029dc940b57",
-            "reference": "62854c9efb6a7acaaac7b88a64923029dc940b57",
+            "url": "https://api.github.com/repos/woocommerce/woocommerce-admin/zipball/03d45390fb555d3a649f87c2b3385257c9d7ac02",
+            "reference": "03d45390fb555d3a649f87c2b3385257c9d7ac02",
             "shasum": ""
         },
         "require": {
-            "automattic/jetpack-autoloader": "^1.2.0",
-            "composer/installers": "1.7.0",
-            "php": ">=5.6|>=7.0"
+            "automattic/jetpack-autoloader": "^2.9.1",
+            "composer/installers": "^1.9.0",
+            "php": ">=7.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "7.5.20",
-            "woocommerce/woocommerce-sniffs": "0.0.9"
+            "automattic/jetpack-changelogger": "^1.1",
+            "bamarni/composer-bin-plugin": "^1.4",
+            "suin/phpcs-psr4-sniff": "^2.2",
+            "woocommerce/woocommerce-sniffs": "0.1.0"
         },
-        "time": "2020-03-05T01:54:43+00:00",
+        "time": "2021-09-22T22:45:59+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "scripts-description": {
                 "test": "Run unit tests",
                 "phpcs": "Analyze code against the WordPress coding standards with PHP_CodeSniffer",
                 "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier"
+            },
+            "bamarni-bin": {
+                "target-directory": "bin/composer"
+            },
+            "changelogger": {
+                "changelog": "./changelog.txt",
+                "formatter": {
+                    "filename": "bin/changelogger/WCAdminFormatter.php"
+                },
+                "versioning": "semver",
+                "changes-dir": "./changelogs",
+                "types": [
+                    "Fix",
+                    "Add",
+                    "Update",
+                    "Dev",
+                    "Tweak",
+                    "Performance",
+                    "Enhancement"
+                ]
             }
         },
         "installation-source": "dist",
         "autoload": {
-            "classmap": [
-                "includes/"
-            ],
             "psr-4": {
                 "Automattic\\WooCommerce\\Admin\\": "src/"
             }
@@ -470,32 +606,36 @@
             "GPL-3.0-or-later"
         ],
         "description": "A modern, javascript-driven WooCommerce Admin experience.",
-        "homepage": "https://github.com/woocommerce/woocommerce-admin"
+        "homepage": "https://github.com/woocommerce/woocommerce-admin",
+        "support": {
+            "issues": "https://github.com/woocommerce/woocommerce-admin/issues",
+            "source": "https://github.com/woocommerce/woocommerce-admin/tree/v2.6.5"
+        }
     },
     {
         "name": "woocommerce/woocommerce-blocks",
-        "version": "v2.5.14",
-        "version_normalized": "2.5.14.0",
+        "version": "v5.7.2",
+        "version_normalized": "5.7.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/woocommerce/woocommerce-gutenberg-products-block.git",
-            "reference": "0dd70617085d2e73f3adfb38df98a90df3514816"
+            "reference": "ac5c4219ac1848f1425befe980d25dcf64f064a9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/woocommerce/woocommerce-gutenberg-products-block/zipball/0dd70617085d2e73f3adfb38df98a90df3514816",
-            "reference": "0dd70617085d2e73f3adfb38df98a90df3514816",
+            "url": "https://api.github.com/repos/woocommerce/woocommerce-gutenberg-products-block/zipball/ac5c4219ac1848f1425befe980d25dcf64f064a9",
+            "reference": "ac5c4219ac1848f1425befe980d25dcf64f064a9",
             "shasum": ""
         },
         "require": {
-            "automattic/jetpack-autoloader": "1.3.2",
-            "composer/installers": "1.7.0"
+            "automattic/jetpack-autoloader": "^2.9.1",
+            "composer/installers": "^1.7.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "6.5.14",
-            "woocommerce/woocommerce-sniffs": "0.0.7"
+            "phpunit/phpunit": "7.5.20",
+            "woocommerce/woocommerce-sniffs": "0.1.0"
         },
-        "time": "2020-03-03T13:25:56+00:00",
+        "time": "2021-09-23T13:58:57+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "scripts-description": {
@@ -519,48 +659,10 @@
             "blocks",
             "gutenberg",
             "woocommerce"
-        ]
-    },
-    {
-        "name": "woocommerce/woocommerce-rest-api",
-        "version": "1.0.7",
-        "version_normalized": "1.0.7.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/woocommerce/woocommerce-rest-api.git",
-            "reference": "49162ec26a25bd0c6efc0f3452b113cdfff0a823"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/woocommerce/woocommerce-rest-api/zipball/49162ec26a25bd0c6efc0f3452b113cdfff0a823",
-            "reference": "49162ec26a25bd0c6efc0f3452b113cdfff0a823",
-            "shasum": ""
-        },
-        "require": {
-            "automattic/jetpack-autoloader": "^1.2.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "6.5.14",
-            "woocommerce/woocommerce-sniffs": "0.0.9"
-        },
-        "time": "2020-01-28T21:04:51+00:00",
-        "type": "wordpress-plugin",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "src/Controllers/Version1",
-                "src/Controllers/Version2",
-                "src/Controllers/Version3"
-            ],
-            "psr-4": {
-                "Automattic\\WooCommerce\\RestApi\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-3.0-or-later"
         ],
-        "description": "The WooCommerce core REST API.",
-        "homepage": "https://github.com/woocommerce/woocommerce-rest-api"
+        "support": {
+            "issues": "https://github.com/woocommerce/woocommerce-gutenberg-products-block/issues",
+            "source": "https://github.com/woocommerce/woocommerce-gutenberg-products-block/tree/v5.7.2"
+        }
     }
 ]

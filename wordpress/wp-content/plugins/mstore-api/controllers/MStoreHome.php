@@ -10,7 +10,7 @@
 
 class MStoreHome extends WP_REST_Controller
 {
-        /**
+    /**
      * Endpoint namespace
      *
      * @var string
@@ -38,10 +38,13 @@ class MStoreHome extends WP_REST_Controller
     public function register_mstore_routes()
     {
         register_rest_route($this->namespace, '/cache', array(
-            'args'=>array(),
+            'args' => array(),
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'get_home_data'),
+                'permission_callback' => function () {
+                    return true;
+                },
             ),
         ));
     }
@@ -58,8 +61,8 @@ class MStoreHome extends WP_REST_Controller
         $api = new WC_REST_Products_Controller();
         $request = new WP_REST_Request('GET');
         global $json_api;
-        $path = str_replace('plugins/mstore-api','uploads',dirname(dirname(__FILE__)))."/2000/01/config.json";
-        
+        $path = str_replace('plugins/mstore-api', 'uploads', dirname(dirname(__FILE__))) . "/2000/01/config.json";
+
         if (file_exists($path)) {
             $fileContent = file_get_contents($path);
             $array = json_decode($fileContent, true);
@@ -71,8 +74,8 @@ class MStoreHome extends WP_REST_Controller
                 if (isset($layout['category']) || isset($layout['tag'])) {
                     $layout["data"] = $this->getProductsByLayout($layout, $api, $request);
                     $results[] = $layout;
-                }else{
-                    if(isset($layout["items"]) && count($layout["items"]) > 0){
+                } else {
+                    if (isset($layout["items"]) && count($layout["items"]) > 0) {
                         $items = [];
                         foreach ($layout["items"] as $item) {
                             $item["data"] = $this->getProductsByLayout($item, $api, $request);
@@ -91,16 +94,16 @@ class MStoreHome extends WP_REST_Controller
                 $layout["data"] = $this->getProductsByLayout($layout, $api, $request);
                 $array['VerticalLayout'] = $layout;
             }
-            
+
             return $array;
-        }else{
+        } else {
             $json_api->error("Config file hasn't been uploaded yet.");
         }
     }
 
     function getProductsByLayout($layout, $api, $request)
     {
-        $params = array('order'=> 'desc', 'orderby' => 'date');
+        $params = array('order' => 'desc', 'orderby' => 'date');
         if (isset($layout['category'])) {
             $params['category'] = $layout['category'];
         }
@@ -116,7 +119,7 @@ class MStoreHome extends WP_REST_Controller
         $response = $api->get_items($request);
         return $response->get_data();
     }
-    
+
 }
 
 new MStoreHome;

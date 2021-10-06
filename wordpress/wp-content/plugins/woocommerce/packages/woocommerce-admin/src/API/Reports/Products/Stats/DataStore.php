@@ -1,8 +1,6 @@
 <?php
 /**
  * API\Reports\Products\Stats\DataStore class file.
- *
- * @package WooCommerce Admin/Classes
  */
 
 namespace Automattic\WooCommerce\Admin\API\Reports\Products\Stats;
@@ -34,6 +32,13 @@ class DataStore extends ProductsDataStore implements DataStoreInterface {
 		'products_count'   => 'intval',
 		'variations_count' => 'intval',
 	);
+
+	/**
+	 * Cache identifier.
+	 *
+	 * @var string
+	 */
+	protected $cache_key = 'products_stats';
 
 	/**
 	 * Data store context used to pass to filters.
@@ -108,16 +113,16 @@ class DataStore extends ProductsDataStore implements DataStoreInterface {
 
 		// These defaults are only partially applied when used via REST API, as that has its own defaults.
 		$defaults   = array(
-			'per_page'         => get_option( 'posts_per_page' ),
-			'page'             => 1,
-			'order'            => 'DESC',
-			'orderby'          => 'date',
-			'before'           => TimeInterval::default_before(),
-			'after'            => TimeInterval::default_after(),
-			'fields'           => '*',
-			'categories'       => array(),
-			'interval'         => 'week',
-			'product_includes' => array(),
+			'per_page'          => get_option( 'posts_per_page' ),
+			'page'              => 1,
+			'order'             => 'DESC',
+			'orderby'           => 'date',
+			'before'            => TimeInterval::default_before(),
+			'after'             => TimeInterval::default_after(),
+			'fields'            => '*',
+			'category_includes' => array(),
+			'interval'          => 'week',
+			'product_includes'  => array(),
 		);
 		$query_args = wp_parse_args( $query_args, $defaults );
 		$this->normalize_timezones( $query_args, $defaults );
@@ -217,7 +222,7 @@ class DataStore extends ProductsDataStore implements DataStoreInterface {
 			$segmenter->add_intervals_segments( $data, $intervals_query, $table_name );
 			$this->create_interval_subtotals( $data->intervals );
 
-			wp_cache_set( $cache_key, $data, $this->cache_group );
+			$this->set_cached_data( $cache_key, $data );
 		}
 
 		return $data;

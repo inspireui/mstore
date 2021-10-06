@@ -10,92 +10,14 @@ use \WebPExpress\State;
 
 class HTAccess
 {
-    public static function arePathsUsedInHTAccessOutdated() {
-        if (!Config::isConfigFileThere()) {
-            // this properly means that rewrite rules have never been generated
-            return false;
+
+    public static function inlineInstructions($instructions, $marker)
+    {
+        if ($marker == 'WebP Express') {
+            return [];
+        } else {
+           return $instructions;
         }
-
-        $pathsGoingToBeUsedInHtaccess = [
-            'wod-url-path' => Paths::getWodUrlPath(),
-        ];
-
-        $config = Config::loadConfig();
-        if ($config === false) {
-            // corrupt or not readable
-            return true;
-        }
-
-        foreach ($config['paths-used-in-htaccess'] as $prop => $value) {
-            if (isset($pathsGoingToBeUsedInHtaccess[$prop])) {
-                if ($value != $pathsGoingToBeUsedInHtaccess[$prop]) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    public static function doesRewriteRulesNeedUpdate($newConfig) {
-        if (!Config::isConfigFileThere()) {
-            // this properly means that rewrite rules have never been generated
-            return true;
-        }
-
-        $oldConfig = Config::loadConfig();
-        if ($oldConfig === false) {
-            // corrupt or not readable
-            return true;
-        }
-
-        $propsToCompare = [
-            'forward-query-string' => true,
-            'image-types' => 1,
-            'redirect-to-existing-in-htaccess' => false,
-            'only-redirect-to-converter-on-cache-miss' => false,
-            'success-response' => 'converted',
-            'cache-control' => 'no-header',
-            'cache-control-custom' => 'public, max-age:3600',
-            'cache-control-max-age' => 'one-week',
-            'cache-control-public' => true,
-            'enable-redirection-to-webp-realizer' => false,
-            'enable-redirection-to-converter' => true,
-            'destination-folder' => 'separate',
-            'destination-extension' => 'append',
-            'destination-structure' => 'doc-root',
-            'scope' => ['themes', 'uploads']
-        ];
-
-        /*
-        if (isset($newConfig['redirect-to-existing-in-htaccess']) && $newConfig['redirect-to-existing-in-htaccess']) {
-            $propsToCompare['destination-folder'] = 'separate';
-            $propsToCompare['destination-extension'] = 'append';
-            $propsToCompare['destination-structure'] = 'doc-root';
-        }*/
-
-        foreach ($propsToCompare as $prop => $behaviourBeforeIntroduced) {
-            if (!isset($newConfig[$prop])) {
-                continue;
-            }
-            if (!isset($oldConfig[$prop])) {
-                // Do not trigger .htaccess update if the new value results
-                // in same old behaviour (before this option was introduced)
-                if ($newConfig[$prop] == $behaviourBeforeIntroduced) {
-                    continue;
-                } else {
-                    // Otherwise DO trigger .htaccess update
-                    return true;
-                }
-            }
-            if ($newConfig[$prop] != $oldConfig[$prop]) {
-                return true;
-            }
-        }
-
-        if (!isset($oldConfig['paths-used-in-htaccess'])) {
-            return true;
-        }
-
-        return self::arePathsUsedInHTAccessOutdated();
     }
 
     /**
@@ -246,6 +168,9 @@ class HTAccess
 
         // Convert to array, because string version has bugs in Wordpress 4.3
         $rules = explode("\n", $rules);
+
+        add_filter('insert_with_markers_inline_instructions', array('\WebPExpress\HTAccess', 'inlineInstructions'), 10, 2);
+
         $success = insert_with_markers($filename, 'WebP Express', $rules);
 
         // Revert file or dir permissions

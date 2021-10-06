@@ -4,29 +4,26 @@
 import { __ } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { registerBlockType } from '@wordpress/blocks';
-import Gridicon from 'gridicons';
+import { Icon, grid } from '@woocommerce/icons';
+import '@woocommerce/atomic-blocks';
 
 /**
  * Internal dependencies
  */
 import Editor from './edit';
-import sharedAttributes from '../attributes';
+import { attributes as sharedAttributes, defaults } from '../attributes';
 import { getBlockClassName } from '../utils.js';
-import '../../../atomic/blocks/product';
 
-/**
- * Register and run the "All Products" block.
- */
-registerBlockType( 'woocommerce/all-products', {
+export const blockSettings = {
 	title: __( 'All Products', 'woocommerce' ),
 	icon: {
-		src: <Gridicon icon="grid" />,
+		src: <Icon srcElement={ grid } />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
 	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
-		'Display all products from your store as a grid.',
+		'Display products from your store in a grid layout.',
 		'woocommerce'
 	),
 	supports: {
@@ -39,25 +36,27 @@ registerBlockType( 'woocommerce/all-products', {
 			isPreview: true,
 		},
 	},
-	attributes: {
-		...sharedAttributes,
-	},
-
+	attributes: sharedAttributes,
+	defaults,
 	/**
 	 * Renders and manages the block.
+	 *
+	 * @param {Object} props Props to pass to block.
 	 */
 	edit( props ) {
 		return <Editor { ...props } />;
 	},
-
-	/**
-	 * Save the props to post content.
-	 */
+	// Save the props to post content.
 	save( { attributes } ) {
+		const dataAttributes = {};
+		Object.keys( attributes )
+			.sort()
+			.forEach( ( key ) => {
+				dataAttributes[ key ] = attributes[ key ];
+			} );
 		const data = {
-			'data-attributes': JSON.stringify( attributes ),
+			'data-attributes': JSON.stringify( dataAttributes ),
 		};
-
 		return (
 			<div
 				className={ getBlockClassName(
@@ -70,4 +69,37 @@ registerBlockType( 'woocommerce/all-products', {
 			</div>
 		);
 	},
+};
+
+/**
+ * Register and run the "All Products" block.
+ */
+registerBlockType( 'woocommerce/all-products', {
+	...blockSettings,
+	/**
+	 * Deprecation rule to handle the previous default rows which was 1 instead of 3.
+	 */
+	deprecated: [
+		{
+			attributes: Object.assign( {}, blockSettings.attributes, {
+				rows: { type: 'number', default: 1 },
+			} ),
+			save( { attributes } ) {
+				const data = {
+					'data-attributes': JSON.stringify( attributes ),
+				};
+				return (
+					<div
+						className={ getBlockClassName(
+							'wc-block-all-products',
+							attributes
+						) }
+						{ ...data }
+					>
+						<InnerBlocks.Content />
+					</div>
+				);
+			},
+		},
+	],
 } );

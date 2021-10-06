@@ -13,6 +13,15 @@ import './style.scss';
 
 /**
  * Component used to show a list of checkboxes in a group.
+ *
+ * @param {Object} props Incoming props for the component.
+ * @param {string} props.className CSS class used.
+ * @param {function(string):any} props.onChange Function called when inputs change.
+ * @param {Array} props.options Options for list.
+ * @param {Array} props.checked Which items are checked.
+ * @param {boolean} props.isLoading If loading or not.
+ * @param {boolean} props.isDisabled If inputs are disabled or not.
+ * @param {number} props.limit Whether to limit the number of inputs showing.
  */
 const CheckboxList = ( {
 	className,
@@ -49,6 +58,7 @@ const CheckboxList = ( {
 						} }
 						aria-expanded={ false }
 						aria-label={ sprintf(
+							/* translators: %s is referring the remaining count of options */
 							_n(
 								'Show %s more option',
 								'Show %s more options',
@@ -59,7 +69,7 @@ const CheckboxList = ( {
 						) }
 					>
 						{ sprintf(
-							// translators: %s number of options to reveal.
+							/* translators: %s number of options to reveal. */
 							_n(
 								'Show %s more',
 								'Show %s more',
@@ -100,9 +110,9 @@ const CheckboxList = ( {
 		const optionCount = options.length;
 		const shouldTruncateOptions = optionCount > limit + 5;
 		return (
-			<Fragment>
+			<>
 				{ options.map( ( option, index ) => (
-					<Fragment key={ option.key }>
+					<Fragment key={ option.value }>
 						<li
 							{ ...( shouldTruncateOptions &&
 								! showExpanded &&
@@ -110,13 +120,15 @@ const CheckboxList = ( {
 						>
 							<input
 								type="checkbox"
-								id={ option.key }
-								value={ option.key }
-								onChange={ onChange }
-								checked={ checked.includes( option.key ) }
+								id={ option.value }
+								value={ option.value }
+								onChange={ ( event ) => {
+									onChange( event.target.value );
+								} }
+								checked={ checked.includes( option.value ) }
 								disabled={ isDisabled }
 							/>
-							<label htmlFor={ option.key }>
+							<label htmlFor={ option.value }>
 								{ option.label }
 							</label>
 						</li>
@@ -126,10 +138,11 @@ const CheckboxList = ( {
 					</Fragment>
 				) ) }
 				{ shouldTruncateOptions && renderedShowLess }
-			</Fragment>
+			</>
 		);
 	}, [
 		options,
+		onChange,
 		checked,
 		showExpanded,
 		limit,
@@ -140,6 +153,7 @@ const CheckboxList = ( {
 
 	const classes = classNames(
 		'wc-block-checkbox-list',
+		'wc-block-components-checkbox-list',
 		{
 			'is-loading': isLoading,
 		},
@@ -157,8 +171,8 @@ CheckboxList.propTypes = {
 	onChange: PropTypes.func,
 	options: PropTypes.arrayOf(
 		PropTypes.shape( {
-			key: PropTypes.string.isRequired,
 			label: PropTypes.node.isRequired,
+			value: PropTypes.string.isRequired,
 		} )
 	),
 	checked: PropTypes.array,

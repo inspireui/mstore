@@ -4,7 +4,7 @@
  *
  * Sets up the write panels used by products and orders (custom post types).
  *
- * @package WooCommerce/Admin/Meta Boxes
+ * @package WooCommerce\Admin\Meta Boxes
  */
 
 use Automattic\Jetpack\Constants;
@@ -49,9 +49,9 @@ class WC_Admin_Meta_Boxes {
 		 *      Save order data - also updates status and sends out admin emails if needed. Last to show latest data.
 		 *      Save actions - sends out other emails. Last to show latest data.
 		 */
-		add_action( 'woocommerce_process_shop_order_meta', 'WC_Meta_Box_Order_Items::save', 10, 2 );
+		add_action( 'woocommerce_process_shop_order_meta', 'WC_Meta_Box_Order_Items::save', 10 );
 		add_action( 'woocommerce_process_shop_order_meta', 'WC_Meta_Box_Order_Downloads::save', 30, 2 );
-		add_action( 'woocommerce_process_shop_order_meta', 'WC_Meta_Box_Order_Data::save', 40, 2 );
+		add_action( 'woocommerce_process_shop_order_meta', 'WC_Meta_Box_Order_Data::save', 40 );
 		add_action( 'woocommerce_process_shop_order_meta', 'WC_Meta_Box_Order_Actions::save', 50, 2 );
 
 		// Save Product Meta Boxes.
@@ -67,6 +67,8 @@ class WC_Admin_Meta_Boxes {
 		// Error handling (for showing errors from meta boxes on next page load).
 		add_action( 'admin_notices', array( $this, 'output_errors' ) );
 		add_action( 'shutdown', array( $this, 'save_errors' ) );
+
+		add_filter( 'theme_product_templates', array( $this, 'remove_block_templates' ), 10, 1 );
 	}
 
 	/**
@@ -221,6 +223,32 @@ class WC_Admin_Meta_Boxes {
 		} elseif ( in_array( $post->post_type, array( 'product', 'shop_coupon' ), true ) ) {
 			do_action( 'woocommerce_process_' . $post->post_type . '_meta', $post_id, $post );
 		}
+	}
+
+	/**
+	 * Remove block-based templates from the list of available templates for products.
+	 *
+	 * @param string[] $templates Array of template header names keyed by the template file name.
+	 *
+	 * @return string[] Templates array excluding block-based templates.
+	 */
+	public function remove_block_templates( $templates ) {
+		if ( count( $templates ) === 0 || ! function_exists( 'gutenberg_get_block_template' ) ) {
+			return $templates;
+		}
+
+		$theme              = wp_get_theme()->get_stylesheet();
+		$filtered_templates = array();
+
+		foreach ( $templates as $template_key => $template_name ) {
+			$gutenberg_template = gutenberg_get_block_template( $theme . '//' . $template_key );
+
+			if ( ! $gutenberg_template ) {
+				$filtered_templates[ $template_key ] = $template_name;
+			}
+		}
+
+		return $filtered_templates;
 	}
 }
 

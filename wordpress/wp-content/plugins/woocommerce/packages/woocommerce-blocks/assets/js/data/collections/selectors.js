@@ -67,6 +67,24 @@ export const getCollection = (
 	return getFromState( { state, namespace, resourceName, query, ids } );
 };
 
+export const getCollectionError = (
+	state,
+	namespace,
+	resourceName,
+	query = null,
+	ids = DEFAULT_EMPTY_ARRAY
+) => {
+	return getFromState( {
+		state,
+		namespace,
+		resourceName,
+		query,
+		ids,
+		type: 'error',
+		fallback: null,
+	} );
+};
+
 /**
  * This selector enables retrieving a specific header value from a given
  * collection request.
@@ -113,4 +131,14 @@ export const getCollectionHeader = (
 		return headers.has( header ) ? headers.get( header ) : undefined;
 	}
 	return null;
+};
+
+/**
+ * Gets the last modified header for the collection.
+ *
+ * @param {string} state The current collection state.
+ * @return {number} Timestamp.
+ */
+export const getCollectionLastModified = ( state ) => {
+	return state.lastModified || 0;
 };

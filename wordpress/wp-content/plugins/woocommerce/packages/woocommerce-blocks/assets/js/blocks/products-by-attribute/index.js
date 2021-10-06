@@ -2,29 +2,28 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import Gridicon from 'gridicons';
+import { Icon, tags } from '@woocommerce/icons';
 import { registerBlockType } from '@wordpress/blocks';
-import { DEFAULT_COLUMNS, DEFAULT_ROWS } from '@woocommerce/block-settings';
+import { getSetting } from '@woocommerce/settings';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 import Block from './block';
-import { deprecatedConvertToShortcode } from '../../utils/deprecations';
 
 const blockTypeName = 'woocommerce/products-by-attribute';
 
 registerBlockType( blockTypeName, {
 	title: __( 'Products by Attribute', 'woocommerce' ),
 	icon: {
-		src: <Gridicon icon="custom-post-type" />,
+		src: <Icon srcElement={ tags } />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
 	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
-		'Display a grid of products from your selected attributes.',
+		'Display a grid of products with selected attributes.',
 		'woocommerce'
 	),
 	supports: {
@@ -58,7 +57,7 @@ registerBlockType( blockTypeName, {
 		 */
 		columns: {
 			type: 'number',
-			default: DEFAULT_COLUMNS,
+			default: getSetting( 'default_columns', 3 ),
 		},
 
 		/**
@@ -95,7 +94,7 @@ registerBlockType( blockTypeName, {
 		 */
 		rows: {
 			type: 'number',
-			default: DEFAULT_ROWS,
+			default: getSetting( 'default_rows', 3 ),
 		},
 
 		/**
@@ -115,50 +114,10 @@ registerBlockType( blockTypeName, {
 		},
 	},
 
-	deprecated: [
-		{
-			// Deprecate shortcode save method in favor of dynamic rendering.
-			attributes: {
-				attributes: {
-					type: 'array',
-					default: [],
-				},
-				attrOperator: {
-					type: 'string',
-					default: 'any',
-				},
-				columns: {
-					type: 'number',
-					default: DEFAULT_COLUMNS,
-				},
-				editMode: {
-					type: 'boolean',
-					default: true,
-				},
-				contentVisibility: {
-					type: 'object',
-					default: {
-						title: true,
-						price: true,
-						rating: true,
-						button: true,
-					},
-				},
-				orderby: {
-					type: 'string',
-					default: 'date',
-				},
-				rows: {
-					type: 'number',
-					default: DEFAULT_ROWS,
-				},
-			},
-			save: deprecatedConvertToShortcode( blockTypeName ),
-		},
-	],
-
 	/**
 	 * Renders and manages the block.
+	 *
+	 * @param {Object} props Props to pass to block.
 	 */
 	edit( props ) {
 		return <Block { ...props } />;

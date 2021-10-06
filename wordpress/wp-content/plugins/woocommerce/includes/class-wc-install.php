@@ -2,11 +2,12 @@
 /**
  * Installation related functions and actions.
  *
- * @package WooCommerce/Classes
+ * @package WooCommerce\Classes
  * @version 3.0.0
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Internal\WCCom\ConnectionHelper as WCConnectionHelper;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -145,8 +146,24 @@ class WC_Install {
 		'4.0.0' => array(
 			'wc_update_product_lookup_tables',
 			'wc_update_400_increase_size_of_column',
+			'wc_update_400_reset_action_scheduler_migration_status',
 			'wc_update_400_db_version',
-			'wc_reset_action_scheduler_migration_status',
+		),
+		'4.4.0' => array(
+			'wc_update_440_insert_attribute_terms_for_variable_products',
+			'wc_update_440_db_version',
+		),
+		'4.5.0' => array(
+			'wc_update_450_sanitize_coupons_code',
+			'wc_update_450_db_version',
+		),
+		'5.0.0' => array(
+			'wc_update_500_fix_product_review_count',
+			'wc_update_500_db_version',
+		),
+		'5.6.0' => array(
+			'wc_update_560_create_refund_returns_page',
+			'wc_update_560_db_version',
 		),
 	);
 
@@ -156,9 +173,11 @@ class WC_Install {
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'check_version' ), 5 );
 		add_action( 'init', array( __CLASS__, 'manual_database_update' ), 20 );
-		add_action( 'plugins_loaded', array( __CLASS__, 'wc_admin_db_update_notice' ), 100 );
+		add_action( 'admin_init', array( __CLASS__, 'wc_admin_db_update_notice' ) );
+		add_action( 'admin_init', array( __CLASS__, 'add_admin_note_after_page_created' ) );
 		add_action( 'woocommerce_run_update_callback', array( __CLASS__, 'run_update_callback' ) );
 		add_action( 'admin_init', array( __CLASS__, 'install_actions' ) );
+		add_action( 'woocommerce_page_created', array( __CLASS__, 'page_created' ), 10, 2 );
 		add_filter( 'plugin_action_links_' . WC_PLUGIN_BASENAME, array( __CLASS__, 'plugin_action_links' ) );
 		add_filter( 'plugin_row_meta', array( __CLASS__, 'plugin_row_meta' ), 10, 2 );
 		add_filter( 'wpmu_drop_tables', array( __CLASS__, 'wpmu_drop_tables' ) );
@@ -194,7 +213,10 @@ class WC_Install {
 	 * @since 4.0.0
 	 */
 	public static function wc_admin_db_update_notice() {
-		if ( WC()->is_wc_admin_active() ) {
+		if (
+			WC()->is_wc_admin_active() &&
+			false !== get_option( 'woocommerce_admin_install_timestamp' )
+		) {
 			new WC_Notes_Run_Db_Update();
 		}
 	}
@@ -209,16 +231,17 @@ class WC_Install {
 	/**
 	 * Run an update callback when triggered by ActionScheduler.
 	 *
+	 * @param string $update_callback Callback name.
+	 *
 	 * @since 3.6.0
-	 * @param string $callback Callback name.
 	 */
-	public static function run_update_callback( $callback ) {
+	public static function run_update_callback( $update_callback ) {
 		include_once dirname( __FILE__ ) . '/wc-update-functions.php';
 
-		if ( is_callable( $callback ) ) {
-			self::run_update_callback_start( $callback );
-			$result = (bool) call_user_func( $callback );
-			self::run_update_callback_end( $callback, $result );
+		if ( is_callable( $update_callback ) ) {
+			self::run_update_callback_start( $update_callback );
+			$result = (bool) call_user_func( $update_callback );
+			self::run_update_callback_end( $update_callback, $result );
 		}
 	}
 
@@ -261,11 +284,6 @@ class WC_Install {
 			check_admin_referer( 'wc_db_update', 'wc_db_update_nonce' );
 			self::update();
 			WC_Admin_Notices::add_notice( 'update', true );
-			if ( WC()->is_wc_admin_active() ) {
-				// Pre-init data store override to allow storing WC Admin notice during activation (package is not loaded yet).
-				add_filter( 'woocommerce_data_stores', array( '\Automattic\WooCommerce\Admin\API\Init', 'add_data_stores' ) );
-				WC_Notes_Run_Db_Update::show_reminder();
-			}
 		}
 	}
 
@@ -289,13 +307,16 @@ class WC_Install {
 		WC()->wpdb_table_fix();
 		self::remove_admin_notices();
 		self::create_tables();
+		self::verify_base_tables();
 		self::create_options();
 		self::create_roles();
 		self::setup_environment();
 		self::create_terms();
 		self::create_cron_jobs();
 		self::create_files();
-		self::maybe_enable_setup_wizard();
+		self::maybe_create_pages();
+		self::maybe_set_activation_transients();
+		self::set_paypal_standard_load_eligibility();
 		self::update_wc_version();
 		self::maybe_update_db_version();
 
@@ -303,6 +324,43 @@ class WC_Install {
 
 		do_action( 'woocommerce_flush_rewrite_rules' );
 		do_action( 'woocommerce_installed' );
+	}
+
+	/**
+	 * Check if all the base tables are present.
+	 *
+	 * @param bool $modify_notice Whether to modify notice based on if all tables are present.
+	 * @param bool $execute       Whether to execute get_schema queries as well.
+	 *
+	 * @return array List of querues.
+	 */
+	public static function verify_base_tables( $modify_notice = true, $execute = false ) {
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		if ( $execute ) {
+			self::create_tables();
+		}
+		$queries        = dbDelta( self::get_schema(), false );
+		$missing_tables = array();
+		foreach ( $queries as $table_name => $result ) {
+			if ( "Created table $table_name" === $result ) {
+				$missing_tables[] = $table_name;
+			}
+		}
+
+		if ( 0 < count( $missing_tables ) ) {
+			if ( $modify_notice ) {
+				WC_Admin_Notices::add_notice( 'base_tables_missing' );
+			}
+			update_option( 'woocommerce_schema_missing_tables', $missing_tables );
+		} else {
+			if ( $modify_notice ) {
+				WC_Admin_Notices::remove_notice( 'base_tables_missing' );
+			}
+			update_option( 'woocommerce_schema_version', WC()->db_version );
+			delete_option( 'woocommerce_schema_missing_tables' );
+		}
+		return $missing_tables;
 	}
 
 	/**
@@ -359,13 +417,12 @@ class WC_Install {
 	}
 
 	/**
-	 * See if we need the wizard or not.
+	 * See if we need to set redirect transients for activation or not.
 	 *
-	 * @since 3.2.0
+	 * @since 4.6.0
 	 */
-	private static function maybe_enable_setup_wizard() {
-		if ( apply_filters( 'woocommerce_enable_setup_wizard', true ) && self::is_new_install() ) {
-			WC_Admin_Notices::add_notice( 'install', true );
+	private static function maybe_set_activation_transients() {
+		if ( self::is_new_install() ) {
 			set_transient( '_wc_activation_redirect', 1, 30 );
 		}
 	}
@@ -381,12 +438,6 @@ class WC_Install {
 				self::update();
 			} else {
 				WC_Admin_Notices::add_notice( 'update', true );
-
-				// Pre-init data store override to allow storing WC Admin notice during activation (package is not loaded yet).
-				if ( WC()->is_wc_admin_active() ) {
-					add_filter( 'woocommerce_data_stores', array( '\Automattic\WooCommerce\Admin\API\Init', 'add_data_stores' ) );
-					WC_Notes_Run_Db_Update::show_reminder();
-				}
 			}
 		} else {
 			self::update_db_version();
@@ -397,8 +448,7 @@ class WC_Install {
 	 * Update WC version to current.
 	 */
 	private static function update_wc_version() {
-		delete_option( 'woocommerce_version' );
-		add_option( 'woocommerce_version', WC()->version );
+		update_option( 'woocommerce_version', WC()->version );
 	}
 
 	/**
@@ -441,8 +491,7 @@ class WC_Install {
 	 * @param string|null $version New WooCommerce DB version or null.
 	 */
 	public static function update_db_version( $version = null ) {
-		delete_option( 'woocommerce_db_version' );
-		add_option( 'woocommerce_db_version', is_null( $version ) ? WC()->version : $version );
+		update_option( 'woocommerce_db_version', is_null( $version ) ? WC()->version : $version );
 	}
 
 	/**
@@ -483,7 +532,8 @@ class WC_Install {
 		$held_duration = get_option( 'woocommerce_hold_stock_minutes', '60' );
 
 		if ( '' !== $held_duration ) {
-			wp_schedule_single_event( time() + ( absint( $held_duration ) * 60 ), 'woocommerce_cancel_unpaid_orders' );
+			$cancel_unpaid_interval = apply_filters( 'woocommerce_cancel_unpaid_orders_interval_minutes', absint( $held_duration ) );
+			wp_schedule_single_event( time() + ( absint( $cancel_unpaid_interval ) * 60 ), 'woocommerce_cancel_unpaid_orders' );
 		}
 
 		// Delay the first run of `woocommerce_cleanup_personal_data` by 10 seconds
@@ -498,6 +548,15 @@ class WC_Install {
 	}
 
 	/**
+	 * Create pages on installation.
+	 */
+	public static function maybe_create_pages() {
+		if ( empty( get_option( 'woocommerce_db_version' ) ) ) {
+			self::create_pages();
+		}
+	}
+
+	/**
 	 * Create pages that the plugin relies on, storing page IDs in variables.
 	 */
 	public static function create_pages() {
@@ -506,31 +565,44 @@ class WC_Install {
 		$pages = apply_filters(
 			'woocommerce_create_pages',
 			array(
-				'shop'      => array(
+				'shop'          => array(
 					'name'    => _x( 'shop', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'Shop', 'Page title', 'woocommerce' ),
 					'content' => '',
 				),
-				'cart'      => array(
+				'cart'          => array(
 					'name'    => _x( 'cart', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'Cart', 'Page title', 'woocommerce' ),
 					'content' => '<!-- wp:shortcode -->[' . apply_filters( 'woocommerce_cart_shortcode_tag', 'woocommerce_cart' ) . ']<!-- /wp:shortcode -->',
 				),
-				'checkout'  => array(
+				'checkout'      => array(
 					'name'    => _x( 'checkout', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'Checkout', 'Page title', 'woocommerce' ),
 					'content' => '<!-- wp:shortcode -->[' . apply_filters( 'woocommerce_checkout_shortcode_tag', 'woocommerce_checkout' ) . ']<!-- /wp:shortcode -->',
 				),
-				'myaccount' => array(
+				'myaccount'     => array(
 					'name'    => _x( 'my-account', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'My account', 'Page title', 'woocommerce' ),
 					'content' => '<!-- wp:shortcode -->[' . apply_filters( 'woocommerce_my_account_shortcode_tag', 'woocommerce_my_account' ) . ']<!-- /wp:shortcode -->',
+				),
+				'refund_returns' => array(
+					'name'        => _x( 'refund_returns', 'Page slug', 'woocommerce' ),
+					'title'       => _x( 'Refund and Returns Policy', 'Page title', 'woocommerce' ),
+					'content'     => self::get_refunds_return_policy_page_content(),
+					'post_status' => 'draft',
 				),
 			)
 		);
 
 		foreach ( $pages as $key => $page ) {
-			wc_create_page( esc_sql( $page['name'] ), 'woocommerce_' . $key . '_page_id', $page['title'], $page['content'], ! empty( $page['parent'] ) ? wc_get_page_id( $page['parent'] ) : '' );
+			wc_create_page(
+				esc_sql( $page['name'] ),
+				'woocommerce_' . $key . '_page_id',
+				$page['title'],
+				$page['content'],
+				! empty( $page['parent'] ) ? wc_get_page_id( $page['parent'] ) : '',
+				! empty( $page['post_status'] ) ? $page['post_status'] : 'publish'
+			);
 		}
 	}
 
@@ -551,6 +623,11 @@ class WC_Install {
 			}
 			$subsections = array_unique( array_merge( array( '' ), array_keys( $section->get_sections() ) ) );
 
+			/**
+			 * We are using 'WC_Settings_Page::get_settings' on purpose even thought it's deprecated.
+			 * See the method documentation for an explanation.
+			 */
+
 			foreach ( $subsections as $subsection ) {
 				foreach ( $section->get_settings( $subsection ) as $value ) {
 					if ( isset( $value['default'] ) && isset( $value['id'] ) ) {
@@ -567,9 +644,11 @@ class WC_Install {
 		add_option( 'woocommerce_checkout_highlight_required_fields', 'yes', '', 'yes' );
 		add_option( 'woocommerce_demo_store', 'no', '', 'no' );
 
-		// Define initial tax classes.
-		WC_Tax::create_tax_class( __( 'Reduced rate', 'woocommerce' ) );
-		WC_Tax::create_tax_class( __( 'Zero rate', 'woocommerce' ) );
+		if ( self::is_new_install() ) {
+			// Define initial tax classes.
+			WC_Tax::create_tax_class( __( 'Reduced rate', 'woocommerce' ) );
+			WC_Tax::create_tax_class( __( 'Zero rate', 'woocommerce' ) );
+		}
 	}
 
 	/**
@@ -629,6 +708,11 @@ class WC_Install {
 
 	/**
 	 * Set up the database tables which the plugin needs to function.
+	 * WARNING: If you are modifying this method, make sure that its safe to call regardless of the state of database.
+	 *
+	 * This is called from `install` method and is executed in-sync when WC is installed or updated. This can also be called optionally from `verify_base_tables`.
+	 *
+	 * TODO: Add all crucial tables that we have created from workers in the past.
 	 *
 	 * Tables:
 	 *      woocommerce_attribute_taxonomies - Table for storing attribute taxonomies - these are user defined
@@ -697,21 +781,14 @@ class WC_Install {
 
 		// Add constraint to download logs if the columns matches.
 		if ( ! empty( $download_permissions_column_type ) && ! empty( $download_log_column_type ) && $download_permissions_column_type === $download_log_column_type ) {
-			$fk_result = $wpdb->get_row(
-				"SELECT COUNT(*) AS fk_count
-				FROM information_schema.TABLE_CONSTRAINTS
-				WHERE CONSTRAINT_SCHEMA = '{$wpdb->dbname}'
-				AND CONSTRAINT_NAME = 'fk_{$wpdb->prefix}wc_download_log_permission_id'
-				AND CONSTRAINT_TYPE = 'FOREIGN KEY'
-				AND TABLE_NAME = '{$wpdb->prefix}wc_download_log'"
-			); // WPCS: unprepared SQL ok.
-			if ( 0 === (int) $fk_result->fk_count ) {
+			$fk_result = $wpdb->get_row( "SHOW CREATE TABLE {$wpdb->prefix}wc_download_log" );
+			if ( false === strpos( $fk_result->{'Create Table'}, "fk_{$wpdb->prefix}wc_download_log_permission_id" ) ) {
 				$wpdb->query(
 					"ALTER TABLE `{$wpdb->prefix}wc_download_log`
 					ADD CONSTRAINT `fk_{$wpdb->prefix}wc_download_log_permission_id`
 					FOREIGN KEY (`permission_id`)
 					REFERENCES `{$wpdb->prefix}woocommerce_downloadable_product_permissions` (`permission_id`) ON DELETE CASCADE;"
-				); // WPCS: unprepared SQL ok.
+				);
 			}
 		}
 
@@ -955,6 +1032,14 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
   PRIMARY KEY  (tax_rate_class_id),
   UNIQUE KEY slug (slug($max_index_length))
 ) $collate;
+CREATE TABLE {$wpdb->prefix}wc_reserved_stock (
+	`order_id` bigint(20) NOT NULL,
+	`product_id` bigint(20) NOT NULL,
+	`stock_quantity` double NOT NULL DEFAULT 0,
+	`timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`expires` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	PRIMARY KEY  (`order_id`, `product_id`)
+) $collate;
 		";
 
 		return $tables;
@@ -988,6 +1073,7 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 			"{$wpdb->prefix}woocommerce_shipping_zones",
 			"{$wpdb->prefix}woocommerce_tax_rate_locations",
 			"{$wpdb->prefix}woocommerce_tax_rates",
+			"{$wpdb->prefix}wc_reserved_stock",
 		);
 
 		/**
@@ -1119,7 +1205,7 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 	 *
 	 * @return array
 	 */
-	private static function get_core_capabilities() {
+	public static function get_core_capabilities() {
 		$capabilities = array();
 
 		$capabilities['core'] = array(
@@ -1195,7 +1281,7 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 		}
 
 		// Install files and folders for uploading files and prevent hotlinking.
-		$upload_dir      = wp_upload_dir();
+		$upload_dir      = wp_get_upload_dir();
 		$download_method = get_option( 'woocommerce_file_download_method', 'force' );
 
 		$files = array(
@@ -1214,19 +1300,16 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 				'file'    => 'index.html',
 				'content' => '',
 			),
-		);
-
-		if ( 'redirect' !== $download_method ) {
-			$files[] = array(
+			array(
 				'base'    => $upload_dir['basedir'] . '/woocommerce_uploads',
 				'file'    => '.htaccess',
-				'content' => 'deny from all',
-			);
-		}
+				'content' => 'redirect' === $download_method ? 'Options -Indexes' : 'deny from all',
+			),
+		);
 
 		foreach ( $files as $file ) {
 			if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-				$file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_fopen
+				$file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'wb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_fopen
 				if ( $file_handle ) {
 					fwrite( $file_handle, $file['content'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
 					fclose( $file_handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
@@ -1276,7 +1359,12 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 			'post_content'   => '',
 			'post_status'    => 'inherit',
 		);
-		$attach_id  = wp_insert_attachment( $attachment, $filename );
+
+		$attach_id = wp_insert_attachment( $attachment, $filename );
+		if ( is_wp_error( $attach_id ) ) {
+			update_option( 'woocommerce_placeholder_image', 0 );
+			return;
+		}
 
 		update_option( 'woocommerce_placeholder_image', $attach_id );
 
@@ -1312,17 +1400,21 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 	 * @return array
 	 */
 	public static function plugin_row_meta( $links, $file ) {
-		if ( WC_PLUGIN_BASENAME === $file ) {
-			$row_meta = array(
-				'docs'    => '<a href="' . esc_url( apply_filters( 'woocommerce_docs_url', 'https://docs.woocommerce.com/documentation/plugins/woocommerce/' ) ) . '" aria-label="' . esc_attr__( 'View WooCommerce documentation', 'woocommerce' ) . '">' . esc_html__( 'Docs', 'woocommerce' ) . '</a>',
-				'apidocs' => '<a href="' . esc_url( apply_filters( 'woocommerce_apidocs_url', 'https://docs.woocommerce.com/wc-apidocs/' ) ) . '" aria-label="' . esc_attr__( 'View WooCommerce API docs', 'woocommerce' ) . '">' . esc_html__( 'API docs', 'woocommerce' ) . '</a>',
-				'support' => '<a href="' . esc_url( apply_filters( 'woocommerce_support_url', 'https://woocommerce.com/my-account/tickets/' ) ) . '" aria-label="' . esc_attr__( 'Visit premium customer support', 'woocommerce' ) . '">' . esc_html__( 'Premium support', 'woocommerce' ) . '</a>',
-			);
-
-			return array_merge( $links, $row_meta );
+		if ( WC_PLUGIN_BASENAME !== $file ) {
+			return $links;
 		}
 
-		return (array) $links;
+		$row_meta = array(
+			'docs'    => '<a href="' . esc_url( apply_filters( 'woocommerce_docs_url', 'https://docs.woocommerce.com/documentation/plugins/woocommerce/' ) ) . '" aria-label="' . esc_attr__( 'View WooCommerce documentation', 'woocommerce' ) . '">' . esc_html__( 'Docs', 'woocommerce' ) . '</a>',
+			'apidocs' => '<a href="' . esc_url( apply_filters( 'woocommerce_apidocs_url', 'https://docs.woocommerce.com/wc-apidocs/' ) ) . '" aria-label="' . esc_attr__( 'View WooCommerce API docs', 'woocommerce' ) . '">' . esc_html__( 'API docs', 'woocommerce' ) . '</a>',
+			'support' => '<a href="' . esc_url( apply_filters( 'woocommerce_community_support_url', 'https://wordpress.org/support/plugin/woocommerce/' ) ) . '" aria-label="' . esc_attr__( 'Visit community forums', 'woocommerce' ) . '">' . esc_html__( 'Community support', 'woocommerce' ) . '</a>',
+		);
+
+		if ( WCConnectionHelper::is_connected() ) {
+			$row_meta['premium_support'] = '<a href="' . esc_url( apply_filters( 'woocommerce_support_url', 'https://woocommerce.com/my-account/create-a-ticket/' ) ) . '" aria-label="' . esc_attr__( 'Visit premium customer support', 'woocommerce' ) . '">' . esc_html__( 'Premium support', 'woocommerce' ) . '</a>';
+		}
+
+		return array_merge( $links, $row_meta );
 	}
 
 	/**
@@ -1561,6 +1653,208 @@ CREATE TABLE {$wpdb->prefix}wc_tax_rate_classes (
 
 			// Discard feedback.
 			ob_end_clean();
+		}
+	}
+
+	/**
+	 * Sets whether PayPal Standard will be loaded on install.
+	 *
+	 * @since 5.5.0
+	 */
+	private static function set_paypal_standard_load_eligibility() {
+		// Initiating the payment gateways sets the flag.
+		if ( class_exists( 'WC_Gateway_Paypal' ) ) {
+			( new WC_Gateway_Paypal() )->should_load();
+		}
+	}
+
+	/**
+	 * Gets the content of the sample refunds and return policy page.
+	 *
+	 * @since 5.6.0
+	 * @return HTML The content for the page
+	 */
+	private static function get_refunds_return_policy_page_content() {
+		return <<<EOT
+<!-- wp:paragraph -->
+<p><b>This is a sample page.</b></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<h3>Overview</h3>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Our refund and returns policy lasts 30 days. If 30 days have passed since your purchase, we can’t offer you a full refund or exchange.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Several types of goods are exempt from being returned. Perishable goods such as food, flowers, newspapers or magazines cannot be returned. We also do not accept products that are intimate or sanitary goods, hazardous materials, or flammable liquids or gases.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Additional non-returnable items:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<li>Gift cards</li>
+<li>Downloadable software products</li>
+<li>Some health and personal care items</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>To complete your return, we require a receipt or proof of purchase.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Please do not send your purchase back to the manufacturer.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>There are certain situations where only partial refunds are granted:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<li>Book with obvious signs of use</li>
+<li>CD, DVD, VHS tape, software, video game, cassette tape, or vinyl record that has been opened.</li>
+<li>Any item not in its original condition, is damaged or missing parts for reasons not due to our error.</li>
+<li>Any item that is returned more than 30 days after delivery</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<h2>Refunds</h2>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Once your return is received and inspected, we will send you an email to notify you that we have received your returned item. We will also notify you of the approval or rejection of your refund.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you are approved, then your refund will be processed, and a credit will automatically be applied to your credit card or original method of payment, within a certain amount of days.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<b>Late or missing refunds</b>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you haven’t received a refund yet, first check your bank account again.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Then contact your credit card company, it may take some time before your refund is officially posted.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Next contact your bank. There is often some processing time before a refund is posted.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you’ve done all of this and you still have not received your refund yet, please contact us at {email address}.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<b>Sale items</b>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Only regular priced items may be refunded. Sale items cannot be refunded.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<h2>Exchanges</h2>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We only replace items if they are defective or damaged. If you need to exchange it for the same item, send us an email at {email address} and send your item to: {physical address}.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<h2>Gifts</h2>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If the item was marked as a gift when purchased and shipped directly to you, you’ll receive a gift credit for the value of your return. Once the returned item is received, a gift certificate will be mailed to you.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If the item wasn’t marked as a gift when purchased, or the gift giver had the order shipped to themselves to give to you later, we will send a refund to the gift giver and they will find out about your return.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<h2>Shipping returns</h2>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To return your product, you should mail your product to: {physical address}.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>You will be responsible for paying for your own shipping costs for returning your item. Shipping costs are non-refundable. If you receive a refund, the cost of return shipping will be deducted from your refund.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Depending on where you live, the time it may take for your exchanged product to reach you may vary.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you are returning more expensive items, you may consider using a trackable shipping service or purchasing shipping insurance. We don’t guarantee that we will receive your returned item.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<h2>Need help?</h2>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Contact us at {email} for questions related to refunds and returns.</p>
+<!-- /wp:paragraph -->
+EOT;
+	}
+
+	/**
+	 * Adds an admin inbox note after a page has been created to notify
+	 * user. For example to take action to edit the page such as the
+	 * Refund and returns page.
+	 *
+	 * @since 5.6.0
+	 * @return void
+	 */
+	public static function add_admin_note_after_page_created() {
+		if ( ! WC()->is_wc_admin_active() ) {
+			return;
+		}
+
+		$page_id = get_option( 'woocommerce_refund_returns_page_created', null );
+
+		if ( null === $page_id ) {
+			return;
+		}
+
+		WC_Notes_Refund_Returns::possibly_add_note( $page_id );
+	}
+
+	/**
+	 * When pages are created, we might want to take some action.
+	 * In this case we want to set an option when refund and returns
+	 * page is created.
+	 *
+	 * @since 5.6.0
+	 * @param int   $page_id ID of the page.
+	 * @param array $page_data The data of the page created.
+	 * @return void
+	 */
+	public static function page_created( $page_id, $page_data ) {
+		if ( 'refund_returns' === $page_data['post_name'] ) {
+			delete_option( 'woocommerce_refund_returns_page_created' );
+			add_option( 'woocommerce_refund_returns_page_created', $page_id, '', false );
 		}
 	}
 }

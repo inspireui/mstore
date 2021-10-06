@@ -31,19 +31,21 @@ class PseudoClassExtension extends AbstractExtension
      */
     public function getPseudoClassTranslators()
     {
-        return [
-            'root' => [$this, 'translateRoot'],
-            'first-child' => [$this, 'translateFirstChild'],
-            'last-child' => [$this, 'translateLastChild'],
-            'first-of-type' => [$this, 'translateFirstOfType'],
-            'last-of-type' => [$this, 'translateLastOfType'],
-            'only-child' => [$this, 'translateOnlyChild'],
-            'only-of-type' => [$this, 'translateOnlyOfType'],
-            'empty' => [$this, 'translateEmpty'],
-        ];
+        return array(
+            'root' => array($this, 'translateRoot'),
+            'first-child' => array($this, 'translateFirstChild'),
+            'last-child' => array($this, 'translateLastChild'),
+            'first-of-type' => array($this, 'translateFirstOfType'),
+            'last-of-type' => array($this, 'translateLastOfType'),
+            'only-child' => array($this, 'translateOnlyChild'),
+            'only-of-type' => array($this, 'translateOnlyOfType'),
+            'empty' => array($this, 'translateEmpty'),
+        );
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      */
     public function translateRoot(XPathExpr $xpath)
@@ -52,6 +54,8 @@ class PseudoClassExtension extends AbstractExtension
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      */
     public function translateFirstChild(XPathExpr $xpath)
@@ -63,6 +67,8 @@ class PseudoClassExtension extends AbstractExtension
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      */
     public function translateLastChild(XPathExpr $xpath)
@@ -74,6 +80,8 @@ class PseudoClassExtension extends AbstractExtension
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      *
      * @throws ExpressionErrorException
@@ -90,6 +98,8 @@ class PseudoClassExtension extends AbstractExtension
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      *
      * @throws ExpressionErrorException
@@ -106,6 +116,8 @@ class PseudoClassExtension extends AbstractExtension
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      */
     public function translateOnlyChild(XPathExpr $xpath)
@@ -117,22 +129,24 @@ class PseudoClassExtension extends AbstractExtension
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      *
      * @throws ExpressionErrorException
      */
     public function translateOnlyOfType(XPathExpr $xpath)
     {
-        $element = $xpath->getElement();
-
-        if ('*' === $element) {
+        if ('*' === $xpath->getElement()) {
             throw new ExpressionErrorException('"*:only-of-type" is not implemented.');
         }
 
-        return $xpath->addCondition(sprintf('count(preceding-sibling::%s)=0 and count(following-sibling::%s)=0', $element, $element));
+        return $xpath->addCondition('last() = 1');
     }
 
     /**
+     * @param XPathExpr $xpath
+     *
      * @return XPathExpr
      */
     public function translateEmpty(XPathExpr $xpath)

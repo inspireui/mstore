@@ -18,17 +18,17 @@ class SelectorNodeTest extends AbstractNodeTest
 {
     public function getToStringConversionTestData()
     {
-        return [
-            [new SelectorNode(new ElementNode()), 'Selector[Element[*]]'],
-            [new SelectorNode(new ElementNode(), 'pseudo'), 'Selector[Element[*]::pseudo]'],
-        ];
+        return array(
+            array(new SelectorNode(new ElementNode()), 'Selector[Element[*]]'),
+            array(new SelectorNode(new ElementNode(), 'pseudo'), 'Selector[Element[*]::pseudo]'),
+        );
     }
 
     public function getSpecificityValueTestData()
     {
-        return [
-            [new SelectorNode(new ElementNode()), 0],
-            [new SelectorNode(new ElementNode(), 'pseudo'), 1],
-        ];
+        return array(
+            array(new SelectorNode(new ElementNode()), 0),
+            array(new SelectorNode(new ElementNode(), 'pseudo'), 1),
+        );
     }
 }

@@ -4,13 +4,13 @@
 import { __ } from '@wordpress/i18n';
 import { createBlock, registerBlockType } from '@wordpress/blocks';
 import { without } from 'lodash';
+import { Icon, folder } from '@woocommerce/icons';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 import Block from './block';
-import { deprecatedConvertToShortcode } from '../../utils/deprecations';
 import sharedAttributes, {
 	sharedAttributeBlockTypes,
 } from '../../utils/shared-attributes';
@@ -21,7 +21,7 @@ import sharedAttributes, {
 registerBlockType( 'woocommerce/product-category', {
 	title: __( 'Products by Category', 'woocommerce' ),
 	icon: {
-		src: 'category',
+		src: <Icon srcElement={ folder } />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
@@ -76,28 +76,10 @@ registerBlockType( 'woocommerce/product-category', {
 		],
 	},
 
-	deprecated: [
-		{
-			// Deprecate shortcode save method in favor of dynamic rendering.
-			attributes: {
-				...sharedAttributes,
-				editMode: {
-					type: 'boolean',
-					default: true,
-				},
-				orderby: {
-					type: 'string',
-					default: 'date',
-				},
-			},
-			save: deprecatedConvertToShortcode(
-				'woocommerce/product-category'
-			),
-		},
-	],
-
 	/**
 	 * Renders and manages the block.
+	 *
+	 * @param {Object} props Props to pass to block.
 	 */
 	edit( props ) {
 		return <Block { ...props } />;

@@ -1,8 +1,6 @@
 <?php
 /**
  * Keeps the product category lookup table in sync with live data.
- *
- * @package WooCommerce Admin/Classes
  */
 
 namespace Automattic\WooCommerce\Admin;
@@ -54,6 +52,8 @@ class CategoryLookup {
 		add_action( 'generate_category_lookup_table', array( $this, 'regenerate' ) );
 		add_action( 'edit_product_cat', array( $this, 'before_edit' ), 99 );
 		add_action( 'edited_product_cat', array( $this, 'on_edit' ), 99 );
+		add_action( 'created_product_cat', array( $this, 'on_create' ), 99 );
+
 	}
 
 	/**
@@ -94,7 +94,7 @@ class CategoryLookup {
 			)
 		);
 
-		$wpdb->query( "INSERT IGNORE INTO $wpdb->wc_category_lookup (category_tree_id,category_id) VALUES ({$insert_string})" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( "INSERT IGNORE INTO $wpdb->wc_category_lookup (category_tree_id,category_id) VALUES ({$insert_string})" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -133,6 +133,20 @@ class CategoryLookup {
 	}
 
 	/**
+	 * When a product category gets created, add a new lookup row.
+	 *
+	 * @param int $category_id Term ID being created.
+	 */
+	public function on_create( $category_id ) {
+		// If WooCommerce is being installed on a multisite, lookup tables haven't been created yet.
+		if ( 'yes' === get_transient( 'wc_installing' ) ) {
+			return;
+		}
+
+		$this->update( $category_id );
+	}
+
+	/**
 	 * Delete lookup table data from a tree.
 	 *
 	 * @param int $category_id Category ID to delete.
@@ -153,7 +167,7 @@ class CategoryLookup {
 		$id_list     = implode( ',', array_map( 'intval', array_unique( array_filter( $children ) ) ) );
 
 		foreach ( $ancestors as $ancestor ) {
-			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->wc_category_lookup WHERE category_tree_id = %d AND category_id IN ({$id_list})", $ancestor ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->wc_category_lookup WHERE category_tree_id = %d AND category_id IN ({$id_list})", $ancestor ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 	}
 
@@ -180,7 +194,7 @@ class CategoryLookup {
 
 		$insert_string = implode( ',', $inserts );
 
-		$wpdb->query( "INSERT IGNORE INTO $wpdb->wc_category_lookup (category_id, category_tree_id) VALUES {$insert_string}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( "INSERT IGNORE INTO $wpdb->wc_category_lookup (category_id, category_tree_id) VALUES {$insert_string}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**

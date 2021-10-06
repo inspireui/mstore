@@ -3,8 +3,6 @@
  * REST API Reports customers controller
  *
  * Handles requests to the /reports/customers endpoint.
- *
- * @package WooCommerce Admin/API
  */
 
 namespace Automattic\WooCommerce\Admin\API\Reports\Customers;
@@ -18,7 +16,6 @@ use \Automattic\WooCommerce\Admin\API\Reports\TimeInterval;
 /**
  * REST API Reports customers controller class.
  *
- * @package WooCommerce/API
  * @extends WC_REST_Reports_Controller
  */
 class Controller extends \WC_REST_Reports_Controller implements ExportableInterface {
@@ -474,6 +471,9 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'description'       => __( 'Limit response to objects last active between two given ISO8601 compliant datetime.', 'woocommerce' ),
 			'type'              => 'array',
 			'validate_callback' => array( '\Automattic\WooCommerce\Admin\API\Reports\TimeInterval', 'rest_validate_between_date_arg' ),
+			'items'             => array(
+				'type' => 'string',
+			),
 		);
 		$params['registered_before']       = array(
 			'description'       => __( 'Limit response to objects registered before (or at) a given ISO8601 compliant datetime.', 'woocommerce' ),
@@ -491,6 +491,9 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'description'       => __( 'Limit response to objects last active between two given ISO8601 compliant datetime.', 'woocommerce' ),
 			'type'              => 'array',
 			'validate_callback' => array( '\Automattic\WooCommerce\Admin\API\Reports\TimeInterval', 'rest_validate_between_date_arg' ),
+			'items'             => array(
+				'type' => 'string',
+			),
 		);
 		$params['orders_count_min']        = array(
 			'description'       => __( 'Limit response to objects with an order count greater than or equal to given integer.', 'woocommerce' ),
@@ -508,6 +511,9 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'description'       => __( 'Limit response to objects with an order count between two given integers.', 'woocommerce' ),
 			'type'              => 'array',
 			'validate_callback' => array( '\Automattic\WooCommerce\Admin\API\Reports\TimeInterval', 'rest_validate_between_numeric_arg' ),
+			'items'             => array(
+				'type' => 'integer',
+			),
 		);
 		$params['total_spend_min']         = array(
 			'description'       => __( 'Limit response to objects with a total order spend greater than or equal to given number.', 'woocommerce' ),
@@ -523,6 +529,9 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'description'       => __( 'Limit response to objects with a total order spend between two given numbers.', 'woocommerce' ),
 			'type'              => 'array',
 			'validate_callback' => array( '\Automattic\WooCommerce\Admin\API\Reports\TimeInterval', 'rest_validate_between_numeric_arg' ),
+			'items'             => array(
+				'type' => 'integer',
+			),
 		);
 		$params['avg_order_value_min']     = array(
 			'description'       => __( 'Limit response to objects with an average order spend greater than or equal to given number.', 'woocommerce' ),
@@ -538,6 +547,9 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'description'       => __( 'Limit response to objects with an average order spend between two given numbers.', 'woocommerce' ),
 			'type'              => 'array',
 			'validate_callback' => array( '\Automattic\WooCommerce\Admin\API\Reports\TimeInterval', 'rest_validate_between_numeric_arg' ),
+			'items'             => array(
+				'type' => 'integer',
+			),
 		);
 		$params['last_order_before']       = array(
 			'description'       => __( 'Limit response to objects with last order before (or at) a given ISO8601 compliant datetime.', 'woocommerce' ),
@@ -570,7 +582,7 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 	 * @return array Key value pair of Column ID => Label.
 	 */
 	public function get_export_columns() {
-		return array(
+		$export_columns = array(
 			'name'            => __( 'Name', 'woocommerce' ),
 			'username'        => __( 'Username', 'woocommerce' ),
 			'last_active'     => __( 'Last Active', 'woocommerce' ),
@@ -584,6 +596,17 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'region'          => __( 'Region', 'woocommerce' ),
 			'postcode'        => __( 'Postal Code', 'woocommerce' ),
 		);
+
+		/**
+		 * Filter to add or remove column names from the customers report for
+		 * export.
+		 *
+		 * @since 1.6.0
+		 */
+		return apply_filters(
+			'woocommerce_report_customers_export_columns',
+			$export_columns
+		);
 	}
 
 	/**
@@ -593,7 +616,7 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 	 * @return array Key value pair of Column ID => Row Value.
 	 */
 	public function prepare_item_for_export( $item ) {
-		return array(
+		$export_item = array(
 			'name'            => $item['name'],
 			'username'        => $item['username'],
 			'last_active'     => $item['date_last_active'],
@@ -606,6 +629,12 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 			'city'            => $item['city'],
 			'region'          => $item['state'],
 			'postcode'        => $item['postcode'],
+		);
+
+		return apply_filters(
+			'woocommerce_report_customers_prepare_export_item',
+			$export_item,
+			$item
 		);
 	}
 }

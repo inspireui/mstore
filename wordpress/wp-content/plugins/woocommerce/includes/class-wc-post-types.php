@@ -4,7 +4,7 @@
  *
  * Registers post types and taxonomies.
  *
- * @package WooCommerce/Classes/Products
+ * @package WooCommerce\Classes\Products
  * @version 2.5.0
  */
 
@@ -23,6 +23,7 @@ class WC_Post_Types {
 		add_action( 'init', array( __CLASS__, 'register_post_types' ), 5 );
 		add_action( 'init', array( __CLASS__, 'register_post_status' ), 9 );
 		add_action( 'init', array( __CLASS__, 'support_jetpack_omnisearch' ) );
+		add_filter( 'term_updated_messages', array( __CLASS__, 'updated_term_messages' ) );
 		add_filter( 'rest_api_allowed_post_types', array( __CLASS__, 'rest_api_allowed_post_types' ) );
 		add_action( 'woocommerce_after_register_post_type', array( __CLASS__, 'maybe_flush_rewrite_rules' ) );
 		add_action( 'woocommerce_flush_rewrite_rules', array( __CLASS__, 'flush_rewrite_rules' ) );
@@ -59,6 +60,7 @@ class WC_Post_Types {
 					'query_var'         => is_admin(),
 					'rewrite'           => false,
 					'public'            => false,
+					'label'             => _x( 'Product type', 'Taxonomy name', 'woocommerce' ),
 				)
 			)
 		);
@@ -75,6 +77,7 @@ class WC_Post_Types {
 					'query_var'         => is_admin(),
 					'rewrite'           => false,
 					'public'            => false,
+					'label'             => _x( 'Product visibility', 'Taxonomy name', 'woocommerce' ),
 				)
 			)
 		);
@@ -89,19 +92,22 @@ class WC_Post_Types {
 					'update_count_callback' => '_wc_term_recount',
 					'label'                 => __( 'Categories', 'woocommerce' ),
 					'labels'                => array(
-						'name'              => __( 'Product categories', 'woocommerce' ),
-						'singular_name'     => __( 'Category', 'woocommerce' ),
-						'menu_name'         => _x( 'Categories', 'Admin menu name', 'woocommerce' ),
-						'search_items'      => __( 'Search categories', 'woocommerce' ),
-						'all_items'         => __( 'All categories', 'woocommerce' ),
-						'parent_item'       => __( 'Parent category', 'woocommerce' ),
-						'parent_item_colon' => __( 'Parent category:', 'woocommerce' ),
-						'edit_item'         => __( 'Edit category', 'woocommerce' ),
-						'update_item'       => __( 'Update category', 'woocommerce' ),
-						'add_new_item'      => __( 'Add new category', 'woocommerce' ),
-						'new_item_name'     => __( 'New category name', 'woocommerce' ),
-						'not_found'         => __( 'No categories found', 'woocommerce' ),
+						'name'                  => __( 'Product categories', 'woocommerce' ),
+						'singular_name'         => __( 'Category', 'woocommerce' ),
+						'menu_name'             => _x( 'Categories', 'Admin menu name', 'woocommerce' ),
+						'search_items'          => __( 'Search categories', 'woocommerce' ),
+						'all_items'             => __( 'All categories', 'woocommerce' ),
+						'parent_item'           => __( 'Parent category', 'woocommerce' ),
+						'parent_item_colon'     => __( 'Parent category:', 'woocommerce' ),
+						'edit_item'             => __( 'Edit category', 'woocommerce' ),
+						'update_item'           => __( 'Update category', 'woocommerce' ),
+						'add_new_item'          => __( 'Add new category', 'woocommerce' ),
+						'new_item_name'         => __( 'New category name', 'woocommerce' ),
+						'not_found'             => __( 'No categories found', 'woocommerce' ),
+						'item_link'             => __( 'Product Category Link', 'woocommerce' ),
+						'item_link_description' => __( 'A link to a product category.', 'woocommerce' ),
 					),
+					'show_in_rest'          => true,
 					'show_ui'               => true,
 					'query_var'             => true,
 					'capabilities'          => array(
@@ -143,7 +149,10 @@ class WC_Post_Types {
 						'add_or_remove_items'        => __( 'Add or remove tags', 'woocommerce' ),
 						'choose_from_most_used'      => __( 'Choose from the most used tags', 'woocommerce' ),
 						'not_found'                  => __( 'No tags found', 'woocommerce' ),
+						'item_link'                  => __( 'Product Tag Link', 'woocommerce' ),
+						'item_link_description'      => __( 'A link to a product tag.', 'woocommerce' ),
 					),
+					'show_in_rest'          => true,
 					'show_ui'               => true,
 					'query_var'             => true,
 					'capabilities'          => array(
@@ -257,7 +266,7 @@ class WC_Post_Types {
 
 					if ( 1 === $tax->attribute_public && sanitize_title( $tax->attribute_name ) ) {
 						$taxonomy_data['rewrite'] = array(
-							'slug'         => trailingslashit( $permalinks['attribute_rewrite_slug'] ) . sanitize_title( $tax->attribute_name ),
+							'slug'         => trailingslashit( $permalinks['attribute_rewrite_slug'] ) . urldecode( sanitize_title( $tax->attribute_name ) ),
 							'with_front'   => false,
 							'hierarchical' => true,
 						);
@@ -332,10 +341,13 @@ class WC_Post_Types {
 						'filter_items_list'     => __( 'Filter products', 'woocommerce' ),
 						'items_list_navigation' => __( 'Products navigation', 'woocommerce' ),
 						'items_list'            => __( 'Products list', 'woocommerce' ),
+						'item_link'             => __( 'Product Link', 'woocommerce' ),
+						'item_link_description' => __( 'A link to a product.', 'woocommerce' ),
 					),
 					'description'         => __( 'This is where you can add new products to your store.', 'woocommerce' ),
 					'public'              => true,
 					'show_ui'             => true,
+					'menu_icon'           => 'dashicons-archive',
 					'capability_type'     => 'product',
 					'map_meta_cap'        => true,
 					'publicly_queryable'  => true,
@@ -400,7 +412,7 @@ class WC_Post_Types {
 					'map_meta_cap'        => true,
 					'publicly_queryable'  => false,
 					'exclude_from_search' => true,
-					'show_in_menu'        => current_user_can( 'manage_woocommerce' ) ? 'woocommerce' : true,
+					'show_in_menu'        => current_user_can( 'edit_others_shop_orders' ) ? 'woocommerce' : true,
 					'hierarchical'        => false,
 					'show_in_nav_menus'   => false,
 					'rewrite'             => false,
@@ -464,7 +476,7 @@ class WC_Post_Types {
 						'map_meta_cap'        => true,
 						'publicly_queryable'  => false,
 						'exclude_from_search' => true,
-						'show_in_menu'        => current_user_can( 'manage_woocommerce' ) ? 'woocommerce' : true,
+						'show_in_menu'        => current_user_can( 'edit_others_shop_orders' ) ? 'woocommerce' : true,
 						'hierarchical'        => false,
 						'rewrite'             => false,
 						'query_var'           => false,
@@ -477,6 +489,66 @@ class WC_Post_Types {
 		}
 
 		do_action( 'woocommerce_after_register_post_type' );
+	}
+
+	/**
+	 * Customize taxonomies update messages.
+	 *
+	 * @param array $messages The list of available messages.
+	 * @since 4.4.0
+	 * @return bool
+	 */
+	public static function updated_term_messages( $messages ) {
+		$messages['product_cat'] = array(
+			0 => '',
+			1 => __( 'Category added.', 'woocommerce' ),
+			2 => __( 'Category deleted.', 'woocommerce' ),
+			3 => __( 'Category updated.', 'woocommerce' ),
+			4 => __( 'Category not added.', 'woocommerce' ),
+			5 => __( 'Category not updated.', 'woocommerce' ),
+			6 => __( 'Categories deleted.', 'woocommerce' ),
+		);
+
+		$messages['product_tag'] = array(
+			0 => '',
+			1 => __( 'Tag added.', 'woocommerce' ),
+			2 => __( 'Tag deleted.', 'woocommerce' ),
+			3 => __( 'Tag updated.', 'woocommerce' ),
+			4 => __( 'Tag not added.', 'woocommerce' ),
+			5 => __( 'Tag not updated.', 'woocommerce' ),
+			6 => __( 'Tags deleted.', 'woocommerce' ),
+		);
+
+		$wc_product_attributes = array();
+		$attribute_taxonomies  = wc_get_attribute_taxonomies();
+
+		if ( $attribute_taxonomies ) {
+			foreach ( $attribute_taxonomies as $tax ) {
+				$name = wc_attribute_taxonomy_name( $tax->attribute_name );
+
+				if ( $name ) {
+					$label = ! empty( $tax->attribute_label ) ? $tax->attribute_label : $tax->attribute_name;
+
+					$messages[ $name ] = array(
+						0 => '',
+						/* translators: %s: taxonomy label */
+						1 => sprintf( _x( '%s added', 'taxonomy term messages', 'woocommerce' ), $label ),
+						/* translators: %s: taxonomy label */
+						2 => sprintf( _x( '%s deleted', 'taxonomy term messages', 'woocommerce' ), $label ),
+						/* translators: %s: taxonomy label */
+						3 => sprintf( _x( '%s updated', 'taxonomy term messages', 'woocommerce' ), $label ),
+						/* translators: %s: taxonomy label */
+						4 => sprintf( _x( '%s not added', 'taxonomy term messages', 'woocommerce' ), $label ),
+						/* translators: %s: taxonomy label */
+						5 => sprintf( _x( '%s not updated', 'taxonomy term messages', 'woocommerce' ), $label ),
+						/* translators: %s: taxonomy label */
+						6 => sprintf( _x( '%s deleted', 'taxonomy term messages', 'woocommerce' ), $label ),
+					);
+				}
+			}
+		}
+
+		return $messages;
 	}
 
 	/**

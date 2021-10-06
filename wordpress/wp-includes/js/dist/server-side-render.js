@@ -82,151 +82,334 @@ this["wp"] = this["wp"] || {}; this["wp"]["serverSideRender"] =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 369);
+/******/ 	return __webpack_require__(__webpack_require__.s = "4dqW");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 0:
+/***/ "1ZqX":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["wp"]["element"]; }());
+(function() { module.exports = window["wp"]["data"]; }());
 
 /***/ }),
 
-/***/ 1:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["i18n"]; }());
-
-/***/ }),
-
-/***/ 10:
+/***/ "4dqW":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _defineProperty; });
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
+var esm_extends = __webpack_require__("wx14");
+
+// EXTERNAL MODULE: external ["wp","element"]
+var external_wp_element_ = __webpack_require__("GRId");
+
+// EXTERNAL MODULE: external ["wp","data"]
+var external_wp_data_ = __webpack_require__("1ZqX");
+
+// EXTERNAL MODULE: external ["wp","deprecated"]
+var external_wp_deprecated_ = __webpack_require__("NMb1");
+var external_wp_deprecated_default = /*#__PURE__*/__webpack_require__.n(external_wp_deprecated_);
+
+// EXTERNAL MODULE: external "lodash"
+var external_lodash_ = __webpack_require__("YLtl");
+
+// EXTERNAL MODULE: external ["wp","compose"]
+var external_wp_compose_ = __webpack_require__("K9lf");
+
+// EXTERNAL MODULE: external ["wp","i18n"]
+var external_wp_i18n_ = __webpack_require__("l3Sj");
+
+// EXTERNAL MODULE: external ["wp","apiFetch"]
+var external_wp_apiFetch_ = __webpack_require__("ywyh");
+var external_wp_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_wp_apiFetch_);
+
+// EXTERNAL MODULE: external ["wp","url"]
+var external_wp_url_ = __webpack_require__("Mmq9");
+
+// EXTERNAL MODULE: external ["wp","components"]
+var external_wp_components_ = __webpack_require__("tI+e");
+
+// EXTERNAL MODULE: external ["wp","blocks"]
+var external_wp_blocks_ = __webpack_require__("HSyU");
+
+// CONCATENATED MODULE: ./node_modules/@wordpress/server-side-render/build-module/server-side-render.js
+
+
+
+/**
+ * External dependencies
+ */
+
+/**
+ * WordPress dependencies
+ */
+
+
+
+
+
+
+
+
+function rendererPath(block, attributes = null, urlQueryArgs = {}) {
+  return Object(external_wp_url_["addQueryArgs"])(`/wp/v2/block-renderer/${block}`, {
+    context: 'edit',
+    ...(null !== attributes ? {
+      attributes
+    } : {}),
+    ...urlQueryArgs
+  });
+}
+
+function DefaultEmptyResponsePlaceholder({
+  className
+}) {
+  return Object(external_wp_element_["createElement"])(external_wp_components_["Placeholder"], {
+    className: className
+  }, Object(external_wp_i18n_["__"])('Block rendered as empty.'));
+}
+
+function DefaultErrorResponsePlaceholder({
+  response,
+  className
+}) {
+  const errorMessage = Object(external_wp_i18n_["sprintf"])( // translators: %s: error message describing the problem
+  Object(external_wp_i18n_["__"])('Error loading block: %s'), response.errorMsg);
+  return Object(external_wp_element_["createElement"])(external_wp_components_["Placeholder"], {
+    className: className
+  }, errorMessage);
+}
+
+function DefaultLoadingResponsePlaceholder({
+  className
+}) {
+  return Object(external_wp_element_["createElement"])(external_wp_components_["Placeholder"], {
+    className: className
+  }, Object(external_wp_element_["createElement"])(external_wp_components_["Spinner"], null));
+}
+
+function ServerSideRender(props) {
+  const {
+    attributes,
+    block,
+    className,
+    httpMethod = 'GET',
+    urlQueryArgs,
+    EmptyResponsePlaceholder = DefaultEmptyResponsePlaceholder,
+    ErrorResponsePlaceholder = DefaultErrorResponsePlaceholder,
+    LoadingResponsePlaceholder = DefaultLoadingResponsePlaceholder
+  } = props;
+  const isMountedRef = Object(external_wp_element_["useRef"])(true);
+  const fetchRequestRef = Object(external_wp_element_["useRef"])();
+  const [response, setResponse] = Object(external_wp_element_["useState"])(null);
+  const prevProps = Object(external_wp_compose_["usePrevious"])(props);
+
+  function fetchData() {
+    if (!isMountedRef.current) {
+      return;
+    }
+
+    if (null !== response) {
+      setResponse(null);
+    }
+
+    const sanitizedAttributes = attributes && Object(external_wp_blocks_["__experimentalSanitizeBlockAttributes"])(block, attributes); // If httpMethod is 'POST', send the attributes in the request body instead of the URL.
+    // This allows sending a larger attributes object than in a GET request, where the attributes are in the URL.
+
+
+    const isPostRequest = 'POST' === httpMethod;
+    const urlAttributes = isPostRequest ? null : sanitizedAttributes !== null && sanitizedAttributes !== void 0 ? sanitizedAttributes : null;
+    const path = rendererPath(block, urlAttributes, urlQueryArgs);
+    const data = isPostRequest ? {
+      attributes: sanitizedAttributes !== null && sanitizedAttributes !== void 0 ? sanitizedAttributes : null
+    } : null; // Store the latest fetch request so that when we process it, we can
+    // check if it is the current request, to avoid race conditions on slow networks.
+
+    const fetchRequest = fetchRequestRef.current = external_wp_apiFetch_default()({
+      path,
+      data,
+      method: isPostRequest ? 'POST' : 'GET'
+    }).then(fetchResponse => {
+      if (isMountedRef.current && fetchRequest === fetchRequestRef.current && fetchResponse) {
+        setResponse(fetchResponse.rendered);
+      }
+    }).catch(error => {
+      if (isMountedRef.current && fetchRequest === fetchRequestRef.current) {
+        setResponse({
+          error: true,
+          errorMsg: error.message
+        });
+      }
     });
-  } else {
-    obj[key] = value;
+    return fetchRequest;
   }
 
-  return obj;
-}
+  const debouncedFetchData = Object(external_wp_compose_["useDebounce"])(fetchData, 500); // When the component unmounts, set isMountedRef to false. This will
+  // let the async fetch callbacks know when to stop.
 
-/***/ }),
-
-/***/ 11:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _createClass; });
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-/***/ }),
-
-/***/ 12:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _classCallCheck; });
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-/***/ }),
-
-/***/ 13:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _possibleConstructorReturn; });
-/* harmony import */ var _helpers_esm_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-
-
-function _possibleConstructorReturn(self, call) {
-  if (call && (Object(_helpers_esm_typeof__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])(call) === "object" || typeof call === "function")) {
-    return call;
-  }
-
-  return Object(_assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"])(self);
-}
-
-/***/ }),
-
-/***/ 14:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _getPrototypeOf; });
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
-
-/***/ }),
-
-/***/ 15:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-
-  return _setPrototypeOf(o, p);
-}
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/inherits.js
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _inherits; });
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
+  Object(external_wp_element_["useEffect"])(() => () => {
+    isMountedRef.current = false;
+  }, []);
+  Object(external_wp_element_["useEffect"])(() => {
+    // Don't debounce the first fetch. This ensures that the first render
+    // shows data as soon as possible
+    if (prevProps === undefined) {
+      fetchData();
+    } else if (!Object(external_lodash_["isEqual"])(prevProps, props)) {
+      debouncedFetchData();
     }
   });
-  if (superClass) _setPrototypeOf(subClass, superClass);
+
+  if (response === '') {
+    return Object(external_wp_element_["createElement"])(EmptyResponsePlaceholder, props);
+  } else if (!response) {
+    return Object(external_wp_element_["createElement"])(LoadingResponsePlaceholder, props);
+  } else if (response.error) {
+    return Object(external_wp_element_["createElement"])(ErrorResponsePlaceholder, Object(esm_extends["a" /* default */])({
+      response: response
+    }, props));
+  }
+
+  return Object(external_wp_element_["createElement"])(external_wp_element_["RawHTML"], {
+    className: className
+  }, response);
 }
+
+// CONCATENATED MODULE: ./node_modules/@wordpress/server-side-render/build-module/index.js
+
+
+
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+/**
+ * Constants
+ */
+
+const EMPTY_OBJECT = {};
+const ExportedServerSideRender = Object(external_wp_data_["withSelect"])(select => {
+  const coreEditorSelect = select('core/editor');
+
+  if (coreEditorSelect) {
+    const currentPostId = coreEditorSelect.getCurrentPostId(); // For templates and template parts we use a custom ID format.
+    // Since they aren't real posts, we don't want to use their ID
+    // for server-side rendering. Since they use a string based ID,
+    // we can assume real post IDs are numbers.
+
+    if (currentPostId && typeof currentPostId === 'number') {
+      return {
+        currentPostId
+      };
+    }
+  }
+
+  return EMPTY_OBJECT;
+})(({
+  urlQueryArgs = EMPTY_OBJECT,
+  currentPostId,
+  ...props
+}) => {
+  const newUrlQueryArgs = Object(external_wp_element_["useMemo"])(() => {
+    if (!currentPostId) {
+      return urlQueryArgs;
+    }
+
+    return {
+      post_id: currentPostId,
+      ...urlQueryArgs
+    };
+  }, [currentPostId, urlQueryArgs]);
+  return Object(external_wp_element_["createElement"])(ServerSideRender, Object(esm_extends["a" /* default */])({
+    urlQueryArgs: newUrlQueryArgs
+  }, props));
+});
+
+if (window && window.wp && window.wp.components) {
+  window.wp.components.ServerSideRender = Object(external_wp_element_["forwardRef"])((props, ref) => {
+    external_wp_deprecated_default()('wp.components.ServerSideRender', {
+      since: '5.3',
+      alternative: 'wp.serverSideRender'
+    });
+    return Object(external_wp_element_["createElement"])(ExportedServerSideRender, Object(esm_extends["a" /* default */])({}, props, {
+      ref: ref
+    }));
+  });
+}
+
+/* harmony default export */ var build_module = __webpack_exports__["default"] = (ExportedServerSideRender);
+
 
 /***/ }),
 
-/***/ 18:
+/***/ "GRId":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["element"]; }());
+
+/***/ }),
+
+/***/ "HSyU":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["blocks"]; }());
+
+/***/ }),
+
+/***/ "K9lf":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["compose"]; }());
+
+/***/ }),
+
+/***/ "Mmq9":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["url"]; }());
+
+/***/ }),
+
+/***/ "NMb1":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["deprecated"]; }());
+
+/***/ }),
+
+/***/ "YLtl":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["lodash"]; }());
+
+/***/ }),
+
+/***/ "l3Sj":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["i18n"]; }());
+
+/***/ }),
+
+/***/ "tI+e":
+/***/ (function(module, exports) {
+
+(function() { module.exports = window["wp"]["components"]; }());
+
+/***/ }),
+
+/***/ "wx14":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -251,454 +434,10 @@ function _extends() {
 
 /***/ }),
 
-/***/ 2:
+/***/ "ywyh":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["lodash"]; }());
-
-/***/ }),
-
-/***/ 21:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _objectWithoutProperties; });
-
-function _objectWithoutProperties(source, excluded) {
-  if (source == null) return {};
-  var target = _objectWithoutPropertiesLoose(source, excluded);
-  var key, i;
-
-  if (Object.getOwnPropertySymbols) {
-    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-
-    for (i = 0; i < sourceSymbolKeys.length; i++) {
-      key = sourceSymbolKeys[i];
-      if (excluded.indexOf(key) >= 0) continue;
-      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-}
-
-/***/ }),
-
-/***/ 26:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["url"]; }());
-
-/***/ }),
-
-/***/ 3:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["components"]; }());
-
-/***/ }),
-
-/***/ 31:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _typeof; });
-function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
-
-function _typeof(obj) {
-  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-    _typeof = function _typeof(obj) {
-      return _typeof2(obj);
-    };
-  } else {
-    _typeof = function _typeof(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-    };
-  }
-
-  return _typeof(obj);
-}
-
-/***/ }),
-
-/***/ 34:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["apiFetch"]; }());
-
-/***/ }),
-
-/***/ 369:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
-var esm_extends = __webpack_require__(18);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/objectSpread.js
-var objectSpread = __webpack_require__(7);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js + 1 modules
-var objectWithoutProperties = __webpack_require__(21);
-
-// EXTERNAL MODULE: external {"this":["wp","element"]}
-var external_this_wp_element_ = __webpack_require__(0);
-
-// EXTERNAL MODULE: external {"this":["wp","data"]}
-var external_this_wp_data_ = __webpack_require__(4);
-
-// EXTERNAL MODULE: external {"this":["wp","deprecated"]}
-var external_this_wp_deprecated_ = __webpack_require__(37);
-var external_this_wp_deprecated_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_deprecated_);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/classCallCheck.js
-var classCallCheck = __webpack_require__(12);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/createClass.js
-var createClass = __webpack_require__(11);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js
-var possibleConstructorReturn = __webpack_require__(13);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js
-var getPrototypeOf = __webpack_require__(14);
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/inherits.js + 1 modules
-var inherits = __webpack_require__(15);
-
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__(2);
-
-// EXTERNAL MODULE: external {"this":["wp","i18n"]}
-var external_this_wp_i18n_ = __webpack_require__(1);
-
-// EXTERNAL MODULE: external {"this":["wp","apiFetch"]}
-var external_this_wp_apiFetch_ = __webpack_require__(34);
-var external_this_wp_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_apiFetch_);
-
-// EXTERNAL MODULE: external {"this":["wp","url"]}
-var external_this_wp_url_ = __webpack_require__(26);
-
-// EXTERNAL MODULE: external {"this":["wp","components"]}
-var external_this_wp_components_ = __webpack_require__(3);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/server-side-render/build-module/server-side-render.js
-
-
-
-
-
-
-
-
-
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-
-function rendererPath(block) {
-  var attributes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-  var urlQueryArgs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  return Object(external_this_wp_url_["addQueryArgs"])("/wp/v2/block-renderer/".concat(block), Object(objectSpread["a" /* default */])({
-    context: 'edit'
-  }, null !== attributes ? {
-    attributes: attributes
-  } : {}, urlQueryArgs));
-}
-var server_side_render_ServerSideRender =
-/*#__PURE__*/
-function (_Component) {
-  Object(inherits["a" /* default */])(ServerSideRender, _Component);
-
-  function ServerSideRender(props) {
-    var _this;
-
-    Object(classCallCheck["a" /* default */])(this, ServerSideRender);
-
-    _this = Object(possibleConstructorReturn["a" /* default */])(this, Object(getPrototypeOf["a" /* default */])(ServerSideRender).call(this, props));
-    _this.state = {
-      response: null
-    };
-    return _this;
-  }
-
-  Object(createClass["a" /* default */])(ServerSideRender, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.isStillMounted = true;
-      this.fetch(this.props); // Only debounce once the initial fetch occurs to ensure that the first
-      // renders show data as soon as possible.
-
-      this.fetch = Object(external_lodash_["debounce"])(this.fetch, 500);
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      this.isStillMounted = false;
-    }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps) {
-      if (!Object(external_lodash_["isEqual"])(prevProps, this.props)) {
-        this.fetch(this.props);
-      }
-    }
-  }, {
-    key: "fetch",
-    value: function fetch(props) {
-      var _this2 = this;
-
-      if (!this.isStillMounted) {
-        return;
-      }
-
-      if (null !== this.state.response) {
-        this.setState({
-          response: null
-        });
-      }
-
-      var block = props.block,
-          _props$attributes = props.attributes,
-          attributes = _props$attributes === void 0 ? null : _props$attributes,
-          _props$urlQueryArgs = props.urlQueryArgs,
-          urlQueryArgs = _props$urlQueryArgs === void 0 ? {} : _props$urlQueryArgs;
-      var path = rendererPath(block, attributes, urlQueryArgs); // Store the latest fetch request so that when we process it, we can
-      // check if it is the current request, to avoid race conditions on slow networks.
-
-      var fetchRequest = this.currentFetchRequest = external_this_wp_apiFetch_default()({
-        path: path
-      }).then(function (response) {
-        if (_this2.isStillMounted && fetchRequest === _this2.currentFetchRequest && response) {
-          _this2.setState({
-            response: response.rendered
-          });
-        }
-      }).catch(function (error) {
-        if (_this2.isStillMounted && fetchRequest === _this2.currentFetchRequest) {
-          _this2.setState({
-            response: {
-              error: true,
-              errorMsg: error.message
-            }
-          });
-        }
-      });
-      return fetchRequest;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var response = this.state.response;
-      var _this$props = this.props,
-          className = _this$props.className,
-          EmptyResponsePlaceholder = _this$props.EmptyResponsePlaceholder,
-          ErrorResponsePlaceholder = _this$props.ErrorResponsePlaceholder,
-          LoadingResponsePlaceholder = _this$props.LoadingResponsePlaceholder;
-
-      if (response === '') {
-        return Object(external_this_wp_element_["createElement"])(EmptyResponsePlaceholder, Object(esm_extends["a" /* default */])({
-          response: response
-        }, this.props));
-      } else if (!response) {
-        return Object(external_this_wp_element_["createElement"])(LoadingResponsePlaceholder, Object(esm_extends["a" /* default */])({
-          response: response
-        }, this.props));
-      } else if (response.error) {
-        return Object(external_this_wp_element_["createElement"])(ErrorResponsePlaceholder, Object(esm_extends["a" /* default */])({
-          response: response
-        }, this.props));
-      }
-
-      return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["RawHTML"], {
-        key: "html",
-        className: className
-      }, response);
-    }
-  }]);
-
-  return ServerSideRender;
-}(external_this_wp_element_["Component"]);
-server_side_render_ServerSideRender.defaultProps = {
-  EmptyResponsePlaceholder: function EmptyResponsePlaceholder(_ref) {
-    var className = _ref.className;
-    return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Placeholder"], {
-      className: className
-    }, Object(external_this_wp_i18n_["__"])('Block rendered as empty.') + className);
-  },
-  ErrorResponsePlaceholder: function ErrorResponsePlaceholder(_ref2) {
-    var response = _ref2.response,
-        className = _ref2.className;
-    // translators: %s: error message describing the problem
-    var errorMessage = Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["__"])('Error loading block: %s'), response.errorMsg);
-    return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Placeholder"], {
-      className: className
-    }, errorMessage);
-  },
-  LoadingResponsePlaceholder: function LoadingResponsePlaceholder(_ref3) {
-    var className = _ref3.className;
-    return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Placeholder"], {
-      className: className
-    }, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Spinner"], null));
-  }
-};
-/* harmony default export */ var server_side_render = (server_side_render_ServerSideRender);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/server-side-render/build-module/index.js
-
-
-
-
-
-/**
- * WordPress dependencies
- */
-
-
-
-/**
- * Internal dependencies
- */
-
-
-/**
- * Constants
- */
-
-var EMPTY_OBJECT = {};
-var ExportedServerSideRender = Object(external_this_wp_data_["withSelect"])(function (select) {
-  var coreEditorSelect = select('core/editor');
-
-  if (coreEditorSelect) {
-    var currentPostId = coreEditorSelect.getCurrentPostId();
-
-    if (currentPostId) {
-      return {
-        currentPostId: currentPostId
-      };
-    }
-  }
-
-  return EMPTY_OBJECT;
-})(function (_ref) {
-  var _ref$urlQueryArgs = _ref.urlQueryArgs,
-      urlQueryArgs = _ref$urlQueryArgs === void 0 ? EMPTY_OBJECT : _ref$urlQueryArgs,
-      currentPostId = _ref.currentPostId,
-      props = Object(objectWithoutProperties["a" /* default */])(_ref, ["urlQueryArgs", "currentPostId"]);
-
-  var newUrlQueryArgs = Object(external_this_wp_element_["useMemo"])(function () {
-    if (!currentPostId) {
-      return urlQueryArgs;
-    }
-
-    return Object(objectSpread["a" /* default */])({
-      post_id: currentPostId
-    }, urlQueryArgs);
-  }, [currentPostId, urlQueryArgs]);
-  return Object(external_this_wp_element_["createElement"])(server_side_render, Object(esm_extends["a" /* default */])({
-    urlQueryArgs: newUrlQueryArgs
-  }, props));
-});
-
-if (window && window.wp && window.wp.components) {
-  window.wp.components.ServerSideRender = Object(external_this_wp_element_["forwardRef"])(function (props, ref) {
-    external_this_wp_deprecated_default()('wp.components.ServerSideRender', {
-      alternative: 'wp.serverSideRender'
-    });
-    return Object(external_this_wp_element_["createElement"])(ExportedServerSideRender, Object(esm_extends["a" /* default */])({}, props, {
-      ref: ref
-    }));
-  });
-}
-
-/* harmony default export */ var build_module = __webpack_exports__["default"] = (ExportedServerSideRender);
-
-
-/***/ }),
-
-/***/ 37:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["deprecated"]; }());
-
-/***/ }),
-
-/***/ 4:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["data"]; }());
-
-/***/ }),
-
-/***/ 5:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _assertThisInitialized; });
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
-
-/***/ }),
-
-/***/ 7:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _objectSpread; });
-/* harmony import */ var _defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
-
-function _objectSpread(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-    var ownKeys = Object.keys(source);
-
-    if (typeof Object.getOwnPropertySymbols === 'function') {
-      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-      }));
-    }
-
-    ownKeys.forEach(function (key) {
-      Object(_defineProperty__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])(target, key, source[key]);
-    });
-  }
-
-  return target;
-}
+(function() { module.exports = window["wp"]["apiFetch"]; }());
 
 /***/ })
 

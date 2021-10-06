@@ -1,8 +1,8 @@
 <?php
 /**
- * Settings for PayPal Gateway.
+ * Settings for PayPal Standard Gateway.
  *
- * @package WooCommerce/Classes/Payment
+ * @package WooCommerce\Classes\Payment
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -58,7 +58,7 @@ return array(
 		'description' => sprintf( __( 'Log PayPal events, such as IPN requests, inside %s Note: this may log personal information. We recommend using this for debugging purposes only and deleting the logs when finished.', 'woocommerce' ), '<code>' . WC_Log_Handler_File::get_log_file_path( 'paypal' ) . '</code>' ),
 	),
 	'ipn_notification'      => array(
-		'title'       => __( 'IPN Email Notifications', 'woocommerce' ),
+		'title'       => __( 'IPN email notifications', 'woocommerce' ),
 		'type'        => 'checkbox',
 		'label'       => __( 'Enable IPN email notifications', 'woocommerce' ),
 		'default'     => 'yes',
@@ -112,14 +112,6 @@ return array(
 			'sale'          => __( 'Capture', 'woocommerce' ),
 			'authorization' => __( 'Authorize', 'woocommerce' ),
 		),
-	),
-	'page_style'            => array(
-		'title'       => __( 'Page style', 'woocommerce' ),
-		'type'        => 'text',
-		'description' => __( 'Optionally enter the name of the page style you wish to use. These are defined within your PayPal account. This affects classic PayPal checkout screens.', 'woocommerce' ),
-		'default'     => '',
-		'desc_tip'    => true,
-		'placeholder' => __( 'Optional', 'woocommerce' ),
 	),
 	'image_url'             => array(
 		'title'       => __( 'Image url', 'woocommerce' ),

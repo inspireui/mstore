@@ -4,7 +4,7 @@
  *
  * @author   WooThemes
  * @category Admin
- * @package  WooCommerce/Admin
+ * @package  WooCommerce\Admin
  * @version  2.4.0
  */
 
@@ -141,6 +141,10 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 								'label'       => __( 'State / County', 'woocommerce' ),
 								'description' => __( 'State / County or state code', 'woocommerce' ),
 								'class'       => 'js_field-state',
+							),
+							'shipping_phone'      => array(
+								'label'       => __( 'Phone', 'woocommerce' ),
+								'description' => '',
 							),
 						),
 					),

@@ -20,11 +20,146 @@ class HTAccessRules
     private static $passThroughHeaderDefinitelyAvailable;
     private static $passThroughEnvVarDefinitelyUnavailable;
     private static $passThroughEnvVarDefinitelyAvailable;
+    private static $canDefinitelyRunTestScriptInWOD;
+    private static $canDefinitelyRunTestScriptInWOD2;
     private static $capTests;
-    private static $addVary;
+    private static $setAddVaryEnvInRedirect;
     private static $dirContainsSourceImages;
     private static $dirContainsWebPImages;
+    private static $alterHtmlEnabled;
+    private static $docRootString;
 
+    private static function trueFalseNullString($var)
+    {
+        if ($var === true) {
+            return 'yes';
+        }
+        if ($var === false) {
+            return 'no';
+        }
+        return 'could not be determined';
+    }
+
+    public static function arePathsUsedInHTAccessOutdated() {
+        if (!Config::isConfigFileThere()) {
+            // this properly means that rewrite rules have never been generated
+            return false;
+        }
+
+        $oldConfig = Config::loadConfig();
+        if ($oldConfig === false) {
+            // corrupt or not readable
+            return true;
+        }
+
+        return self::arePathsUsedInHTAccessOutdated2($oldConfig);
+    }
+
+    private static function arePathsUsedInHTAccessOutdated2($oldConfig)
+    {
+        if (!isset($oldConfig['paths-used-in-htaccess'])) {
+            return true;
+        }
+
+        $pathsGoingToBeUsedInHtaccess = [
+            'wod-url-path' => Paths::getWodUrlPath(),
+        ];
+        foreach ($oldConfig['paths-used-in-htaccess'] as $prop => $value) {
+            if (isset($pathsGoingToBeUsedInHtaccess[$prop])) {
+                if ($value != $pathsGoingToBeUsedInHtaccess[$prop]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Decides if .htaccess rules needs to be updated.
+     *
+     * The result is positive under these circumstances:
+     * - If there is no existing config.json (it must mean that there are no rules, and so they need "updating")
+     * - If existing config.json is corrupt or not readable
+     * - The new config.json is compared to the old. If any of the properties that will affect the .htaccess has
+     *       changed, well, it needs updating. Also, if there is a new property, it needs update, unless the
+     *       value of that new property would not have any effect
+     * - If the url path to the "wod" folder has changed (actually, to wod/webp-on-demand, but if one of these changes, so does the other)
+     * - TODO: Should we not also compare (some of) the capability tests?
+     * - TODO: Should we not also compare some paths, ie. Paths::getContentDirRelToPluginDir(), which is used in
+     *         HTAccessRules::webpRealizerRules()
+     * - TODO: Some changes would not really require regeneration. We could do a more fine-grained
+     *         check. For example, many changes matters not (ie "wod-url-path") if redirection to
+     *         both webp-realizer and webp-on-demand are disabled.
+     *
+     */
+    public static function doesRewriteRulesNeedUpdate($newConfig) {
+        if (!Config::isConfigFileThere()) {
+            // this properly means that rewrite rules have never been generated
+            return true;
+        }
+
+        $oldConfig = Config::loadConfig();
+        if ($oldConfig === false) {
+            // corrupt or not readable
+            return true;
+        }
+
+        // $propsToCompare is set like this:
+        // Keys: properties that should trigger .htaccess update if changed
+        // Values: The behaviour before that property was intruduced
+        $propsToCompare = [
+            'forward-query-string' => true,
+            'image-types' => 1,
+            'redirect-to-existing-in-htaccess' => false,
+            'only-redirect-to-converter-on-cache-miss' => false,
+            'success-response' => 'converted',
+            'cache-control' => 'no-header',
+            'cache-control-custom' => 'public, max-age:3600',
+            'cache-control-max-age' => 'one-week',
+            'cache-control-public' => true,
+            'enable-redirection-to-webp-realizer' => false,
+            'enable-redirection-to-converter' => true,
+            'destination-folder' => 'separate',
+            'destination-extension' => 'append',
+            'destination-structure' => 'doc-root',
+            'scope' => ['themes', 'uploads']
+        ];
+
+        // If one of the props have changed, we need to update.
+        // And we also need update if one of them doesn't exist in the old config, unless
+        // the new property/value has same effect as before the property was introduced.
+        foreach ($propsToCompare as $prop => $behaviourBeforeIntroduced) {
+            if (!isset($newConfig[$prop])) {
+                continue;
+            }
+            if (!isset($oldConfig[$prop])) {
+                // Do not trigger .htaccess update if the new value results
+                // in same old behaviour (before this option was introduced)
+                if ($newConfig[$prop] == $behaviourBeforeIntroduced) {
+                    continue;
+                } else {
+                    // Otherwise DO trigger .htaccess update
+                    return true;
+                }
+            }
+            if ($newConfig[$prop] != $oldConfig[$prop]) {
+                return true;
+            }
+        }
+
+        /*
+        if (isset($newConfig['redirect-to-existing-in-htaccess']) && $newConfig['redirect-to-existing-in-htaccess']) {
+            $propsToCompare['destination-folder'] = 'separate';
+            $propsToCompare['destination-extension'] = 'append';
+            $propsToCompare['destination-structure'] = 'doc-root';
+        }*/
+
+
+        if (self::arePathsUsedInHTAccessOutdated2($oldConfig)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      *  @return  string  Info in comments.
@@ -32,8 +167,11 @@ class HTAccessRules
     private static function infoRules()
     {
 
-        return "# The rules below is a result of many parameters, including the following:\n" .
+        return "# The rules below have been dynamically created by WebP Express in accordance with the plugin settings\n" .
+            "# DO NOT EDIT MANUALLY (unless you are prepared that your changes might be overridden by WebP Express)" . "\n" .
+            "# The following parameters have been in play to produce the rules:\n" .
             "#\n# WebP Express options:\n" .
+            "# - Operation mode: " . self::$config['operation-mode'] . "\n" .
             "# - Redirection to existing webp: " .
                 (self::$config['redirect-to-existing-in-htaccess'] ? 'enabled' : 'disabled') . "\n" .
             "# - Redirection to converter: " .
@@ -45,6 +183,7 @@ class HTAccessRules
             "# - Destination extension: " . self::$config['destination-extension'] . "\n" .
             "# - Destination structure: " . self::$config['destination-structure'] . (((self::$config['destination-structure'] == 'doc-root') && (!self::$useDocRootForStructuringCacheDir)) ? ' (overruled!)' : '') . "\n" .
             "# - Image types: " . str_replace('?', '', implode(', ', self::$fileExtensions)) . "\n" .
+            '# - Alter HTML enabled?: ' . (self::$alterHtmlEnabled  ? 'yes' : 'no') . "\n" .
 
             "#\n# Wordpress/Server configuration:\n" .
             '# - Document root availablity: ' . Paths::docRootStatusText() . "\n" .
@@ -165,19 +304,19 @@ class HTAccessRules
             if (self::$useDocRootForStructuringCacheDir) {
                 if (self::$config['destination-extension'] == 'append') {
                     $rules .= "  RewriteCond %{REQUEST_FILENAME}.webp -f\n";
-                    //$rules .= "  RewriteCond %{DOCUMENT_ROOT}/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp -f\n";
-                    $rules .= "  RewriteRule ^/?(.*)\.(" . self::$fileExt . ")$ $1.$2.webp [NC,T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+                    //$rules .= "  RewriteCond " . self::$docRootString . "/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp -f\n";
+                    $rules .= "  RewriteRule ^/?(.*)\.(" . self::$fileExt . ")$ $1.$2.webp [NC,T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
                 } else {
                     // extension: set to webp
 
-                    //$rules .= "  RewriteCond %{DOCUMENT_ROOT}/" . self::$htaccessDirRelToDocRoot . "/$1.webp -f\n";
-                    //$rules .= "  RewriteRule " . $rewriteRuleStart . "\.(" . self::$fileExt . ")$ $1.webp [T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+                    //$rules .= "  RewriteCond " . self::$docRootString . "/" . self::$htaccessDirRelToDocRoot . "/$1.webp -f\n";
+                    //$rules .= "  RewriteRule " . $rewriteRuleStart . "\.(" . self::$fileExt . ")$ $1.webp [T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
 
                     // Got these new rules here: https://www.digitalocean.com/community/tutorials/how-to-create-and-serve-webp-images-to-speed-up-your-website
                     // (but are they actually better than the ones we use for append?)
                     $rules .= "  RewriteCond %{REQUEST_URI} (?i)(.*)(" . self::$fileExtIncludingDot . ")$\n";
-                    $rules .= "  RewriteCond %{DOCUMENT_ROOT}%1\.webp -f\n";
-                    $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ %1\.webp [T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+                    $rules .= "  RewriteCond " . self::$docRootString . "%1\.webp -f\n";
+                    $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ %1\.webp [T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
 
                     // Instead of using REQUEST_URI, I can use REQUEST_FILENAME and remove DOCUMENT_ROOT
                     // I suppose REQUEST_URI is what was requested (ie "/wp-content/uploads/image.jpg").
@@ -193,7 +332,7 @@ class HTAccessRules
                 $rules .= "  RewriteCond %{REQUEST_FILENAME} (?i)(.*)(" . self::$fileExtIncludingDot . ")$\n";
                 $rules .= "  RewriteCond %1" . ($appendWebP ? "%2" : "") . "\.webp -f\n";
                 $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ %1" . ($appendWebP ? "%2" : "") .
-                    "\.webp [T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+                    "\.webp [T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
 
             }
 
@@ -216,9 +355,9 @@ class HTAccessRules
                 $cacheDirRel = Paths::getCacheDirRelToDocRoot() . '/doc-root';
 
                 $rules .= "  RewriteCond %{REQUEST_FILENAME} -f\n";
-                $rules .= "  RewriteCond %{DOCUMENT_ROOT}/" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp -f\n";
+                $rules .= "  RewriteCond " . self::$docRootString . "/" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp -f\n";
                 $rules .= "  RewriteRule ^/?(.+)\.(" . self::$fileExt . ")$ /" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot .
-                    "/$1.$2.webp [NC,T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+                    "/$1.$2.webp [NC,T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
 
             } else {
                 // Make sure source image exists
@@ -241,7 +380,7 @@ class HTAccessRules
                 $urlPath = '/' . Paths::getContentUrlPath() . "/webp-express/webp-images/" . self::$htaccessDir . "/%2" . (self::$appendWebP ? "%3" : "") . "\.webp";
                 //$rules .= "  RewriteCond %1" . (self::$appendWebP ? "%2" : "") . "\.webp -f\n";
                 $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ " . $urlPath .
-                    " [T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+                    " [T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
             }
 
             //$rules .= "  RewriteRule ^\/?(.*)\.(" . self::$fileExt . ")$ /" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp [NC,T=image/webp,E=EXISTING:1,L]\n\n";
@@ -303,7 +442,7 @@ class HTAccessRules
 
             $rewriteRuleStart = '^/?(.+)';
             $rules .= "  RewriteRule " . $rewriteRuleStart . "\.(webp)$ " .
-                "/" . Paths::getWebPRealizerUrlPath() .
+                "/" . self::getWebPRealizerUrlPath() .
                 ((count($params) > 0) ?  "?" . implode('&', $params) : '') .
                 " [" . implode(',', $flags) . "]\n\n";
         } else {
@@ -340,7 +479,7 @@ class HTAccessRules
             $appendWebP = !(self::$config['destination-extension'] == 'set');
 
             $rules .= "  RewriteRule (?i).*" . ($appendWebP ? "(" . self::$fileExtIncludingDot . ")" : "") . "\.webp$ " .
-                "/" . Paths::getWebPRealizerUrlPath() .
+                "/" . self::getWebPRealizerUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n";
 
@@ -378,7 +517,7 @@ class HTAccessRules
             $appendWebP = !(self::$config['destination-extension'] == 'set');
 
             $rules .= "  RewriteRule (?i).*" . ($appendWebP ? "(" . self::$fileExtIncludingDot . ")" : "") . "\.webp$ " .
-                "/" . Paths::getWebPRealizerUrlPath() .
+                "/" . self::getWebPRealizerUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n\n";
 */
@@ -420,7 +559,7 @@ class HTAccessRules
             }
 
             $rules .= "  RewriteRule (?i).*\.webp$ " .
-                "/" . Paths::getWebPRealizerUrlPath() .
+                "/" . self::getWebPRealizerUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n\n";
             */
@@ -496,7 +635,7 @@ class HTAccessRules
             // TODO: When $rewriteRuleStart is empty, we don't need the .*, do we? - test
             $rewriteRuleStart = '^/?(.+)';
             $rules .= "  RewriteRule " . $rewriteRuleStart . "\.(" . self::$fileExt . ")$ " .
-                "/" . Paths::getWodUrlPath() .
+                "/" . self::getWodUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n";
 
@@ -537,7 +676,7 @@ class HTAccessRules
             $appendWebP = !(self::$config['destination-extension'] == 'set');
 
             $rules .= "  RewriteRule (?i).*" . ($appendWebP ? "(" . self::$fileExtIncludingDot . ")" : "") . "$ " .
-                "/" . Paths::getWodUrlPath() .
+                "/" . self::getWodUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n";
 
@@ -573,7 +712,7 @@ class HTAccessRules
             $params[] = 'xsource-rel-to-root-id=x%2' . (self::$appendWebP ? "%3" : "");
 
             $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ " .
-                "/" . Paths::getWodUrlPath() .
+                "/" . self::getWodUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n";
             */
@@ -598,7 +737,7 @@ class HTAccessRules
                 self::$htaccessDirAbs . "/)(.*)(" . self::$fileExtIncludingDot . ")$\n";
 
             $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ " .
-                "/" . Paths::getWodUrlPath() .
+                "/" . self::getWodUrlPath() .
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n";
 
@@ -606,7 +745,7 @@ class HTAccessRules
             //            $urlPath = '/' . Paths::getUrlPathById(self::$htaccessDir) . "/%2" . (self::$appendWebP ? "%3" : "") . "\.webp";
             //$urlPath = '/' . Paths::getContentUrlPath() . "/webp-express/webp-images/" . self::$htaccessDir . "/%2" . (self::$appendWebP ? "%3" : "") . "\.webp";
             //$rules .= "  RewriteCond %1" . (self::$appendWebP ? "%2" : "") . "\.webp -f\n";
-            //$rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ " . $urlPath ." [T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+            //$rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ " . $urlPath ." [T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
             */
 
 
@@ -621,7 +760,7 @@ class HTAccessRules
         $urlPath = '/' . Paths::getContentUrlPath() . "/webp-express/webp-images/" . self::$htaccessDir . "/%2" . (self::$appendWebP ? "%3" : "") . "\.webp";
         //$rules .= "  RewriteCond %1" . (self::$appendWebP ? "%2" : "") . "\.webp -f\n";
         $rules .= "  RewriteRule (?i)(.*)(" . self::$fileExtIncludingDot . ")$ " . $urlPath .
-            " [T=image/webp,E=EXISTING:1," . (self::$addVary ? 'E=ADDVARY:1,' : '') . "L]\n\n";
+            " [T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
         */
 
         /*
@@ -659,6 +798,7 @@ class HTAccessRules
 
         // Fix config.
         $defaults = [
+            'operation-mode' => 'varied-image-responses',
             'enable-redirection-to-converter' => true,
             'forward-query-string' => true,
             'image-types' => 1,
@@ -673,16 +813,46 @@ class HTAccessRules
         $config = array_merge($defaults, $config);
 
         if (!isset($config['base-htaccess-on-these-capability-tests'])) {
-            $config['base-htaccess-on-these-capability-tests'] = Config::runAndStoreCapabilityTests();
+            $config['base-htaccess-on-these-capability-tests'] = Config::runAndStoreCapabilityTests($config);
         }
+        // We currently accept that the following capability tests might not
+        // have been run (we did not want to force recreation of .htaccess because of these)
+        // - "modHeaderWorking"
+        // - "canRunTestScriptInWOD"
+        // - "canRunTestScriptInWOD2"
+        if (!isset($config['base-htaccess-on-these-capability-tests']['modHeaderWorking'])) {
+            $config['base-htaccess-on-these-capability-tests']['modHeaderWorking'] = HTAccessCapabilityTestRunner::modHeaderWorking();
+        }
+        if (!isset($config['base-htaccess-on-these-capability-tests']['canRunTestScriptInWOD'])) {
+            $config['base-htaccess-on-these-capability-tests']['canRunTestScriptInWOD'] = HTAccessCapabilityTestRunner::canRunTestScriptInWOD();
+        }
+        if (!isset($config['base-htaccess-on-these-capability-tests']['canRunTestScriptInWOD2'])) {
+            $config['base-htaccess-on-these-capability-tests']['canRunTestScriptInWOD2'] = HTAccessCapabilityTestRunner::canRunTestScriptInWOD2();
+        }
+
         self::$config = $config;
 
+
+        if (!isset($config['alter-html']['enabled'])) {
+            self::$alterHtmlEnabled = false;
+        } else {
+            self::$alterHtmlEnabled = true;
+        }
+
         $capTests = self::$config['base-htaccess-on-these-capability-tests'];
+
+        self::$docRootString = '%{DOCUMENT_ROOT}';
+        if (defined('WEBPEXPRESS_DOCUMENT_ROOT_IN_HTACCESS')) {
+            self::$docRootString = constant('WEBPEXPRESS_DOCUMENT_ROOT_IN_HTACCESS');
+        };
+
         self::$modHeaderDefinitelyUnavailable = ($capTests['modHeaderWorking'] === false);
         self::$passThroughHeaderDefinitelyUnavailable = ($capTests['passThroughHeaderWorking'] === false);
         self::$passThroughHeaderDefinitelyAvailable = ($capTests['passThroughHeaderWorking'] === true);
-        self::$passThroughEnvVarDefinitelyUnavailable = ($capTests['passThroughEnvWorking'] === false);
-        self::$passThroughEnvVarDefinitelyAvailable =($capTests['passThroughEnvWorking'] === true);
+        self::$canDefinitelyRunTestScriptInWOD = ($capTests['canRunTestScriptInWOD'] === true);
+        self::$canDefinitelyRunTestScriptInWOD2 = ($capTests['canRunTestScriptInWOD2'] === true);
+
+
         self::$capTests = $capTests;
 
         self::$imageTypes = self::$config['image-types'];
@@ -701,6 +871,21 @@ class HTAccessRules
         // TODO: If we cannot store all .htaccess files we would like, we need to take into account which dir
         $setWebPExt = ((self::$config['destination-extension'] == 'set') && (self::$htaccessDir == 'uploads'));
         self::$appendWebP = !$setWebPExt;
+    }
+
+    public static function addVaryHeaderRules()
+    {
+        $rules = [
+            '# Add "Vary: Accept" header in order to make proxies aware that the response varies depending',
+            '# on the "accept" request header (which is the one browsers use to signal if they support webp).',
+            '# In this folder, there are only webp files, so there is no need for any other logic than the ',
+            '# check which ensures that mod_headers is available.',
+            '<IfModule mod_headers.c>',
+            '  Header append "Vary" "Accept"',
+            '</IfModule>',
+            ''
+        ];
+        return implode("\n", $rules);
     }
 
     public static function addVaryHeaderEnvRules($indent = 0)
@@ -743,13 +928,44 @@ class HTAccessRules
         return implode("\n", $rules);
     }
 
+    private static function getWodUrlPath()
+    {
+        // We prefer the "wod" folder over "wod2" (when it works), simply because it is older
+        // and we should not change things without having a good reason.
+        if (self::$canDefinitelyRunTestScriptInWOD) {
+            return Paths::getWodUrlPath();
+        }
+
+        // We however prefer the "wod2" folder when "wod" does not work, even if
+        // "wod2" doesn't work either. Why? Less things can go wrong in "wod2", so trying to fix
+        // it should be more straight forward.
+        return Paths::getWod2UrlPath();
+    }
+
+    private static function getWebPRealizerUrlPath()
+    {
+        // We prefer the "wod" folder over "wod2", simply because it is older
+        // and we should not change things without having a good reason.
+        if (self::$canDefinitelyRunTestScriptInWOD) {
+            return Paths::getWebPRealizerUrlPath();
+        }
+        return Paths::getWebPRealizer2UrlPath();
+    }
+
     // https://stackoverflow.com/questions/34124819/mod-rewrite-set-custom-header-through-htaccess
+    /**
+     *
+     *  PS: $config has a property "base-htaccess-on-these-capability-tests", which will be used.
+     *  make sure that this is up-to-date before calling this method.
+     *  It is updated with $config->runAndStoreCapabilityTests()
+     */
     public static function generateHTAccessRulesFromConfigObj($config, $htaccessDir = 'index', $dirContainsSourceImages = true, $dirContainsWebPImages = true)
     {
         self::setInternalProperties($config, $htaccessDir);
         self::$dirContainsSourceImages = $dirContainsSourceImages;
         self::$dirContainsWebPImages = $dirContainsWebPImages;
 
+        /*
         if (
             (!self::$config['enable-redirection-to-converter']) &&
             (!self::$config['redirect-to-existing-in-htaccess']) &&
@@ -757,22 +973,44 @@ class HTAccessRules
         ) {
             return '# WebP Express does not need to write any rules (it has not been set up to redirect to converter, nor' .
                 ' to existing webp, and the "convert non-existing webp-files upon request" option has not been enabled)';
-        }
+        }*/
 
         if (self::$imageTypes == 0) {
             return '# WebP Express disabled (no image types has been choosen to be converted/redirected)';
         }
 
-        self::$addVary = self::$config['redirect-to-existing-in-htaccess'];
+        self::$setAddVaryEnvInRedirect = self::$config['redirect-to-existing-in-htaccess'];
         if (self::$modHeaderDefinitelyUnavailable) {
-            self::$addVary = false;
+            self::$setAddVaryEnvInRedirect = false;
         }
 
         /* Build rules */
         $rules = '';
         $rules .= self::infoRules();
 
-        if ($dirContainsSourceImages) {
+        $variedImageResponses =
+            (self::$config['redirect-to-existing-in-htaccess']) ||
+            (self::$config['enable-redirection-to-converter']);
+
+        $addVaryHeaderUsingModHeader = $variedImageResponses;
+
+        /*
+        TODO: (#447)
+        We should not add the "Header append" code if it is disallowed
+        in the server config (ie if "FileInfo" isn't in the AllowOverride list)
+        Why? Well, it will result in 500 internal error on the image requests
+        (or errors in the log, if configured to "NonFatal")
+        .. But this requires a bit of effort, as it might be that it is allowed
+        in some dirs but not in others.
+        If mod_headers simply isn't installed, the system behaves fine (thanks to
+        the "IfModule" directive. So we should actually add the code, when that is
+        the case (as the server setting might change for the better)
+
+        if (self::$modHeaderDefinitelyUnavailable) {
+            //$addVaryHeaderUsingModHeader = false;
+        }*/
+
+        if ($dirContainsSourceImages && $variedImageResponses) {
             $rules .= "# Rules for handling requests for source images\n";
             $rules .= "# ---------------------------------------------\n\n";
             $rules .= "<IfModule mod_rewrite.c>\n" .
@@ -786,11 +1024,8 @@ class HTAccessRules
                 $rules .= self::webpOnDemandRules();
             }
 
-            //if (self::$addVary) {
-            if (
-                (self::$config['redirect-to-existing-in-htaccess']) ||
-                (self::$config['enable-redirection-to-converter'])
-            ) {
+            //if (self::$setAddVaryEnvInRedirect) {
+            if ($addVaryHeaderUsingModHeader) {
                 $rules .= "  # Make sure that browsers which does not support webp also gets the Vary:Accept header\n" .
                     "  # when requesting images that would be redirected to webp on browsers that does.\n";
 
@@ -807,10 +1042,10 @@ class HTAccessRules
             "  </IfModule>\n\n";
             */
 
-            //self::$addVary = (self::$config['enable-redirection-to-converter'] && (self::$config['success-response'] == 'converted')) || (self::$config['redirect-to-existing-in-htaccess']);
+            //self::$setAddVaryEnvInRedirect = (self::$config['enable-redirection-to-converter'] && (self::$config['success-response'] == 'converted')) || (self::$config['redirect-to-existing-in-htaccess']);
 
             /*
-            if (self::$addVary) {
+            if (self::$setAddVaryEnvInRedirect) {
                 if ($dirContainsWebPImages) {
                     $rules .= self::addVaryHeaderEnvRules(2);
                 }
@@ -835,7 +1070,22 @@ class HTAccessRules
                 (self::$config['redirect-to-existing-in-htaccess'])
             ) {
             }*/
-            $rules .= self::addVaryHeaderEnvRules();
+            if ($addVaryHeaderUsingModHeader) {
+                if (!$dirContainsSourceImages && !self::$alterHtmlEnabled) {
+                    // Simple rules for Vary:Accept  #444
+                    // These can be used when we are sure that the webp in this folder is never
+                    // requested directly.
+                    // The simple rules are prefered when possible because they are more robust
+                    // and doesn't depend on mod_setenvif
+
+                    // TODO: Use simple rules if it can be proved that mod_setenvif isn't working
+                    $rules .= self::addVaryHeaderRules();
+                } else {
+                    // Advanced rules, which ensures that direct requests for webps doesn't get
+                    // Vary:Accept header added
+                    $rules .= self::addVaryHeaderEnvRules();
+                }
+            }
 
             $rules .= "\n# Register webp mime type \n";
             $rules .= "<IfModule mod_mime.c>\n";

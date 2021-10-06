@@ -3,12 +3,8 @@
  * Webhook Data Store Interface
  *
  * @version  3.2.0
- * @package  WooCommerce/Interface
+ * @package  WooCommerce\Interface
  */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * WooCommerce Webhook data store interface.

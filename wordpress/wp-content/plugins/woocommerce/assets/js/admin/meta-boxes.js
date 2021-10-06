@@ -9,32 +9,33 @@ jQuery( function ( $ ) {
 			'attribute': 'data-tip',
 			'fadeIn': 50,
 			'fadeOut': 50,
-			'delay': 200
+			'delay': 200,
+			'keepAlive': true
 		});
 	}
 
 	runTipTip();
 
-	// Allow Tabbing
-	$( '#titlediv' ).find( '#title' ).keyup( function( event ) {
-		var code = event.keyCode || event.which;
-
-		// Tab key
-		if ( code === '9' && $( '#woocommerce-coupon-description' ).length > 0 ) {
-			event.stopPropagation();
-			$( '#woocommerce-coupon-description' ).focus();
-			return false;
-		}
-	});
-
 	$( '.wc-metaboxes-wrapper' ).on( 'click', '.wc-metabox > h3', function() {
-		$( this ).parent( '.wc-metabox' ).toggleClass( 'closed' ).toggleClass( 'open' );
+		var metabox = $( this ).parent( '.wc-metabox' );
+
+		if ( metabox.hasClass( 'closed' ) ) {
+			metabox.removeClass( 'closed' );
+		} else {
+			metabox.addClass( 'closed' );
+		}
+
+		if ( metabox.hasClass( 'open' ) ) {
+			metabox.removeClass( 'open' );
+		} else {
+			metabox.addClass( 'open' );
+		}
 	});
 
 	// Tabbed Panels
 	$( document.body ).on( 'wc-init-tabbed-panels', function() {
 		$( 'ul.wc-tabs' ).show();
-		$( 'ul.wc-tabs a' ).click( function( e ) {
+		$( 'ul.wc-tabs a' ).on( 'click', function( e ) {
 			e.preventDefault();
 			var panel_wrap = $( this ).closest( 'div.panel-wrap' );
 			$( 'ul.wc-tabs li', panel_wrap ).removeClass( 'active' );
@@ -43,7 +44,7 @@ jQuery( function ( $ ) {
 			$( $( this ).attr( 'href' ) ).show();
 		});
 		$( 'div.panel-wrap' ).each( function() {
-			$( this ).find( 'ul.wc-tabs li' ).eq( 0 ).find( 'a' ).click();
+			$( this ).find( 'ul.wc-tabs li' ).eq( 0 ).find( 'a' ).trigger( 'click' );
 		});
 	}).trigger( 'wc-init-tabbed-panels' );
 

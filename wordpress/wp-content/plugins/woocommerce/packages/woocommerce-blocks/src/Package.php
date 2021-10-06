@@ -1,5 +1,14 @@
 <?php
+namespace Automattic\WooCommerce\Blocks;
+
+use Automattic\WooCommerce\Blocks\Domain\Package as NewPackage;
+use Automattic\WooCommerce\Blocks\Domain\Bootstrap;
+use Automattic\WooCommerce\Blocks\Registry\Container;
+use Automattic\WooCommerce\Blocks\Domain\Services\FeatureGating;
+
 /**
+ * Main package class.
+ *
  * Returns information about the package and handles init.
  *
  * In the context of this plugin, it handles init and is called from the main
@@ -7,20 +16,6 @@
  *
  * In the context of WooCommere core, it handles init and is called from
  * WooCommerce's package loader. The main plugin file is _not_ loaded.
- *
- * @package Automattic/WooCommerce/Blocks
- */
-
-namespace Automattic\WooCommerce\Blocks;
-
-use Automattic\WooCommerce\Blocks\Domain\Package as NewPackage;
-use Automattic\WooCommerce\Blocks\Domain\Bootstrap;
-use Automattic\WooCommerce\Blocks\Registry\Container;
-
-defined( 'ABSPATH' ) || exit;
-
-/**
- * Main package class.
  *
  * @since 2.5.0
  */
@@ -66,6 +61,33 @@ class Package {
 	}
 
 	/**
+	 * Returns an instance of the the FeatureGating class.
+	 *
+	 * @return FeatureGating
+	 */
+	public static function feature() {
+		return self::get_package()->feature();
+	}
+
+	/**
+	 * Checks if we're executing the code in an experimental build mode.
+	 *
+	 * @return boolean
+	 */
+	public static function is_experimental_build() {
+		return self::get_package()->is_experimental_build();
+	}
+
+	/**
+	 * Checks if we're executing the code in an feature plugin or experimental build mode.
+	 *
+	 * @return boolean
+	 */
+	public static function is_feature_plugin_build() {
+		return self::get_package()->is_feature_plugin_build();
+	}
+
+	/**
 	 * Loads the dependency injection container for woocommerce blocks.
 	 *
 	 * @param boolean $reset Used to reset the container to a fresh instance.
@@ -84,10 +106,11 @@ class Package {
 				NewPackage::class,
 				function ( $container ) {
 					// leave for automated version bumping.
-					$version = '2.5.14';
+					$version = '5.7.2';
 					return new NewPackage(
 						$version,
-						dirname( __DIR__ )
+						dirname( __DIR__ ),
+						new FeatureGating()
 					);
 				}
 			);

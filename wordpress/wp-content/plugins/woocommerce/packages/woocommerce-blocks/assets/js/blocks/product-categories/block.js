@@ -2,16 +2,21 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from 'react';
-import { InspectorControls, ServerSideRender } from '@wordpress/editor';
+import { InspectorControls } from '@wordpress/block-editor';
+import ServerSideRender from '@wordpress/server-side-render';
 import PropTypes from 'prop-types';
-import { PanelBody, ToggleControl, Placeholder } from '@wordpress/components';
-import { IconFolder } from '@woocommerce/block-components/icons';
-import ToggleButtonControl from '@woocommerce/block-components/toggle-button-control';
+import {
+	Disabled,
+	PanelBody,
+	ToggleControl,
+	Placeholder,
+} from '@wordpress/components';
+import { Icon, list } from '@woocommerce/icons';
+import ToggleButtonControl from '@woocommerce/editor-components/toggle-button-control';
 
-const EmptyPlaceHolder = () => (
+const EmptyPlaceholder = () => (
 	<Placeholder
-		icon={ <IconFolder /> }
+		icon={ <Icon srcElement={ list } /> }
 		label={ __(
 			'Product Categories List',
 			'woocommerce'
@@ -27,13 +32,60 @@ const EmptyPlaceHolder = () => (
 
 /**
  * Component displaying the categories as dropdown or list.
+ *
+ * @param {Object} props Incoming props for the component.
+ * @param {Object} props.attributes Incoming block attributes.
+ * @param {function(any):any} props.setAttributes Setter for block attributes.
+ * @param {string} props.name Name for block.
  */
 const ProductCategoriesBlock = ( { attributes, setAttributes, name } ) => {
 	const getInspectorControls = () => {
-		const { hasCount, hasEmpty, isDropdown, isHierarchical } = attributes;
+		const {
+			hasCount,
+			hasImage,
+			hasEmpty,
+			isDropdown,
+			isHierarchical,
+		} = attributes;
 
 		return (
 			<InspectorControls key="inspector">
+				<PanelBody
+					title={ __(
+						'List Settings',
+						'woocommerce'
+					) }
+					initialOpen
+				>
+					<ToggleButtonControl
+						label={ __(
+							'Display style',
+							'woocommerce'
+						) }
+						value={ isDropdown ? 'dropdown' : 'list' }
+						options={ [
+							{
+								label: __(
+									'List',
+									'woocommerce'
+								),
+								value: 'list',
+							},
+							{
+								label: __(
+									'Dropdown',
+									'woocommerce'
+								),
+								value: 'dropdown',
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( {
+								isDropdown: value === 'dropdown',
+							} )
+						}
+					/>
+				</PanelBody>
 				<PanelBody
 					title={ __( 'Content', 'woocommerce' ) }
 					initialOpen
@@ -59,6 +111,29 @@ const ProductCategoriesBlock = ( { attributes, setAttributes, name } ) => {
 							setAttributes( { hasCount: ! hasCount } )
 						}
 					/>
+					{ ! isDropdown && (
+						<ToggleControl
+							label={ __(
+								'Show category images',
+								'woocommerce'
+							) }
+							help={
+								hasImage
+									? __(
+											'Category images are visible.',
+											'woocommerce'
+									  )
+									: __(
+											'Category images are hidden.',
+											'woocommerce'
+									  )
+							}
+							checked={ hasImage }
+							onChange={ () =>
+								setAttributes( { hasImage: ! hasImage } )
+							}
+						/>
+					) }
 					<ToggleControl
 						label={ __(
 							'Show hierarchy',
@@ -104,55 +179,21 @@ const ProductCategoriesBlock = ( { attributes, setAttributes, name } ) => {
 						}
 					/>
 				</PanelBody>
-				<PanelBody
-					title={ __(
-						'List Settings',
-						'woocommerce'
-					) }
-					initialOpen
-				>
-					<ToggleButtonControl
-						label={ __(
-							'Display style',
-							'woocommerce'
-						) }
-						value={ isDropdown ? 'dropdown' : 'list' }
-						options={ [
-							{
-								label: __(
-									'List',
-									'woocommerce'
-								),
-								value: 'list',
-							},
-							{
-								label: __(
-									'Dropdown',
-									'woocommerce'
-								),
-								value: 'dropdown',
-							},
-						] }
-						onChange={ ( value ) =>
-							setAttributes( {
-								isDropdown: value === 'dropdown',
-							} )
-						}
-					/>
-				</PanelBody>
 			</InspectorControls>
 		);
 	};
 
 	return (
-		<Fragment>
+		<>
 			{ getInspectorControls() }
-			<ServerSideRender
-				block={ name }
-				attributes={ attributes }
-				EmptyResponsePlaceholder={ EmptyPlaceHolder }
-			/>
-		</Fragment>
+			<Disabled>
+				<ServerSideRender
+					block={ name }
+					attributes={ attributes }
+					EmptyResponsePlaceholder={ EmptyPlaceholder }
+				/>
+			</Disabled>
+		</>
 	);
 };
 

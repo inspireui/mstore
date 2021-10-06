@@ -1,5 +1,5 @@
 <?php
-_deprecated_file( basename( __FILE__ ), '5.3.0', null, 'The PHP native JSON extension is now a requirement.' );
+_deprecated_file( basename( __FILE__ ), '5.3.0', '', 'The PHP native JSON extension is now a requirement.' );
 
 if ( ! class_exists( 'Services_JSON' ) ) :
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
@@ -159,7 +159,7 @@ class Services_JSON
      *
      * @deprecated 5.3.0 Use __construct() instead.
      *
-     * @see __construct()
+     * @see Services_JSON::__construct()
 	 */
 	public function Services_JSON( $use = 0 ) {
 		_deprecated_constructor( 'Services_JSON', '5.3.0', get_class( $this ) );
@@ -579,7 +579,7 @@ class Services_JSON
             return $encoded_value;
         }
 
-        return $this->_encode(strval($name)) . ':' . $encoded_value;
+        return $this->_encode((string) $name) . ':' . $encoded_value;
     }
 
    /**
@@ -918,7 +918,7 @@ class Services_JSON
 
         if (class_exists('pear')) {
             return PEAR::isError($data, $code);
-        } elseif (is_object($data) && (get_class($data) == 'services_json_error' ||
+        } elseif (is_object($data) && ($data instanceof services_json_error ||
                                  is_subclass_of($data, 'services_json_error'))) {
             return true;
         }
@@ -991,7 +991,7 @@ if (class_exists('PEAR_Error')) {
 	     *
 	     * @deprecated 5.3.0 Use __construct() instead.
 	     *
-	     * @see __construct()
+	     * @see Services_JSON_Error::__construct()
 	     */
 		public function Services_JSON_Error($message = 'unknown error', $code = null,
                                      $mode = null, $options = null, $userinfo = null) {
@@ -1023,7 +1023,7 @@ if (class_exists('PEAR_Error')) {
 	     *
 	     * @deprecated 5.3.0 Use __construct() instead.
 	     *
-	     * @see __construct()
+	     * @see Services_JSON_Error::__construct()
 	     */
 		public function Services_JSON_Error( $message = 'unknown error', $code = null,
 	                                     $mode = null, $options = null, $userinfo = null ) {

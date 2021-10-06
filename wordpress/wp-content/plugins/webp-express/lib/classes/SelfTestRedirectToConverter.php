@@ -18,6 +18,15 @@ class SelfTestRedirectToConverter extends SelfTestRedirectAbstract
         $createdTestFiles = false;
         $noWarningsYet = true;
 
+        $htaccessFile = Paths::getAbsDirById($rootId) . '/.htaccess';
+        if (!FileHelper::fileExists($htaccessFile)) {
+            $log[] = '**Warning: There is no .htaccess file in the ' . $rootId . ' folder!**{: .warn} (did you save settings yet?)';
+            $noWarningsYet = false;
+        } elseif (!HTAccess::haveWeRulesInThisHTAccess($htaccessFile)) {
+            $log[] = '**Warning: There are no WebP Express rules in the .htaccess file in the ' . $rootId . ' folder!**{: .warn}';
+            $noWarningsYet = false;
+        }
+
         // Copy test image (jpeg)
         list($subResult, $success, $sourceFileName) = SelfTestHelper::copyTestImageToRoot($rootId, $imageType);
         $log = array_merge($log, $subResult);
@@ -45,7 +54,18 @@ class SelfTestRedirectToConverter extends SelfTestRedirectAbstract
             //$log[count($log) - 1] .= '. FAILED';
             $log[] = 'The request FAILED';
             //$log = array_merge($log, $remoteGetLog);
-            $log[] = 'The test cannot be completed';
+
+            if (isset($results[0]['response']['code'])) {
+                $responseCode = $results[0]['response']['code'];
+                if (($responseCode == 500) || ($responseCode == 403)) {
+
+                    $log = array_merge($log, SelfTestHelper::diagnoseWod403or500($this->config, $rootId, $responseCode));
+
+                    //$log[] = 'or that there is an .htaccess file in the ';
+                }
+//                $log[] = print_r($results[0]['response']['code'], true);
+            }
+            //$log[] = 'The test cannot be completed';
             //$log[count($log) - 1] .= '. FAILED';
             return [false, $log, $createdTestFiles];
         }
@@ -78,7 +98,7 @@ class SelfTestRedirectToConverter extends SelfTestRedirectAbstract
                     'probably that the redirection simply failed';
 
                     $log[] = '### Diagnosing redirection problems';
-                    $log = array_merge($log, SelfTestHelper::diagnoseFailedRewrite($this->config));
+                    $log = array_merge($log, SelfTestHelper::diagnoseFailedRewrite($this->config, $headers));
             }
             return [false, $log, $createdTestFiles];
         }
@@ -110,10 +130,7 @@ class SelfTestRedirectToConverter extends SelfTestRedirectAbstract
         }
 
         if (!SelfTestHelper::hasVaryAcceptHeader($headers)) {
-            $log[count($log) - 1] .= '. **BUT!**';
-            $log[] = '**Warning: We did not receive a Vary:Accept header. ' .
-                'That header should be set in order to tell proxies that the response varies depending on the ' .
-                'Accept header. Otherwise browsers not supporting webp might get a cached webp and vice versa.**{: .warn}';
+            $log = array_merge($log, SelfTestHelper::diagnoseNoVaryHeader($rootId, 'webp-on-demand'));
             $noWarningsYet = false;
         }
         if (!SelfTestHelper::hasCacheControlOrExpiresHeader($headers)) {
@@ -188,10 +205,7 @@ class SelfTestRedirectToConverter extends SelfTestRedirectAbstract
         $log[] = 'Alrighty. We got the ' . $imageType . '. **Great!**{: .ok}.';
 
         if (!SelfTestHelper::hasVaryAcceptHeader($headers)) {
-            $log[count($log) - 1] .= '. **BUT!**';
-            $log[] = '**We did not receive a Vary:Accept header. ' .
-                'That header should be set in order to tell proxies that the response varies depending on the ' .
-                'Accept header. Otherwise browsers not supporting webp might get a cached webp and vice versa.**{: .warn}';
+            $log = array_merge($log, SelfTestHelper::diagnoseNoVaryHeader($rootId, 'webp-on-demand'));
             $noWarningsYet = false;
         }
 

@@ -2,7 +2,7 @@
 /**
  * Take settings registered for WP-Admin and hooks them up to the REST API
  *
- * @package  WooCommerce/Classes
+ * @package  WooCommerce\Classes
  * @version  3.0.0
  * @since    3.0.0
  */
@@ -114,8 +114,13 @@ class WC_Register_WP_Admin_Settings {
 		$sections = $this->object->get_sections();
 		if ( empty( $sections ) ) {
 			// Default section is just an empty string, per admin page classes.
-			$sections = array( '' );
+			$sections = array( ''  => '' );
 		}
+
+		/**
+		 * We are using 'WC_Settings_Page::get_settings' on purpose even thought it's deprecated.
+		 * See the method documentation for an explanation.
+		 */
 
 		foreach ( $sections as $section => $section_label ) {
 			$settings_from_section = $this->object->get_settings( $section );

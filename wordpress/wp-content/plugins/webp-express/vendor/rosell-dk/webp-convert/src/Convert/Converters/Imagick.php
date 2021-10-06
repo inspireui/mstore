@@ -25,7 +25,6 @@ class Imagick extends AbstractConverter
     {
         return [
             'near-lossless',
-            'preset',
             'size-in-percentage',
             'use-nice'
         ];
@@ -113,6 +112,23 @@ class Imagick extends AbstractConverter
 
         $im->setImageFormat('WEBP');
 
+        if (!is_null($options['preset'])) {
+            if ($options['preset'] != 'none') {
+                $imageHint = $options['preset'];
+                switch ($imageHint) {
+                    case 'drawing':
+                    case 'icon':
+                    case 'text':
+                        $imageHint = 'graph';
+                        $this->logLn(
+                            'The "preset" value was mapped to "graph" because imagick does not support "drawing",' .
+                            ' "icon" and "text", but grouped these into one option: "graph".'
+                        );
+                }
+                $im->setOption('webp:image-hint', $imageHint);
+            }
+        }
+
         $im->setOption('webp:method', $options['method']);
         $im->setOption('webp:lossless', $options['encoding'] == 'lossless' ? 'true' : 'false');
         $im->setOption('webp:low-memory', $options['low-memory'] ? 'true' : 'false');
@@ -122,9 +138,25 @@ class Imagick extends AbstractConverter
             $im->setOption('webp:auto-filter', 'true');
         }
 
+        if ($options['sharp-yuv'] === true) {
+            $im->setOption('webp:use-sharp-yuv', 'true');
+        }
+
         if ($options['metadata'] == 'none') {
-            // Strip metadata and profiles
+            // To strip metadata, we need to use the stripImage() method. However, that method does not only remove
+            // metadata, but color profiles as well. We want to keep the color profiles, so we grab it now to be able
+            // to restore it. (Thanks, Max Eremin: https://www.php.net/manual/en/imagick.stripimage.php#120380)
+
+            // Grab color profile (to be able to restore them)
+            $profiles = $im->getImageProfiles("icc", true);
+
+            // Strip metadata (and color profiles)
             $im->stripImage();
+
+            // Restore color profiles
+            if (!empty($profiles)) {
+                $im->profileImage("icc", $profiles['icc']);
+            }
         }
 
         if ($this->isQualityDetectionRequiredButFailing()) {

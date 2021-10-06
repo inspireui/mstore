@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @class       WC_Gateway_COD
  * @extends     WC_Payment_Gateway
  * @version     2.1.0
- * @package     WooCommerce/Classes/Payment
+ * @package     WooCommerce\Classes\Payment
  */
 class WC_Gateway_COD extends WC_Payment_Gateway {
 
@@ -132,7 +132,7 @@ class WC_Gateway_COD extends WC_Payment_Gateway {
 			$order    = wc_get_order( $order_id );
 
 			// Test if order needs shipping.
-			if ( 0 < count( $order->get_items() ) ) {
+			if ( $order && 0 < count( $order->get_items() ) ) {
 				foreach ( $order->get_items() as $item ) {
 					$_product = $item->get_product();
 					if ( $_product && $_product->needs_shipping() ) {

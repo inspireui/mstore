@@ -1,8 +1,6 @@
 <?php
 /**
  * API\Reports\Products\DataStore class file.
- *
- * @package WooCommerce Admin/Classes
  */
 
 namespace Automattic\WooCommerce\Admin\API\Reports\Products;
@@ -122,7 +120,7 @@ class DataStore extends ReportsDataStore implements DataStoreInterface {
 				$join = " JOIN {$wpdb->posts} AS _products ON {$id_cell} = _products.ID";
 				break;
 			case 'sku':
-				$join = " JOIN {$wpdb->postmeta} AS postmeta ON {$id_cell} = postmeta.post_id AND postmeta.meta_key = '_sku'";
+				$join = " LEFT JOIN {$wpdb->postmeta} AS postmeta ON {$id_cell} = postmeta.post_id AND postmeta.meta_key = '_sku'";
 				break;
 			case 'variations':
 				$type = 'left_join';
@@ -268,16 +266,16 @@ class DataStore extends ReportsDataStore implements DataStoreInterface {
 
 		// These defaults are only partially applied when used via REST API, as that has its own defaults.
 		$defaults   = array(
-			'per_page'         => get_option( 'posts_per_page' ),
-			'page'             => 1,
-			'order'            => 'DESC',
-			'orderby'          => 'date',
-			'before'           => TimeInterval::default_before(),
-			'after'            => TimeInterval::default_after(),
-			'fields'           => '*',
-			'categories'       => array(),
-			'product_includes' => array(),
-			'extended_info'    => false,
+			'per_page'          => get_option( 'posts_per_page' ),
+			'page'              => 1,
+			'order'             => 'DESC',
+			'orderby'           => 'date',
+			'before'            => TimeInterval::default_before(),
+			'after'             => TimeInterval::default_after(),
+			'fields'            => '*',
+			'category_includes' => array(),
+			'product_includes'  => array(),
+			'extended_info'     => false,
 		);
 		$query_args = wp_parse_args( $query_args, $defaults );
 		$this->normalize_timezones( $query_args, $defaults );
@@ -305,8 +303,9 @@ class DataStore extends ReportsDataStore implements DataStoreInterface {
 			$this->add_sql_query_params( $query_args );
 
 			if ( count( $included_products ) > 0 ) {
-				$total_results = count( $included_products );
-				$total_pages   = (int) ceil( $total_results / $params['per_page'] );
+				$filtered_products = array_diff( $included_products, array( '-1' ) );
+				$total_results     = count( $filtered_products );
+				$total_pages       = (int) ceil( $total_results / $params['per_page'] );
 
 				if ( 'date' === $query_args['orderby'] ) {
 					$selections .= ", {$table_name}.date_created";
@@ -327,6 +326,7 @@ class DataStore extends ReportsDataStore implements DataStoreInterface {
 					"RIGHT JOIN ( {$ids_table} ) AS default_results
 					ON default_results.product_id = {$table_name}.product_id"
 				);
+				$this->add_sql_clause( 'where', 'AND default_results.product_id != -1' );
 
 				$products_query = $this->get_query_statement();
 			} else {

@@ -1,8 +1,6 @@
 <?php
 /**
  * Installation related functions and actions.
- *
- * @package WooCommerce Admin/Classes
  */
 
 namespace Automattic\WooCommerce\Admin;
@@ -10,8 +8,7 @@ namespace Automattic\WooCommerce\Admin;
 defined( 'ABSPATH' ) || exit;
 
 use Automattic\WooCommerce\Admin\API\Reports\Cache;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Historical_Data;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Welcome_Message;
+use \Automattic\WooCommerce\Admin\Notes\Notes;
 
 /**
  * Install Class.
@@ -40,6 +37,31 @@ class Install {
 			'wc_admin_update_0251_remove_unsnooze_action',
 			'wc_admin_update_0251_db_version',
 		),
+		'1.1.0'  => array(
+			'wc_admin_update_110_remove_facebook_note',
+			'wc_admin_update_110_db_version',
+		),
+		'1.3.0'  => array(
+			'wc_admin_update_130_remove_dismiss_action_from_tracking_opt_in_note',
+			'wc_admin_update_130_db_version',
+		),
+		'1.4.0'  => array(
+			'wc_admin_update_140_change_deactivate_plugin_note_type',
+			'wc_admin_update_140_db_version',
+		),
+		'1.6.0'  => array(
+			'wc_admin_update_160_remove_facebook_note',
+			'wc_admin_update_160_db_version',
+		),
+		'1.7.0'  => array(
+			'wc_admin_update_170_homescreen_layout',
+			'wc_admin_update_170_db_version',
+		),
+		'2.7.0'  => array(
+			'wc_admin_update_270_update_task_list_options',
+			'wc_admin_update_270_delete_report_downloads',
+			'wc_admin_update_270_db_version',
+		),
 	);
 
 	/**
@@ -56,52 +78,48 @@ class Install {
 		'woocommerce_admin_last_orders_milestone'  => 'wc_admin_last_orders_milestone',
 		'woocommerce_admin-wc-helper-last-refresh' => 'wc-admin-wc-helper-last-refresh',
 		'woocommerce_admin_report_export_status'   => 'wc_admin_report_export_status',
+		'woocommerce_task_list_complete'           => 'woocommerce_task_list_complete',
+		'woocommerce_task_list_hidden'             => 'woocommerce_task_list_hidden',
+		'woocommerce_extended_task_list_complete'  => 'woocommerce_extended_task_list_complete',
+		'woocommerce_extended_task_list_hidden'    => 'woocommerce_extended_task_list_hidden',
 	);
 
 	/**
 	 * Hook in tabs.
 	 */
 	public static function init() {
-		add_action( 'admin_init', array( __CLASS__, 'check_version' ), 5 );
+		add_action( 'init', array( __CLASS__, 'check_version' ), 5 );
 		add_filter( 'wpmu_drop_tables', array( __CLASS__, 'wpmu_drop_tables' ) );
 
 		// Add wc-admin report tables to list of WooCommerce tables.
 		add_filter( 'woocommerce_install_get_tables', array( __CLASS__, 'add_tables' ) );
-
-		// Migrate option names by filtering their default values.
-		// This attaches a targeted filter for each migrated option name that will retreive
-		// the old value and use it as the default for the new option. This default
-		// will be used in the first retreival of the new option.
-		foreach ( self::$migrated_options as $new_option => $old_option ) {
-			add_filter( "default_option_{$new_option}", array( __CLASS__, 'handle_option_migration' ), 10, 2 );
-		}
 	}
 
 	/**
 	 * Migrate option values to their new keys/names.
-	 *
-	 * @param mixed  $default Default value for the option.
-	 * @param string $new_option Option name.
-	 * @return mixed Migrated option value.
 	 */
-	public static function handle_option_migration( $default, $new_option ) {
-		if ( isset( self::$migrated_options[ $new_option ] ) ) {
-			wc_maybe_define_constant( 'WC_ADMIN_MIGRATING_OPTIONS', true );
+	public static function migrate_options() {
+		wc_maybe_define_constant( 'WC_ADMIN_MIGRATING_OPTIONS', true );
 
-			// Avoid infinite loops - this filter is applied in add_option(), update_option(), and get_option().
-			remove_filter( "default_option_{$new_option}", array( __CLASS__, 'handle_option_migration' ), 10, 2 );
+		foreach ( self::$migrated_options as $new_option => $old_option ) {
+			$old_option_value = get_option( $old_option, false );
 
-			// Migrate the old option value.
-			$old_option_name  = self::$migrated_options[ $new_option ];
-			$old_option_value = get_option( $old_option_name, $default );
+			// Continue if no option value was previously set.
+			if ( false === $old_option_value ) {
+				continue;
+			}
+
+			if ( '1' === $old_option_value ) {
+				$old_option_value = 'yes';
+			} elseif ( '0' === $old_option_value ) {
+				$old_option_value = 'no';
+			}
 
 			update_option( $new_option, $old_option_value );
-			delete_option( $old_option_name );
-
-			return $old_option_value;
+			if ( $new_option !== $old_option ) {
+				delete_option( $old_option );
+			}
 		}
-
-		return $default;
 	}
 
 	/**
@@ -124,7 +142,25 @@ class Install {
 		 */
 		if ( ! $version_option || $requires_update ) {
 			self::install();
+			/**
+			 * WooCommerce Admin has been installed or updated.
+			 */
 			do_action( 'woocommerce_admin_updated' );
+
+			if ( ! $version_option ) {
+				/**
+				 * WooCommerce Admin has been installed.
+				 */
+				do_action( 'woocommerce_admin_newly_installed' );
+			}
+
+			if ( $requires_update ) {
+				/**
+				 * An existing installation of WooCommerce Admin has been
+				 * updated.
+				 */
+				do_action( 'woocommerce_admin_updated_existing' );
+			}
 		}
 
 		/*
@@ -153,9 +189,10 @@ class Install {
 		set_transient( 'wc_admin_installing', 'yes', MINUTE_IN_SECONDS * 10 );
 		wc_maybe_define_constant( 'WC_ADMIN_INSTALLING', true );
 
+		self::migrate_options();
 		self::create_tables();
 		self::create_events();
-		self::create_notes();
+		self::delete_obsolete_notes();
 		self::maybe_update_db_version();
 
 		delete_transient( 'wc_admin_installing' );
@@ -174,9 +211,7 @@ class Install {
 	protected static function get_schema() {
 		global $wpdb;
 
-		if ( $wpdb->has_cap( 'collation' ) ) {
-			$collate = $wpdb->get_charset_collate();
-		}
+		$collate = $wpdb->has_cap( 'collation' ) ? $wpdb->get_charset_collate() : '';
 
 		// Max DB index length. See wp_get_db_schema().
 		$max_index_length = 191;
@@ -233,7 +268,7 @@ class Install {
 		) $collate;
 		CREATE TABLE {$wpdb->prefix}wc_order_coupon_lookup (
 			order_id BIGINT UNSIGNED NOT NULL,
-			coupon_id BIGINT UNSIGNED NOT NULL,
+			coupon_id BIGINT NOT NULL,
 			date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 			discount_amount double DEFAULT 0 NOT NULL,
 			PRIMARY KEY (order_id, coupon_id),
@@ -247,13 +282,16 @@ class Install {
 			locale varchar(20) NOT NULL,
 			title longtext NOT NULL,
 			content longtext NOT NULL,
-			icon varchar(200) NOT NULL,
 			content_data longtext NULL default null,
 			status varchar(200) NOT NULL,
 			source varchar(200) NOT NULL,
 			date_created datetime NOT NULL default '0000-00-00 00:00:00',
 			date_reminder datetime NULL default null,
 			is_snoozable boolean DEFAULT 0 NOT NULL,
+			layout varchar(20) DEFAULT '' NOT NULL,
+			image varchar(200) NULL DEFAULT NULL,
+			is_deleted boolean DEFAULT 0 NOT NULL,
+			icon varchar(200) NOT NULL default 'info',
 			PRIMARY KEY (note_id)
 		) $collate;
 		CREATE TABLE {$wpdb->prefix}wc_admin_note_actions (
@@ -264,6 +302,9 @@ class Install {
 			query longtext NOT NULL,
 			status varchar(255) NOT NULL,
 			is_primary boolean DEFAULT 0 NOT NULL,
+			actioned_text varchar(255) NOT NULL,
+			nonce_action varchar(255) NULL DEFAULT NULL,
+			nonce_name varchar(255) NULL DEFAULT NULL,
 			PRIMARY KEY (action_id),
 			KEY note_id (note_id)
 		) $collate;
@@ -391,17 +432,32 @@ class Install {
 
 		foreach ( self::get_db_update_callbacks() as $version => $update_callbacks ) {
 			if ( version_compare( $current_db_version, $version, '<' ) ) {
+				$completed_version_updates = 0;
+
 				foreach ( $update_callbacks as $update_callback ) {
 					$pending_jobs = WC()->queue()->search(
 						array(
 							'per_page' => 1,
 							'hook'     => 'woocommerce_run_update_callback',
-							'search'   => json_encode( array( $update_callback ) ),
+							'search'   => wp_json_encode( array( $update_callback ) ),
 							'group'    => 'woocommerce-db-updates',
+							'status'   => 'pending',
 						)
 					);
 
-					if ( empty( $pending_jobs ) ) {
+					$complete_jobs = WC()->queue()->search(
+						array(
+							'per_page' => 1,
+							'hook'     => 'woocommerce_run_update_callback',
+							'search'   => wp_json_encode( array( $update_callback ) ),
+							'group'    => 'woocommerce-db-updates',
+							'status'   => 'complete',
+						)
+					);
+
+					$completed_version_updates += count( $complete_jobs );
+
+					if ( empty( $pending_jobs ) && empty( $complete_jobs ) ) {
 						WC()->queue()->schedule_single(
 							time() + $loop,
 							'woocommerce_run_update_callback',
@@ -412,6 +468,15 @@ class Install {
 					}
 
 					$loop++;
+
+				}
+
+				// Users have experienced concurrency issues where all update callbacks
+				// have run but the version option hasn't been updated. If all the updates
+				// for a version are complete, update the version option to reflect that.
+				// See: https:// github.com/woocommerce/woocommerce-admin/issues/5058.
+				if ( count( $update_callbacks ) === $completed_version_updates ) {
+					self::update_db_version( $version );
 				}
 			}
 		}
@@ -434,16 +499,40 @@ class Install {
 		if ( ! wp_next_scheduled( 'wc_admin_daily' ) ) {
 			wp_schedule_event( time(), 'daily', 'wc_admin_daily' );
 		}
-		// @todo This is potentially redundant when the core package exists.
+		// Note: this is potentially redundant when the core package exists.
 		wp_schedule_single_event( time() + 10, 'generate_category_lookup_table' );
 	}
 
 	/**
-	 * Create notes.
+	 * Delete obsolete notes.
 	 */
-	protected static function create_notes() {
-		WC_Admin_Notes_Historical_Data::add_note();
-		WC_Admin_Notes_Welcome_Message::add_welcome_note();
+	protected static function delete_obsolete_notes() {
+		$obsolete_notes_names = array(
+			'wc-admin-welcome-note',
+			'wc-admin-store-notice-setting-moved',
+			'wc-admin-store-notice-giving-feedback',
+			'wc-admin-learn-more-about-product-settings',
+			'wc-admin-onboarding-profiler-reminder',
+			'wc-admin-historical-data',
+			'wc-admin-review-shipping-settings',
+			'wc-admin-home-screen-feedback',
+			'wc-admin-effortless-payments-by-mollie',
+			'wc-admin-google-ads-and-marketing',
+		);
+
+		$additional_obsolete_notes_names = apply_filters(
+			'woocommerce_admin_obsolete_notes_names',
+			array()
+		);
+
+		if ( is_array( $additional_obsolete_notes_names ) ) {
+			$obsolete_notes_names = array_merge(
+				$obsolete_notes_names,
+				$additional_obsolete_notes_names
+			);
+		}
+
+		Notes::delete_notes_with_name( $obsolete_notes_names );
 	}
 
 	/**
@@ -457,7 +546,9 @@ class Install {
 		$tables = self::get_tables();
 
 		foreach ( $tables as $table ) {
-			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // WPCS: unprepared SQL ok.
+			/* phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared */
+			$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+			/* phpcs:enable */
 		}
 	}
 }

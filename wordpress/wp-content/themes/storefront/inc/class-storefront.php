@@ -28,12 +28,10 @@ if ( ! class_exists( 'Storefront' ) ) :
 			add_action( 'wp_enqueue_scripts', array( $this, 'scripts' ), 10 );
 			add_action( 'wp_enqueue_scripts', array( $this, 'child_scripts' ), 30 ); // After WooCommerce.
 			add_action( 'enqueue_block_assets', array( $this, 'block_assets' ) );
-			add_action( 'enqueue_block_editor_assets', array( $this, 'block_editor_assets' ) );
 			add_filter( 'body_class', array( $this, 'body_classes' ) );
 			add_filter( 'wp_page_menu_args', array( $this, 'page_menu_args' ) );
 			add_filter( 'navigation_markup_template', array( $this, 'navigation_markup_template' ) );
 			add_action( 'enqueue_embed_scripts', array( $this, 'print_embed_styles' ) );
-			add_filter( 'block_editor_settings', array( $this, 'custom_editor_settings' ), 10, 2 );
 		}
 
 		/**
@@ -75,8 +73,10 @@ if ( ! class_exists( 'Storefront' ) ) :
 			 * Enable support for site logo.
 			 */
 			add_theme_support(
-				'custom-logo', apply_filters(
-					'storefront_custom_logo_args', array(
+				'custom-logo',
+				apply_filters(
+					'storefront_custom_logo_args',
+					array(
 						'height'      => 110,
 						'width'       => 470,
 						'flex-width'  => true,
@@ -90,7 +90,8 @@ if ( ! class_exists( 'Storefront' ) ) :
 			 */
 			register_nav_menus(
 				apply_filters(
-					'storefront_register_nav_menus', array(
+					'storefront_register_nav_menus',
+					array(
 						'primary'   => __( 'Primary Menu', 'storefront' ),
 						'secondary' => __( 'Secondary Menu', 'storefront' ),
 						'handheld'  => __( 'Handheld Menu', 'storefront' ),
@@ -103,14 +104,18 @@ if ( ! class_exists( 'Storefront' ) ) :
 			 * to output valid HTML5.
 			 */
 			add_theme_support(
-				'html5', apply_filters(
-					'storefront_html5_args', array(
+				'html5',
+				apply_filters(
+					'storefront_html5_args',
+					array(
 						'search-form',
 						'comment-form',
 						'comment-list',
 						'gallery',
 						'caption',
 						'widgets',
+						'style',
+						'script',
 					)
 				)
 			);
@@ -119,8 +124,10 @@ if ( ! class_exists( 'Storefront' ) ) :
 			 * Setup the WordPress core custom background feature.
 			 */
 			add_theme_support(
-				'custom-background', apply_filters(
-					'storefront_custom_background_args', array(
+				'custom-background',
+				apply_filters(
+					'storefront_custom_background_args',
+					array(
 						'default-color' => apply_filters( 'storefront_default_background_color', 'ffffff' ),
 						'default-image' => '',
 					)
@@ -131,8 +138,10 @@ if ( ! class_exists( 'Storefront' ) ) :
 			 * Setup the WordPress core custom header feature.
 			 */
 			add_theme_support(
-				'custom-header', apply_filters(
-					'storefront_custom_header_args', array(
+				'custom-header',
+				apply_filters(
+					'storefront_custom_header_args',
+					array(
 						'default-image' => '',
 						'header-text'   => false,
 						'width'         => 1950,
@@ -149,8 +158,10 @@ if ( ! class_exists( 'Storefront' ) ) :
 			 *  http://jetpack.me/
 			 */
 			add_theme_support(
-				'site-logo', apply_filters(
-					'storefront_site_logo_args', array(
+				'site-logo',
+				apply_filters(
+					'storefront_site_logo_args',
+					array(
 						'size' => 'full',
 					)
 				)
@@ -184,33 +195,36 @@ if ( ! class_exists( 'Storefront' ) ) :
 			/**
 			 * Add support for editor font sizes.
 			 */
-			add_theme_support( 'editor-font-sizes', array(
+			add_theme_support(
+				'editor-font-sizes',
 				array(
-					'name' => __( 'Small', 'storefront' ),
-					'size' => 14,
-					'slug' => 'small',
-				),
-				array(
-					'name' => __( 'Normal', 'storefront' ),
-					'size' => 16,
-					'slug' => 'normal',
-				),
-				array(
-					'name' => __( 'Medium', 'storefront' ),
-					'size' => 23,
-					'slug' => 'medium',
-				),
-				array(
-					'name' => __( 'Large', 'storefront' ),
-					'size' => 26,
-					'slug' => 'large',
-				),
-				array(
-					'name' => __( 'Huge', 'storefront' ),
-					'size' => 37,
-					'slug' => 'huge',
-				),
-			) );
+					array(
+						'name' => __( 'Small', 'storefront' ),
+						'size' => 14,
+						'slug' => 'small',
+					),
+					array(
+						'name' => __( 'Normal', 'storefront' ),
+						'size' => 16,
+						'slug' => 'normal',
+					),
+					array(
+						'name' => __( 'Medium', 'storefront' ),
+						'size' => 23,
+						'slug' => 'medium',
+					),
+					array(
+						'name' => __( 'Large', 'storefront' ),
+						'size' => 26,
+						'slug' => 'large',
+					),
+					array(
+						'name' => __( 'Huge', 'storefront' ),
+						'size' => 37,
+						'slug' => 'huge',
+					),
+				)
+			);
 
 			/**
 			 * Enqueue editor styles.
@@ -321,7 +335,7 @@ if ( ! class_exists( 'Storefront' ) ) :
 			/**
 			 * Fonts
 			 */
-			wp_enqueue_style( 'storefront-fonts', $this->google_fonts(), array(), null );
+			wp_enqueue_style( 'storefront-fonts', $this->google_fonts(), array(), $storefront_version );
 
 			/**
 			 * Scripts
@@ -329,7 +343,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 			$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
 			wp_enqueue_script( 'storefront-navigation', get_template_directory_uri() . '/assets/js/navigation' . $suffix . '.js', array(), $storefront_version, true );
-			wp_enqueue_script( 'storefront-skip-link-focus-fix', get_template_directory_uri() . '/assets/js/skip-link-focus-fix' . $suffix . '.js', array(), '20130115', true );
 
 			if ( has_nav_menu( 'handheld' ) ) {
 				$storefront_l10n = array(
@@ -347,8 +360,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 			if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 				wp_enqueue_script( 'comment-reply' );
 			}
-
-			wp_enqueue_script( 'jquery-pep', get_template_directory_uri() . '/assets/js/vendor/pep.min.js', array(), '0.4.3', true );
 		}
 
 		/**
@@ -359,7 +370,8 @@ if ( ! class_exists( 'Storefront' ) ) :
 		 */
 		public function google_fonts() {
 			$google_fonts = apply_filters(
-				'storefront_google_font_families', array(
+				'storefront_google_font_families',
+				array(
 					'source-sans-pro' => 'Source+Sans+Pro:400,300,300italic,400italic,600,700,900',
 				)
 			);
@@ -385,19 +397,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 			// Styles.
 			wp_enqueue_style( 'storefront-gutenberg-blocks', get_template_directory_uri() . '/assets/css/base/gutenberg-blocks.css', '', $storefront_version );
 			wp_style_add_data( 'storefront-gutenberg-blocks', 'rtl', 'replace' );
-		}
-
-		/**
-		 * Enqueue supplemental block editor assets.
-		 *
-		 * @since 2.4.0
-		 */
-		public function block_editor_assets() {
-			global $storefront_version;
-
-			// JS.
-			$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-			wp_enqueue_script( 'storefront-editor', get_template_directory_uri() . '/assets/js/editor' . $suffix . '.js', array( 'wp-data', 'wp-dom-ready', 'wp-edit-post' ), $storefront_version, true );
 		}
 
 		/**
@@ -479,26 +478,6 @@ if ( ! class_exists( 'Storefront' ) ) :
 		}
 
 		/**
-		 * Adds a custom parameter to the editor settings that is used
-		 * to track whether the main sidebar has widgets.
-		 *
-		 * @since 2.4.3
-		 * @param array   $settings Default editor settings.
-		 * @param WP_Post $post Post being edited.
-		 *
-		 * @return array Filtered block editor settings.
-		 */
-		public function custom_editor_settings( $settings, $post ) {
-			$settings['mainSidebarActive'] = false;
-
-			if ( is_active_sidebar( 'sidebar-1' ) ) {
-				$settings['mainSidebarActive'] = true;
-			}
-
-			return $settings;
-		}
-
-		/**
 		 * Custom navigation markup template hooked into `navigation_markup_template` filter hook.
 		 */
 		public function navigation_markup_template() {
@@ -514,7 +493,9 @@ if ( ! class_exists( 'Storefront' ) ) :
 		 * Add styles for embeds
 		 */
 		public function print_embed_styles() {
-			wp_enqueue_style( 'source-sans-pro', '//fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,300italic,400italic,700,900' );
+			global $storefront_version;
+
+			wp_enqueue_style( 'source-sans-pro', '//fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,300italic,400italic,700,900', array(), $storefront_version );
 			$accent_color     = get_theme_mod( 'storefront_accent_color' );
 			$background_color = storefront_get_content_background_color();
 			?>

@@ -31,19 +31,20 @@ class JSON_API_MStore_User_Controller
         // }
     }
 
-    public function upload_config() {
-        require_once( ABSPATH . 'wp-admin/includes/image.php' );
-        require_once( ABSPATH . 'wp-admin/includes/file.php' );
-        require_once( ABSPATH . 'wp-admin/includes/media.php' );
-        require_once( ABSPATH . WPINC . '/functions.php');
-        $url = str_replace("plugins/mstore-api/controllers","uploads",dirname(__FILE__)).'/2000/01/config.json';
+    public function upload_config()
+    {
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        require_once(ABSPATH . WPINC . '/functions.php');
+        $url = str_replace("plugins/mstore-api/controllers", "uploads", dirname(__FILE__)) . '/2000/01/config.json';
         $delete = unlink($url);
-        $file = wp_handle_upload( $_FILES[ 'my_file_upload' ], array( 'test_form' => false ), '2000-01-01' );
- 
-        if ( isset( $file['error'] ) ) {
-            return new WP_Error( 'upload_error', $file['error'] );
+        $file = wp_handle_upload($_FILES['my_file_upload'], array('test_form' => false), '2000-01-01');
+
+        if (isset($file['error'])) {
+            return new WP_Error('upload_error', $file['error']);
         }
-         
+
         return array(
             "url" => $file['url'],
             "time" => current_time('mysql'),
@@ -52,21 +53,23 @@ class JSON_API_MStore_User_Controller
         );
     }
 
-    public function upload_media() {
-        require_once( ABSPATH . 'wp-admin/includes/image.php' );
-        require_once( ABSPATH . 'wp-admin/includes/file.php' );
-        require_once( ABSPATH . 'wp-admin/includes/media.php' );
+    public function upload_media()
+    {
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
 
-        $attachment_id = media_handle_upload( 'my_image_upload', 0);
-             
-        if ( is_wp_error( $attachment_id ) ) {
+        $attachment_id = media_handle_upload('my_image_upload', 0);
+
+        if (is_wp_error($attachment_id)) {
             echo 'There was an error uploading the image.';
         } else {
             return wp_get_attachment_url($attachment_id);
         }
     }
 
-    public function update_user_profile() {
+    public function update_user_profile()
+    {
         global $json_api;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $json = file_get_contents('php://input');
@@ -77,7 +80,7 @@ class JSON_API_MStore_User_Controller
         if (!$params->user_id) {
             $json_api->error("You must include a 'user_id' var in your request.");
         }
-        $user_update = array( 'ID' => $params->user_id);
+        $user_update = array('ID' => $params->user_id);
         if ($params->user_pass) {
             $user_update['user_pass'] = $params->user_pass;
         }
@@ -94,9 +97,9 @@ class JSON_API_MStore_User_Controller
             $user_update['display_name'] = $params->display_name;
         }
         $user_data = wp_update_user($user_update);
- 
-        if ( is_wp_error( $user_data ) ) {
-          // There was an error; possibly this user doesn't exist.
+
+        if (is_wp_error($user_data)) {
+            // There was an error; possibly this user doesn't exist.
             echo 'Error.';
         }
         return get_userdata($params->user_id);
@@ -122,9 +125,9 @@ class JSON_API_MStore_User_Controller
             $userLoginReq = $params->user_login;
             $userEmailReq = $params->user_email;
             $notifyReq = $params->notify;
-        }else{
+        } else {
             $usernameReq = $json_api->query->username;
-            $emailReq =$json_api->query->email;
+            $emailReq = $json_api->query->email;
             $secondsReq = $json_api->query->seconds;
             $nonceReq = $json_api->query->nonce;
             $roleReq = $json_api->query->role;
@@ -134,7 +137,7 @@ class JSON_API_MStore_User_Controller
             $notifyReq = $json_api->query->notify;
         }
 
-        
+
         if (!$usernameReq) {
             $json_api->error("You must include 'username' var in your request. ");
         } else {
@@ -160,7 +163,7 @@ class JSON_API_MStore_User_Controller
         // $user_pass = filter_has_vart(INPUT_GET, 'user_pass') ? sanitize_text_field(filter_input(INPUT_GET, 'user_pass')) : '';
 
         if ($secondsReq) {
-            $seconds = (int) $secondsReq;
+            $seconds = (int)$secondsReq;
         } else {
             $seconds = 120960000;
         }
@@ -205,14 +208,12 @@ class JSON_API_MStore_User_Controller
                         ];
                         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $params->user_pass = $args['user_pass'];
-                        }else{
+                        } else {
                             filter_input_array(INPUT_GET, $args);
                         }
                     }
 
                     if ($userLoginReq && $userEmailReq) {
-                        // filter_input_array(INPUT_GET, $_REQUEST['user_login']) = $username;
-                        // filter_input_array(INPUT_GET, $_REQUEST['user_email']) = $email;
                         $argsBelow = [
                             'user_login' => $username,
                             'user_email' => $email
@@ -229,7 +230,7 @@ class JSON_API_MStore_User_Controller
 
                     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $dataRequest = $params;
-                    }else{
+                    } else {
                         $dataRequest = filter_input_array(INPUT_GET);
                     }
                     foreach ($dataRequest as $field => $value) {
@@ -238,7 +239,7 @@ class JSON_API_MStore_User_Controller
                         }
 
                     }
-                    
+
                     $user['role'] = $roleReq ? sanitize_text_field($roleReq) : get_option('default_role');
                     $user_id = wp_insert_user($user);
 
@@ -298,7 +299,7 @@ class JSON_API_MStore_User_Controller
                 $json_api->query->$k = $val;
             }
         }
-        
+
 
         if (!$json_api->query->username && !$json_api->query->email) {
             $json_api->error("You must include 'username' or 'email' var in your request to generate cookie.");
@@ -309,7 +310,7 @@ class JSON_API_MStore_User_Controller
         }
 
         if ($json_api->query->seconds) {
-            $seconds = (int) $json_api->query->seconds;
+            $seconds = (int)$json_api->query->seconds;
         } else {
             $seconds = 1209600;
         }
@@ -373,85 +374,83 @@ class JSON_API_MStore_User_Controller
     public function fb_connect()
     {
         global $json_api;
-		
-		if ($json_api->query->fields) {
 
-			$fields = $json_api->query->fields;
+        if ($json_api->query->fields) {
 
-		}else $fields = 'id,name,first_name,last_name,email';
-		
-		if ($json_api->query->ssl) {
-			 $enable_ssl = $json_api->query->ssl;
-		}else $enable_ssl = true;
-	
+            $fields = $json_api->query->fields;
+
+        } else $fields = 'id,name,first_name,last_name,email';
+
+        if ($json_api->query->ssl) {
+            $enable_ssl = $json_api->query->ssl;
+        } else $enable_ssl = true;
+
         if (!$json_api->query->access_token) {
-			$json_api->error("You must include a 'access_token' variable. Get the valid access_token for this app from Facebook API.");
-		}else{	
-            $url='https://graph.facebook.com/me/?fields='.$fields.'&access_token='.$json_api->query->access_token;
-                
+            $json_api->error("You must include a 'access_token' variable. Get the valid access_token for this app from Facebook API.");
+        } else {
+            $url = 'https://graph.facebook.com/me/?fields=' . $fields . '&access_token=' . $json_api->query->access_token;
+
             $result = wp_remote_retrieve_body(wp_remote_get($url));
 
-                $result = json_decode($result, true);
-                
-            if(isset($result["email"])){
-                    
-                        $user_email = $result["email"];
-                        $email_exists = email_exists($user_email);
-                        
-                        if($email_exists) {
-                            $user = get_user_by( 'email', $user_email );
-                        $user_id = $user->ID;
-                        $user_name = $user->user_login;
-                        }
-                        
-                    
-                    
-                        if ( !$user_id && $email_exists == false ) {
-                            
-                        $user_name = strtolower($result['first_name'].'.'.$result['last_name']);
-                                        
-                            while(username_exists($user_name)){		        
-                            $i++;
-                            $user_name = strtolower($result['first_name'].'.'.$result['last_name']).'.'.$i;			     
-                
-                                }
-                            
-                        $random_password = wp_generate_password( $length=12, $include_standard_special_chars=false );
-                        $userdata = array(
-                                    'user_login'    => $user_name,
-                                    'user_email'    => $user_email,
-                                    'user_pass'  => $random_password,
-                                    'display_name'  => $result["name"],
-                                    'first_name'  => $result['first_name'],
-                                    'last_name'  => $result['last_name'],
-                                     'user' => $result
-                                                );
+            $result = json_decode($result, true);
 
-                            $user_id = wp_insert_user( $userdata ) ;				   
-                            if($user_id) $user_account = 'user registered.';
-                            
-                        } else {
-                            
-                            if($user_id) $user_account = 'user logged in.';
-                            }
-                        
-                        $expiration = time() + apply_filters('auth_cookie_expiration', 1209600, $user_id, true);
-                        $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in');
-                    
-                    $response['msg'] = $user_account;
-                    $response['wp_user_id'] = $user_id;
-                    $response['cookie'] = $cookie;
-                    $response['user_login'] = $user_name;	
-                    $response['user'] = $result;
+            if (isset($result["email"])) {
+
+                $user_email = $result["email"];
+                $email_exists = email_exists($user_email);
+
+                if ($email_exists) {
+                    $user = get_user_by('email', $user_email);
+                    $user_id = $user->ID;
+                    $user_name = $user->user_login;
+                }
+
+
+                if (!$user_id && $email_exists == false) {
+
+                    $user_name = strtolower($result['first_name'] . '.' . $result['last_name']);
+
+                    while (username_exists($user_name)) {
+                        $i++;
+                        $user_name = strtolower($result['first_name'] . '.' . $result['last_name']) . '.' . $i;
+
                     }
-                    else {
-                        $response['msg'] = "Your 'access_token' did not return email of the user. Without 'email' user can't be logged in or registered. Get user email extended permission while joining the Facebook app.";
 
-                        }
-                
-                }	
+                    $random_password = wp_generate_password($length = 12, $include_standard_special_chars = false);
+                    $userdata = array(
+                        'user_login' => $user_name,
+                        'user_email' => $user_email,
+                        'user_pass' => $random_password,
+                        'display_name' => $result["name"],
+                        'first_name' => $result['first_name'],
+                        'last_name' => $result['last_name'],
+                        'user' => $result
+                    );
 
-                return $response;
+                    $user_id = wp_insert_user($userdata);
+                    if ($user_id) $user_account = 'user registered.';
+
+                } else {
+
+                    if ($user_id) $user_account = 'user logged in.';
+                }
+
+                $expiration = time() + apply_filters('auth_cookie_expiration', 1209600, $user_id, true);
+                $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in');
+
+                $response['msg'] = $user_account;
+                $response['wp_user_id'] = $user_id;
+                $response['cookie'] = $cookie;
+                $response['user_login'] = $user_name;
+                $response['user'] = $result;
+            } else {
+                $response['msg'] = "Your 'access_token' did not return email of the user. Without 'email' user can't be logged in or registered. Get user email extended permission while joining the Facebook app.";
+
+            }
+
+        }
+
+        return $response;
     }
 
     public function sms_login()
@@ -465,15 +464,15 @@ class JSON_API_MStore_User_Controller
             $url = 'https://graph.accountkit.com/v1.3/me/?access_token=' . $json_api->query->access_token;
 
             $WP_Http_Curl = new WP_Http_Curl();
-            $result = $WP_Http_Curl->request( $url, array(
-                'method'      => 'GET',
-                'timeout'     => 5,
+            $result = $WP_Http_Curl->request($url, array(
+                'method' => 'GET',
+                'timeout' => 5,
                 'redirection' => 5,
                 'httpversion' => '1.0',
-                'blocking'    => true,
-                'headers'     => array(),
-                'body'        => null,
-                'cookies'     => array(),
+                'blocking' => true,
+                'headers' => array(),
+                'body' => null,
+                'cookies' => array(),
             ));
 
             $result = json_decode($result, true);
@@ -543,18 +542,18 @@ class JSON_API_MStore_User_Controller
             $json_api->error("You must include a 'phone' variable.");
         } else {
             $domain = $_SERVER['SERVER_NAME'];
-            if (count(explode(".",$domain)) == 1) {
+            if (count(explode(".", $domain)) == 1) {
                 $domain = "mstore.io";
             }
             $user_name = $json_api->query->phone;
-            $user_email = $json_api->query->phone."@".$domain;
+            $user_email = $json_api->query->phone . "@" . $domain;
             $email_exists = email_exists($user_email);
             $user_pass = wp_generate_password($length = 12, $include_standard_special_chars = false);
             if ($email_exists) {
                 $user = get_user_by('email', $user_email);
                 $user_id = $user->ID;
                 $user_name = $user->user_login;
-                wp_update_user( array( 'ID' => $user_id, 'user_pass' => $user_pass ) );
+                wp_update_user(array('ID' => $user_id, 'user_pass' => $user_pass));
             }
 
 
@@ -662,7 +661,7 @@ class JSON_API_MStore_User_Controller
     public function google_login()
     {
         global $json_api;
-	
+
         if (!$json_api->query->access_token) {
             $json_api->error("You must include a 'access_token' variable. Get the valid access_token for this app from Facebook API.");
         } else {
@@ -677,23 +676,23 @@ class JSON_API_MStore_User_Controller
                 $email = $result["email"];
                 $avatar = $result["picture"];
 
-                $display_name = $firstName." ".$lastName;
-                $user_name = $firstName.".".$lastName;
+                $display_name = $firstName . " " . $lastName;
+                $user_name = $firstName . "." . $lastName;
                 $user_email = $email;
                 $email_exists = email_exists($user_email);
-    
+
                 if ($email_exists) {
                     $user = get_user_by('email', $user_email);
                     $user_id = $user->ID;
                     $user_name = $user->user_login;
                 }
-    
+
                 if (!$user_id && $email_exists == false) {
                     while (username_exists($user_name)) {
                         $i++;
                         $user_name = strtolower($user_name) . '.' . $i;
                     }
-    
+
                     $random_password = wp_generate_password($length = 12, $include_standard_special_chars = false);
                     $userdata = array(
                         'user_login' => $user_name,
@@ -703,27 +702,27 @@ class JSON_API_MStore_User_Controller
                         'first_name' => $display_name,
                         'last_name' => ""
                     );
-    
+
                     $user_id = wp_insert_user($userdata);
                     if ($user_id) $user_account = 'user registered.';
-    
+
                 } else {
                     if ($user_id) $user_account = 'user logged in.';
                 }
-    
+
                 $expiration = time() + apply_filters('auth_cookie_expiration', 120960000, $user_id, true);
                 $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in');
-    
+
                 $response['msg'] = $user_account;
                 $response['wp_user_id'] = $user_id;
                 $response['cookie'] = $cookie;
                 $response['user_login'] = $user_name;
                 $response['user'] = $result;
                 return $response;
-            }else{
+            } else {
                 $json_api->error("Your 'token' did not return email of the user. Without 'email' user can't be logged in or registered. Get user email extended permission while joining the Google app.");
-            }   
-        } 
+            }
+        }
     }
 
     /*
@@ -781,73 +780,75 @@ class JSON_API_MStore_User_Controller
         );
     }
 
-    public function get_currentuserinfo() {
-		global $json_api;
-		if (!$json_api->query->cookie) {
-			$json_api->error("You must include a 'cookie' var in your request. Use the `generate_auth_cookie` Auth API method.");
-		}
-		$user_id = wp_validate_auth_cookie($json_api->query->cookie, 'logged_in');
-		if (!$user_id) {
-			$json_api->error("Invalid authentication cookie. Use the `generate_auth_cookie` Auth API method.");
-		}
-		$user = get_userdata($user_id);
-		preg_match('|src="(.+?)"|', get_avatar( $user->ID, 32 ), $avatar);
-		return array(
-			"user" => array(
-				"id" => $user->ID,
-				"username" => $user->user_login,
-				"nicename" => $user->user_nicename,
-				"email" => $user->user_email,
-				"url" => $user->user_url,
-				"registered" => $user->user_registered,
-				"displayname" => $user->display_name,
-				"firstname" => $user->user_firstname,
-				"lastname" => $user->last_name,
-				"nickname" => $user->nickname,
-				"description" => $user->user_description,
+    public function get_currentuserinfo()
+    {
+        global $json_api;
+        if (!$json_api->query->cookie) {
+            $json_api->error("You must include a 'cookie' var in your request. Use the `generate_auth_cookie` Auth API method.");
+        }
+        $user_id = wp_validate_auth_cookie($json_api->query->cookie, 'logged_in');
+        if (!$user_id) {
+            $json_api->error("Invalid authentication cookie. Use the `generate_auth_cookie` Auth API method.");
+        }
+        $user = get_userdata($user_id);
+        preg_match('|src="(.+?)"|', get_avatar($user->ID, 32), $avatar);
+        return array(
+            "user" => array(
+                "id" => $user->ID,
+                "username" => $user->user_login,
+                "nicename" => $user->user_nicename,
+                "email" => $user->user_email,
+                "url" => $user->user_url,
+                "registered" => $user->user_registered,
+                "displayname" => $user->display_name,
+                "firstname" => $user->user_firstname,
+                "lastname" => $user->last_name,
+                "nickname" => $user->nickname,
+                "description" => $user->user_description,
                 "capabilities" => $user->wp_capabilities,
                 "role" => $user->roles,
-				"avatar" => $avatar[1]
-			)
-		);
+                "avatar" => $avatar[1]
+            )
+        );
     }
-    
+
     /**
      * Get Point Reward by User ID
      *
      * @return void
      */
-    function get_points(){       
+    function get_points()
+    {
         global $wc_points_rewards;
         global $json_api;
-        $user_id = (int) $_GET['user_id'];
-        $current_page = (int) $_GET['page'];
-       
-		$points_balance = WC_Points_Rewards_Manager::get_users_points( $user_id );
-		$points_label   = $wc_points_rewards->get_points_label( $points_balance );
-		$count        = apply_filters( 'wc_points_rewards_my_account_points_events', 5, $user_id );
-		$current_page = empty( $current_page ) ? 1 : absint( $current_page );
-        
-		$args = array(
-			'calc_found_rows' => true,
-			'orderby' => array(
-				'field' => 'date',
-				'order' => 'DESC',
-			),
-			'per_page' => $count,
-			'paged'    => $current_page,
-			'user'     => $user_id,
+        $user_id = (int)$_GET['user_id'];
+        $current_page = (int)$_GET['page'];
+
+        $points_balance = WC_Points_Rewards_Manager::get_users_points($user_id);
+        $points_label = $wc_points_rewards->get_points_label($points_balance);
+        $count = apply_filters('wc_points_rewards_my_account_points_events', 5, $user_id);
+        $current_page = empty($current_page) ? 1 : absint($current_page);
+
+        $args = array(
+            'calc_found_rows' => true,
+            'orderby' => array(
+                'field' => 'date',
+                'order' => 'DESC',
+            ),
+            'per_page' => $count,
+            'paged' => $current_page,
+            'user' => $user_id,
         );
         $total_rows = WC_Points_Rewards_Points_Log::$found_rows;
-		$events = WC_Points_Rewards_Points_Log::get_points_log_entries( $args );
-        
+        $events = WC_Points_Rewards_Points_Log::get_points_log_entries($args);
+
         return array(
             'points_balance' => $points_balance,
-            'points_label'   => $points_label,
-            'total_rows'     => $total_rows,
-            'page'   => $current_page,
-            'count'          => $count,
-            'events'         => $events
+            'points_label' => $points_label,
+            'total_rows' => $total_rows,
+            'page' => $current_page,
+            'count' => $count,
+            'events' => $events
         );
-    }  
+    }
 }

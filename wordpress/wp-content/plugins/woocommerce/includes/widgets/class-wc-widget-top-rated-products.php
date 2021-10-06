@@ -3,7 +3,7 @@
  * Top Rated Products Widget.
  * Gets and displays top rated products in an unordered list.
  *
- * @package WooCommerce/Widgets
+ * @package WooCommerce\Widgets
  * @version 3.3.0
  */
 
@@ -21,7 +21,7 @@ class WC_Widget_Top_Rated_Products extends WC_Widget {
 		$this->widget_cssclass    = 'woocommerce widget_top_rated_products';
 		$this->widget_description = __( "A list of your store's top-rated products.", 'woocommerce' );
 		$this->widget_id          = 'woocommerce_top_rated_products';
-		$this->widget_name        = __( 'Products by Rating', 'woocommerce' );
+		$this->widget_name        = __( 'Products by Rating list', 'woocommerce' );
 		$this->settings           = array(
 			'title'  => array(
 				'type'  => 'text',

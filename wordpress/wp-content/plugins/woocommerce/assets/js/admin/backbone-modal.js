@@ -72,7 +72,7 @@
 			_.bindAll( this, 'render' );
 			this.render();
 
-			$( window ).resize(function() {
+			$( window ).on( 'resize', function() {
 				view.resizeContent();
 			});
 		},
@@ -88,7 +88,7 @@
 			}).append( this.$el );
 
 			this.resizeContent();
-			this.$( '.wc-backbone-modal-content' ).attr( 'tabindex' , '0' ).focus();
+			this.$( '.wc-backbone-modal-content' ).attr( 'tabindex' , '0' ).trigger( 'focus' );
 
 			$( document.body ).trigger( 'init_tooltips' );
 
@@ -130,7 +130,10 @@
 			var button = e.keyCode || e.which;
 
 			// Enter key
-			if ( 13 === button && ! ( e.target.tagName && ( e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea' ) ) ) {
+			if (
+				13 === button &&
+				! ( e.target.tagName && ( e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea' ) )
+			) {
 				this.addButton( e );
 			}
 

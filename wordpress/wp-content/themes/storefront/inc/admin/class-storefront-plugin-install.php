@@ -67,8 +67,8 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 					if ( '' !== $activated ) {
 						$button['message'] = esc_attr( $activated );
 					}
-				} elseif ( self::_is_plugin_installed( $plugin_slug ) ) {
-					$url = self::_is_plugin_installed( $plugin_slug );
+				} elseif ( self::is_plugin_installed( $plugin_slug ) ) {
+					$url = self::is_plugin_installed( $plugin_slug );
 
 					// The plugin exists but isn't activated yet.
 					$button = array(
@@ -87,8 +87,10 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 							array(
 								'action' => 'install-plugin',
 								'plugin' => $plugin_slug,
-							), self_admin_url( 'update.php' )
-						), 'install-plugin_' . $plugin_slug
+							),
+							self_admin_url( 'update.php' )
+						),
+						'install-plugin_' . $plugin_slug
 					);
 					$button = array(
 						'message' => esc_attr__( 'Install now', 'storefront' ),
@@ -109,9 +111,9 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 
 				?>
 				<span class="plugin-card-<?php echo esc_attr( $plugin_slug ); ?>">
-					<a href="<?php echo esc_url( $button['url'] ); ?>" class="<?php echo esc_attr( $button['classes'] ); ?>" data-originaltext="<?php echo esc_attr( $button['message'] ); ?>" data-name="<?php echo esc_attr( $plugin_name ); ?>" data-slug="<?php echo esc_attr( $plugin_slug ); ?>" aria-label="<?php echo esc_attr( $button['message'] ); ?>"><?php echo esc_attr( $button['message'] ); ?></a>
-				</span> <?php echo esc_html( _x( 'or', 'Translators: conjunction of two alternative options user can choose (in missing plugin admin notice). Example: "Activate WooCommerce or learn more"', 'storefront' ) ); ?>
-				<a href="https://wordpress.org/plugins/<?php echo esc_attr( $plugin_slug ); ?>" target="_blank"><?php esc_attr_e( 'learn more', 'storefront' ); ?></a>
+					<a href="<?php echo esc_url( $button['url'] ); ?>" class="<?php echo esc_attr( $button['classes'] ); ?>" data-originaltext="<?php echo esc_attr( $button['message'] ); ?>" data-name="<?php echo esc_attr( $plugin_name ); ?>" data-slug="<?php echo esc_attr( $plugin_slug ); ?>" aria-label="<?php echo esc_attr( $button['message'] ); ?>"><?php echo esc_html( $button['message'] ); ?></a>
+				</span> <?php echo /* translators: conjunction of two alternative options user can choose (in missing plugin admin notice). Example: "Activate WooCommerce or learn more" */ esc_html__( 'or', 'storefront' ); ?>
+				<a href="https://wordpress.org/plugins/<?php echo esc_attr( $plugin_slug ); ?>" target="_blank"><?php esc_html_e( 'learn more', 'storefront' ); ?></a>
 				<?php
 			}
 		}
@@ -121,7 +123,7 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 		 *
 		 * @param string $plugin_slug The plugin slug.
 		 */
-		private static function _is_plugin_installed( $plugin_slug ) {
+		private static function is_plugin_installed( $plugin_slug ) {
 			if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_slug ) ) {
 				$plugins = get_plugins( '/' . $plugin_slug );
 				if ( ! empty( $plugins ) ) {
@@ -132,8 +134,10 @@ if ( ! class_exists( 'Storefront_Plugin_Install' ) ) :
 							array(
 								'action' => 'activate',
 								'plugin' => $plugin_file,
-							), admin_url( 'plugins.php' )
-						), 'activate-plugin_' . $plugin_file
+							),
+							admin_url( 'plugins.php' )
+						),
+						'activate-plugin_' . $plugin_file
 					);
 					return $url;
 				}

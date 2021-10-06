@@ -43,8 +43,8 @@ class SelfTest
         /*
         $result = [];
         $result[] = '# Redirection tests';
-        $modRewriteWorking = CapabilityTest::modRewriteWorking();
-        $modHeaderWorking = CapabilityTest::modHeaderWorking();
+        $modRewriteWorking = HTAccessCapabilityTestRunner::modRewriteWorking();
+        $modHeaderWorking = HTAccessCapabilityTestRunner::modHeaderWorking();
 
         if (($modRewriteWorking === false) && ($modHeaderWorking)) {
             //$result[] = 'mod_rewrite is not working';
@@ -80,7 +80,7 @@ class SelfTest
     public static function processAjax()
     {
         if (!check_ajax_referer('webpexpress-ajax-self-test-nonce', 'nonce', false)) {
-            wp_send_json_error('Invalid security nonce (it has probably expired - try refreshing)');
+            wp_send_json_error('The security nonce has expired. You need to reload the settings page (press F5) and try again)');
             wp_die();
         }
 

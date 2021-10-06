@@ -1,14 +1,13 @@
 <?php
-/**
- * Returns information about the package and handles init.
- *
- * @package WooCommerce/Blocks
- */
-
 namespace Automattic\WooCommerce\Blocks\Domain;
+
+use Automattic\WooCommerce\Blocks\Package as NewPackage;
+use Automattic\WooCommerce\Blocks\Domain\Services\FeatureGating;
 
 /**
  * Main package class.
+ *
+ * Returns information about the package and handles init.
  *
  * @since 2.5.0
  */
@@ -29,14 +28,23 @@ class Package {
 	private $path;
 
 	/**
+	 * Holds the feature gating class instance.
+	 *
+	 * @var FeatureGating
+	 */
+	private $feature_gating;
+
+	/**
 	 * Constructor
 	 *
-	 * @param string $version      Version of the plugin.
-	 * @param string $plugin_path  Path to the main plugin file.
+	 * @param string        $version        Version of the plugin.
+	 * @param string        $plugin_path    Path to the main plugin file.
+	 * @param FeatureGating $feature_gating Feature gating class instance.
 	 */
-	public function __construct( $version, $plugin_path ) {
-		$this->version = $version;
-		$this->path    = $plugin_path;
+	public function __construct( $version, $plugin_path, FeatureGating $feature_gating ) {
+		$this->version        = $version;
+		$this->path           = $plugin_path;
+		$this->feature_gating = $feature_gating;
 	}
 
 	/**
@@ -71,5 +79,32 @@ class Package {
 	public function get_url( $relative_url = '' ) {
 		// Append index.php so WP does not return the parent directory.
 		return plugin_dir_url( $this->path . '/index.php' ) . $relative_url;
+	}
+
+	/**
+	 * Returns an instance of the the FeatureGating class.
+	 *
+	 * @return FeatureGating
+	 */
+	public function feature() {
+		return $this->feature_gating;
+	}
+
+	/**
+	 * Checks if we're executing the code in an experimental build mode.
+	 *
+	 * @return boolean
+	 */
+	public function is_experimental_build() {
+		return $this->feature()->is_experimental_build();
+	}
+
+	/**
+	 * Checks if we're executing the code in an feature plugin or experimental build mode.
+	 *
+	 * @return boolean
+	 */
+	public function is_feature_plugin_build() {
+		return $this->feature()->is_feature_plugin_build();
 	}
 }

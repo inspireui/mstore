@@ -33,13 +33,9 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 			add_action( 'after_setup_theme', array( $this, 'remove_default_widgets' ) );
 			add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
 			add_filter( 'the_title', array( $this, 'filter_auto_draft_title' ), 10, 2 );
+			add_action( 'customize_preview_init', array( $this, 'update_homepage_content' ), 10 );
 
-			if ( version_compare( get_bloginfo( 'version' ), '5.2', '>=' ) &&
-			( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '3.6.0', '>=' ) ) ) {
-				add_action( 'customize_preview_init', array( $this, 'update_homepage_content' ), 10 );
-			}
-
-			if ( ! isset( $_GET['sf_starter_content'] ) || 1 !== absint( $_GET['sf_starter_content'] ) ) { // WPCS: input var ok.
+			if ( ! isset( $_GET['sf_starter_content'] ) || 1 !== absint( $_GET['sf_starter_content'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				add_filter( 'storefront_starter_content', '__return_empty_array' );
 			}
 		}
@@ -66,6 +62,10 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		public function starter_content() {
 			$starter_content = array(
 				'posts'       => array(
+					'home'    => array(
+						'post_title' => esc_attr__( 'Homepage', 'storefront' ),
+						'template'   => 'template-fullwidth.php',
+					),
 					'about'   => array(
 						'post_type'    => 'page',
 						'post_title'   => __( 'About', 'storefront' ),
@@ -201,31 +201,8 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				),
 			);
 
-			// Add homepage.
-			if ( version_compare( get_bloginfo( 'version' ), '5.2', '>=' ) &&
-			   ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '3.6.0', '>=' ) ) ) {
-				$homepage_content = array(
-					'post_title' => esc_attr__( 'Homepage', 'storefront' ),
-					'template'   => 'template-fullwidth.php',
-				);
-			} else {
-				$homepage_content = array(
-					'post_title'   => esc_attr__( 'Welcome', 'storefront' ),
-					/* translators: %s: 'End Of Line' symbol */
-					'post_content' => sprintf( esc_attr__( 'This is your homepage which is what most visitors will see when they first visit your shop.%sYou can change this text by editing the "Welcome" page via the "Pages" menu in your dashboard.', 'storefront' ), PHP_EOL . PHP_EOL ),
-					'template'     => 'template-homepage.php',
-					'thumbnail'    => '{{hero-image}}',
-				);
-			}
-
-			$homepage = array(
-				'home' => $homepage_content,
-			);
-
-			$starter_content['posts'] = array_merge( $starter_content['posts'], $homepage );
-
 			// Add products.
-			$starter_content_wc_products = $this->_starter_content_products();
+			$starter_content_wc_products = $this->starter_content_products();
 
 			if ( ! empty( $starter_content_wc_products ) ) {
 				$starter_content['posts'] = array_merge( $starter_content['posts'], $starter_content_wc_products );
@@ -269,7 +246,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @return array $content
 		 */
 		public function filter_start_content( $content, $config ) {
-			if ( ! isset( $_GET['sf_starter_content'] ) || 1 !== absint( $_GET['sf_starter_content'] ) ) { // WPCS: input var ok.
+			if ( ! isset( $_GET['sf_starter_content'] ) || 1 !== absint( $_GET['sf_starter_content'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				return $content;
 			}
 
@@ -283,11 +260,11 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 			// Remove some of the content if necessary.
 			$tasks = array();
 
-			if ( isset( $_GET['sf_tasks'] ) && '' !== sanitize_text_field( wp_unslash( $_GET['sf_tasks'] ) ) ) { // WPCS: input var ok.
-				$tasks = explode( ',', sanitize_text_field( wp_unslash( $_GET['sf_tasks'] ) ) ); // WPCS: input var ok.
+			if ( isset( $_GET['sf_tasks'] ) && '' !== sanitize_text_field( wp_unslash( $_GET['sf_tasks'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$tasks = explode( ',', sanitize_text_field( wp_unslash( $_GET['sf_tasks'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
 
-			$tasks = $this->_validate_tasks( $tasks );
+			$tasks = $this->validate_tasks( $tasks );
 
 			foreach ( $tasks as $task ) {
 				switch ( $task ) {
@@ -354,14 +331,14 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 			$post__in = array();
 
 			// Add existing products.
-			$existing_products = $this->_get_existing_wc_products();
+			$existing_products = $this->get_existing_wc_products();
 
 			if ( ! empty( $existing_products ) ) {
 				$post__in = array_merge( $post__in, $existing_products );
 			}
 
 			// Add starter content.
-			$created_products = $this->_get_created_starter_content_products();
+			$created_products = $this->get_created_starter_content_products();
 
 			if ( false !== $created_products ) {
 
@@ -399,14 +376,14 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 			$query_args['post__in'] = array();
 
 			// Add existing products to query.
-			$existing_products = $this->_get_existing_wc_products();
+			$existing_products = $this->get_existing_wc_products();
 
 			if ( ! empty( $existing_products ) ) {
 				$query_args['post__in'] = array_merge( $query_args['post__in'], $existing_products );
 			}
 
 			// Add starter content to query.
-			$created_products = $this->_get_created_starter_content_products();
+			$created_products = $this->get_created_starter_content_products();
 
 			if ( false !== $created_products ) {
 
@@ -442,7 +419,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 					'hoodie-with-pocket',
 				);
 
-				$products = $this->_query_starter_content( 'product', $onsale, true );
+				$products = $this->query_starter_content( 'product', $onsale, true );
 
 				if ( ! empty( $products ) ) {
 					$query_args['post__in'] = $products;
@@ -466,7 +443,8 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 
 			// Get empty categories.
 			$categories = get_terms(
-				'product_cat', array(
+				'product_cat',
+				array(
 					'hide_empty' => false,
 				)
 			);
@@ -490,13 +468,13 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				return;
 			}
 
-			$created_products = $this->_get_created_starter_content_products();
+			$created_products = $this->get_created_starter_content_products();
 
 			if ( false === $created_products ) {
 				return;
 			}
 
-			$starter_products = $this->_starter_content_products();
+			$starter_products = $this->starter_content_products();
 
 			if ( is_array( $created_products ) ) {
 				foreach ( $created_products as $product ) {
@@ -544,7 +522,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 									if ( ! is_wp_error( $created_category ) ) {
 										$category_ids[] = $created_category['term_id'];
 
-										$category_image = $this->_get_category_image_attachment_id( $category['slug'] );
+										$category_image = $this->get_category_image_attachment_id( $category['slug'] );
 
 										if ( $category_image ) {
 											update_term_meta( (int) $created_category['term_id'], 'thumbnail_id', $category_image );
@@ -573,13 +551,13 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				return;
 			}
 
-			$created_products = $this->_get_created_starter_content_products();
+			$created_products = $this->get_created_starter_content_products();
 
 			if ( false === $created_products ) {
 				return;
 			}
 
-			$starter_products = $this->_starter_content_products();
+			$starter_products = $this->starter_content_products();
 
 			if ( is_array( $created_products ) ) {
 				foreach ( $created_products as $product ) {
@@ -642,7 +620,8 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		public function filter_sf_categories( $args ) {
 			// Get Categories.
 			$product_cats = get_terms(
-				'product_cat', array(
+				'product_cat',
+				array(
 					'fields'     => 'ids',
 					'hide_empty' => false,
 				)
@@ -654,7 +633,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				$args['hide_empty'] = false;
 
 				// List of categories to display.
-				$args['ids'] = implode( $product_cats, ',' );
+				$args['ids'] = implode( ',', $product_cats );
 			}
 
 			return $args;
@@ -673,7 +652,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 			if ( 'publish' === $new_status && 'auto-draft' === $old_status && in_array( $post->post_type, array( 'product' ), true ) ) {
 				$post_name = get_post_meta( $post->ID, '_customize_draft_post_name', true );
 
-				$starter_products = $this->_starter_content_products();
+				$starter_products = $this->starter_content_products();
 
 				if ( $post_name && array_key_exists( $post_name, $starter_products ) ) {
 					$update_product = array(
@@ -704,7 +683,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 			if ( $post && 'auto-draft' === $post->post_status && in_array( $post->post_type, array( 'product' ), true ) && 'AUTO-DRAFT' === $post->post_title ) {
 				$post_name = get_post_meta( $post->ID, '_customize_draft_post_name', true );
 
-				$starter_products = $this->_starter_content_products();
+				$starter_products = $this->starter_content_products();
 
 				if ( $post_name && array_key_exists( $post_name, $starter_products ) ) {
 					return $starter_products[ $post_name ]['post_title'];
@@ -719,7 +698,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 *
 		 * @since 2.2.0
 		 */
-		private function _starter_content_products() {
+		private function starter_content_products() {
 			$accessories_name        = esc_attr__( 'Accessories', 'storefront' );
 			$accessories_description = esc_attr__( 'A short category description', 'storefront' );
 
@@ -1004,7 +983,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @since 2.5.0
 		 */
 		public function update_homepage_content() {
-			$homepage = $this->_query_starter_content( 'page', 'homepage', true );
+			$homepage = $this->query_starter_content( 'page', 'homepage', true );
 
 			if ( empty( $homepage ) ) {
 				return;
@@ -1012,7 +991,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 
 			$homepage = $homepage[0];
 
-			$content = $this->_replace_homepage_blocks_symbols();
+			$content = $this->replace_homepage_blocks_symbols();
 
 			if ( ! empty( $content ) ) {
 
@@ -1032,7 +1011,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @since 2.5.0
 		 * @return string $content Homepage content.
 		 */
-		private function _homepage_blocks_content() {
+		private function homepage_blocks_content() {
 			$content = '
 				{{cover}}
 
@@ -1048,9 +1027,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				<h2 style="text-align:center">' . __( 'New In', 'storefront' ) . '</h2>
 				<!-- /wp:heading -->
 
-				<!-- wp:woocommerce/product-new {"columns":4} -->
-				<div class="wp-block-woocommerce-product-new">[products limit="4" columns="4" orderby="date" order="DESC"]</div>
-				<!-- /wp:woocommerce/product-new -->
+				<!-- wp:woocommerce/product-new {"columns":4} /-->
 
 				{{handpicked-products}}
 
@@ -1058,25 +1035,19 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				<h2 style="text-align:center">' . __( 'Fan Favorites', 'storefront' ) . '</h2>
 				<!-- /wp:heading -->
 
-				<!-- wp:woocommerce/product-top-rated {"columns":4} -->
-				<div class="wp-block-woocommerce-product-top-rated">[products limit="4" columns="4" orderby="rating"]</div>
-				<!-- /wp:woocommerce/product-top-rated -->
+				<!-- wp:woocommerce/product-top-rated {"columns":4} /-->
 
 				<!-- wp:heading {"align":"center"} -->
 				<h2 style="text-align:center">' . __( 'On Sale', 'storefront' ) . '</h2>
 				<!-- /wp:heading -->
 
-				<!-- wp:woocommerce/product-on-sale {"columns":4} -->
-				<div class="wp-block-woocommerce-product-on-sale">[products limit="4" columns="4" orderby="date" order="DESC" on_sale="1"]</div>
-				<!-- /wp:woocommerce/product-on-sale -->
+				<!-- wp:woocommerce/product-on-sale {"columns":4} /-->
 
 				<!-- wp:heading {"align":"center"} -->
 				<h2 style="text-align:center">' . __( 'Best Sellers', 'storefront' ) . '</h2>
 				<!-- /wp:heading -->
 
-				<!-- wp:woocommerce/product-best-sellers {"columns":4} -->
-				<div class="wp-block-woocommerce-product-best-sellers">[products limit="4" columns="4" best_selling="1"]</div>
-				<!-- /wp:woocommerce/product-best-sellers -->
+				<!-- wp:woocommerce/product-best-sellers {"columns":4} /-->
 			';
 
 			return trim( $content );
@@ -1088,11 +1059,11 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @since 2.5.0
 		 * @return string $content Homepage content.
 		 */
-		private function _replace_homepage_blocks_symbols() {
-			$content = $this->_homepage_blocks_content();
+		private function replace_homepage_blocks_symbols() {
+			$content = $this->homepage_blocks_content();
 
 			// Replace hero placeholders.
-			$hero = $this->_query_starter_content( 'attachment', 'hero-image', true );
+			$hero = $this->query_starter_content( 'attachment', 'hero-image', true );
 
 			if ( ! empty( $hero ) ) {
 				$cover = '
@@ -1127,7 +1098,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				'hoodie',
 			);
 
-			$products = $this->_query_starter_content( 'product', $featured, true );
+			$products = $this->query_starter_content( 'product', $featured, true );
 
 			if ( ! empty( $products ) ) {
 				$handpicked = '
@@ -1135,9 +1106,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 					<h2 style="text-align:center">' . __( 'We Recommend', 'storefront' ) . '</h2>
 					<!-- /wp:heading -->
 
-					<!-- wp:woocommerce/handpicked-products {"columns":4,"editMode":false,"products":[{{handpicked-products}}]} -->
-					<div class = "wp-block-woocommerce-handpicked-products">[products limit="4" columns="4" orderby="date" order="DESC" ids="{{handpicked-products}}"]</div>
-					<!-- /wp:woocommerce/handpicked-products -->
+					<!-- wp:woocommerce/handpicked-products {"columns":4,"editMode":false,"products":[{{handpicked-products}}]} /-->
 				';
 
 				$handpicked = str_replace( '{{handpicked-products}}', implode( ',', $products ), $handpicked );
@@ -1155,7 +1124,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @since 2.2.1
 		 * @return mixed false|array $query Array of post ids.
 		 */
-		private function _get_created_starter_content_products() {
+		private function get_created_starter_content_products() {
 			global $wp_customize;
 
 			$setting = $wp_customize->get_setting( 'nav_menus_created_posts' );
@@ -1177,7 +1146,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @since 2.2.0
 		 * @return array $query Array of product ids.
 		 */
-		private function _get_existing_wc_products() {
+		private function get_existing_wc_products() {
 			$query_args = array(
 				'post_type'      => 'product',
 				'post_status'    => 'publish',
@@ -1203,11 +1172,12 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @param bool               $ids Whether to return just the ids or the whole post object.
 		 * @return mixed false|int $query Query results.
 		 */
-		private function _query_starter_content( $post_type, $draft_slugs, $ids = false ) {
+		private function query_starter_content( $post_type, $draft_slugs, $ids = false ) {
 			$query_args = array(
 				'post_type'      => $post_type,
 				'post_status'    => 'auto-draft',
 				'posts_per_page' => -1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				'meta_query'     => array(
 					array(
 						'key'     => '_customize_draft_post_name',
@@ -1217,7 +1187,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 				),
 			);
 
-			$created_products = $this->_get_created_starter_content_products();
+			$created_products = $this->get_created_starter_content_products();
 
 			if ( false !== $created_products ) {
 				$query_args['post__in'] = $created_products;
@@ -1243,8 +1213,8 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @param string $category Category.
 		 * @return mixed false|int $query first attachment found.
 		 */
-		private function _get_category_image_attachment_id( $category ) {
-			$attachment = $this->_query_starter_content( 'attachment', $category . '-image', true );
+		private function get_category_image_attachment_id( $category ) {
+			$attachment = $this->query_starter_content( 'attachment', $category . '-image', true );
 
 			if ( ! empty( $attachment ) ) {
 				return $attachment[0];
@@ -1260,7 +1230,7 @@ if ( ! class_exists( 'Storefront_NUX_Starter_Content' ) ) :
 		 * @param string $tasks The tasks.
 		 * @return mixed false|array $validated_tasks if tasks list is not empty.
 		 */
-		private function _validate_tasks( $tasks ) {
+		private function validate_tasks( $tasks ) {
 			$valid_tasks = apply_filters( 'storefront_valid_tour_tasks', array( 'homepage', 'products' ) );
 
 			$validated_tasks = array();

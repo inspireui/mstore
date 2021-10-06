@@ -3,11 +3,11 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use \WebPExpress\CacheMover;
-use \WebPExpress\CapabilityTest;
 use \WebPExpress\Config;
 use \WebPExpress\ConvertersHelper;
 use \WebPExpress\DismissableMessages;
 use \WebPExpress\HTAccess;
+use \WebPExpress\HTAccessRules;
 use \WebPExpress\Messenger;
 use \WebPExpress\PathHelper;
 use \WebPExpress\Paths;
@@ -369,6 +369,7 @@ $sanitized = [
     ]),
     'cache-control-max-age' => webpexpress_getSanitizedChooseFromSet('cache-control-max-age', 'one-hour', [
         'one-second',
+        'one-minute',
         'one-hour',
         'one-day',
         'one-week',
@@ -424,7 +425,7 @@ $sanitized = [
         'lossless',
         'auto'
     ]),
-    'alpha-quality' => webpexpress_getSanitizedQuality('png-quality', 80),
+    'alpha-quality' => webpexpress_getSanitizedQuality('alpha-quality', 80),
     'convert-on-upload' => isset($_POST['convert-on-upload']),
     'converters' => webpexpress_getSanitizedConverters(),
 
@@ -491,23 +492,19 @@ $config = array_merge($config, [
     'forward-query-string' => true,
 ]);
 
-// Set options that are available in all operation modes, except the "CDN friendly" mode
-if ($sanitized['operation-mode'] != 'cdn-friendly') {
-    $config['cache-control'] = $sanitized['cache-control'];
-    switch ($sanitized['cache-control']) {
-        case 'no-header':
-            break;
-        case 'set':
-            $config['cache-control-max-age'] =  $sanitized['cache-control-max-age'];
-            $config['cache-control-public'] = ($sanitized['cache-control-public'] == 'public');
-            break;
-        case 'custom':
-            $config['cache-control-custom'] = $sanitized['cache-control-custom'];
-            break;
-    }
-}
-
 // Set options that are available in ALL operation modes
+$config['cache-control'] = $sanitized['cache-control'];
+switch ($sanitized['cache-control']) {
+    case 'no-header':
+        break;
+    case 'set':
+        $config['cache-control-max-age'] =  $sanitized['cache-control-max-age'];
+        $config['cache-control-public'] = ($sanitized['cache-control-public'] == 'public');
+        break;
+    case 'custom':
+        $config['cache-control-custom'] = $sanitized['cache-control-custom'];
+        break;
+}
 
 // Alter HTML
 $config['alter-html'] = [];
@@ -684,8 +681,9 @@ if ($sanitized['operation-mode'] != $sanitized['change-operation-mode']) {
     }
 }
 
-// If we are going to save .htaccess, run and store capability tests first (we should only store results when .htaccess is updated as well)
-if ($sanitized['force'] || HTAccess::doesRewriteRulesNeedUpdate($config)) {
+// If we are going to save .htaccess, run and store capability tests first
+// (we should only store results when .htaccess is updated as well)
+if ($sanitized['force'] || HTAccessRules::doesRewriteRulesNeedUpdate($config)) {
     Config::runAndStoreCapabilityTests($config);
 }
 

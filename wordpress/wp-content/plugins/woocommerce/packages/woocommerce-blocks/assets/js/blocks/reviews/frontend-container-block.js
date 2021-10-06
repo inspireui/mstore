@@ -51,6 +51,7 @@ class FrontendContainerBlock extends Component {
 	onReviewsAppended( { newReviews } ) {
 		speak(
 			sprintf(
+				/* translators: %d is the count of reviews loaded. */
 				_n(
 					'%d review loaded.',
 					'%d reviews loaded.',

@@ -1,168 +1,123 @@
 /**
  * External dependencies
  */
-import { Component } from '@wordpress/element';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import PropTypes from 'prop-types';
-import { debounce } from 'lodash';
-import { getAttributes, getTerms } from '@woocommerce/block-components/utils';
+import { useState, useEffect } from '@wordpress/element';
+import { getAttributes, getTerms } from '@woocommerce/editor-components/utils';
 
 /**
  * Internal dependencies
  */
 import { formatError } from '../base/utils/errors.js';
 
-const withAttributes = createHigherOrderComponent( ( OriginalComponent ) => {
-	class WrappedComponent extends Component {
-		constructor() {
-			super( ...arguments );
-			this.state = {
-				attributes: [],
-				error: null,
-				expandedAttribute: null,
-				loading: false,
-				termsList: {},
-				termsLoading: false,
-			};
+/**
+ * Get attribute data (name, taxonomy etc) from server data.
+ *
+ * @param {number} attributeId Attribute ID to look for.
+ * @param {Array|null} attributeList List of attributes.
+ * @param {string} matchField Field to match on. e.g. id or slug.
+ */
+const getAttributeData = ( attributeId, attributeList, matchField = 'id' ) => {
+	return Array.isArray( attributeList )
+		? attributeList.find( ( attr ) => attr[ matchField ] === attributeId )
+		: null;
+};
 
-			this.loadAttributes = this.loadAttributes.bind( this );
-			this.onExpandAttribute = this.onExpandAttribute.bind( this );
-			this.debouncedLoadTerms = debounce(
-				this.loadTerms.bind( this ),
-				200
-			);
-		}
+/**
+ * HOC that calls the useAttributes hook.
+ *
+ * @param {Function} OriginalComponent Component being wrapped.
+ */
+const withAttributes = ( OriginalComponent ) => {
+	return ( props ) => {
+		const { selected = [] } = props;
+		const selectedSlug = selected.length ? selected[ 0 ].attr_slug : null;
+		const [ attributes, setAttributes ] = useState( null );
+		const [ expandedAttribute, setExpandedAttribute ] = useState( 0 );
+		const [ termsList, setTermsList ] = useState( {} );
+		const [ loading, setLoading ] = useState( true );
+		const [ termsLoading, setTermsLoading ] = useState( false );
+		const [ error, setError ] = useState( null );
 
-		componentDidMount() {
-			this.loadAttributes();
-		}
+		useEffect( () => {
+			if ( attributes === null ) {
+				getAttributes()
+					.then( ( newAttributes ) => {
+						newAttributes = newAttributes.map( ( attribute ) => ( {
+							...attribute,
+							parent: 0,
+						} ) );
 
-		componentWillUnmount() {
-			this.debouncedLoadTerms.cancel();
-		}
+						setAttributes( newAttributes );
 
-		componentDidUpdate( prevProps, prevState ) {
-			if (
-				prevState.expandedAttribute !== this.state.expandedAttribute
-			) {
-				this.debouncedLoadTerms();
-			}
-		}
+						if ( selectedSlug ) {
+							const selectedAttributeFromTerm = getAttributeData(
+								selectedSlug,
+								newAttributes,
+								'taxonomy'
+							);
 
-		loadAttributes() {
-			const { selected } = this.props;
-			const { expandedAttribute } = this.state;
-			this.setState( { loading: true } );
-
-			getAttributes()
-				.then( ( attributes ) => {
-					attributes = attributes.map( ( item ) => ( {
-						...item,
-						parent: 0,
-					} ) );
-					let newExpandedAttribute = expandedAttribute;
-					if ( ! expandedAttribute && selected.length > 0 ) {
-						const attr = attributes.find(
-							( item ) => item.slug === selected[ 0 ].attr_slug
-						);
-						if ( attr ) {
-							newExpandedAttribute = attr.id;
+							if ( selectedAttributeFromTerm ) {
+								setExpandedAttribute(
+									selectedAttributeFromTerm.id
+								);
+							}
 						}
-					}
-					this.setState( {
-						attributes,
-						expandedAttribute: newExpandedAttribute,
-						loading: false,
-						error: null,
+					} )
+					.catch( async ( e ) => {
+						setError( await formatError( e ) );
+					} )
+					.finally( () => {
+						setLoading( false );
 					} );
-				} )
-				.catch( async ( e ) => {
-					const error = await formatError( e );
+			}
+		}, [ attributes, selectedSlug ] );
 
-					this.setState( {
-						attributes: [],
-						expandedAttribute: null,
-						loading: false,
-						error,
-					} );
-				} );
-		}
+		useEffect( () => {
+			const attributeData = getAttributeData(
+				expandedAttribute,
+				attributes
+			);
 
-		loadTerms() {
-			const { expandedAttribute, termsList } = this.state;
-			if ( ! expandedAttribute ) {
+			if ( ! attributeData ) {
 				return;
 			}
-			if ( ! termsList[ expandedAttribute ] ) {
-				this.setState( { termsLoading: true } );
-			}
+
+			setTermsLoading( true );
 
 			getTerms( expandedAttribute )
-				.then( ( terms ) => {
-					terms = terms.map( ( term ) => ( {
+				.then( ( newTerms ) => {
+					newTerms = newTerms.map( ( term ) => ( {
 						...term,
 						parent: expandedAttribute,
-						attr_slug: term.attribute.slug,
+						attr_slug: attributeData.taxonomy,
 					} ) );
-					this.setState( ( prevState ) => ( {
-						termsList: {
-							...prevState.termsList,
-							[ expandedAttribute ]: terms,
-						},
-						termsLoading: false,
+
+					setTermsList( ( previousTermsList ) => ( {
+						...previousTermsList,
+						[ expandedAttribute ]: newTerms,
 					} ) );
 				} )
 				.catch( async ( e ) => {
-					const error = await formatError( e );
-
-					this.setState( {
-						termsList: {},
-						termsLoading: false,
-						error,
-					} );
+					setError( await formatError( e ) );
+				} )
+				.finally( () => {
+					setTermsLoading( false );
 				} );
-		}
+		}, [ expandedAttribute, attributes ] );
 
-		onExpandAttribute( attributeId ) {
-			const { expandedAttribute } = this.state;
-
-			this.setState( {
-				expandedAttribute:
-					attributeId === expandedAttribute ? null : attributeId,
-			} );
-		}
-
-		render() {
-			const {
-				error,
-				expandedAttribute,
-				loading,
-				attributes,
-				termsList,
-				termsLoading,
-			} = this.state;
-
-			return (
-				<OriginalComponent
-					{ ...this.props }
-					attributes={ attributes }
-					error={ error }
-					expandedAttribute={ expandedAttribute }
-					onExpandAttribute={ this.onExpandAttribute }
-					isLoading={ loading }
-					termsAreLoading={ termsLoading }
-					termsList={ termsList }
-				/>
-			);
-		}
-	}
-	WrappedComponent.propTypes = {
-		selected: PropTypes.array,
+		return (
+			<OriginalComponent
+				{ ...props }
+				attributes={ attributes || [] }
+				error={ error }
+				expandedAttribute={ expandedAttribute }
+				onExpandAttribute={ setExpandedAttribute }
+				isLoading={ loading }
+				termsAreLoading={ termsLoading }
+				termsList={ termsList }
+			/>
+		);
 	};
-	WrappedComponent.defaultProps = {
-		selected: [],
-	};
-	return WrappedComponent;
-}, 'withAttributes' );
+};
 
 export default withAttributes;

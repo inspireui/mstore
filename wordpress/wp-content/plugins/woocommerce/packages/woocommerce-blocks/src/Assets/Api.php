@@ -1,20 +1,22 @@
 <?php
-/**
- * Contains asset api methods
- *
- * @package WooCommerce/Blocks
- */
-
 namespace Automattic\WooCommerce\Blocks\Assets;
 
 use Automattic\WooCommerce\Blocks\Domain\Package;
-
+use Exception;
 /**
  * The Api class provides an interface to various asset registration helpers.
+ *
+ * Contains asset api methods
  *
  * @since 2.5.0
  */
 class Api {
+	/**
+	 * Stores inline scripts already enqueued.
+	 *
+	 * @var array
+	 */
+	private $inline_scripts = [];
 
 	/**
 	 * Reference to the Package instance
@@ -40,7 +42,7 @@ class Api {
 	 * @return string The cache buster value to use for the given file.
 	 */
 	protected function get_file_version( $file ) {
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG && file_exists( $this->package->get_path() . $file ) ) {
 			return filemtime( $this->package->get_path( trim( $file, '/' ) ) );
 		}
 		return $this->package->get_version();
@@ -59,92 +61,118 @@ class Api {
 	}
 
 	/**
-	 * Returns the dependency array for the given asset relative path.
+	 * Registers a script according to `wp_register_script`, adding the correct prefix, and additionally loading translations.
 	 *
-	 * @param string $asset_relative_path  Something like 'build/constants.js'
-	 *                                     considered to be relative to the main
-	 *                                     asset path.
-	 * @param array  $extra_dependencies   Extra dependencies to be explicitly
-	 *                                     added to the generated array.
-	 *
-	 * @return array  An array of dependencies
-	 */
-	protected function get_dependencies(
-		$asset_relative_path,
-		$extra_dependencies = []
-	) {
-		$dependency_path = $this->package->get_path(
-			str_replace( '.js', '.deps.json', $asset_relative_path )
-		);
-		// phpcs:ignore WordPress.WP.AlternativeFunctions
-		$dependencies = file_exists( $dependency_path )
-			// phpcs:ignore WordPress.WP.AlternativeFunctions
-			? json_decode( file_get_contents( $dependency_path ) )
-			: [];
-		return array_merge( $dependencies, $extra_dependencies );
-	}
-
-	/**
-	 * Registers a script according to `wp_register_script`, additionally
-	 * loading the translations for the file.
+	 * When creating script assets, the following rules should be followed:
+	 *   1. All asset handles should have a `wc-` prefix.
+	 *   2. If the asset handle is for a Block (in editor context) use the `-block` suffix.
+	 *   3. If the asset handle is for a Block (in frontend context) use the `-block-frontend` suffix.
+	 *   4. If the asset is for any other script being consumed or enqueued by the blocks plugin, use the `wc-blocks-` prefix.
 	 *
 	 * @since 2.5.0
+	 * @throws Exception If the registered script has a dependency on itself.
 	 *
-	 * @param string $handle        Name of the script. Should be unique.
-	 * @param string $relative_src  Relative url for the script to the path
-	 *                              from plugin root.
-	 * @param array  $deps          Optional. An array of registered script
-	 *                              handles this script depends on. Default
-	 *                              empty array.
-	 * @param bool   $has_i18n      Optional. Whether to add a script
-	 *                              translation call to this file. Default:
-	 *                              true.
+	 * @param string $handle        Unique name of the script.
+	 * @param string $relative_src  Relative url for the script to the path from plugin root.
+	 * @param array  $dependencies  Optional. An array of registered script handles this script depends on. Default empty array.
+	 * @param bool   $has_i18n      Optional. Whether to add a script translation call to this file. Default: true.
 	 */
-	public function register_script( $handle, $relative_src, $deps = [], $has_i18n = true ) {
-		wp_register_script(
-			$handle,
-			$this->get_asset_url( $relative_src ),
-			$this->get_dependencies( $relative_src, $deps ),
-			$this->get_file_version( $relative_src ),
-			true
-		);
-		if ( $has_i18n && function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations(
-				$handle,
-				'woocommerce',
-				$this->package->get_path( 'languages' )
+	public function register_script( $handle, $relative_src, $dependencies = [], $has_i18n = true ) {
+		$src     = '';
+		$version = '1';
+
+		if ( $relative_src ) {
+			$src        = $this->get_asset_url( $relative_src );
+			$asset_path = $this->package->get_path(
+				str_replace( '.js', '.asset.php', $relative_src )
 			);
-		}
-	}
 
-	/**
-	 * Queues a block script.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param string $name Name of the script used to identify the file inside build folder.
-	 */
-	public function register_block_script( $name ) {
-		$src    = 'build/' . $name . '.js';
-		$handle = 'wc-' . $name;
-		$this->register_script( $handle, $src );
-		wp_enqueue_script( $handle );
+			if ( file_exists( $asset_path ) ) {
+				$asset        = require $asset_path;
+				$dependencies = isset( $asset['dependencies'] ) ? array_merge( $asset['dependencies'], $dependencies ) : $dependencies;
+				$version      = ! empty( $asset['version'] ) ? $asset['version'] : $this->get_file_version( $relative_src );
+			} else {
+				$version = $this->get_file_version( $relative_src );
+			}
+		}
+
+		if ( in_array( $handle, $dependencies, true ) ) {
+			if ( $this->package->feature()->is_development_environment() ) {
+				$dependencies = array_diff( $dependencies, [ $handle ] );
+					add_action(
+						'admin_notices',
+						function() use ( $handle ) {
+								echo '<div class="error"><p>';
+								/* translators: %s file handle name. */
+								printf( esc_html__( 'Script with handle %s had a dependency on itself which has been removed. This is an indicator that your JS code has a circular dependency that can cause bugs.', 'woocommerce' ), esc_html( $handle ) );
+								echo '</p></div>';
+						}
+					);
+			} else {
+				throw new Exception( sprintf( 'Script with handle %s had a dependency on itself. This is an indicator that your JS code has a circular dependency that can cause bugs.', $handle ) );
+			}
+		}
+
+		wp_register_script( $handle, $src, apply_filters( 'woocommerce_blocks_register_script_dependencies', $dependencies, $handle ), $version, true );
+
+		if ( $has_i18n && function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( $handle, 'woocommerce', $this->package->get_path( 'languages' ) );
+		}
 	}
 
 	/**
 	 * Registers a style according to `wp_register_style`.
 	 *
 	 * @since 2.5.0
+	 * @since 2.6.0 Change src to be relative source.
 	 *
-	 * @param string $handle Name of the stylesheet. Should be unique.
-	 * @param string $src    Full URL of the stylesheet, or path of the stylesheet relative to the WordPress root directory.
-	 * @param array  $deps   Optional. An array of registered stylesheet handles this stylesheet depends on. Default empty array.
-	 * @param string $media  Optional. The media for which this stylesheet has been defined. Default 'all'. Accepts media types like
-	 *                       'all', 'print' and 'screen', or media queries like '(orientation: portrait)' and '(max-width: 640px)'.
+	 * @param string $handle       Name of the stylesheet. Should be unique.
+	 * @param string $relative_src Relative source of the stylesheet to the plugin path.
+	 * @param array  $deps         Optional. An array of registered stylesheet handles this stylesheet depends on. Default empty array.
+	 * @param string $media        Optional. The media for which this stylesheet has been defined. Default 'all'. Accepts media types like
+	 *                             'all', 'print' and 'screen', or media queries like '(orientation: portrait)' and '(max-width: 640px)'.
 	 */
-	public function register_style( $handle, $src, $deps = [], $media = 'all' ) {
-		$filename = str_replace( plugins_url( '/', __DIR__ ), '', $src );
+	public function register_style( $handle, $relative_src, $deps = [], $media = 'all' ) {
+		$filename = str_replace( plugins_url( '/', __DIR__ ), '', $relative_src );
+		$src      = $this->get_asset_url( $relative_src );
 		$ver      = $this->get_file_version( $filename );
 		wp_register_style( $handle, $src, $deps, $ver, $media );
+	}
+
+	/**
+	 * Returns the appropriate asset path for loading either legacy builds or
+	 * current builds.
+	 *
+	 * @param   string $filename  Filename for asset path (without extension).
+	 * @param   string $type      File type (.css or .js).
+	 *
+	 * @return  string             The generated path.
+	 */
+	public function get_block_asset_build_path( $filename, $type = 'js' ) {
+		global $wp_version;
+		$suffix = version_compare( $wp_version, '5.3', '>=' )
+			? ''
+			: '-legacy';
+		return "build/$filename$suffix.$type";
+	}
+
+	/**
+	 * Adds an inline script, once.
+	 *
+	 * @param string $handle Script handle.
+	 * @param string $script Script contents.
+	 */
+	public function add_inline_script( $handle, $script ) {
+		if ( ! empty( $this->inline_scripts[ $handle ] ) && in_array( $script, $this->inline_scripts[ $handle ], true ) ) {
+			return;
+		}
+
+		wp_add_inline_script( $handle, $script );
+
+		if ( isset( $this->inline_scripts[ $handle ] ) ) {
+			$this->inline_scripts[ $handle ][] = $script;
+		} else {
+			$this->inline_scripts[ $handle ] = array( $script );
+		}
 	}
 }

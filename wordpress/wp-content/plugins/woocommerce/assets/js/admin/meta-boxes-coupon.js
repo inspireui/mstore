@@ -12,7 +12,7 @@ jQuery(function( $ ) {
 		init: function() {
 			$( 'select#discount_type' )
 				.on( 'change', this.type_options )
-				.change();
+				.trigger( 'change' );
 
             this.insert_generate_coupon_code_button();
 			$( '.button.generate-coupon-code' ).on( 'click', this.generate_coupon_code );
@@ -61,7 +61,7 @@ jQuery(function( $ ) {
 				);
 			}
 			$result = woocommerce_admin_meta_boxes_coupon.prefix + $result + woocommerce_admin_meta_boxes_coupon.suffix;
-			$coupon_code_field.focus().val( $result );
+			$coupon_code_field.trigger( 'focus' ).val( $result );
 			$coupon_code_label.addClass( 'screen-reader-text' );
 		}
 	};

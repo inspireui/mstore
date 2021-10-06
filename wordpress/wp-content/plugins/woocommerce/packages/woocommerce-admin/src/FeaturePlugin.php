@@ -1,21 +1,28 @@
 <?php
 /**
  * WooCommerce Admin: Feature plugin main class.
- *
- * @package WooCommerce Admin
  */
 
 namespace Automattic\WooCommerce\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Facebook_Extension;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Historical_Data;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Order_Milestones;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Welcome_Message;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Woo_Subscriptions_Notes;
-use \Automattic\WooCommerce\Admin\Notes\WC_Admin_Notes_Tracking_Opt_In;
+use \Automattic\WooCommerce\Admin\Notes\LearnMoreAboutVariableProducts;
+use \Automattic\WooCommerce\Admin\Notes\Notes;
+use \Automattic\WooCommerce\Admin\Notes\OrderMilestones;
+use \Automattic\WooCommerce\Admin\Notes\WooSubscriptionsNotes;
+use \Automattic\WooCommerce\Admin\Notes\TrackingOptIn;
+use \Automattic\WooCommerce\Admin\Notes\WooCommercePayments;
+use \Automattic\WooCommerce\Admin\Notes\InstallJPAndWCSPlugins;
+use \Automattic\WooCommerce\Admin\Notes\DrawAttention;
+use \Automattic\WooCommerce\Admin\Notes\SetUpAdditionalPaymentTypes;
+use \Automattic\WooCommerce\Admin\Notes\TestCheckout;
+use \Automattic\WooCommerce\Admin\Notes\SellingOnlineCourses;
+use \Automattic\WooCommerce\Admin\Notes\MerchantEmailNotifications\MerchantEmailNotifications;
+use \Automattic\WooCommerce\Admin\Notes\WelcomeToWooCommerceForStoreUsers;
+use \Automattic\WooCommerce\Admin\Notes\ManageStoreActivityFromHomeScreen;
+use \Automattic\WooCommerce\Admin\Notes\NavigationNudge;
+use Automattic\WooCommerce\Admin\Features\Features;
 
 /**
  * Feature plugin main class.
@@ -54,20 +61,12 @@ class FeaturePlugin {
 	 * Init the feature plugin, only if we can detect both Gutenberg and WooCommerce.
 	 */
 	public function init() {
-		/**
-		 * Filter allowing WooCommerce Admin to be disabled.
-		 *
-		 * @param bool $disabled False.
-		 */
-		if ( apply_filters( 'woocommerce_admin_disabled', false ) ) {
-			return;
-		}
-
+		// Load the page controller functions file first to prevent fatal errors when disabling WooCommerce Admin.
 		$this->define_constants();
-
+		require_once WC_ADMIN_ABSPATH . '/includes/page-controller-functions.php';
+		require_once WC_ADMIN_ABSPATH . '/src/Notes/DeprecatedNotes.php';
 		require_once WC_ADMIN_ABSPATH . '/includes/core-functions.php';
 		require_once WC_ADMIN_ABSPATH . '/includes/feature-config.php';
-		require_once WC_ADMIN_ABSPATH . '/includes/page-controller-functions.php';
 		require_once WC_ADMIN_ABSPATH . '/includes/wc-admin-update-functions.php';
 
 		register_activation_hook( WC_ADMIN_PLUGIN_FILE, array( $this, 'on_activation' ) );
@@ -75,9 +74,12 @@ class FeaturePlugin {
 		if ( did_action( 'plugins_loaded' ) ) {
 			self::on_plugins_loaded();
 		} else {
-			add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ) );
+			// Make sure we hook into `plugins_loaded` before core's Automattic\WooCommerce\Package::init().
+			// If core is network activated but we aren't, the packaged version of WooCommerce Admin will
+			// attempt to use a data store that hasn't been loaded yet - because we've defined our constants here.
+			// See: https://github.com/woocommerce/woocommerce-admin/issues/3869.
+			add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 9 );
 		}
-		add_filter( 'action_scheduler_store_class', array( $this, 'replace_actionscheduler_store_class' ) );
 	}
 
 	/**
@@ -110,7 +112,7 @@ class FeaturePlugin {
 
 		$this->includes();
 		ReportsSync::clear_queued_actions();
-		WC_Admin_Notes::clear_queued_actions();
+		Notes::clear_queued_actions();
 		wp_clear_scheduled_hook( 'wc_admin_daily' );
 		wp_clear_scheduled_hook( 'generate_category_lookup_table' );
 	}
@@ -129,12 +131,8 @@ class FeaturePlugin {
 			return;
 		}
 
-		if ( ! $this->check_build() ) {
-			add_action( 'admin_notices', array( $this, 'render_build_notice' ) );
-		}
-
-		$this->includes();
 		$this->hooks();
+		$this->includes();
 	}
 
 	/**
@@ -148,7 +146,7 @@ class FeaturePlugin {
 		$this->define( 'WC_ADMIN_PLUGIN_FILE', WC_ADMIN_ABSPATH . 'woocommerce-admin.php' );
 		// WARNING: Do not directly edit this version number constant.
 		// It is updated as part of the prebuild process from the package.json value.
-		$this->define( 'WC_ADMIN_VERSION_NUMBER', '1.0.0' );
+		$this->define( 'WC_ADMIN_VERSION_NUMBER', '2.6.5' );
 	}
 
 	/**
@@ -162,57 +160,53 @@ class FeaturePlugin {
 	 * Include WC Admin classes.
 	 */
 	public function includes() {
-		// Initialize the WC API extensions.
-		ReportsSync::init();
+		// Initialize Database updates, option migrations, and Notes.
 		Install::init();
 		Events::instance()->init();
-		new API\Init();
-		ReportExporter::init();
+		Notes::init();
 
-		// CRUD classes.
-		WC_Admin_Notes::init();
+		// Initialize Plugins Installer.
+		PluginsInstaller::init();
 
-		// Initialize category lookup.
-		CategoryLookup::instance()->init();
+		// Initialize API.
+		API\Init::instance();
+
+		if ( Features::is_enabled( 'analytics' ) ) {
+			// Initialize Reports syncing.
+			ReportsSync::init();
+			CategoryLookup::instance()->init();
+
+			// Initialize Reports exporter.
+			ReportExporter::init();
+		}
 
 		// Admin note providers.
 		// @todo These should be bundled in the features/ folder, but loading them from there currently has a load order issue.
-		new WC_Admin_Notes_Woo_Subscriptions_Notes();
-		new WC_Admin_Notes_Historical_Data();
-		new WC_Admin_Notes_Order_Milestones();
-		new WC_Admin_Notes_Welcome_Message();
-		new WC_Admin_Notes_Facebook_Extension();
-		new WC_Admin_Notes_Tracking_Opt_In();
-	}
+		new WooSubscriptionsNotes();
+		new OrderMilestones();
+		new TrackingOptIn();
+		new WooCommercePayments();
+		new InstallJPAndWCSPlugins();
+		new DrawAttention();
+		new SetUpAdditionalPaymentTypes();
+		new TestCheckout();
+		new SellingOnlineCourses();
+		new LearnMoreAboutVariableProducts();
+		new WelcomeToWooCommerceForStoreUsers();
+		new ManageStoreActivityFromHomeScreen();
+		new NavigationNudge();
 
-	/**
-	 * Filter in our ActionScheduler Store class.
-	 *
-	 * @param string $store_class ActionScheduler Store class name.
-	 * @return string ActionScheduler Store class name.
-	 */
-	public function replace_actionscheduler_store_class( $store_class ) {
-		// Don't override any other overrides.
-		if ( 'ActionScheduler_wpPostStore' !== $store_class ) {
-			return $store_class;
-		}
-
-		// Don't override if action scheduler is 3.0.0 or greater.
-		if ( version_compare( \ActionScheduler_Versions::instance()->latest_version(), '3.0', '>=' ) ) {
-			return $store_class;
-		}
-
-		return 'Automattic\WooCommerce\Admin\Overrides\WPPostStore';
+		// Initialize MerchantEmailNotifications.
+		MerchantEmailNotifications::init();
 	}
 
 	/**
 	 * Set up our admin hooks and plugin loader.
 	 */
 	protected function hooks() {
-		add_filter( 'woocommerce_admin_features', array( $this, 'replace_supported_features' ) );
-		add_action( 'admin_menu', array( $this, 'register_devdocs_page' ) );
+		add_filter( 'woocommerce_admin_features', array( $this, 'replace_supported_features' ), 0 );
 
-		new Loader();
+		Loader::get_instance();
 	}
 
 	/**
@@ -223,8 +217,8 @@ class FeaturePlugin {
 	protected function get_dependency_errors() {
 		$errors                      = array();
 		$wordpress_version           = get_bloginfo( 'version' );
-		$minimum_wordpress_version   = '5.3';
-		$minimum_woocommerce_version = '3.6';
+		$minimum_wordpress_version   = '5.4';
+		$minimum_woocommerce_version = '4.8';
 		$wordpress_minimum_met       = version_compare( $wordpress_version, $minimum_wordpress_version, '>=' );
 		$woocommerce_minimum_met     = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, $minimum_woocommerce_version, '>=' );
 
@@ -254,18 +248,9 @@ class FeaturePlugin {
 	 *
 	 * @return bool
 	 */
-	protected function has_satisfied_dependencies() {
+	public function has_satisfied_dependencies() {
 		$dependency_errors = $this->get_dependency_errors();
 		return 0 === count( $dependency_errors );
-	}
-
-	/**
-	 * Returns true if build file exists.
-	 *
-	 * @return bool
-	 */
-	protected function check_build() {
-		return file_exists( plugin_dir_path( __DIR__ ) . '/dist/app/index.js' );
 	}
 
 	/**
@@ -273,7 +258,7 @@ class FeaturePlugin {
 	 */
 	public function deactivate_self() {
 		deactivate_plugins( plugin_basename( WC_ADMIN_PLUGIN_FILE ) );
-		unset( $_GET['activate'] );
+		unset( $_GET['activate'] ); // phpcs:ignore CSRF ok.
 	}
 
 	/**
@@ -285,19 +270,6 @@ class FeaturePlugin {
 	}
 
 	/**
-	 * Notify users that the plugin needs to be built.
-	 */
-	public function render_build_notice() {
-		$message_one = __( 'You have installed a development version of WooCommerce Admin which requires files to be built. From the plugin directory, run <code>npm install</code> to install dependencies, <code>npm run build</code> to build the files.', 'woocommerce' );
-		$message_two = sprintf(
-			/* translators: 1: URL of GitHub Repository build page */
-			__( 'Or you can download a pre-built version of the plugin by visiting <a href="%1$s">the releases page in the repository</a>.', 'woocommerce' ),
-			'https://github.com/woocommerce/woocommerce-admin/releases'
-		);
-		printf( '<div class="error"><p>%s %s</p></div>', $message_one, $message_two ); /* phpcs:ignore xss ok. */
-	}
-
-	/**
 	 * Overwrites the allowed features array using a local `feature-config.php` file.
 	 *
 	 * @param array $features Array of feature slugs.
@@ -306,21 +278,6 @@ class FeaturePlugin {
 		$feature_config = apply_filters( 'woocommerce_admin_get_feature_config', wc_admin_get_feature_config() );
 		$features       = array_keys( array_filter( $feature_config ) );
 		return $features;
-	}
-
-	/**
-	 * Adds a menu item for the wc-admin devdocs.
-	 */
-	public function register_devdocs_page() {
-		if ( Loader::is_dev() ) {
-			wc_admin_register_page(
-				array(
-					'title'  => 'DevDocs',
-					'parent' => 'woocommerce',
-					'path'   => '/devdocs',
-				)
-			);
-		}
 	}
 
 	/**
@@ -343,5 +300,7 @@ class FeaturePlugin {
 	/**
 	 * Prevent unserializing.
 	 */
-	private function __wakeup() {}
+	public function __wakeup() {
+		die();
+	}
 }

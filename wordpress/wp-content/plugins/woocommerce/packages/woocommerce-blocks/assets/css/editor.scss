@@ -19,10 +19,7 @@
 		.wc-block-grid__products {
 			list-style: none;
 			margin: 0 (-$gap/2) $gap;
-
-			.wp-block-button__link {
-				color: inherit;
-			}
+			padding: 0;
 
 			.wc-block-grid__product {
 				margin: 0 0 $gap-large 0;
@@ -40,3 +37,26 @@
 	}
 }
 
+// Style inline notices in the inspector.
+.components-base-control {
+	+ .wc-block-base-control-notice {
+		margin: -$gap 0 $gap;
+	}
+
+	& + .wc-block-base-control-notice:last-child {
+		margin: -$gap 0 $gap-small;
+	}
+}
+
+// Selectors with extra specificity to override some editor styles.
+.woocommerce-search-list__list.woocommerce-search-list__list {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+.woocommerce-search-list__selected.woocommerce-search-list__selected > ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}

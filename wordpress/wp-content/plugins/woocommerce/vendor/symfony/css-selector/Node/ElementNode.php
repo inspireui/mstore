@@ -23,7 +23,14 @@ namespace Symfony\Component\CssSelector\Node;
  */
 class ElementNode extends AbstractNode
 {
+    /**
+     * @var string|null
+     */
     private $namespace;
+
+    /**
+     * @var string|null
+     */
     private $element;
 
     /**
@@ -37,7 +44,7 @@ class ElementNode extends AbstractNode
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function getNamespace()
     {
@@ -45,7 +52,7 @@ class ElementNode extends AbstractNode
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function getElement()
     {

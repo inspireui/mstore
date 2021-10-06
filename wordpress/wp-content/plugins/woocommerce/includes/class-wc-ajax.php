@@ -3,10 +3,11 @@
  * WooCommerce WC_AJAX. AJAX Event Handlers.
  *
  * @class   WC_AJAX
- * @package WooCommerce/Classes
+ * @package WooCommerce\Classes
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Utilities\NumberUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -154,6 +155,7 @@ class WC_AJAX {
 			'json_search_downloadable_products_and_variations',
 			'json_search_customers',
 			'json_search_categories',
+			'json_search_pages',
 			'term_ordering',
 			'product_ordering',
 			'refund_line_items',
@@ -367,7 +369,7 @@ class WC_AJAX {
 		$woocommerce_checkout_payment = ob_get_clean();
 
 		// Get messages if reload checkout is not true.
-		$reload_checkout = isset( WC()->session->reload_checkout ) ? true : false;
+		$reload_checkout = isset( WC()->session->reload_checkout );
 		if ( ! $reload_checkout ) {
 			$messages = wc_print_notices( true );
 		} else {
@@ -545,10 +547,10 @@ class WC_AJAX {
 			wp_die( -1 );
 		}
 
-		$order = wc_get_order( absint( $_GET['order_id'] ) ); // WPCS: sanitization ok.
+		$order = wc_get_order( absint( $_GET['order_id'] ) );
 
 		if ( $order ) {
-			include_once 'admin/list-tables/class-wc-admin-list-table-orders.php';
+			include_once __DIR__ . '/admin/list-tables/class-wc-admin-list-table-orders.php';
 
 			wp_send_json_success( WC_Admin_List_Table_Orders::order_preview_get_order_details( $order ) );
 		}
@@ -581,7 +583,7 @@ class WC_AJAX {
 			$metabox_class[] = $attribute->get_name();
 		}
 
-		include 'admin/meta-boxes/views/html-product-attribute.php';
+		include __DIR__ . '/admin/meta-boxes/views/html-product-attribute.php';
 		wp_die();
 	}
 
@@ -681,7 +683,7 @@ class WC_AJAX {
 						$metabox_class[] = $attribute->get_name();
 					}
 
-					include 'admin/meta-boxes/views/html-product-attribute.php';
+					include __DIR__ . '/admin/meta-boxes/views/html-product-attribute.php';
 				}
 			}
 
@@ -716,7 +718,7 @@ class WC_AJAX {
 		$variation_id   = $variation_object->save();
 		$variation      = get_post( $variation_id );
 		$variation_data = array_merge( get_post_custom( $variation_id ), wc_get_product_variation_attributes( $variation_id ) ); // kept for BW compatibility.
-		include 'admin/meta-boxes/views/html-variation-admin.php';
+		include __DIR__ . '/admin/meta-boxes/views/html-variation-admin.php';
 		wp_die();
 	}
 
@@ -794,17 +796,42 @@ class WC_AJAX {
 		$file_counter = 0;
 		$order        = wc_get_order( $order_id );
 
+		if ( ! $order->get_billing_email() ) {
+			wp_die();
+		}
+
+		$data  = array();
+		$items = $order->get_items();
+
+		// Check against order items first.
+		foreach ( $items as $item ) {
+			$product = $item->get_product();
+
+			if ( $product && $product->exists() && in_array( $product->get_id(), $product_ids, true ) && $product->is_downloadable() ) {
+				$data[ $product->get_id() ] = array(
+					'files'      => $product->get_downloads(),
+					'quantity'   => $item->get_quantity(),
+					'order_item' => $item,
+				);
+			}
+		}
+
 		foreach ( $product_ids as $product_id ) {
 			$product = wc_get_product( $product_id );
-			$files   = $product->get_downloads();
 
-			if ( ! $order->get_billing_email() ) {
-				wp_die();
+			if ( isset( $data[ $product->get_id() ] ) ) {
+				$download_data = $data[ $product->get_id() ];
+			} else {
+				$download_data = array(
+					'files'      => $product->get_downloads(),
+					'quantity'   => 1,
+					'order_item' => null,
+				);
 			}
 
-			if ( ! empty( $files ) ) {
-				foreach ( $files as $download_id => $file ) {
-					$inserted_id = wc_downloadable_file_permission( $download_id, $product_id, $order );
+			if ( ! empty( $download_data['files'] ) ) {
+				foreach ( $download_data['files'] as $download_id => $file ) {
+					$inserted_id = wc_downloadable_file_permission( $download_id, $product->get_id(), $order, $download_data['quantity'], $download_data['order_item'] );
 					if ( $inserted_id ) {
 						$download = new WC_Customer_Download( $inserted_id );
 						$loop ++;
@@ -816,7 +843,7 @@ class WC_AJAX {
 							/* translators: %d file count */
 							$file_count = sprintf( __( 'File %d', 'woocommerce' ), $file_counter );
 						}
-						include 'admin/meta-boxes/views/html-order-download-permission.php';
+						include __DIR__ . '/admin/meta-boxes/views/html-order-download-permission.php';
 					}
 				}
 			}
@@ -861,30 +888,47 @@ class WC_AJAX {
 			wp_die( -1 );
 		}
 
-		$response = array();
+		if ( ! isset( $_POST['order_id'] ) ) {
+			throw new Exception( __( 'Invalid order', 'woocommerce' ) );
+		}
+		$order_id = absint( wp_unslash( $_POST['order_id'] ) );
+
+		// If we passed through items it means we need to save first before adding a new one.
+		$items = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		$items_to_add = isset( $_POST['data'] ) ? array_filter( wp_unslash( (array) $_POST['data'] ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		try {
-			if ( ! isset( $_POST['order_id'] ) ) {
-				throw new Exception( __( 'Invalid order', 'woocommerce' ) );
-			}
+			$response = self::maybe_add_order_item( $order_id, $items, $items_to_add );
+			wp_send_json_success( $response );
+		} catch ( Exception $e ) {
+			wp_send_json_error( array( 'error' => $e->getMessage() ) );
+		}
+	}
 
-			$order_id = absint( wp_unslash( $_POST['order_id'] ) ); // WPCS: input var ok.
-			$order    = wc_get_order( $order_id );
+	/**
+	 * Add order item via AJAX. This is refactored for better unit testing.
+	 *
+	 * @param int          $order_id     ID of order to add items to.
+	 * @param string|array $items        Existing items in order. Empty string if no items to add.
+	 * @param array        $items_to_add Array of items to add.
+	 *
+	 * @return array     Fragments to render and notes HTML.
+	 * @throws Exception When unable to add item.
+	 */
+	private static function maybe_add_order_item( $order_id, $items, $items_to_add ) {
+		try {
+			$order = wc_get_order( $order_id );
 
 			if ( ! $order ) {
 				throw new Exception( __( 'Invalid order', 'woocommerce' ) );
 			}
-
-			// If we passed through items it means we need to save first before adding a new one.
-			$items = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			if ( ! empty( $items ) ) {
 				$save_items = array();
 				parse_str( $items, $save_items );
 				wc_save_order_items( $order->get_id(), $save_items );
 			}
-
-			$items_to_add = isset( $_POST['data'] ) ? array_filter( wp_unslash( (array) $_POST['data'] ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			// Add items to order.
 			$order_notes = array();
@@ -908,19 +952,15 @@ class WC_AJAX {
 				$validation_error = apply_filters( 'woocommerce_ajax_add_order_item_validation', $validation_error, $product, $order, $qty );
 
 				if ( $validation_error->get_error_code() ) {
-					throw new Exception( '<strong>' . __( 'Error:', 'woocommerce' ) . '</strong> ' . $validation_error->get_error_message() );
+					/* translators: %s: error message */
+					throw new Exception( sprintf( __( 'Error: %s', 'woocommerce' ), $validation_error->get_error_message() ) );
 				}
 				$item_id                 = $order->add_product( $product, $qty );
 				$item                    = apply_filters( 'woocommerce_ajax_order_item', $order->get_item( $item_id ), $item_id, $order, $product );
 				$added_items[ $item_id ] = $item;
 				$order_notes[ $item_id ] = $product->get_formatted_name();
 
-				if ( $product->managing_stock() ) {
-					$new_stock               = wc_update_product_stock( $product, $qty, 'decrease' );
-					$order_notes[ $item_id ] = $product->get_formatted_name() . ' &ndash; ' . ( $new_stock + $qty ) . '&rarr;' . $new_stock;
-					$item->add_meta_data( '_reduced_stock', $qty, true );
-					$item->save();
-				}
+				// We do not perform any stock operations here because they will be handled when order is moved to a status where stock operations are applied (like processing, completed etc).
 
 				do_action( 'woocommerce_ajax_add_order_item_meta', $item_id, $item, $order );
 			}
@@ -934,26 +974,21 @@ class WC_AJAX {
 
 			// Get HTML to return.
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$items_html = ob_get_clean();
 
 			ob_start();
 			$notes = wc_get_order_notes( array( 'order_id' => $order_id ) );
-			include 'admin/meta-boxes/views/html-order-notes.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-notes.php';
 			$notes_html = ob_get_clean();
 
-			wp_send_json_success(
-				array(
-					'html'       => $items_html,
-					'notes_html' => $notes_html,
-				)
+			return array(
+				'html'       => $items_html,
+				'notes_html' => $notes_html,
 			);
 		} catch ( Exception $e ) {
-			wp_send_json_error( array( 'error' => $e->getMessage() ) );
+			throw $e; // Forward exception to caller.
 		}
-
-		// wp_send_json_success must be outside the try block not to break phpunit tests.
-		wp_send_json_success( $response );
 	}
 
 	/**
@@ -988,6 +1023,8 @@ class WC_AJAX {
 			);
 
 			if ( strstr( $amount, '%' ) ) {
+				// We need to calculate totals first, so that $order->get_total() is correct.
+				$order->calculate_totals( false );
 				$formatted_amount = $amount;
 				$percent          = floatval( trim( $amount, '%' ) );
 				$amount           = $order->get_total() * ( $percent / 100 );
@@ -1008,7 +1045,7 @@ class WC_AJAX {
 			$order->save();
 
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$response['html'] = ob_get_clean();
 		} catch ( Exception $e ) {
 			wp_send_json_error( array( 'error' => $e->getMessage() ) );
@@ -1050,7 +1087,7 @@ class WC_AJAX {
 			$item_id = $item->save();
 
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-shipping.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-shipping.php';
 			$response['html'] = ob_get_clean();
 		} catch ( Exception $e ) {
 			wp_send_json_error( array( 'error' => $e->getMessage() ) );
@@ -1097,7 +1134,7 @@ class WC_AJAX {
 			$item->save();
 
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$response['html'] = ob_get_clean();
 		} catch ( Exception $e ) {
 			wp_send_json_error( array( 'error' => $e->getMessage() ) );
@@ -1160,7 +1197,7 @@ class WC_AJAX {
 			$order->calculate_totals( false );
 
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$response['html'] = ob_get_clean();
 		} catch ( Exception $e ) {
 			wp_send_json_error( array( 'error' => $e->getMessage() ) );
@@ -1207,7 +1244,7 @@ class WC_AJAX {
 			$order->calculate_totals( false );
 
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$response['html'] = ob_get_clean();
 		} catch ( Exception $e ) {
 			wp_send_json_error( array( 'error' => $e->getMessage() ) );
@@ -1264,7 +1301,6 @@ class WC_AJAX {
 			}
 
 			if ( ! empty( $order_item_ids ) ) {
-				$order_notes = array();
 
 				foreach ( $order_item_ids as $item_id ) {
 					$item_id = absint( $item_id );
@@ -1291,14 +1327,26 @@ class WC_AJAX {
 			$order->calculate_taxes( $calculate_tax_args );
 			$order->calculate_totals( false );
 
+			/**
+			 * Fires after order items are removed.
+			 *
+			 * @since 5.2.0
+			 *
+			 * @param int $item_id WC item ID.
+			 * @param WC_Order_Item|false $item As returned by $order->get_item( $item_id ).
+			 * @param bool|array|WP_Error $changed_store Result of wc_maybe_adjust_line_item_product_stock().
+			 * @param bool|WC_Order|WC_Order_Refund $order As returned by wc_get_order().
+			 */
+			do_action( 'woocommerce_ajax_order_items_removed', $item_id, $item, $changed_stock, $order );
+
 			// Get HTML to return.
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$items_html = ob_get_clean();
 
 			ob_start();
 			$notes = wc_get_order_notes( array( 'order_id' => $order_id ) );
-			include 'admin/meta-boxes/views/html-order-notes.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-notes.php';
 			$notes_html = ob_get_clean();
 
 			wp_send_json_success(
@@ -1345,7 +1393,7 @@ class WC_AJAX {
 			$order->calculate_totals( false );
 
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$response['html'] = ob_get_clean();
 		} catch ( Exception $e ) {
 			wp_send_json_error( array( 'error' => $e->getMessage() ) );
@@ -1384,7 +1432,7 @@ class WC_AJAX {
 		$order = wc_get_order( $order_id );
 		$order->calculate_taxes( $calculate_tax_args );
 		$order->calculate_totals( false );
-		include 'admin/meta-boxes/views/html-order-items.php';
+		include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 		wp_die();
 	}
 
@@ -1413,12 +1461,12 @@ class WC_AJAX {
 
 			// Get HTML to return.
 			ob_start();
-			include 'admin/meta-boxes/views/html-order-items.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 			$items_html = ob_get_clean();
 
 			ob_start();
 			$notes = wc_get_order_notes( array( 'order_id' => $order_id ) );
-			include 'admin/meta-boxes/views/html-order-notes.php';
+			include __DIR__ . '/admin/meta-boxes/views/html-order-notes.php';
 			$notes_html = ob_get_clean();
 
 			wp_send_json_success(
@@ -1444,7 +1492,7 @@ class WC_AJAX {
 		// Return HTML items.
 		$order_id = absint( $_POST['order_id'] );
 		$order    = wc_get_order( $order_id );
-		include 'admin/meta-boxes/views/html-order-items.php';
+		include __DIR__ . '/admin/meta-boxes/views/html-order-items.php';
 		wp_die();
 	}
 
@@ -1563,10 +1611,15 @@ class WC_AJAX {
 		$data_store = WC_Data_Store::load( 'product' );
 		$ids        = $data_store->search_products( $term, '', (bool) $include_variations, false, $limit, $include_ids, $exclude_ids );
 
-		$product_objects = array_filter( array_map( 'wc_get_product', $ids ), 'wc_products_array_filter_readable' );
-		$products        = array();
+		$products = array();
 
-		foreach ( $product_objects as $product_object ) {
+		foreach ( $ids as $id ) {
+			$product_object = wc_get_product( $id );
+
+			if ( ! wc_products_array_filter_readable( $product_object ) ) {
+				continue;
+			}
+
 			$formatted_name = $product_object->get_formatted_name();
 			$managing_stock = $product_object->managing_stock();
 
@@ -1575,12 +1628,12 @@ class WC_AJAX {
 			}
 
 			if ( $managing_stock && ! empty( $_GET['display_stock'] ) ) {
-				$stock_amount    = $product_object->get_stock_quantity();
+				$stock_amount = $product_object->get_stock_quantity();
 				/* Translators: %d stock amount */
 				$formatted_name .= ' &ndash; ' . sprintf( __( 'Stock: %d', 'woocommerce' ), wc_format_stock_quantity_for_display( $stock_amount, $product_object ) );
 			}
 
-			$products[ $product_object->get_id() ] = rawurldecode( $formatted_name );
+			$products[ $product_object->get_id() ] = rawurldecode( wp_strip_all_tags( $formatted_name ) );
 		}
 
 		wp_send_json( apply_filters( 'woocommerce_json_search_found_products', $products ) );
@@ -1620,7 +1673,7 @@ class WC_AJAX {
 		$products        = array();
 
 		foreach ( $product_objects as $product_object ) {
-			$products[ $product_object->get_id() ] = rawurldecode( $product_object->get_formatted_name() );
+			$products[ $product_object->get_id() ] = rawurldecode( wp_strip_all_tags( $product_object->get_formatted_name() ) );
 		}
 
 		wp_send_json( $products );
@@ -1742,6 +1795,47 @@ class WC_AJAX {
 	}
 
 	/**
+	 * Ajax request handling for page searching.
+	 */
+	public static function json_search_pages() {
+		ob_start();
+
+		check_ajax_referer( 'search-pages', 'security' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( -1 );
+		}
+
+		$search_text = isset( $_GET['term'] ) ? wc_clean( wp_unslash( $_GET['term'] ) ) : '';
+		$limit       = isset( $_GET['limit'] ) ? absint( wp_unslash( $_GET['limit'] ) ) : -1;
+		$exclude_ids = ! empty( $_GET['exclude'] ) ? array_map( 'absint', (array) wp_unslash( $_GET['exclude'] ) ) : array();
+
+		$args                 = array(
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'posts_per_page'         => $limit,
+			'post_type'              => 'page',
+			'post_status'            => array( 'publish', 'private', 'draft' ),
+			's'                      => $search_text,
+			'post__not_in'           => $exclude_ids,
+		);
+		$search_results_query = new WP_Query( $args );
+
+		$pages_results = array();
+		foreach ( $search_results_query->get_posts() as $post ) {
+			$pages_results[ $post->ID ] = sprintf(
+				/* translators: 1: page name 2: page ID */
+				__( '%1$s (ID: %2$s)', 'woocommerce' ),
+				get_the_title( $post ),
+				$post->ID
+			);
+		}
+
+		wp_send_json( apply_filters( 'woocommerce_json_search_found_pages', $pages_results ) );
+	}
+
+	/**
 	 * Ajax request handling for categories ordering.
 	 */
 	public static function term_ordering() {
@@ -1854,10 +1948,10 @@ class WC_AJAX {
 		$response               = array();
 
 		try {
-			$order       = wc_get_order( $order_id );
-			$max_refund  = wc_format_decimal( $order->get_total() - $order->get_total_refunded(), wc_get_price_decimals() );
+			$order      = wc_get_order( $order_id );
+			$max_refund = wc_format_decimal( $order->get_total() - $order->get_total_refunded(), wc_get_price_decimals() );
 
-			if ( ! $refund_amount || $max_refund < $refund_amount || 0 > $refund_amount ) {
+			if ( ( ! $refund_amount && ( wc_format_decimal( 0, wc_get_price_decimals() ) !== $refund_amount ) ) || $max_refund < $refund_amount || 0 > $refund_amount ) {
 				throw new Exception( __( 'Invalid refund amount', 'woocommerce' ) );
 			}
 
@@ -2094,7 +2188,7 @@ class WC_AJAX {
 				$variation_id   = $variation_object->get_id();
 				$variation      = get_post( $variation_id );
 				$variation_data = array_merge( get_post_custom( $variation_id ), wc_get_product_variation_attributes( $variation_id ) ); // kept for BW compatibility.
-				include 'admin/meta-boxes/views/html-variation-admin.php';
+				include __DIR__ . '/admin/meta-boxes/views/html-variation-admin.php';
 				$loop++;
 			}
 		}
@@ -2271,6 +2365,32 @@ class WC_AJAX {
 				$variation->set_stock_quantity( $quantity );
 			} else {
 				$variation->set_stock_quantity( null );
+			}
+			$variation->save();
+		}
+	}
+
+	/**
+	 * Bulk action - Set Low Stock Amount.
+	 *
+	 * @param array $variations List of variations.
+	 * @param array $data Data to set.
+	 *
+	 * @used-by bulk_edit_variations
+	 */
+	private static function variation_bulk_action_variable_low_stock_amount( $variations, $data ) {
+		if ( ! isset( $data['value'] ) ) {
+			return;
+		}
+
+		$low_stock_amount = wc_stock_amount( wc_clean( $data['value'] ) );
+
+		foreach ( $variations as $variation_id ) {
+			$variation = wc_get_product( $variation_id );
+			if ( $variation->managing_stock() ) {
+				$variation->set_low_stock_amount( $low_stock_amount );
+			} else {
+				$variation->set_low_stock_amount( '' );
 			}
 			$variation->save();
 		}
@@ -2458,7 +2578,7 @@ class WC_AJAX {
 
 			if ( '%' === substr( $value, -1 ) ) {
 				$percent      = wc_format_decimal( substr( $value, 0, -1 ) );
-				$field_value += round( ( $field_value / 100 ) * $percent, wc_get_price_decimals() ) * "{$operator}1";
+				$field_value += NumberUtil::round( ( $field_value / 100 ) * $percent, wc_get_price_decimals() ) * "{$operator}1";
 			} else {
 				$field_value += $value * "{$operator}1";
 			}
@@ -2522,6 +2642,7 @@ class WC_AJAX {
 	 * @uses WC_AJAX::variation_bulk_action_toggle_virtual()
 	 * @uses WC_AJAX::variation_bulk_action_toggle_downloadable()
 	 * @uses WC_AJAX::variation_bulk_action_toggle_enabled
+	 * @uses WC_AJAX::variation_bulk_action_variable_low_stock_amount()
 	 */
 	public static function bulk_edit_variations() {
 		ob_start();

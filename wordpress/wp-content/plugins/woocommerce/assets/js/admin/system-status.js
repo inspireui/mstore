@@ -33,12 +33,12 @@ jQuery( function ( $ ) {
 
 			$( '.wc_status_table thead, .wc_status_table tbody' ).each( function() {
 				if ( $( this ).is( 'thead' ) ) {
-					var label = $( this ).find( 'th:eq(0)' ).data( 'export-label' ) || $( this ).text();
-					report = report + '\n### ' + $.trim( label ) + ' ###\n\n';
+					var label = $( this ).find( 'th:eq(0)' ).data( 'exportLabel' ) || $( this ).text();
+					report = report + '\n### ' + label.trim() + ' ###\n\n';
 				} else {
 					$( 'tr', $( this ) ).each( function() {
-						var label       = $( this ).find( 'td:eq(0)' ).data( 'export-label' ) || $( this ).find( 'td:eq(0)' ).text();
-						var the_name    = $.trim( label ).replace( /(<([^>]+)>)/ig, '' ); // Remove HTML.
+						var label       = $( this ).find( 'td:eq(0)' ).data( 'exportLabel' ) || $( this ).find( 'td:eq(0)' ).text();
+						var the_name    = label.trim().replace( /(<([^>]+)>)/ig, '' ); // Remove HTML.
 
 						// Find value
 						var $value_html = $( this ).find( 'td:eq(2)' ).clone();
@@ -47,7 +47,7 @@ jQuery( function ( $ ) {
 						$value_html.find( '.dashicons-no-alt, .dashicons-warning' ).replaceWith( '&#10060;' );
 
 						// Format value
-						var the_value   = $.trim( $value_html.text() );
+						var the_value   = $value_html.text().trim();
 						var value_array = the_value.split( ', ' );
 
 						if ( value_array.length > 1 ) {
@@ -68,7 +68,7 @@ jQuery( function ( $ ) {
 
 			try {
 				$( '#debug-report' ).slideDown();
-				$( '#debug-report' ).find( 'textarea' ).val( '`' + report + '`' ).focus().select();
+				$( '#debug-report' ).find( 'textarea' ).val( '`' + report + '`' ).trigger( 'focus' ).trigger( 'select' );
 				$( this ).fadeOut();
 				return false;
 			} catch ( e ) {
@@ -100,7 +100,7 @@ jQuery( function ( $ ) {
 				'fadeIn':     50,
 				'fadeOut':    50,
 				'delay':      0
-			}).focus();
+			}).trigger( 'focus' );
 		},
 
 		/**
@@ -108,11 +108,16 @@ jQuery( function ( $ ) {
 		 */
 		copyFail: function() {
 			$( '.copy-error' ).removeClass( 'hidden' );
-			$( '#debug-report' ).find( 'textarea' ).focus().select();
+			$( '#debug-report' ).find( 'textarea' ).trigger( 'focus' ).trigger( 'select' );
 		}
 	};
 
 	wcSystemStatus.init();
+
+	$( '.wc_status_table' ).on( 'click', '.run-tool .button', function( evt ) {
+		evt.stopImmediatePropagation();
+		return window.confirm( woocommerce_admin_system_status.run_tool_confirmation );
+	});
 
 	$( '#log-viewer-select' ).on( 'click', 'h2 a.page-title-action', function( evt ) {
 		evt.stopImmediatePropagation();

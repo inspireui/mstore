@@ -5,13 +5,18 @@ import { Component } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import PropTypes from 'prop-types';
 import isShallowEqual from '@wordpress/is-shallow-equal';
-import { getProductVariations } from '@woocommerce/block-components/utils';
+import { getProductVariations } from '@woocommerce/editor-components/utils';
 
 /**
  * Internal dependencies
  */
 import { formatError } from '../base/utils/errors.js';
 
+/**
+ * HOC that queries variations for a component.
+ *
+ * @param {Function} OriginalComponent Component being wrapped.
+ */
 const withProductVariations = createHigherOrderComponent(
 	( OriginalComponent ) => {
 		class WrappedComponent extends Component {
@@ -116,7 +121,8 @@ const withProductVariations = createHigherOrderComponent(
 				const { products } = this.props;
 				const parentProduct = products.filter(
 					( p ) =>
-						p.variations && p.variations.includes( variationId )
+						p.variations &&
+						p.variations.find( ( { id } ) => id === variationId )
 				);
 				return parentProduct[ 0 ].id;
 			}

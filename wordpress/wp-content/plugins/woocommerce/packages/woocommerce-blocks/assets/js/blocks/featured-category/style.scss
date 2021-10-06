@@ -1,6 +1,6 @@
 .wc-block-featured-category {
 	position: relative;
-	background-color: $black;
+	background-color: $gray-900;
 	background-size: cover;
 	background-position: center center;
 	width: 100%;
@@ -80,6 +80,10 @@
 		p {
 			margin: 0;
 		}
+	}
+
+	.wp-block-button.aligncenter {
+		text-align: center;
 	}
 
 	&.has-background-dim::before {

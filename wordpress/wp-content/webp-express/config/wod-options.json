@@ -14,27 +14,27 @@
             {
                 "id": "uploads",
                 "rel-path": "wp-content/uploads",
-                "url": "http://mstore.local/wp-content/uploads"
+                "url": "http://localhost/wp-content/uploads"
             },
             {
                 "id": "themes",
                 "rel-path": "wp-content/themes",
-                "url": "http://mstore.local/wp-content/themes"
+                "url": "http://localhost/wp-content/themes"
             },
             {
                 "id": "plugins",
                 "rel-path": "wp-content/plugins",
-                "url": "http://mstore.local/wp-content/plugins"
+                "url": "http://localhost/wp-content/plugins"
             },
             {
                 "id": "wp-content",
                 "rel-path": "wp-content",
-                "url": "http://mstore.local/wp-content"
+                "url": "http://localhost/wp-content"
             },
             {
                 "id": "index",
                 "rel-path": ".",
-                "url": "http://mstore.local"
+                "url": "http://localhost"
             }
         ],
         "success-response": "converted"

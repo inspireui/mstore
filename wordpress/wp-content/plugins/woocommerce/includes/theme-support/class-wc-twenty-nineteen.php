@@ -3,7 +3,7 @@
  * Twenty Nineteen support.
  *
  * @since   3.5.X
- * @package WooCommerce/Classes
+ * @package WooCommerce\Classes
  */
 
 use Automattic\Jetpack\Constants;
@@ -48,7 +48,7 @@ class WC_Twenty_Nineteen {
 		// Tweak Twenty Nineteen features.
 		add_action( 'wp', array( __CLASS__, 'tweak_theme_features' ) );
 
-		// Color scheme CSS
+		// Color scheme CSS.
 		add_filter( 'twentynineteen_custom_colors_css', array( __CLASS__, 'custom_colors_css' ), 10, 3 );
 	}
 

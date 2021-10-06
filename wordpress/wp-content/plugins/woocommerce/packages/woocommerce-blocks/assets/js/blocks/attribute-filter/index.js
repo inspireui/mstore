@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
-import Gridicon from 'gridicons';
+import { Icon, server } from '@woocommerce/icons';
 import classNames from 'classnames';
 
 /**
@@ -14,16 +14,18 @@ import edit from './edit.js';
 registerBlockType( 'woocommerce/attribute-filter', {
 	title: __( 'Filter Products by Attribute', 'woocommerce' ),
 	icon: {
-		src: <Gridicon icon="menus" />,
+		src: <Icon srcElement={ server } />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
 	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
-		'Display a list of filters based on a chosen product attribute.',
+		'Allow customers to filter the grid by product attribute, such as color. Works in combination with the All Products block.',
 		'woocommerce'
 	),
-	supports: {},
+	supports: {
+		html: false,
+	},
 	example: {
 		attributes: {
 			isPreview: true,
@@ -53,6 +55,14 @@ registerBlockType( 'woocommerce/attribute-filter', {
 			type: 'number',
 			default: 3,
 		},
+		displayStyle: {
+			type: 'string',
+			default: 'list',
+		},
+		showFilterButton: {
+			type: 'boolean',
+			default: false,
+		},
 		/**
 		 * Are we previewing?
 		 */
@@ -62,9 +72,7 @@ registerBlockType( 'woocommerce/attribute-filter', {
 		},
 	},
 	edit,
-	/**
-	 * Save the props to post content.
-	 */
+	// Save the props to post content.
 	save( { attributes } ) {
 		const {
 			className,
@@ -73,6 +81,8 @@ registerBlockType( 'woocommerce/attribute-filter', {
 			attributeId,
 			heading,
 			headingLevel,
+			displayStyle,
+			showFilterButton,
 		} = attributes;
 		const data = {
 			'data-attribute-id': attributeId,
@@ -81,6 +91,12 @@ registerBlockType( 'woocommerce/attribute-filter', {
 			'data-heading': heading,
 			'data-heading-level': headingLevel,
 		};
+		if ( displayStyle !== 'list' ) {
+			data[ 'data-display-style' ] = displayStyle;
+		}
+		if ( showFilterButton ) {
+			data[ 'data-show-filter-button' ] = showFilterButton;
+		}
 		return (
 			<div
 				className={ classNames( 'is-loading', className ) }

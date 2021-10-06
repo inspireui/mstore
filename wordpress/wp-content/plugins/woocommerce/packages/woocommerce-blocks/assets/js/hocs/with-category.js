@@ -3,13 +3,18 @@
  */
 import { Component } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { getCategory } from '@woocommerce/block-components/utils';
+import { getCategory } from '@woocommerce/editor-components/utils';
 
 /**
  * Internal dependencies
  */
 import { formatError } from '../base/utils/errors.js';
 
+/**
+ * HOC that queries a category for a component.
+ *
+ * @param {Function} OriginalComponent Component being wrapped.
+ */
 const withCategory = createHigherOrderComponent( ( OriginalComponent ) => {
 	return class WrappedComponent extends Component {
 		constructor() {

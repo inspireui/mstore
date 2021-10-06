@@ -1,12 +1,5 @@
 <?php
 
-/*
-Plugin Name: Page Template Plugin : 'Good To Be Bad'
-Plugin URI: http://www.wpexplorer.com/wordpress-page-templates-plugin/
-Version: 1.1.0
-Author: WPExplorer
-Author URI: http://www.wpexplorer.com/
-*/
 
 class PageTemplater
 {
@@ -63,7 +56,7 @@ class PageTemplater
         // Add your templates to this array.
         $this->templates = ['mstore-api-template.php' => 'Mstore Check Out'];
 
-        add_action("plugins_loaded",array($this,'create_checkout_page'));   
+        add_action("plugins_loaded", array($this, 'create_checkout_page'));
     }
 
     /**
@@ -136,19 +129,20 @@ class PageTemplater
         return $template;
     }
 
-    public function create_checkout_page(){
+    public function create_checkout_page()
+    {
         global $wpdb;
         $table_insert = $wpdb->prefix . "posts";
         $join_table = $wpdb->prefix . "postmeta";
         // $sql = ;
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM %s AS p INNER JOIN %s AS meta ON p.ID = meta.post_id WHERE post_type = '%s' AND post_status='%s' AND (meta_value = '%s' OR meta_key = '%s')", $table_insert, $join_table, 'page', 'publish', 'mstore-api-template.php', '_mstore_checkout_template'),OBJECT);
-        if(empty($result)){
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM %s AS p INNER JOIN %s AS meta ON p.ID = meta.post_id WHERE post_type = '%s' AND post_status='%s' AND (meta_value = '%s' OR meta_key = '%s')", $table_insert, $join_table, 'page', 'publish', 'mstore-api-template.php', '_mstore_checkout_template'), OBJECT);
+        if (empty($result)) {
             $pageguid = site_url() . "/mstore-api";
             // Insert the post into the database
-            $wpdb->insert( 
-                $table_insert, 
-                array( 
-                    'post_title' => 'Mstore Check Out', 
+            $wpdb->insert(
+                $table_insert,
+                array(
+                    'post_title' => 'Mstore Check Out',
                     'post_name' => 'mstore-api',
                     'guid' => $pageguid,
                     'post_type' => 'page',
@@ -157,23 +151,23 @@ class PageTemplater
                     'ping_status' => 'closed',
                     'comment_status' => 'closed',
                     'menu_order' => 0
-                ), 
-                array( 
+                ),
+                array(
                     '%s',
-                    '%s', 
-                    '%s', 
-                    '%s', 
-                    '%s',  
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
                     '%d',
-                    '%s', 
-                    '%s', 
+                    '%s',
+                    '%s',
                     '%d'
-                ) 
+                )
             );
-            $pageid = $wpdb->insert_id; 
-            update_post_meta($pageid,'_mstore_checkout_template',1); 
-            update_post_meta($pageid,'_wp_page_template','mstore-api-template.php');      
-            update_option('mstore_checkout_page_id',$pageid); 
+            $pageid = $wpdb->insert_id;
+            update_post_meta($pageid, '_mstore_checkout_template', 1);
+            update_post_meta($pageid, '_wp_page_template', 'mstore-api-template.php');
+            update_option('mstore_checkout_page_id', $pageid);
         }
     }
 }

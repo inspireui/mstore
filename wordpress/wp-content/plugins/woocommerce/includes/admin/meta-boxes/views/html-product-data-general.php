@@ -2,7 +2,7 @@
 /**
  * Product general data panel.
  *
- * @package WooCommerce/Admin
+ * @package WooCommerce\Admin
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -31,6 +31,8 @@ defined( 'ABSPATH' ) || exit;
 				'description' => __( 'This text will be shown on the button linking to the external product.', 'woocommerce' ),
 			)
 		);
+
+		do_action( 'woocommerce_product_options_external' );
 		?>
 	</div>
 
@@ -89,7 +91,7 @@ defined( 'ABSPATH' ) || exit;
 					$downloadable_files = $product_object->get_downloads( 'edit' );
 					if ( $downloadable_files ) {
 						foreach ( $downloadable_files as $key => $file ) {
-							include 'html-product-download.php';
+							include __DIR__ . '/html-product-download.php';
 						}
 					}
 					?>
@@ -105,7 +107,7 @@ defined( 'ABSPATH' ) || exit;
 									'name' => '',
 								);
 								ob_start();
-								require 'html-product-download.php';
+								require __DIR__ . '/html-product-download.php';
 								echo esc_attr( ob_get_clean() );
 								?>
 							"><?php esc_html_e( 'Add File', 'woocommerce' ); ?></a>

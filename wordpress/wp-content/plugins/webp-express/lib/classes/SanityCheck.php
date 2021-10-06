@@ -299,12 +299,6 @@ class SanityCheck
             return $input;
         }
 
-        // See if $filePath begins with $dirPath + '/'. If it does, we are done and OK!
-        if (strpos($input, $docRoot . '/') === 0) {
-            return $input;
-        }
-
-
         // Use realpath to expand symbolic links and check if it exists
         $docRootSymLinksExpanded = @realpath($docRoot);
         if ($docRootSymLinksExpanded === false) {
@@ -315,12 +309,20 @@ class SanityCheck
             // Cannot resolve document root, so cannot test if in document root
             return $input;
         }
-        $docRootSymLinksExpanded = rtrim($docRootSymLinksExpanded, '/');
+
+        // See if $filePath begins with the realpath of the $docRoot + '/'. If it does, we are done and OK!
+        // (pull #429)
+        if (strpos($input, $docRootSymLinksExpanded . '/') === 0) {
+            return $input;
+        }
+
+        $docRootSymLinksExpanded = rtrim($docRootSymLinksExpanded, '\\/');
         $docRootSymLinksExpanded = self::absPathExists($docRootSymLinksExpanded, 'Document root does not exist!');
         $docRootSymLinksExpanded = self::absPathExistsAndIsDir($docRootSymLinksExpanded, 'Document root is not a directory!');
 
+        $directorySeparator = self::isOnMicrosoft() ? '\\' : '/';
         $errorMsg = 'Path is outside resolved document root (' . $docRootSymLinksExpanded . ')';
-        self::pathBeginsWithSymLinksExpanded($input, $docRootSymLinksExpanded . '/', $errorMsg);
+        self::pathBeginsWithSymLinksExpanded($input, $docRootSymLinksExpanded . $directorySeparator, $errorMsg);
 
         return $input;
     }

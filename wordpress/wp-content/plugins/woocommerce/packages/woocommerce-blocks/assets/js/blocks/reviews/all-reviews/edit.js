@@ -2,11 +2,10 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InspectorControls } from '@wordpress/editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import PropTypes from 'prop-types';
-import { IconAllReviews } from '@woocommerce/block-components/icons';
+import { Icon, discussion } from '@woocommerce/icons';
 
 /**
  * Internal dependencies
@@ -20,6 +19,10 @@ import {
 
 /**
  * Component to handle edit mode of "All Reviews".
+ *
+ * @param {Object} props Incoming props for the component.
+ * @param {Object} props.attributes Incoming block attributes.
+ * @param {function(any):any} props.setAttributes Setter for block attributes.
  */
 const AllReviewsEditor = ( { attributes, setAttributes } ) => {
 	const getInspectorControls = () => {
@@ -58,16 +61,20 @@ const AllReviewsEditor = ( { attributes, setAttributes } ) => {
 	};
 
 	return (
-		<Fragment>
+		<>
 			{ getInspectorControls() }
 			<EditorContainerBlock
 				attributes={ attributes }
-				className="wc-block-all-reviews"
-				icon={ <IconAllReviews className="block-editor-block-icon" /> }
+				icon={
+					<Icon
+						icon={ discussion }
+						className="block-editor-block-icon"
+					/>
+				}
 				name={ __( 'All Reviews', 'woocommerce' ) }
 				noReviewsPlaceholder={ NoReviewsPlaceholder }
 			/>
-		</Fragment>
+		</>
 	);
 };
 

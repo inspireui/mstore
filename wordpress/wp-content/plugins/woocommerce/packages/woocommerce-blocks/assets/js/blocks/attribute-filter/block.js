@@ -1,80 +1,51 @@
 /**
  * External dependencies
  */
+import { __, sprintf } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
+import { usePrevious, useShallowEqual } from '@woocommerce/base-hooks';
 import {
 	useCollection,
 	useQueryStateByKey,
 	useQueryStateByContext,
 	useCollectionData,
-} from '@woocommerce/base-hooks';
-import {
-	useCallback,
-	Fragment,
-	useEffect,
-	useState,
-	useMemo,
-} from '@wordpress/element';
+} from '@woocommerce/base-context/hooks';
+import { useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import CheckboxList from '@woocommerce/base-components/checkbox-list';
+import DropdownSelector from '@woocommerce/base-components/dropdown-selector';
+import FilterSubmitButton from '@woocommerce/base-components/filter-submit-button';
+import isShallowEqual from '@wordpress/is-shallow-equal';
 import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies
  */
-import './style.scss';
 import { getAttributeFromID } from '../../utils/attributes';
 import { updateAttributeFilter } from '../../utils/attributes-query';
+import Label from './label';
+import { previewAttributeObject, previewOptions } from './preview';
+import './style.scss';
 
 /**
  * Component displaying an attribute filter.
+ *
+ * @param {Object} props Incoming props for the component.
+ * @param {Object} props.attributes Incoming block attributes.
+ * @param {boolean} props.isEditor
  */
 const AttributeFilterBlock = ( {
 	attributes: blockAttributes,
 	isEditor = false,
 } ) => {
-	/**
-	 * Get the label for an attribute term filter.
-	 */
-	const getLabel = useCallback(
-		( name, count ) => {
-			return (
-				<Fragment>
-					{ decodeEntities( name ) }
-					{ blockAttributes.showCounts && count !== null && (
-						<span className="wc-block-attribute-filter-list-count">
-							{ count }
-						</span>
-					) }
-				</Fragment>
-			);
-		},
-		[ blockAttributes ]
-	);
-
 	const attributeObject =
 		blockAttributes.isPreview && ! blockAttributes.attributeId
-			? {
-					id: 0,
-					name: 'preview',
-					taxonomy: 'preview',
-					label: 'Preview',
-			  }
+			? previewAttributeObject
 			: getAttributeFromID( blockAttributes.attributeId );
+
+	const [ checked, setChecked ] = useState( [] );
 	const [ displayedOptions, setDisplayedOptions ] = useState(
 		blockAttributes.isPreview && ! blockAttributes.attributeId
-			? [
-					{
-						key: 'preview-1',
-						label: getLabel( 'Blue', 3 ),
-					},
-					{
-						key: 'preview-2',
-						label: getLabel( 'Green', 3 ),
-					},
-					{
-						key: 'preview-3',
-						label: getLabel( 'Red', 2 ),
-					},
-			  ]
+			? previewOptions
 			: []
 	);
 
@@ -83,15 +54,6 @@ const AttributeFilterBlock = ( {
 		productAttributesQuery,
 		setProductAttributesQuery,
 	] = useQueryStateByKey( 'attributes', [] );
-
-	const checked = useMemo( () => {
-		return productAttributesQuery
-			.filter(
-				( attribute ) =>
-					attribute.attribute === attributeObject.taxonomy
-			)
-			.flatMap( ( attribute ) => attribute.slug );
-	}, [ productAttributesQuery, attributeObject ] );
 
 	const {
 		results: attributeTerms,
@@ -139,36 +101,93 @@ const AttributeFilterBlock = ( {
 	 * Compare intersection of all terms and filtered counts to get a list of options to display.
 	 */
 	useEffect( () => {
+		/**
+		 * Checks if a term slug is in the query state.
+		 *
+		 * @param {string} termSlug The term of the slug to check.
+		 */
+		const isTermInQueryState = ( termSlug ) => {
+			if ( ! queryState?.attributes ) {
+				return false;
+			}
+			return queryState.attributes.some(
+				( { attribute, slug = [] } ) =>
+					attribute === attributeObject.taxonomy &&
+					slug.includes( termSlug )
+			);
+		};
+
 		if ( attributeTermsLoading || filteredCountsLoading ) {
 			return;
 		}
 
-		const newOptions = [];
+		const newOptions = attributeTerms
+			.map( ( term ) => {
+				const filteredTerm = getFilteredTerm( term.id );
 
-		attributeTerms.forEach( ( term ) => {
-			const filteredTerm = getFilteredTerm( term.id );
-			const isChecked = checked.includes( term.slug );
-			const count = filteredTerm ? filteredTerm.count : null;
+				// If there is no match this term doesn't match the current product collection - only render if checked.
+				if (
+					! filteredTerm &&
+					! checked.includes( term.slug ) &&
+					! isTermInQueryState( term.slug )
+				) {
+					return null;
+				}
 
-			// If there is no match this term doesn't match the current product collection - only render if checked.
-			if ( ! filteredTerm && ! isChecked ) {
-				return;
-			}
+				const count = filteredTerm ? filteredTerm.count : 0;
 
-			newOptions.push( {
-				key: term.slug,
-				label: getLabel( term.name, count ),
-			} );
-		} );
+				return {
+					value: term.slug,
+					name: decodeEntities( term.name ),
+					label: (
+						<Label
+							name={ decodeEntities( term.name ) }
+							count={ blockAttributes.showCounts ? count : null }
+						/>
+					),
+				};
+			} )
+			.filter( Boolean );
 
 		setDisplayedOptions( newOptions );
 	}, [
+		attributeObject.taxonomy,
 		attributeTerms,
 		attributeTermsLoading,
+		blockAttributes.showCounts,
 		filteredCountsLoading,
 		getFilteredTerm,
-		getLabel,
 		checked,
+		queryState.attributes,
+	] );
+
+	const checkedQuery = useMemo( () => {
+		return productAttributesQuery
+			.filter(
+				( { attribute } ) => attribute === attributeObject.taxonomy
+			)
+			.flatMap( ( { slug } ) => slug );
+	}, [ productAttributesQuery, attributeObject.taxonomy ] );
+
+	const currentCheckedQuery = useShallowEqual( checkedQuery );
+	const previousCheckedQuery = usePrevious( currentCheckedQuery );
+	// Track ATTRIBUTES QUERY changes so the block reflects current filters.
+	useEffect( () => {
+		if (
+			! isShallowEqual( previousCheckedQuery, currentCheckedQuery ) && // checked query changed
+			! isShallowEqual( checked, currentCheckedQuery ) // checked query doesn't match the UI
+		) {
+			setChecked( currentCheckedQuery );
+			if ( ! blockAttributes.showFilterButton ) {
+				onSubmit( currentCheckedQuery );
+			}
+		}
+	}, [
+		checked,
+		currentCheckedQuery,
+		previousCheckedQuery,
+		onSubmit,
+		blockAttributes.showFilterButton,
 	] );
 
 	/**
@@ -186,39 +205,125 @@ const AttributeFilterBlock = ( {
 		[ attributeTerms ]
 	);
 
-	/**
-	 * When a checkbox in the list changes, update state.
-	 */
-	const onChange = useCallback(
-		( event ) => {
-			const isChecked = event.target.checked;
-			const checkedValue = event.target.value;
-			const newChecked = checked.filter(
-				( value ) => value !== checkedValue
-			);
-
-			if ( isChecked ) {
-				newChecked.push( checkedValue );
-				newChecked.sort();
+	const onSubmit = useCallback(
+		( isChecked ) => {
+			if ( isEditor ) {
+				return;
 			}
-
-			const newSelectedTerms = getSelectedTerms( newChecked );
 
 			updateAttributeFilter(
 				productAttributesQuery,
 				setProductAttributesQuery,
 				attributeObject,
-				newSelectedTerms,
+				getSelectedTerms( isChecked ),
 				blockAttributes.queryType === 'or' ? 'in' : 'and'
 			);
 		},
 		[
-			attributeTerms,
-			checked,
+			isEditor,
 			productAttributesQuery,
 			setProductAttributesQuery,
 			attributeObject,
-			blockAttributes,
+			getSelectedTerms,
+			blockAttributes.queryType,
+		]
+	);
+
+	const multiple =
+		blockAttributes.displayStyle !== 'dropdown' ||
+		blockAttributes.queryType === 'or';
+
+	/**
+	 * When a checkbox in the list changes, update state.
+	 */
+	const onChange = useCallback(
+		( checkedValue ) => {
+			const getFilterNameFromValue = ( filterValue ) => {
+				const { name } = displayedOptions.find(
+					( option ) => option.value === filterValue
+				);
+
+				return name;
+			};
+
+			const announceFilterChange = ( { filterAdded, filterRemoved } ) => {
+				const filterAddedName = filterAdded
+					? getFilterNameFromValue( filterAdded )
+					: null;
+				const filterRemovedName = filterRemoved
+					? getFilterNameFromValue( filterRemoved )
+					: null;
+				if ( filterAddedName && filterRemovedName ) {
+					speak(
+						sprintf(
+							/* translators: %1$s and %2$s are attribute terms (for example: 'red', 'blue', 'large'...). */
+							__(
+								'%1$s filter replaced with %2$s.',
+								'woocommerce'
+							),
+							filterAddedName,
+							filterRemovedName
+						)
+					);
+				} else if ( filterAddedName ) {
+					speak(
+						sprintf(
+							/* translators: %s attribute term (for example: 'red', 'blue', 'large'...) */
+							__(
+								'%s filter added.',
+								'woocommerce'
+							),
+							filterAddedName
+						)
+					);
+				} else if ( filterRemovedName ) {
+					speak(
+						sprintf(
+							/* translators: %s attribute term (for example: 'red', 'blue', 'large'...) */
+							__(
+								'%s filter removed.',
+								'woocommerce'
+							),
+							filterRemovedName
+						)
+					);
+				}
+			};
+
+			const previouslyChecked = checked.includes( checkedValue );
+			let newChecked;
+
+			if ( ! multiple ) {
+				newChecked = previouslyChecked ? [] : [ checkedValue ];
+				const filterAdded = previouslyChecked ? null : checkedValue;
+				const filterRemoved =
+					checked.length === 1 ? checked[ 0 ] : null;
+				announceFilterChange( { filterAdded, filterRemoved } );
+			} else {
+				newChecked = checked.filter(
+					( value ) => value !== checkedValue
+				);
+
+				if ( ! previouslyChecked ) {
+					newChecked.push( checkedValue );
+					newChecked.sort();
+					announceFilterChange( { filterAdded: checkedValue } );
+				} else {
+					announceFilterChange( { filterRemoved: checkedValue } );
+				}
+			}
+
+			setChecked( newChecked );
+			if ( ! blockAttributes.showFilterButton ) {
+				onSubmit( newChecked );
+			}
+		},
+		[
+			checked,
+			displayedOptions,
+			multiple,
+			onSubmit,
+			blockAttributes.showFilterButton,
 		]
 	);
 
@@ -227,27 +332,45 @@ const AttributeFilterBlock = ( {
 	}
 
 	const TagName = `h${ blockAttributes.headingLevel }`;
+	const isLoading = ! blockAttributes.isPreview && attributeTermsLoading;
+	const isDisabled = ! blockAttributes.isPreview && filteredCountsLoading;
 
 	return (
-		<Fragment>
+		<>
 			{ ! isEditor && blockAttributes.heading && (
 				<TagName>{ blockAttributes.heading }</TagName>
 			) }
 			<div className="wc-block-attribute-filter">
-				<CheckboxList
-					className={ 'wc-block-attribute-filter-list' }
-					options={ displayedOptions }
-					checked={ checked }
-					onChange={ onChange }
-					isLoading={
-						! blockAttributes.isPreview && attributeTermsLoading
-					}
-					isDisabled={
-						! blockAttributes.isPreview && filteredCountsLoading
-					}
-				/>
+				{ blockAttributes.displayStyle === 'dropdown' ? (
+					<DropdownSelector
+						attributeLabel={ attributeObject.label }
+						checked={ checked }
+						className={ 'wc-block-attribute-filter-dropdown' }
+						inputLabel={ blockAttributes.heading }
+						isLoading={ isLoading }
+						multiple={ multiple }
+						onChange={ onChange }
+						options={ displayedOptions }
+					/>
+				) : (
+					<CheckboxList
+						className={ 'wc-block-attribute-filter-list' }
+						options={ displayedOptions }
+						checked={ checked }
+						onChange={ onChange }
+						isLoading={ isLoading }
+						isDisabled={ isDisabled }
+					/>
+				) }
+				{ blockAttributes.showFilterButton && (
+					<FilterSubmitButton
+						className="wc-block-attribute-filter__button"
+						disabled={ isLoading || isDisabled }
+						onClick={ () => onSubmit( checked ) }
+					/>
+				) }
 			</div>
-		</Fragment>
+		</>
 	);
 };
 

@@ -3,8 +3,6 @@
  * REST API Reports revenue stats controller
  *
  * Handles requests to the /reports/revenue/stats endpoint.
- *
- * @package WooCommerce Admin/API
  */
 
 namespace Automattic\WooCommerce\Admin\API\Reports\Revenue\Stats;
@@ -19,7 +17,6 @@ use \Automattic\WooCommerce\Admin\API\Reports\ParameterException;
 /**
  * REST API Reports revenue stats controller class.
  *
- * @package WooCommerce/API
  * @extends WC_REST_Reports_Controller
  */
 class Controller extends \WC_REST_Reports_Controller implements ExportableInterface {
@@ -58,6 +55,7 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 		$args['orderby']   = $request['orderby'];
 		$args['order']     = $request['order'];
 		$args['segmentby'] = $request['segmentby'];
+		$args['fields']    = $request['fields'];
 
 		return $args;
 	}
@@ -449,6 +447,7 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 		return array(
 			'date'         => __( 'Date', 'woocommerce' ),
 			'orders_count' => __( 'Orders', 'woocommerce' ),
+			'gross_sales'  => __( 'Gross Sales', 'woocommerce' ),
 			'total_sales'  => __( 'Total Sales', 'woocommerce' ),
 			'refunds'      => __( 'Returns', 'woocommerce' ),
 			'coupons'      => __( 'Coupons', 'woocommerce' ),
@@ -470,6 +469,7 @@ class Controller extends \WC_REST_Reports_Controller implements ExportableInterf
 		return array(
 			'date'         => $item['date_start'],
 			'orders_count' => $subtotals['orders_count'],
+			'gross_sales'  => self::csv_number_format( $subtotals['gross_sales'] ),
 			'total_sales'  => self::csv_number_format( $subtotals['total_sales'] ),
 			'refunds'      => self::csv_number_format( $subtotals['refunds'] ),
 			'coupons'      => self::csv_number_format( $subtotals['coupons'] ),

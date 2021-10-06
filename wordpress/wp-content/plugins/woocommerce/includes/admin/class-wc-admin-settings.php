@@ -2,7 +2,7 @@
 /**
  * WooCommerce Admin Settings Class
  *
- * @package  WooCommerce/Admin
+ * @package  WooCommerce\Admin
  * @version  3.4.0
  */
 
@@ -49,15 +49,15 @@ if ( ! class_exists( 'WC_Admin_Settings', false ) ) :
 
 				include_once dirname( __FILE__ ) . '/settings/class-wc-settings-page.php';
 
-				$settings[] = include 'settings/class-wc-settings-general.php';
-				$settings[] = include 'settings/class-wc-settings-products.php';
-				$settings[] = include 'settings/class-wc-settings-tax.php';
-				$settings[] = include 'settings/class-wc-settings-shipping.php';
-				$settings[] = include 'settings/class-wc-settings-payment-gateways.php';
-				$settings[] = include 'settings/class-wc-settings-accounts.php';
-				$settings[] = include 'settings/class-wc-settings-emails.php';
-				$settings[] = include 'settings/class-wc-settings-integrations.php';
-				$settings[] = include 'settings/class-wc-settings-advanced.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-general.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-products.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-tax.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-shipping.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-payment-gateways.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-accounts.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-emails.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-integrations.php';
+				$settings[] = include __DIR__ . '/settings/class-wc-settings-advanced.php';
 
 				self::$settings = apply_filters( 'woocommerce_get_settings_pages', $settings );
 			}
@@ -200,7 +200,7 @@ if ( ! class_exists( 'WC_Admin_Settings', false ) ) :
 		/**
 		 * Output admin fields.
 		 *
-		 * Loops though the woocommerce options array and outputs each field.
+		 * Loops through the woocommerce options array and outputs each field.
 		 *
 		 * @param array[] $options Opens array to output.
 		 */
@@ -579,6 +579,47 @@ if ( ! class_exists( 'WC_Admin_Settings', false ) ) :
 						<?php
 						break;
 
+					case 'single_select_page_with_search':
+						$option_value = $value['value'];
+						$page         = get_post( $option_value );
+
+						if ( ! is_null( $page ) ) {
+							$page                = get_post( $option_value );
+							$option_display_name = sprintf(
+								/* translators: 1: page name 2: page ID */
+								__( '%1$s (ID: %2$s)', 'woocommerce' ),
+								$page->post_title,
+								$option_value
+							);
+						}
+						?>
+						<tr valign="top" class="single_select_page">
+							<th scope="row" class="titledesc">
+								<label for="<?php echo esc_attr( $value['id'] ); ?>"><?php echo esc_html( $value['title'] ); ?> <?php echo $tooltip_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></label>
+							</th>
+							<td class="forminp forminp-<?php echo esc_attr( sanitize_title( $value['type'] ) ); ?>">
+								<select
+									name="<?php echo esc_attr( $value['id'] ); ?>"
+									id="<?php echo esc_attr( $value['id'] ); ?>"
+									style="<?php echo esc_attr( $value['css'] ); ?>"
+									class="<?php echo esc_attr( $value['class'] ); ?>"
+									<?php echo implode( ' ', $custom_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+									data-placeholder="<?php esc_attr_e( 'Search for a page&hellip;', 'woocommerce' ); ?>"
+									data-allow_clear="true"
+									data-exclude="<?php echo wc_esc_json( wp_json_encode( $value['args']['exclude'] ) ); ?>"
+									>
+									<option value=""></option>
+									<?php if ( ! is_null( $page ) ) { ?>
+										<option value="<?php echo esc_attr( $option_value ); ?>" selected="selected">
+										<?php echo wp_strip_all_tags( $option_display_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+										</option>
+									<?php } ?>
+								</select> <?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</td>
+						</tr>
+						<?php
+						break;
+
 					// Single country selects.
 					case 'single_select_country':
 						$country_setting = (string) $value['value'];
@@ -726,7 +767,7 @@ if ( ! class_exists( 'WC_Admin_Settings', false ) ) :
 		/**
 		 * Save admin fields.
 		 *
-		 * Loops though the woocommerce options array and outputs each field.
+		 * Loops through the woocommerce options array and outputs each field.
 		 *
 		 * @param array $options Options array to output.
 		 * @param array $data    Optional. Data to use for saving. Defaults to $_POST.
@@ -869,25 +910,29 @@ if ( ! class_exists( 'WC_Admin_Settings', false ) ) :
 		 * If using force or x-sendfile, this ensures the .htaccess is in place.
 		 */
 		public static function check_download_folder_protection() {
-			$upload_dir      = wp_upload_dir();
-			$downloads_url   = $upload_dir['basedir'] . '/woocommerce_uploads';
+			$upload_dir      = wp_get_upload_dir();
+			$downloads_path  = $upload_dir['basedir'] . '/woocommerce_uploads';
 			$download_method = get_option( 'woocommerce_file_download_method' );
+			$file_path       = $downloads_path . '/.htaccess';
+			$file_content    = 'redirect' === $download_method ? 'Options -Indexes' : 'deny from all';
+			$create          = false;
 
-			if ( 'redirect' === $download_method ) {
-
-				// Redirect method - don't protect.
-				if ( file_exists( $downloads_url . '/.htaccess' ) ) {
-					unlink( $downloads_url . '/.htaccess' ); // @codingStandardsIgnoreLine
-				}
+			if ( wp_mkdir_p( $downloads_path ) && ! file_exists( $file_path ) ) {
+				$create = true;
 			} else {
+				$current_content = @file_get_contents( $file_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
-				// Force method - protect, add rules to the htaccess file.
-				if ( ! file_exists( $downloads_url . '/.htaccess' ) ) {
-					$file_handle = @fopen( $downloads_url . '/.htaccess', 'w' ); // @codingStandardsIgnoreLine
-					if ( $file_handle ) {
-						fwrite( $file_handle, 'deny from all' ); // @codingStandardsIgnoreLine
-						fclose( $file_handle ); // @codingStandardsIgnoreLine
-					}
+				if ( $current_content !== $file_content ) {
+					unlink( $file_path );
+					$create = true;
+				}
+			}
+
+			if ( $create ) {
+				$file_handle = @fopen( $file_path, 'wb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_fopen
+				if ( $file_handle ) {
+					fwrite( $file_handle, $file_content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+					fclose( $file_handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 				}
 			}
 		}

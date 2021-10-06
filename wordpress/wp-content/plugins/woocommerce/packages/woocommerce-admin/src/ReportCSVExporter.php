@@ -1,8 +1,6 @@
 <?php
 /**
  * Handles reports CSV export batches.
- *
- * @package WooCommerce/Export
  */
 
 namespace Automattic\WooCommerce\Admin;
@@ -54,6 +52,8 @@ class ReportCSVExporter extends \WC_CSV_Batch_Exporter {
 	public function __construct( $type = false, $args = array() ) {
 		parent::__construct();
 
+		self::maybe_create_directory();
+
 		if ( ! empty( $type ) ) {
 			$this->set_report_type( $type );
 			$this->set_column_names( $this->get_report_columns() );
@@ -63,6 +63,59 @@ class ReportCSVExporter extends \WC_CSV_Batch_Exporter {
 			$this->set_report_args( $args );
 		}
 	}
+
+	/**
+	 * Create the directory for reports if it does not yet exist.
+	 */
+	public static function maybe_create_directory() {
+		$reports_dir = self::get_reports_directory();
+
+		$files = array(
+			array(
+				'base'    => $reports_dir,
+				'file'    => '.htaccess',
+				'content' => 'DirectoryIndex index.php index.html' . PHP_EOL . 'deny from all',
+			),
+			array(
+				'base'    => $reports_dir,
+				'file'    => 'index.html',
+				'content' => '',
+			),
+		);
+
+		foreach ( $files as $file ) {
+			if ( ! file_exists( trailingslashit( $file['base'] ) ) ) {
+				wp_mkdir_p( $file['base'] );
+			}
+			if ( ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+				$file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'wb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_fopen
+				if ( $file_handle ) {
+					fwrite( $file_handle, $file['content'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+					fclose( $file_handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get report uploads directory.
+	 *
+	 * @return string
+	 */
+	public static function get_reports_directory() {
+		$upload_dir = wp_upload_dir();
+		return trailingslashit( $upload_dir['basedir'] ) . 'woocommerce_uploads/reports/';
+	}
+
+	/**
+	 * Get file path to export to.
+	 *
+	 * @return string
+	 */
+	protected function get_file_path() {
+		return self::get_reports_directory() . $this->get_filename();
+	}
+
 
 	/**
 	 * Setter for report type.
@@ -121,10 +174,6 @@ class ReportCSVExporter extends \WC_CSV_Batch_Exporter {
 
 		if ( isset( $controller_map[ $this->report_type ] ) ) {
 			// Load the controllers if accessing outside the REST API.
-			if ( ! did_action( 'rest_api_init' ) ) {
-				do_action( 'rest_api_init' );
-			}
-
 			return new $controller_map[ $this->report_type ]();
 		}
 
@@ -197,8 +246,10 @@ class ReportCSVExporter extends \WC_CSV_Batch_Exporter {
 			}
 		}
 
+		$request->set_attributes( array( 'args' => $params ) );
 		$request->set_default_params( $defaults );
 		$request->set_query_params( $this->report_args );
+		$request->sanitize_params();
 
 		// Does the controller have an export-specific item retrieval method?
 		// @todo - Potentially revisit. This is only for /revenue/stats/.

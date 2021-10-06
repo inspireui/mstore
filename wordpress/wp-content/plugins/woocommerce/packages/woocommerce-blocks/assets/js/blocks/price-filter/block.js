@@ -1,16 +1,17 @@
 /**
  * External dependencies
  */
+import { usePrevious } from '@woocommerce/base-hooks';
 import {
 	useQueryStateByKey,
 	useQueryStateByContext,
 	useCollectionData,
-} from '@woocommerce/base-hooks';
-import { Fragment, useCallback, useState, useEffect } from '@wordpress/element';
+} from '@woocommerce/base-context/hooks';
+import { useCallback, useState, useEffect } from '@wordpress/element';
 import PriceSlider from '@woocommerce/base-components/price-slider';
-import { CURRENCY } from '@woocommerce/settings';
 import { useDebouncedCallback } from 'use-debounce';
 import PropTypes from 'prop-types';
+import { getCurrencyFromPriceResponse } from '@woocommerce/price-format';
 
 /**
  * Internal dependencies
@@ -19,13 +20,19 @@ import usePriceConstraints from './use-price-constraints.js';
 
 /**
  * Component displaying a price filter.
+ *
+ * @param {Object} props Component props.
+ * @param {Object} props.attributes Incoming block attributes.
+ * @param {boolean} props.isEditor Whether in editor context or not.
  */
 const PriceFilterBlock = ( { attributes, isEditor = false } ) => {
 	const [ minPriceQuery, setMinPriceQuery ] = useQueryStateByKey(
-		'min_price'
+		'min_price',
+		null
 	);
 	const [ maxPriceQuery, setMaxPriceQuery ] = useQueryStateByKey(
-		'max_price'
+		'max_price',
+		null
 	);
 	const [ queryState ] = useQueryStateByContext();
 	const { results, isLoading } = useCollectionData( {
@@ -36,21 +43,33 @@ const PriceFilterBlock = ( { attributes, isEditor = false } ) => {
 	const [ minPrice, setMinPrice ] = useState();
 	const [ maxPrice, setMaxPrice ] = useState();
 
+	const currency = getCurrencyFromPriceResponse( results.price_range );
+
 	const { minConstraint, maxConstraint } = usePriceConstraints( {
-		minPrice: results.min_price,
-		maxPrice: results.max_price,
+		minPrice: results.price_range
+			? results.price_range.min_price
+			: undefined,
+		maxPrice: results.price_range
+			? results.price_range.max_price
+			: undefined,
+		minorUnit: currency.minorUnit,
 	} );
 
-	// Updates the query after a short delay.
-	const [ debouncedUpdateQuery ] = useDebouncedCallback( () => {
-		onSubmit();
-	}, 500 );
-
 	// Updates the query based on slider values.
-	const onSubmit = useCallback( () => {
-		setMinPriceQuery( minPrice === minConstraint ? undefined : minPrice );
-		setMaxPriceQuery( maxPrice === maxConstraint ? undefined : maxPrice );
-	}, [ minPrice, maxPrice, minConstraint, maxConstraint ] );
+	const onSubmit = useCallback(
+		( newMinPrice, newMaxPrice ) => {
+			setMinPriceQuery(
+				newMinPrice === minConstraint ? undefined : newMinPrice
+			);
+			setMaxPriceQuery(
+				newMaxPrice === maxConstraint ? undefined : newMaxPrice
+			);
+		},
+		[ minConstraint, maxConstraint, setMinPriceQuery, setMaxPriceQuery ]
+	);
+
+	// Updates the query after a short delay.
+	const [ debouncedUpdateQuery ] = useDebouncedCallback( onSubmit, 500 );
 
 	// Callback when slider or input fields are changed.
 	const onChange = useCallback(
@@ -62,29 +81,61 @@ const PriceFilterBlock = ( { attributes, isEditor = false } ) => {
 				setMaxPrice( prices[ 1 ] );
 			}
 		},
-		[ minConstraint, maxConstraint, minPrice, maxPrice ]
+		[ minPrice, maxPrice, setMinPrice, setMaxPrice ]
 	);
 
 	// Track price STATE changes - if state changes, update the query.
 	useEffect( () => {
 		if ( ! attributes.showFilterButton ) {
-			debouncedUpdateQuery();
+			debouncedUpdateQuery( minPrice, maxPrice );
 		}
-	}, [ minPrice, maxPrice, attributes.showFilterButton ] );
+	}, [
+		minPrice,
+		maxPrice,
+		attributes.showFilterButton,
+		debouncedUpdateQuery,
+	] );
 
-	// Track PRICE QUERY changes so the slider reflects current filters.
+	// Track price query/price constraint changes so the slider reflects current filters.
+	const previousMinPriceQuery = usePrevious( minPriceQuery );
+	const previousMaxPriceQuery = usePrevious( maxPriceQuery );
+	const previousMinConstraint = usePrevious( minConstraint );
+	const previousMaxConstraint = usePrevious( maxConstraint );
 	useEffect( () => {
-		if ( minPriceQuery !== minPrice ) {
+		if (
+			! Number.isFinite( minPrice ) ||
+			( minPriceQuery !== previousMinPriceQuery && // minPrice from query changed
+				minPriceQuery !== minPrice ) || // minPrice from query doesn't match the UI min price
+			( minConstraint !== previousMinConstraint && // minPrice from query changed
+				minConstraint !== minPrice ) // minPrice from query doesn't match the UI min price
+		) {
 			setMinPrice(
 				Number.isFinite( minPriceQuery ) ? minPriceQuery : minConstraint
 			);
 		}
-		if ( maxPriceQuery !== maxPrice ) {
+		if (
+			! Number.isFinite( maxPrice ) ||
+			( maxPriceQuery !== previousMaxPriceQuery && // maxPrice from query changed
+				maxPriceQuery !== maxPrice ) || // maxPrice from query doesn't match the UI max price
+			( maxConstraint !== previousMaxConstraint && // maxPrice from query changed
+				maxConstraint !== maxPrice ) // maxPrice from query doesn't match the UI max price
+		) {
 			setMaxPrice(
 				Number.isFinite( maxPriceQuery ) ? maxPriceQuery : maxConstraint
 			);
 		}
-	}, [ minPriceQuery, maxPriceQuery, minConstraint, maxConstraint ] );
+	}, [
+		minPrice,
+		maxPrice,
+		minPriceQuery,
+		maxPriceQuery,
+		minConstraint,
+		maxConstraint,
+		previousMinConstraint,
+		previousMaxConstraint,
+		previousMinPriceQuery,
+		previousMaxPriceQuery,
+	] );
 
 	if (
 		! isLoading &&
@@ -98,7 +149,7 @@ const PriceFilterBlock = ( { attributes, isEditor = false } ) => {
 	const TagName = `h${ attributes.headingLevel }`;
 
 	return (
-		<Fragment>
+		<>
 			{ ! isEditor && attributes.heading && (
 				<TagName>{ attributes.heading }</TagName>
 			) }
@@ -108,17 +159,15 @@ const PriceFilterBlock = ( { attributes, isEditor = false } ) => {
 					maxConstraint={ maxConstraint }
 					minPrice={ minPrice }
 					maxPrice={ maxPrice }
-					step={ 10 }
-					currencySymbol={ CURRENCY.symbol }
-					priceFormat={ CURRENCY.priceFormat }
+					currency={ currency }
 					showInputFields={ attributes.showInputFields }
 					showFilterButton={ attributes.showFilterButton }
 					onChange={ onChange }
-					onSubmit={ onSubmit }
+					onSubmit={ () => onSubmit( minPrice, maxPrice ) }
 					isLoading={ isLoading }
 				/>
 			</div>
-		</Fragment>
+		</>
 	);
 };
 

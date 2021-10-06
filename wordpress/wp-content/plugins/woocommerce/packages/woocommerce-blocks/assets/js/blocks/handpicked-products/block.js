@@ -2,29 +2,26 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	BlockControls,
-	InspectorControls,
-	ServerSideRender,
-} from '@wordpress/editor';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import ServerSideRender from '@wordpress/server-side-render';
 import {
 	Button,
 	Disabled,
 	PanelBody,
 	Placeholder,
 	RangeControl,
-	Toolbar,
+	ToolbarGroup,
 	withSpokenMessages,
 	ToggleControl,
 } from '@wordpress/components';
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import PropTypes from 'prop-types';
-import { MAX_COLUMNS, MIN_COLUMNS } from '@woocommerce/block-settings';
-import GridContentControl from '@woocommerce/block-components/grid-content-control';
-import { IconWidgets } from '@woocommerce/block-components/icons';
-import ProductsControl from '@woocommerce/block-components/products-control';
-import ProductOrderbyControl from '@woocommerce/block-components/product-orderby-control';
+import { getSetting } from '@woocommerce/settings';
+import GridContentControl from '@woocommerce/editor-components/grid-content-control';
+import ProductsControl from '@woocommerce/editor-components/products-control';
+import ProductOrderbyControl from '@woocommerce/editor-components/product-orderby-control';
 import { gridBlockPreview } from '@woocommerce/resource-previews';
+import { Icon, widgets } from '@woocommerce/icons';
 
 /**
  * Component to handle edit mode of "Hand-picked Products".
@@ -54,8 +51,8 @@ class ProductsBlock extends Component {
 						onChange={ ( value ) =>
 							setAttributes( { columns: value } )
 						}
-						min={ MIN_COLUMNS }
-						max={ MAX_COLUMNS }
+						min={ getSetting( 'min_columns', 1 ) }
+						max={ getSetting( 'max_columns', 6 ) }
 					/>
 					<ToggleControl
 						label={ __(
@@ -109,6 +106,7 @@ class ProductsBlock extends Component {
 							const ids = value.map( ( { id } ) => id );
 							setAttributes( { products: ids } );
 						} }
+						isCompact={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -129,7 +127,7 @@ class ProductsBlock extends Component {
 
 		return (
 			<Placeholder
-				icon={ <IconWidgets /> }
+				icon={ <Icon srcElement={ widgets } /> }
 				label={ __(
 					'Hand-picked Products',
 					'woocommerce'
@@ -148,7 +146,7 @@ class ProductsBlock extends Component {
 							setAttributes( { products: ids } );
 						} }
 					/>
-					<Button isDefault onClick={ onDone }>
+					<Button isPrimary onClick={ onDone }>
 						{ __( 'Done', 'woocommerce' ) }
 					</Button>
 				</div>
@@ -165,9 +163,9 @@ class ProductsBlock extends Component {
 		}
 
 		return (
-			<Fragment>
+			<>
 				<BlockControls>
-					<Toolbar
+					<ToolbarGroup
 						controls={ [
 							{
 								icon: 'edit',
@@ -190,7 +188,7 @@ class ProductsBlock extends Component {
 						/>
 					</Disabled>
 				) }
-			</Fragment>
+			</>
 		);
 	}
 }

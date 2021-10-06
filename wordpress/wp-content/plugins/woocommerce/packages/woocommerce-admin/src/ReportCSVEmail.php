@@ -1,8 +1,6 @@
 <?php
 /**
  * Handles emailing users CSV Export download links.
- *
- * @package WooCommerce/Export
  */
 
 namespace Automattic\WooCommerce\Admin;
@@ -31,15 +29,16 @@ class ReportCSVEmail extends \WC_Email {
 		$this->template_html  = 'html-admin-report-export-download.php';
 		$this->template_plain = 'plain-admin-report-export-download.php';
 		$this->report_labels  = array(
-			'revenue'    => __( 'Revenue', 'woocommerce' ),
-			'orders'     => __( 'Orders', 'woocommerce' ),
-			'products'   => __( 'Products', 'woocommerce' ),
 			'categories' => __( 'Categories', 'woocommerce' ),
 			'coupons'    => __( 'Coupons', 'woocommerce' ),
-			'taxes'      => __( 'Taxes', 'woocommerce' ),
-			'downloads'  => __( 'Downloads', 'woocommerce' ),
-			'stock'      => __( 'Stock', 'woocommerce' ),
 			'customers'  => __( 'Customers', 'woocommerce' ),
+			'downloads'  => __( 'Downloads', 'woocommerce' ),
+			'orders'     => __( 'Orders', 'woocommerce' ),
+			'products'   => __( 'Products', 'woocommerce' ),
+			'revenue'    => __( 'Revenue', 'woocommerce' ),
+			'stock'      => __( 'Stock', 'woocommerce' ),
+			'taxes'      => __( 'Taxes', 'woocommerce' ),
+			'variations' => __( 'Variations', 'woocommerce' ),
 		);
 
 		// Call parent constructor.

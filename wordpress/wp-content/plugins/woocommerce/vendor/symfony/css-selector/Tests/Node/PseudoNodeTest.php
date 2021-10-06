@@ -18,15 +18,15 @@ class PseudoNodeTest extends AbstractNodeTest
 {
     public function getToStringConversionTestData()
     {
-        return [
-            [new PseudoNode(new ElementNode(), 'pseudo'), 'Pseudo[Element[*]:pseudo]'],
-        ];
+        return array(
+            array(new PseudoNode(new ElementNode(), 'pseudo'), 'Pseudo[Element[*]:pseudo]'),
+        );
     }
 
     public function getSpecificityValueTestData()
     {
-        return [
-            [new PseudoNode(new ElementNode(), 'pseudo'), 10],
-        ];
+        return array(
+            array(new PseudoNode(new ElementNode(), 'pseudo'), 10),
+        );
     }
 }

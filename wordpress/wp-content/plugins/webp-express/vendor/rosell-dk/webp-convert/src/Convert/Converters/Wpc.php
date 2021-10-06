@@ -32,6 +32,18 @@ class Wpc extends AbstractConverter
         return [];
     }
 
+    public function getUniqueOptions($imageType)
+    {
+        return [
+            new SensitiveStringOption('api-key', ''),   /* for communicating with wpc api v.1+ */
+            new SensitiveStringOption('secret', ''),    /* for communicating with wpc api v.0 */
+            new SensitiveStringOption('api-url', ''),
+            new SensitiveStringOption('url', ''),       /* DO NOT USE. Only here to keep the protection */
+            new IntegerOption('api-version', 2, 0, 2),
+            new BooleanOption('crypt-api-key-in-transfer', false)  /* new in api v.1 */
+        ];
+    }
+
     public function supportsLossless()
     {
         return ($this->options['api-version'] >= 2);
@@ -44,20 +56,6 @@ class Wpc extends AbstractConverter
         return ($this->options['api-version'] >= 2);
     }
 
-    protected function createOptions()
-    {
-        parent::createOptions();
-
-        $this->options2->addOptions(
-            new SensitiveStringOption('api-key', ''),   /* for communicating with wpc api v.1+ */
-            new SensitiveStringOption('secret', ''),    /* for communicating with wpc api v.0 */
-            new SensitiveStringOption('api-url', ''),
-            new SensitiveStringOption('url', ''),       /* DO NOT USE. Only here to keep the protection */
-            new IntegerOption('api-version', 2, 0, 2),
-            new BooleanOption('crypt-api-key-in-transfer', false)  /* new in api v.1 */
-        );
-    }
-
     private static function createRandomSaltForBlowfish()
     {
         $salt = '';
@@ -68,7 +66,7 @@ class Wpc extends AbstractConverter
             ['.', '/']
         );
 
-        for ($i=0; $i<22; $i++) {
+        for ($i = 0; $i < 22; $i++) {
             $salt .= $validCharsForSalt[array_rand($validCharsForSalt)];
         }
         return $salt;

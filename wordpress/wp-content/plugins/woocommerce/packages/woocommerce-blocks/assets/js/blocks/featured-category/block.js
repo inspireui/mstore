@@ -7,33 +7,32 @@ import {
 	BlockControls,
 	InnerBlocks,
 	InspectorControls,
-	MediaUpload,
-	MediaUploadCheck,
+	MediaReplaceFlow,
 	PanelColorSettings,
 	withColors,
 	RichText,
-} from '@wordpress/editor';
+} from '@wordpress/block-editor';
 import {
 	Button,
 	FocalPointPicker,
-	IconButton,
 	PanelBody,
 	Placeholder,
 	RangeControl,
 	ResizableBox,
 	Spinner,
 	ToggleControl,
-	Toolbar,
+	ToolbarGroup,
 	withSpokenMessages,
 } from '@wordpress/components';
 import classnames from 'classnames';
-import { Fragment } from '@wordpress/element';
-import { compose } from '@wordpress/compose';
+import { Component } from '@wordpress/element';
+import { withSelect } from '@wordpress/data';
+import { compose, createHigherOrderComponent } from '@wordpress/compose';
 import PropTypes from 'prop-types';
-import { MIN_HEIGHT } from '@woocommerce/block-settings';
-import { IconFolderStar } from '@woocommerce/block-components/icons';
-import ProductCategoryControl from '@woocommerce/block-components/product-category-control';
-import ErrorPlaceholder from '@woocommerce/block-components/error-placeholder';
+import { getSetting } from '@woocommerce/settings';
+import { Icon, folderStarred } from '@woocommerce/icons';
+import ProductCategoryControl from '@woocommerce/editor-components/product-category-control';
+import ErrorPlaceholder from '@woocommerce/editor-components/error-placeholder';
 
 /**
  * Internal dependencies
@@ -48,6 +47,19 @@ import { withCategory } from '../../hocs';
 
 /**
  * Component to handle edit mode of "Featured Category".
+ *
+ * @param {Object} props Incoming props for the component.
+ * @param {Object} props.attributes Incoming block attributes.
+ * @param {boolean} props.isSelected Whether block is selected or not.
+ * @param {function(any):any} props.setAttributes Function for setting new attributes.
+ * @param {string} props.error Error message
+ * @param {function(any):any} props.getCategory Function for getting category details.
+ * @param {boolean} props.isLoading Whether loading or not.
+ * @param {Object} props.category The product category object.
+ * @param {Object} props.overlayColor Overlay color object for content.
+ * @param {function(any):any} props.setOverlayColor Setter for overlay color.
+ * @param {function(any):any} props.debouncedSpeak Function for delayed speak.
+ * @param {function():void} props.triggerUrlUpdate Function to update Shop now button Url.
  */
 const FeaturedCategory = ( {
 	attributes,
@@ -60,6 +72,7 @@ const FeaturedCategory = ( {
 	overlayColor,
 	setOverlayColor,
 	debouncedSpeak,
+	triggerUrlUpdate = () => void null,
 } ) => {
 	const renderApiError = () => (
 		<ErrorPlaceholder
@@ -71,7 +84,7 @@ const FeaturedCategory = ( {
 	);
 
 	const getBlockControls = () => {
-		const { contentAlign } = attributes;
+		const { contentAlign, mediaSrc } = attributes;
 		const mediaId = attributes.mediaId || getCategoryImageId( category );
 
 		return (
@@ -82,29 +95,29 @@ const FeaturedCategory = ( {
 						setAttributes( { contentAlign: nextAlign } );
 					} }
 				/>
-				<MediaUploadCheck>
-					<Toolbar>
-						<MediaUpload
-							onSelect={ ( media ) => {
-								setAttributes( {
-									mediaId: media.id,
-									mediaSrc: media.url,
-								} );
-							} }
-							allowedTypes={ [ 'image' ] }
-							value={ mediaId }
-							render={ ( { open } ) => (
-								<IconButton
-									className="components-toolbar__control"
-									label={ __( 'Edit media' ) }
-									icon="format-image"
-									onClick={ open }
-									disabled={ ! category }
-								/>
-							) }
-						/>
-					</Toolbar>
-				</MediaUploadCheck>
+				<MediaReplaceFlow
+					mediaId={ mediaId }
+					mediaURL={ mediaSrc }
+					accept="image/*"
+					onSelect={ ( media ) => {
+						setAttributes( {
+							mediaId: media.id,
+							mediaSrc: media.url,
+						} );
+					} }
+					allowedTypes={ [ 'image' ] }
+				/>
+				<ToolbarGroup
+					controls={ [
+						{
+							icon: 'edit',
+							title: __( 'Edit' ),
+							onClick: () =>
+								setAttributes( { editMode: ! editMode } ),
+							isActive: editMode,
+						},
+					] }
+				/>
 			</BlockControls>
 		);
 	};
@@ -146,7 +159,7 @@ const FeaturedCategory = ( {
 					] }
 				>
 					{ !! url && (
-						<Fragment>
+						<>
 							<RangeControl
 								label={ __(
 									'Background Opacity',
@@ -170,7 +183,7 @@ const FeaturedCategory = ( {
 									}
 								/>
 							) }
-						</Fragment>
+						</>
 					) }
 				</PanelColorSettings>
 			</InspectorControls>
@@ -190,7 +203,7 @@ const FeaturedCategory = ( {
 
 		return (
 			<Placeholder
-				icon={ <IconFolderStar /> }
+				icon={ <Icon srcElement={ folderStarred } /> }
 				label={ __(
 					'Featured Category',
 					'woocommerce'
@@ -211,10 +224,11 @@ const FeaturedCategory = ( {
 								mediaId: 0,
 								mediaSrc: '',
 							} );
+							triggerUrlUpdate();
 						} }
 						isSingle
 					/>
-					<Button isDefault onClick={ onDone }>
+					<Button isPrimary onClick={ onDone }>
 						{ __( 'Done', 'woocommerce' ) }
 					</Button>
 				</div>
@@ -299,14 +313,14 @@ const FeaturedCategory = ( {
 		}
 
 		const onResizeStop = ( event, direction, elt ) => {
-			setAttributes( { height: parseInt( elt.style.height ) } );
+			setAttributes( { height: parseInt( elt.style.height, 10 ) } );
 		};
 
 		return (
 			<ResizableBox
 				className={ classes }
 				size={ { height } }
-				minHeight={ MIN_HEIGHT }
+				minHeight={ getSetting( 'min_height', 500 ) }
 				enable={ { bottom: true } }
 				onResizeStop={ onResizeStop }
 				style={ style }
@@ -337,7 +351,7 @@ const FeaturedCategory = ( {
 	const renderNoCategory = () => (
 		<Placeholder
 			className="wc-block-featured-category"
-			icon={ <IconFolderStar /> }
+			icon={ <Icon srcElement={ folderStarred } /> }
 			label={ __( 'Featured Category', 'woocommerce' ) }
 		>
 			{ isLoading ? (
@@ -362,11 +376,11 @@ const FeaturedCategory = ( {
 	}
 
 	return (
-		<Fragment>
+		<>
 			{ getBlockControls() }
 			{ getInspectorControls() }
 			{ category ? renderCategory() : renderNoCategory() }
-		</Fragment>
+		</>
 	);
 };
 
@@ -401,10 +415,66 @@ FeaturedCategory.propTypes = {
 	setOverlayColor: PropTypes.func.isRequired,
 	// from withSpokenMessages
 	debouncedSpeak: PropTypes.func.isRequired,
+	triggerUrlUpdate: PropTypes.func,
 };
 
 export default compose( [
 	withCategory,
 	withColors( { overlayColor: 'background-color' } ),
 	withSpokenMessages,
+	withSelect( ( select, { clientId }, { dispatch } ) => {
+		const Block = select( 'core/block-editor' ).getBlock( clientId );
+		const buttonBlockId = Block?.innerBlocks[ 0 ]?.clientId || '';
+		const currentButtonAttributes =
+			Block?.innerBlocks[ 0 ]?.attributes || {};
+		const updateBlockAttributes = ( attributes ) => {
+			if ( buttonBlockId ) {
+				dispatch( 'core/block-editor' ).updateBlockAttributes(
+					buttonBlockId,
+					attributes
+				);
+			}
+		};
+		return { updateBlockAttributes, currentButtonAttributes };
+	} ),
+	createHigherOrderComponent( ( ProductComponent ) => {
+		class WrappedComponent extends Component {
+			state = {
+				doUrlUpdate: false,
+			};
+			componentDidUpdate() {
+				const {
+					attributes,
+					updateBlockAttributes,
+					currentButtonAttributes,
+					category,
+				} = this.props;
+				if (
+					this.state.doUrlUpdate &&
+					! attributes.editMode &&
+					category?.permalink &&
+					currentButtonAttributes?.url &&
+					category.permalink !== currentButtonAttributes.url
+				) {
+					updateBlockAttributes( {
+						...currentButtonAttributes,
+						url: category.permalink,
+					} );
+					this.setState( { doUrlUpdate: false } );
+				}
+			}
+			triggerUrlUpdate = () => {
+				this.setState( { doUrlUpdate: true } );
+			};
+			render() {
+				return (
+					<ProductComponent
+						triggerUrlUpdate={ this.triggerUrlUpdate }
+						{ ...this.props }
+					/>
+				);
+			}
+		}
+		return WrappedComponent;
+	}, 'withUpdateButtonAttributes' ),
 ] )( FeaturedCategory );

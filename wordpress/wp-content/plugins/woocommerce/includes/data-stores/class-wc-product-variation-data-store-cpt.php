@@ -62,8 +62,8 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 			array(
 				'name'              => $post_object->post_title,
 				'slug'              => $post_object->post_name,
-				'date_created'      => 0 < $post_object->post_date_gmt ? wc_string_to_timestamp( $post_object->post_date_gmt ) : null,
-				'date_modified'     => 0 < $post_object->post_modified_gmt ? wc_string_to_timestamp( $post_object->post_modified_gmt ) : null,
+				'date_created'      => $this->string_to_timestamp( $post_object->post_date_gmt ),
+				'date_modified'     => $this->string_to_timestamp( $post_object->post_modified_gmt ),
 				'status'            => $post_object->post_status,
 				'menu_order'        => $post_object->menu_order,
 				'reviews_allowed'   => 'open' === $post_object->comment_status,
@@ -357,6 +357,7 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 				'date_on_sale_to'   => get_post_meta( $id, '_sale_price_dates_to', true ),
 				'manage_stock'      => get_post_meta( $id, '_manage_stock', true ),
 				'stock_status'      => get_post_meta( $id, '_stock_status', true ),
+				'low_stock_amount'  => get_post_meta( $id, '_low_stock_amount', true ),
 				'shipping_class_id' => current( $this->get_term_ids( $id, 'product_shipping_class' ) ),
 				'virtual'           => get_post_meta( $id, '_virtual', true ),
 				'downloadable'      => get_post_meta( $id, '_downloadable', true ),
@@ -404,7 +405,6 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 				'sku'                => get_post_meta( $product->get_parent_id(), '_sku', true ),
 				'manage_stock'       => get_post_meta( $product->get_parent_id(), '_manage_stock', true ),
 				'backorders'         => get_post_meta( $product->get_parent_id(), '_backorders', true ),
-				'low_stock_amount'   => get_post_meta( $product->get_parent_id(), '_low_stock_amount', true ),
 				'stock_quantity'     => wc_stock_amount( get_post_meta( $product->get_parent_id(), '_stock', true ) ),
 				'weight'             => get_post_meta( $product->get_parent_id(), '_weight', true ),
 				'length'             => get_post_meta( $product->get_parent_id(), '_length', true ),
@@ -473,10 +473,12 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 
 		if ( $force || array_key_exists( 'attributes', $changes ) ) {
 			global $wpdb;
+
+			$product_id             = $product->get_id();
 			$attributes             = $product->get_attributes();
 			$updated_attribute_keys = array();
 			foreach ( $attributes as $key => $value ) {
-				update_post_meta( $product->get_id(), 'attribute_' . $key, wp_slash( $value ) );
+				update_post_meta( $product_id, 'attribute_' . $key, wp_slash( $value ) );
 				$updated_attribute_keys[] = 'attribute_' . $key;
 			}
 
@@ -486,12 +488,12 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.QuotedDynamicPlaceholderGeneration
 					"SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE %s AND meta_key NOT IN ( '" . implode( "','", array_map( 'esc_sql', $updated_attribute_keys ) ) . "' ) AND post_id = %d",
 					$wpdb->esc_like( 'attribute_' ) . '%',
-					$product->get_id()
+					$product_id
 				)
 			);
 
 			foreach ( $delete_attribute_keys as $key ) {
-				delete_post_meta( $product->get_id(), $key );
+				delete_post_meta( $product_id, $key );
 			}
 		}
 	}

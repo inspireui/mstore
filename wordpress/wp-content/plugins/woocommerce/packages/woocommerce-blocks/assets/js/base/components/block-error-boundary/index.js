@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Component } from 'react';
 
 /**
  * Internal dependencies
@@ -11,23 +11,51 @@ import BlockError from './block-error';
 import './style.scss';
 
 class BlockErrorBoundary extends Component {
-	state = { hasError: false };
+	state = { errorMessage: '', hasError: false };
 
 	static getDerivedStateFromError( error ) {
+		if (
+			typeof error.statusText !== 'undefined' &&
+			typeof error.status !== 'undefined'
+		) {
+			return {
+				errorMessage: (
+					<>
+						<strong>{ error.status }</strong>:&nbsp;
+						{ error.statusText }
+					</>
+				),
+				hasError: true,
+			};
+		}
+
 		return { errorMessage: error.message, hasError: true };
 	}
 
 	render() {
-		const { header, imageUrl, showErrorMessage, text } = this.props;
+		const {
+			header,
+			imageUrl,
+			showErrorMessage,
+			text,
+			errorMessagePrefix,
+			renderError,
+			button,
+		} = this.props;
 		const { errorMessage, hasError } = this.state;
 
 		if ( hasError ) {
+			if ( typeof renderError === 'function' ) {
+				return renderError( { errorMessage } );
+			}
 			return (
 				<BlockError
 					errorMessage={ showErrorMessage ? errorMessage : null }
 					header={ header }
 					imageUrl={ imageUrl }
 					text={ text }
+					errorMessagePrefix={ errorMessagePrefix }
+					button={ button }
 				/>
 			);
 		}
@@ -58,11 +86,19 @@ BlockErrorBoundary.propTypes = {
 	 * If it's `null` or an empty string, nothing will be displayed.
 	 * If it's not defined, the default text will be used.
 	 */
-	text: PropTypes.string,
+	text: PropTypes.node,
+	/**
+	 * Text preceeding the error message.
+	 */
+	errorMessagePrefix: PropTypes.string,
+	/**
+	 * Render function to show a custom error component.
+	 */
+	renderError: PropTypes.func,
 };
 
 BlockErrorBoundary.defaultProps = {
-	showErrorMessage: false,
+	showErrorMessage: true,
 };
 
 export default BlockErrorBoundary;

@@ -4,8 +4,8 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Placeholder, Spinner } from '@wordpress/components';
 import PropTypes from 'prop-types';
-import ErrorPlaceholder from '@woocommerce/block-components/error-placeholder';
-import { IconReviewsByProduct } from '@woocommerce/block-components/icons';
+import ErrorPlaceholder from '@woocommerce/editor-components/error-placeholder';
+import { Icon, comment } from '@woocommerce/icons';
 import { withProduct } from '@woocommerce/block-hocs';
 
 const NoReviewsPlaceholder = ( { error, getProduct, isLoading, product } ) => {
@@ -27,6 +27,7 @@ const NoReviewsPlaceholder = ( { error, getProduct, isLoading, product } ) => {
 			<Spinner />
 		) : (
 			sprintf(
+				/* translators: %s is the product name. */
 				__(
 					"This block lists reviews for a selected product. %s doesn't have any reviews yet, but they will show up here when it does.",
 					'woocommerce'
@@ -39,7 +40,10 @@ const NoReviewsPlaceholder = ( { error, getProduct, isLoading, product } ) => {
 		<Placeholder
 			className="wc-block-reviews-by-product"
 			icon={
-				<IconReviewsByProduct className="block-editor-block-icon" />
+				<Icon
+					srcElement={ comment }
+					className="block-editor-block-icon"
+				/>
 			}
 			label={ __( 'Reviews by Product', 'woocommerce' ) }
 		>

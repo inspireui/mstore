@@ -2,27 +2,25 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	BlockControls,
-	InspectorControls,
-	ServerSideRender,
-} from '@wordpress/editor';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import ServerSideRender from '@wordpress/server-side-render';
 import {
 	Button,
 	Disabled,
 	PanelBody,
 	Placeholder,
-	Toolbar,
+	ToolbarGroup,
 	withSpokenMessages,
 } from '@wordpress/components';
-import { Component, Fragment } from '@wordpress/element';
-import Gridicon from 'gridicons';
+import { Component } from '@wordpress/element';
+import { Icon, tags } from '@woocommerce/icons';
 import PropTypes from 'prop-types';
-import GridContentControl from '@woocommerce/block-components/grid-content-control';
-import GridLayoutControl from '@woocommerce/block-components/grid-layout-control';
-import ProductAttributeTermControl from '@woocommerce/block-components/product-attribute-term-control';
-import ProductOrderbyControl from '@woocommerce/block-components/product-orderby-control';
+import GridContentControl from '@woocommerce/editor-components/grid-content-control';
+import GridLayoutControl from '@woocommerce/editor-components/grid-layout-control';
+import ProductAttributeTermControl from '@woocommerce/editor-components/product-attribute-term-control';
+import ProductOrderbyControl from '@woocommerce/editor-components/product-orderby-control';
 import { gridBlockPreview } from '@woocommerce/resource-previews';
+import { getSetting } from '@woocommerce/settings';
 
 /**
  * Component to handle edit mode of "Products by Attribute".
@@ -51,6 +49,10 @@ class ProductsByAttributeBlock extends Component {
 						rows={ rows }
 						alignButtons={ alignButtons }
 						setAttributes={ setAttributes }
+						minColumns={ getSetting( 'min_columns', 1 ) }
+						maxColumns={ getSetting( 'max_columns', 6 ) }
+						minRows={ getSetting( 'min_rows', 1 ) }
+						maxRows={ getSetting( 'max_rows', 6 ) }
 					/>
 				</PanelBody>
 				<PanelBody
@@ -74,20 +76,19 @@ class ProductsByAttributeBlock extends Component {
 					<ProductAttributeTermControl
 						selected={ attributes }
 						onChange={ ( value = [] ) => {
-							/* eslint-disable camelcase */
 							const result = value.map(
-								( { id, attr_slug } ) => ( {
+								( { id, attr_slug: attributeSlug } ) => ( {
 									id,
-									attr_slug,
+									attr_slug: attributeSlug,
 								} )
 							);
-							/* eslint-enable camelcase */
 							setAttributes( { attributes: result } );
 						} }
 						operator={ attrOperator }
 						onOperatorChange={ ( value = 'any' ) =>
 							setAttributes( { attrOperator: value } )
 						}
+						isCompact={ true }
 					/>
 				</PanelBody>
 				<PanelBody
@@ -118,7 +119,7 @@ class ProductsByAttributeBlock extends Component {
 
 		return (
 			<Placeholder
-				icon={ <Gridicon icon="custom-post-type" /> }
+				icon={ <Icon srcElement={ tags } /> }
 				label={ __(
 					'Products by Attribute',
 					'woocommerce'
@@ -133,14 +134,12 @@ class ProductsByAttributeBlock extends Component {
 					<ProductAttributeTermControl
 						selected={ blockAttributes.attributes }
 						onChange={ ( value = [] ) => {
-							/* eslint-disable camelcase */
 							const result = value.map(
-								( { id, attr_slug } ) => ( {
+								( { id, attr_slug: attributeSlug } ) => ( {
 									id,
-									attr_slug,
+									attr_slug: attributeSlug,
 								} )
 							);
-							/* eslint-enable camelcase */
 							setAttributes( { attributes: result } );
 						} }
 						operator={ blockAttributes.attrOperator }
@@ -148,7 +147,7 @@ class ProductsByAttributeBlock extends Component {
 							setAttributes( { attrOperator: value } )
 						}
 					/>
-					<Button isDefault onClick={ onDone }>
+					<Button isPrimary onClick={ onDone }>
 						{ __( 'Done', 'woocommerce' ) }
 					</Button>
 				</div>
@@ -165,9 +164,9 @@ class ProductsByAttributeBlock extends Component {
 		}
 
 		return (
-			<Fragment>
+			<>
 				<BlockControls>
-					<Toolbar
+					<ToolbarGroup
 						controls={ [
 							{
 								icon: 'edit',
@@ -190,7 +189,7 @@ class ProductsByAttributeBlock extends Component {
 						/>
 					</Disabled>
 				) }
-			</Fragment>
+			</>
 		);
 	}
 }

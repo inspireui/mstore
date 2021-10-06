@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { registerBlockType } from '@wordpress/blocks';
-import { IconFolder } from '@woocommerce/block-components/icons';
+import { createBlock, registerBlockType } from '@wordpress/blocks';
+import { Icon, list } from '@woocommerce/icons';
 
 /**
  * Internal dependencies
@@ -15,30 +15,47 @@ import Block from './block.js';
 registerBlockType( 'woocommerce/product-categories', {
 	title: __( 'Product Categories List', 'woocommerce' ),
 	icon: {
-		src: <IconFolder />,
+		src: <Icon srcElement={ list } />,
 		foreground: '#96588a',
 	},
 	category: 'woocommerce',
 	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __(
-		'Show your product categories as a list or dropdown.',
+		'Show all product categories as a list or dropdown.',
 		'woocommerce'
 	),
 	supports: {
 		align: [ 'wide', 'full' ],
+		html: false,
 	},
 	example: {
 		attributes: {
 			hasCount: true,
+			hasImage: false,
 		},
 	},
 	attributes: {
+		/**
+		 * Alignment of the block.
+		 */
+		align: {
+			type: 'string',
+		},
+
 		/**
 		 * Whether to show the product count in each category.
 		 */
 		hasCount: {
 			type: 'boolean',
 			default: true,
+		},
+
+		/**
+		 * Whether to show the category image in each category.
+		 */
+		hasImage: {
+			type: 'boolean',
+			default: false,
 		},
 
 		/**
@@ -64,6 +81,26 @@ registerBlockType( 'woocommerce/product-categories', {
 			type: 'boolean',
 			default: true,
 		},
+	},
+
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/legacy-widget' ],
+				// We can't transform if raw instance isn't shown in the REST API.
+				isMatch: ( { idBase, instance } ) =>
+					idBase === 'woocommerce_product_categories' &&
+					!! instance?.raw,
+				transform: ( { instance } ) =>
+					createBlock( 'woocommerce/product-categories', {
+						hasCount: !! instance.raw.count,
+						hasEmpty: ! instance.raw.hide_empty,
+						isDropdown: !! instance.raw.dropdown,
+						isHierarchical: !! instance.raw.hierarchical,
+					} ),
+			},
+		],
 	},
 
 	deprecated: [
@@ -150,6 +187,8 @@ registerBlockType( 'woocommerce/product-categories', {
 
 	/**
 	 * Renders and manages the block.
+	 *
+	 * @param {Object} props Props to pass to block.
 	 */
 	edit( props ) {
 		return <Block { ...props } />;

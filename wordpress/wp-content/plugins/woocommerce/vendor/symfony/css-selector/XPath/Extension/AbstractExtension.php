@@ -28,7 +28,7 @@ abstract class AbstractExtension implements ExtensionInterface
      */
     public function getNodeTranslators()
     {
-        return [];
+        return array();
     }
 
     /**
@@ -36,7 +36,7 @@ abstract class AbstractExtension implements ExtensionInterface
      */
     public function getCombinationTranslators()
     {
-        return [];
+        return array();
     }
 
     /**
@@ -44,7 +44,7 @@ abstract class AbstractExtension implements ExtensionInterface
      */
     public function getFunctionTranslators()
     {
-        return [];
+        return array();
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class AbstractExtension implements ExtensionInterface
      */
     public function getPseudoClassTranslators()
     {
-        return [];
+        return array();
     }
 
     /**
@@ -60,6 +60,6 @@ abstract class AbstractExtension implements ExtensionInterface
      */
     public function getAttributeMatchingTranslators()
     {
-        return [];
+        return array();
     }
 }

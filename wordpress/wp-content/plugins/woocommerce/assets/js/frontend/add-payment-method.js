@@ -24,9 +24,9 @@ jQuery( function( $ ) {
 	})
 
 	// Trigger initial click
-	.find( 'input[name=payment_method]:checked' ).click();
+	.find( 'input[name=payment_method]:checked' ).trigger( 'click' );
 
-	$( '#add_payment_method' ).submit( function() {
+	$( '#add_payment_method' ).on( 'submit', function() {
 		$( '#add_payment_method' ).block({ message: null, overlayCSS: { background: '#fff', opacity: 0.6 } });
 	});
 

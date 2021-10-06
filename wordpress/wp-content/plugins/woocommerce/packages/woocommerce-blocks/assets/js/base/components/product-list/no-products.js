@@ -2,26 +2,23 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { WC_BLOCKS_ASSET_URL } from '@woocommerce/block-settings';
-import { useProductLayoutContext } from '@woocommerce/base-context/product-layout-context';
+import { useInnerBlockLayoutContext } from '@woocommerce/shared-context';
+import { Icon, notice } from '@woocommerce/icons';
 
 const NoProducts = () => {
-	const { layoutStyleClassPrefix } = useProductLayoutContext();
+	const { parentClassName } = useInnerBlockLayoutContext();
 	return (
-		<div className={ `${ layoutStyleClassPrefix }__no-products` }>
-			<img
-				src={ WC_BLOCKS_ASSET_URL + 'img/no-products.svg' }
-				alt={ __( 'No products', 'woocommerce' ) }
-				className={ `${ layoutStyleClassPrefix }__no-products-image` }
+		<div className={ `${ parentClassName }__no-products` }>
+			<Icon
+				className={ `${ parentClassName }__no-products-image` }
+				alt=""
+				srcElement={ notice }
+				size={ 100 }
 			/>
-			<strong
-				className={ `${ layoutStyleClassPrefix }__no-products-title` }
-			>
+			<strong className={ `${ parentClassName }__no-products-title` }>
 				{ __( 'No products', 'woocommerce' ) }
 			</strong>
-			<p
-				className={ `${ layoutStyleClassPrefix }__no-products-description` }
-			>
+			<p className={ `${ parentClassName }__no-products-description` }>
 				{ __(
 					'There are currently no products available to display.',
 					'woocommerce'

@@ -192,18 +192,25 @@ class SelfTestHelper
         $log = [];
         $args['redirection'] = 0;
 
+        if (defined('WP_DEBUG') && WP_DEBUG ) {
+           // Prevent errors with unverified certificates (#379)
+           $args['sslverify'] = false;
+        }
+
         $log[] = 'Request URL: ' . $requestUrl;
 
         $results = [];
         $wpResult = wp_remote_get($requestUrl, $args);
-        if (!isset($wpResult['headers'])) {
+        if (is_wp_error($wpResult)) {
+            $log[] = 'The remote request errored';
+            $log[] = $wpResult->get_error_message();
+            //$log[] = print_r($wpResult, true);
+            return [false, $log, $results];
+        }
+        if (!is_wp_error($wpResult) && !isset($wpResult['headers'])) {
             $wpResult['headers'] = [];
         }
         $results[] = $wpResult;
-        if (is_wp_error($wpResult)) {
-            $log[] = 'The remote request errored';
-            return [false, $log, $results];
-        }
         $responseCode = $wpResult['response']['code'];
 
         $log[] = 'Response: ' . $responseCode . ' ' . $wpResult['response']['message'];
@@ -285,6 +292,45 @@ class SelfTestHelper
             }
         }
         return false;
+    }
+
+    /**
+     * @param  string  $rule  existing|webp-on-demand|webp-realizer
+     */
+    public static function diagnoseNoVaryHeader($rootId, $rule)
+    {
+        $log = [];
+        $log[] = '**However, we did not receive a Vary:Accept header. ' .
+            'That header should be set in order to tell proxies that the response varies depending on the ' .
+            'Accept header. Otherwise browsers not supporting webp might get a cached webp and vice versa.**{: .warn}';
+
+        $log[] = 'Too technical? ';
+        $log[] = 'Here is an explanation of what this means: ' .
+            'Some companies have set up proxies which caches resources. This way, if employee A have downloaded an ' .
+            'image and employee B requests it, the proxy can deliver the image directly to employee B without needing to ' .
+            'send a request to the server. ' .
+            'This is clever, but it can go wrong. If B for some reason is meant to get another image than A, it will not ' .
+            'happen, as the server does not get the request. That is where the Vary header comes in. It tells the proxy ' .
+            'that the image is dependent upon something. In this case, we need to signal proxies that the image depends upon ' .
+            'the "Accept" header, as this is the one browsers use to tell the server if it accepts webps or not. ' .
+            'We do that using the "Vary:Accept" header. However - it is missing :( ' .
+            'Which means that employees at (larger) companies might experience problems if some are using browsers ' .
+            'that supports webp and others are using browsers that does not. Worst case is that the request to an image ' .
+            'is done with a browser that supports webp, as this will cache the webp in the proxy, and deliver webps to ' .
+            'all employees - even to those who uses browsers that does not support webp. These employees will get blank images.';
+
+        if ($rule == 'existing') {
+            $log[] = 'So, what should you do? **I would recommend that you either try to fix the problem with the missing Vary:Accept ' .
+                'header or change to "CDN friendly" mode.**{: .warn}';
+        } elseif ($rule == 'webp-on-demand') {
+            $log[] = 'So, what should you do? **I would recommend that you either try to fix the problem with the missing Vary:Accept ' .
+                'header or disable the "Enable redirection to converter?" option and use another way to get the images converted - ie ' .
+                'Bulk Convert or Convert on Upload**{: .warn}';
+        }
+
+
+
+        return $log;
     }
 
     public static function hasCacheControlOrExpiresHeader($headers)
@@ -419,6 +465,8 @@ class SelfTestHelper
         //$log[] = 'Image types: ' . ;
         //$log[] = '';
         $log[] = '(To view all configuration, take a look at the config file, which is stored in *' . Paths::getConfigFileName() . '*)';
+        //$log[] = '- Config file: (config.json)';
+        //$log[] = "'''\n" . json_encode($config, JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT) . "\n'''\n";
         return $log;
     }
 
@@ -443,8 +491,10 @@ class SelfTestHelper
     public static function rulesInImageRoot($config, $imageRootId)
     {
         $log = [];
-        $log[] = '#### WebP rules in *' . $imageRootId . '*:';
         $file = Paths::getAbsDirById($imageRootId) . '/.htaccess';
+        $log[] = '#### WebP rules in *' .
+            ($imageRootId == 'cache' ? 'webp image cache' : $imageRootId) . '*:';
+        $log[] = 'File: ' . $file;
         if (!HTAccess::haveWeRulesInThisHTAccess($file)) {
             $log[] = '**NONE!**{: .warn}';
         } else {
@@ -472,6 +522,7 @@ class SelfTestHelper
     public static function allInfo($config)
     {
         $log = [];
+
         $log = array_merge($log, self::systemInfo());
         $log = array_merge($log, self::wordpressInfo());
         $log = array_merge($log, self::configInfo($config));
@@ -486,22 +537,31 @@ class SelfTestHelper
     {
         $capTests = $config['base-htaccess-on-these-capability-tests'];
         $log = [];
-        $log[] = '#### Live tests of .htaccess capabilities:';
+        $log[] = '#### Live tests of .htaccess capabilities / system configuration:';
+        $log[] = 'Unless noted otherwise, the tests are run in *wp-content/webp-express/htaccess-capability-tester*. ';
+        $log[] = 'WebPExpress currently treats the results as they neccessarily applies to all scopes (upload, themes, etc), ';
+        $log[] = 'but note that a server might be configured to have mod_rewrite disallowed in some folders and allowed in others.';
         /*$log[] = 'Exactly what you can do in a *.htaccess* depends on the server setup. WebP Express ' .
             'makes some live tests to verify if a certain feature in fact works. This is done by creating ' .
             'test files (*.htaccess* files and php files) in a dir inside the content dir and running these. ' .
             'These test results are used when creating the rewrite rules. Here are the results:';*/
 
 //        $log[] = '';
-        $log[] = '- mod_rewrite working?: ' . self::trueFalseNullString(CapabilityTest::modRewriteWorking());
-        $log[] = '- mod_header working?: ' . self::trueFalseNullString($capTests['modHeaderWorking']);
+        $log[] = '- .htaccess files enabled?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::htaccessEnabled());
+        $log[] = '- mod_rewrite working?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::modRewriteWorking());
+        $log[] = '- mod_headers loaded?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::modHeadersLoaded());
+        $log[] = '- mod_headers working (header set): ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::modHeaderWorking());
+        //$log[] = '- passing variables from *.htaccess* to PHP script through environment variable working?: ' . self::trueFalseNullString($capTests['passThroughEnvWorking']);
+        $log[] = '- passing variables from *.htaccess* to PHP script through environment variable working?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::passThroughEnvWorking());
+        $log[] = '- Can run php test file in plugins/webp-express/wod/ ?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::canRunTestScriptInWOD());
+        $log[] = '- Can run php test file in plugins/webp-express/wod2/ ?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::canRunTestScriptInWOD2());
+        $log[] = '- Directives for granting access like its done in wod/.htaccess allowed?: ' . self::trueFalseNullString(HTAccessCapabilityTestRunner::grantAllAllowed());
         /*$log[] = '- pass variable from *.htaccess* to script through header working?: ' .
             self::trueFalseNullString($capTests['passThroughHeaderWorking']);*/
-        $log[] = '- passing variables from *.htaccess* to PHP script through environment variable working?: ' . self::trueFalseNullString($capTests['passThroughEnvWorking']);
         return $log;
     }
 
-    public static function diagnoseFailedRewrite($config)
+    public static function diagnoseFailedRewrite($config, $headers)
     {
         if (($config['destination-structure'] == 'image-roots') && (!PathHelper::isDocRootAvailableAndResolvable())) {
             $log[] = 'The problem is probably this combination:';
@@ -521,7 +581,10 @@ class SelfTestHelper
         }
 
         //$log[] = '## Diagnosing';
-        if (PlatformInfo::isNginx()) {
+
+        //if (PlatformInfo::isNginx()) {
+        if (strpos($headers['server'], 'nginx') === 0) {
+
             // Nginx
             $log[] = 'Notice that you are on Nginx and the rules that WebP Express stores in the *.htaccess* files probably does not ' .
                 'have any effect. ';
@@ -532,7 +595,7 @@ class SelfTestHelper
             return $log;
         }
 
-        $modRewriteWorking = CapabilityTest::modRewriteWorking();
+        $modRewriteWorking = HTAccessCapabilityTestRunner::modRewriteWorking();
         if ($modRewriteWorking !== null) {
             $log[] = 'Running a special designed capability test to test if rewriting works with *.htaccess* files';
         }
@@ -582,6 +645,148 @@ class SelfTestHelper
 
         $log[] = '## Info for manually diagnosing';
         $log = array_merge($log, self::allInfo($config));
+        return $log;
+    }
+
+    public static function diagnoseWod403or500($config, $rootId, $responseCode)
+    {
+        $log = [];
+
+        $htaccessRules = SelfTestHelper::rulesInImageRoot($config, $rootId);
+        $rulesText = implode('', $htaccessRules);
+        $rulesPointsToWod = (strpos($rulesText, '/wod/') > 0);
+        $rulesPointsToWod2 = (strpos($rulesText, '/wod2/') !== false);
+
+        $log[] = '';
+        $log[] = '**diagnosing**';
+        $canRunTestScriptInWod = HTAccessCapabilityTestRunner::canRunTestScriptInWOD();
+        $canRunTestScriptInWod2 = HTAccessCapabilityTestRunner::canRunTestScriptInWOD2();
+        $canRunInAnyWod = ($canRunTestScriptInWod || $canRunTestScriptInWod2);
+
+        $responsePingPhp = wp_remote_get(Paths::getPluginsUrl() . '/webp-express/wod/ping.php', ['timeout' => 7]);
+        $pingPhpResponseCode = wp_remote_retrieve_response_code($responsePingPhp);
+
+        $responsePingText = wp_remote_get(Paths::getPluginsUrl() . '/webp-express/wod/ping.txt', ['timeout' => 7]);
+        $pingTextResponseCode = wp_remote_retrieve_response_code($responsePingText);
+
+        if ($responseCode == 500) {
+            $log[] = 'The response was a *500 Internal Server Error*. There can be different reasons for that. ' .
+                'Lets dig a bit deeper...';
+        }
+
+        $log[] = 'Examining where the *.htaccess* rules in the ' . $rootId . ' folder points to. ';
+
+        if ($rulesPointsToWod) {
+            $log[] = 'They point to **wod**/webp-on-demand.php';
+        } elseif ($rulesPointsToWod2) {
+            $log[] = 'They point to **wod2**/webp-on-demand.php';
+        } else {
+            $log[] = '**There are no redirect rule to *webp-on-demand.php* in the .htaccess!**{: .warn}';
+            $log[] = 'Here is the rules:';
+            $log = array_merge($log, $htaccessRules);
+        }
+
+        if ($rulesPointsToWod) {
+            $log[] = 'Requesting simple test script "wod/ping.php"... ' .
+                'Result: ' . ($pingPhpResponseCode == '200' ? 'ok' : 'failed (response code: ' . $pingPhpResponseCode . ')');
+                //'Result: ' . ($canRunTestScriptInWod ? 'ok' : 'failed');
+
+            if ($canRunTestScriptInWod) {
+                if ($responseCode == '500') {
+                    $log[] = '';
+                    $log[] = '**As the test script works, it would seem that the explanation for the 500 internal server ' .
+                        'error is that the PHP script (webp-on-demand.php) crashes. ' .
+                        'You can help me by enabling debugging and post the error on the support forum on Wordpress ' .
+                        '(https://wordpress.org/support/plugin/webp-express/), or create an issue on github ' .
+                        '(https://github.com/rosell-dk/webp-express/issues)**';
+                    $log[] = '';
+                }
+            } else {
+                $log[] = 'Requesting simple test file "wod/ping.txt". ' .
+                    'Result: ' . ($pingTextResponseCode == '200' ? 'ok' : 'failed (response code: ' . $pingTextResponseCode . ')');
+
+                if ($canRunTestScriptInWod2) {
+                    if ($responseCode == 500) {
+                        if ($pingTextResponseCode == '500') {
+                            $log[] = 'The problem appears to be that the *.htaccess* placed in *plugins/webp-express/wod/.htaccess*' .
+                                ' contains auth directives ("Allow" and "Request") and your server is set up to go fatal about it. ' .
+                                'Luckily, it seems that running scripts in the "wod2" folder works. ' .
+                                '**What you need to do is simply to click the "Save settings and force new .htacess rules"' .
+                                ' button. WebP Express wil then change the .htaccess rules to point to the "wod2" folder**';
+                        } else {
+                            $log[] = 'The problem appears to be running PHP scripts in the "wod". ' .
+                                'Luckily, it seems that running scripts in the "wod2" folder works ' .
+                                '(it has probably something to do with the *.htaccess* file placed in "wod"). ' .
+                                '**What you need to do is simply to click the "Save settings and force new .htacess rules"' .
+                                ' button. WebP Express wil then change the .htaccess rules to point to the "wod2" folder**';
+                        }
+                    } elseif ($responseCode == 403) {
+                        $log[] = 'The problem appears to be running PHP scripts in the "wod". ' .
+                            'Luckily, it seems that running scripts in the "wod2" folder works ' .
+                            '(it could perhaps have something to do with the *.htaccess* file placed in "wod", ' .
+                            'although it ought not result in a 403). **What you need to do is simply to click the "Save settings and force new .htacess rules"' .
+                            ' button. WebP Express wil then change the .htaccess rules to point to the "wod2" folder**';
+                    }
+
+                    return $log;
+                }
+            }
+        }
+
+        $log[] = 'Requesting simple test script "wod2/ping.php". Result: ' . ($canRunTestScriptInWod2 ? 'ok' : 'failed');
+        $responsePingText2 = wp_remote_get(Paths::getPluginsUrl() . '/webp-express/wod2/ping.txt', ['timeout' => 7]);
+        $pingTextResponseCode2 = wp_remote_retrieve_response_code($responsePingText2);
+        $log[] = 'Requesting simple test file "wod2/ping.txt". ' .
+            'Result: ' . ($pingTextResponseCode == '200' ? 'ok' : 'failed (response code: ' . $pingTextResponseCode2 . ')');
+
+        if ($rulesPointsToWod2) {
+            if ($canRunTestScriptInWod2) {
+                if ($responseCode == '500') {
+                    $log[] = '';
+                    $log[] = '**As the test script works, it would seem that the explanation for the 500 internal server ' .
+                        'error is that the PHP script (webp-on-demand.php) crashes. ' .
+                        'You can help me by enabling debugging and post the error on the support forum on Wordpress ' .
+                        '(https://wordpress.org/support/plugin/webp-express/), or create an issue on github ' .
+                        '(https://github.com/rosell-dk/webp-express/issues)**';
+                    $log[] = '';
+                }
+            } else {
+                if ($canRunTestScriptInWod) {
+                    $log[] = '';
+                    $log[] = 'The problem appears to be running PHP scripts in the "wod2" folder. ' .
+                        'Luckily, it seems that running scripts in the "wod" folder works ' .
+                        '**What you need to do is simply to click the "Save settings and force new .htacess rules"' .
+                        ' button. WebP Express wil then change the .htaccess rules to point to the "wod" folder**';
+                    $log[] = '';
+                } else {
+                    if ($responseCode == 500) {
+
+                        if ($pingTextResponseCode2 == '500') {
+                            $log[] = 'All our requests results in 500 Internal Error. Even ' .
+                                'the request to plugins/webp-express/wod2/ping.txt. ' .
+                                'Surprising!';
+                        } else {
+                            $log[] = 'The internal server error happens for php files, but not txt files. ' .
+                                'It could be the result of a restrictive server configuration or the works of a security plugin. ' .
+                                'Try to examine the .htaccess file in the plugins folder and its parent folders. ' .
+                                'Or try to look in the httpd.conf. Look for the "AllowOverride" and the "AllowOverrideList" directives. ';
+                        }
+
+                        //$log[] = 'We get *500 Internal Server Error*';
+                        /*
+                        It can for example be that the *.htaccess* ' .
+                            'in the ' . $rootId . ' folder (or a parent folder) contains directives that the server either ' .
+                            'doesnt support or has not allowed (using AllowOverride in ie httpd.conf). It could also be that the redirect succeded, ' .
+                            'but the *.htaccess* in the folder of the script (or a parent folder) results in such problems. Also, ' .
+                            'it could be that the script (webp-on-demand.php) for some reason fails.';
+
+                        */
+                    }
+                }
+
+
+            }
+        }
         return $log;
     }
 }

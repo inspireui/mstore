@@ -1,13 +1,5 @@
 <?php
-/**
- * On-sale products block.
- *
- * @package WooCommerce/Blocks
- */
-
 namespace Automattic\WooCommerce\Blocks\BlockTypes;
-
-defined( 'ABSPATH' ) || exit;
 
 /**
  * ProductOnSale class.
@@ -34,9 +26,9 @@ class ProductOnSale extends AbstractProductGrid {
 	 *
 	 * @return array
 	 */
-	protected function get_attributes() {
+	protected function get_block_type_attributes() {
 		return array_merge(
-			parent::get_attributes(),
+			parent::get_block_type_attributes(),
 			array(
 				'className' => $this->get_schema_string(),
 				'orderby'   => $this->get_schema_orderby(),

@@ -3,8 +3,6 @@
  * REST API Reports downloads controller
  *
  * Handles requests to the /reports/downloads endpoint.
- *
- * @package WooCommerce Admin/API
  */
 
 namespace Automattic\WooCommerce\Admin\API\Reports\Downloads;
@@ -17,7 +15,6 @@ use \Automattic\WooCommerce\Admin\API\Reports\ExportableInterface;
 /**
  * REST API Reports downloads controller class.
  *
- * @package WooCommerce/API
  * @extends Automattic\WooCommerce\Admin\API\Reports\Controller
  */
 class Controller extends ReportsController implements ExportableInterface {
@@ -107,12 +104,20 @@ class Controller extends ReportsController implements ExportableInterface {
 
 		// Figure out file name.
 		// Matches https://github.com/woocommerce/woocommerce/blob/4be0018c092e617c5d2b8c46b800eb71ece9ddef/includes/class-wc-download-handler.php#L197.
-		$product_id                     = intval( $data['product_id'] );
-		$_product                       = wc_get_product( $product_id );
-		$file_path                      = $_product->get_file_download_path( $data['download_id'] );
-		$filename                       = basename( $file_path );
-		$response->data['file_name']    = apply_filters( 'woocommerce_file_download_filename', $filename, $product_id );
-		$response->data['file_path']    = $file_path;
+		$product_id = intval( $data['product_id'] );
+		$_product   = wc_get_product( $product_id );
+
+		// Make sure the product hasn't been deleted.
+		if ( $_product ) {
+			$file_path                   = $_product->get_file_download_path( $data['download_id'] );
+			$filename                    = basename( $file_path );
+			$response->data['file_name'] = apply_filters( 'woocommerce_file_download_filename', $filename, $product_id );
+			$response->data['file_path'] = $file_path;
+		} else {
+			$response->data['file_name'] = '';
+			$response->data['file_path'] = '';
+		}
+
 		$customer                       = new \WC_Customer( $data['user_id'] );
 		$response->data['username']     = $customer->get_username();
 		$response->data['order_number'] = $this->get_order_number( $data['order_id'] );
@@ -198,12 +203,6 @@ class Controller extends ReportsController implements ExportableInterface {
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 					'description' => __( 'File URL.', 'woocommerce' ),
-				),
-				'product_id'   => array(
-					'type'        => 'integer',
-					'readonly'    => true,
-					'context'     => array( 'view', 'edit' ),
-					'description' => __( 'Product ID.', 'woocommerce' ),
 				),
 				'order_id'     => array(
 					'type'        => 'integer',
@@ -388,13 +387,24 @@ class Controller extends ReportsController implements ExportableInterface {
 	 * @return array Key value pair of Column ID => Label.
 	 */
 	public function get_export_columns() {
-		return array(
+		$export_columns = array(
 			'date'         => __( 'Date', 'woocommerce' ),
 			'product'      => __( 'Product Title', 'woocommerce' ),
 			'file_name'    => __( 'File Name', 'woocommerce' ),
 			'order_number' => __( 'Order #', 'woocommerce' ),
 			'user_id'      => __( 'User Name', 'woocommerce' ),
 			'ip_address'   => __( 'IP', 'woocommerce' ),
+		);
+
+		/**
+		 * Filter to add or remove column names from the downloads report for
+		 * export.
+		 *
+		 * @since 1.6.0
+		 */
+		return apply_filters(
+			'woocommerce_filter_downloads_export_columns',
+			$export_columns
 		);
 	}
 
@@ -405,13 +415,25 @@ class Controller extends ReportsController implements ExportableInterface {
 	 * @return array Key value pair of Column ID => Row Value.
 	 */
 	public function prepare_item_for_export( $item ) {
-		return array(
+		$export_item = array(
 			'date'         => $item['date'],
 			'product'      => $item['_embedded']['product'][0]['name'],
 			'file_name'    => $item['file_name'],
 			'order_number' => $item['order_number'],
 			'user_id'      => $item['username'],
 			'ip_address'   => $item['ip_address'],
+		);
+
+		/**
+		 * Filter to prepare extra columns in the export item for the downloads
+		 * report.
+		 *
+		 * @since 1.6.0
+		 */
+		return apply_filters(
+			'woocommerce_report_downloads_prepare_export_item',
+			$export_item,
+			$item
 		);
 	}
 }

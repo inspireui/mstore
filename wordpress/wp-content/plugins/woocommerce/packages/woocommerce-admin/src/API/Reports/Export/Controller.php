@@ -5,8 +5,6 @@
  * Handles requests to:
  * - /reports/[report]/export
  * - /reports/[report]/export/[id]/status
- *
- * @package WooCommerce Admin/API
  */
 
 namespace Automattic\WooCommerce\Admin\API\Reports\Export;
@@ -18,7 +16,6 @@ use \Automattic\WooCommerce\Admin\ReportExporter;
 /**
  * Reports Export controller.
  *
- * @package WooCommerce Admin/API
  * @extends \Automattic\WooCommerce\Admin\API\Reports\Controller
  */
 class Controller extends \Automattic\WooCommerce\Admin\API\Reports\Controller {
@@ -99,14 +96,20 @@ class Controller extends \Automattic\WooCommerce\Admin\API\Reports\Controller {
 			'title'      => 'report_export',
 			'type'       => 'object',
 			'properties' => array(
-				'status'  => array(
-					'description' => __( 'Regeneration status.', 'woocommerce' ),
+				'status'    => array(
+					'description' => __( 'Export status.', 'woocommerce' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'message' => array(
-					'description' => __( 'Regenerate data message.', 'woocommerce' ),
+				'message'   => array(
+					'description' => __( 'Export status message.', 'woocommerce' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'export_id' => array(
+					'description' => __( 'Export ID.', 'woocommerce' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -156,37 +159,38 @@ class Controller extends \Automattic\WooCommerce\Admin\API\Reports\Controller {
 		$report_type = $request['type'];
 		$report_args = empty( $request['report_args'] ) ? array() : $request['report_args'];
 		$send_email  = isset( $request['email'] ) ? $request['email'] : false;
-		$export_id   = str_replace( '.', '', microtime( true ) );
+
+		$default_export_id = str_replace( '.', '', microtime( true ) );
+		$export_id         = apply_filters( 'woocommerce_admin_export_id', $default_export_id );
+		$export_id 		   = (string) sanitize_file_name( $export_id );
 
 		$total_rows = ReportExporter::queue_report_export( $export_id, $report_type, $report_args, $send_email );
 
 		if ( 0 === $total_rows ) {
-			$response = rest_ensure_response(
+			return rest_ensure_response(
 				array(
-					'status'  => 'error',
 					'message' => __( 'There is no data to export for the given request.', 'woocommerce' ),
 				)
 			);
-
-		} else {
-			$response = rest_ensure_response(
-				array(
-					'status'  => 'success',
-					'message' => __( 'Your report file is being generated.', 'woocommerce' ),
-				)
-			);
-
-			// Include a link to the export status endpoint.
-			$response->add_links(
-				array(
-					'status' => array(
-						'href' => rest_url( sprintf( '%s/reports/%s/export/%s/status', $this->namespace, $report_type, $export_id ) ),
-					),
-				)
-			);
-
-			ReportExporter::update_export_percentage_complete( $report_type, $export_id, 0 );
 		}
+
+		ReportExporter::update_export_percentage_complete( $report_type, $export_id, 0 );
+
+		$response = rest_ensure_response(
+			array(
+				'message'   => __( 'Your report file is being generated.', 'woocommerce' ),
+				'export_id' => $export_id,
+			)
+		);
+
+		// Include a link to the export status endpoint.
+		$response->add_links(
+			array(
+				'status' => array(
+					'href' => rest_url( sprintf( '%s/reports/%s/export/%s/status', $this->namespace, $report_type, $export_id ) ),
+				),
+			)
+		);
 
 		$data = $this->prepare_response_for_collection( $response );
 

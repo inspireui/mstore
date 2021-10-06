@@ -2,12 +2,14 @@
 /**
  * WooCommerce product base class.
  *
- * @package WooCommerce/Abstracts
+ * @package WooCommerce\Abstracts
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use Automattic\WooCommerce\Internal\ProductAttributesLookup\LookupDataStore as ProductAttributesLookupDataStore;
 
 /**
  * Legacy product contains all deprecated methods for this class and can be
@@ -21,7 +23,7 @@ require_once WC_ABSPATH . 'includes/legacy/abstract-wc-legacy-product.php';
  * The WooCommerce product class handles individual product data.
  *
  * @version 3.0.0
- * @package WooCommerce/Abstracts
+ * @package WooCommerce\Abstracts
  */
 class WC_Product extends WC_Abstract_Legacy_Product {
 
@@ -1336,19 +1338,21 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 			$this->set_stock_quantity( '' );
 			$this->set_backorders( 'no' );
 			$this->set_low_stock_amount( '' );
-
-			// If we are stock managing and we don't have stock, force out of stock status.
-		} elseif ( $this->get_stock_quantity() <= get_option( 'woocommerce_notify_no_stock_amount', 0 ) && 'no' === $this->get_backorders() ) {
-			$this->set_stock_status( 'outofstock' );
-
-			// If we are stock managing, backorders are allowed, and we don't have stock, force on backorder status.
-		} elseif ( $this->get_stock_quantity() <= get_option( 'woocommerce_notify_no_stock_amount', 0 ) && 'no' !== $this->get_backorders() ) {
-			$this->set_stock_status( 'onbackorder' );
-
-			// If the stock level is changing and we do now have enough, force in stock status.
-		} elseif ( $this->get_stock_quantity() > get_option( 'woocommerce_notify_no_stock_amount', 0 ) ) {
-			$this->set_stock_status( 'instock' );
+			return;
 		}
+
+		$stock_is_above_notification_threshold = ( $this->get_stock_quantity() > get_option( 'woocommerce_notify_no_stock_amount', 0 ) );
+		$backorders_are_allowed                = ( 'no' !== $this->get_backorders() );
+
+		if ( $stock_is_above_notification_threshold ) {
+			$new_stock_status = 'instock';
+		} elseif ( $backorders_are_allowed ) {
+			$new_stock_status = 'onbackorder';
+		} else {
+			$new_stock_status = 'outofstock';
+		}
+
+		$this->set_stock_status( $new_stock_status );
 	}
 
 	/**
@@ -1372,14 +1376,21 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		 */
 		do_action( 'woocommerce_before_' . $this->object_type . '_object_save', $this, $this->data_store );
 
+		$state = $this->before_data_store_save_or_update();
+
 		if ( $this->get_id() ) {
+			$changeset = $this->get_changes();
 			$this->data_store->update( $this );
 		} else {
+			$changeset = null;
 			$this->data_store->create( $this );
 		}
 
-		if ( $this->get_parent_id() ) {
-			wc_deferred_product_sync( $this->get_parent_id() );
+		$this->after_data_store_save_or_update( $state );
+
+		// Update attributes lookup table if the product is new OR it's not but there are actually any changes.
+		if ( is_null( $changeset ) || ! empty( $changeset ) ) {
+			wc_get_container()->get( ProductAttributesLookupDataStore::class )->on_product_changed( $this, $changeset );
 		}
 
 		/**
@@ -1391,6 +1402,53 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		do_action( 'woocommerce_after_' . $this->object_type . '_object_save', $this, $this->data_store );
 
 		return $this->get_id();
+	}
+
+	/**
+	 * Do any extra processing needed before the actual product save
+	 * (but after triggering the 'woocommerce_before_..._object_save' action)
+	 *
+	 * @return mixed A state value that will be passed to after_data_store_save_or_update.
+	 */
+	protected function before_data_store_save_or_update() {
+	}
+
+	/**
+	 * Do any extra processing needed after the actual product save
+	 * (but before triggering the 'woocommerce_after_..._object_save' action)
+	 *
+	 * @param mixed $state The state object that was returned by before_data_store_save_or_update.
+	 */
+	protected function after_data_store_save_or_update( $state ) {
+		$this->maybe_defer_product_sync();
+	}
+
+	/**
+	 * Delete the product, set its ID to 0, and return result.
+	 *
+	 * @param  bool $force_delete Should the product be deleted permanently.
+	 * @return bool result
+	 */
+	public function delete( $force_delete = false ) {
+		$product_id = $this->get_id();
+		$deleted    = parent::delete( $force_delete );
+
+		if ( $deleted ) {
+			$this->maybe_defer_product_sync();
+			wc_get_container()->get( ProductAttributesLookupDataStore::class )->on_product_deleted( $product_id );
+		}
+
+		return $deleted;
+	}
+
+	/**
+	 * If this is a child product, queue its parent for syncing at the end of the request.
+	 */
+	protected function maybe_defer_product_sync() {
+		$parent_id = $this->get_parent_id();
+		if ( $parent_id ) {
+			wc_deferred_product_sync( $parent_id );
+		}
 	}
 
 	/*
@@ -1475,6 +1533,16 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	 * @return bool
 	 */
 	public function is_visible() {
+		$visible = $this->is_visible_core();
+		return apply_filters( 'woocommerce_product_is_visible', $visible, $this->get_id() );
+	}
+
+	/**
+	 * Returns whether or not the product is visible in the catalog (doesn't trigger filters).
+	 *
+	 * @return bool
+	 */
+	protected function is_visible_core() {
 		$visible = 'visible' === $this->get_catalog_visibility() || ( is_search() && 'search' === $this->get_catalog_visibility() ) || ( ! is_search() && 'catalog' === $this->get_catalog_visibility() );
 
 		if ( 'trash' === $this->get_status() ) {
@@ -1495,7 +1563,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 			$visible = false;
 		}
 
-		return apply_filters( 'woocommerce_product_is_visible', $visible, $this->get_id() );
+		return $visible;
 	}
 
 	/**
@@ -1702,7 +1770,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	 * @return boolean
 	 */
 	public function has_options() {
-		return false;
+		return apply_filters( 'woocommerce_product_has_options', false, $this );
 	}
 
 	/*
@@ -1871,7 +1939,8 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	 * @return string
 	 */
 	public function get_shipping_class() {
-		if ( $class_id = $this->get_shipping_class_id() ) { // @phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found, WordPress.CodeAnalysis.AssignmentInCondition.Found
+		$class_id = $this->get_shipping_class_id();
+		if ( $class_id ) {
 			$term = get_term_by( 'id', $class_id, 'product_shipping_class' );
 
 			if ( $term && ! is_wp_error( $term ) ) {
@@ -1963,7 +2032,8 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	public function get_price_suffix( $price = '', $qty = 1 ) {
 		$html = '';
 
-		if ( ( $suffix = get_option( 'woocommerce_price_display_suffix' ) ) && wc_tax_enabled() && 'taxable' === $this->get_tax_status() ) { // @phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found, WordPress.CodeAnalysis.AssignmentInCondition.Found
+		$suffix = get_option( 'woocommerce_price_display_suffix' );
+		if ( $suffix && wc_tax_enabled() && 'taxable' === $this->get_tax_status() ) {
 			if ( '' === $price ) {
 				$price = $this->get_price();
 			}

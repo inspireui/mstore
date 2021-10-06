@@ -1,47 +1,42 @@
 /**
  * External dependencies
  */
-import TestRenderer from 'react-test-renderer';
-import _ from 'lodash';
+import TestRenderer, { act } from 'react-test-renderer';
+import * as mockUtils from '@woocommerce/editor-components/utils';
+import * as mockUseDebounce from 'use-debounce';
 
 /**
  * Internal dependencies
  */
 import withSearchedProducts from '../with-searched-products';
-import * as mockedUtils from '../../components/utils';
 
 jest.mock( '@woocommerce/block-settings', () => ( {
-	IS_LARGE_CATALOG: true,
+	__esModule: true,
+	blocksConfig: {
+		productCount: 101,
+	},
 } ) );
 
-// Mock the getProducts and isLargeCatalog values for tests.
-mockedUtils.getProducts = jest
-	.fn()
-	.mockImplementation( () =>
-		Promise.resolve( [
-			{ id: 10, name: 'foo', parent: 0 },
-			{ id: 20, name: 'bar', parent: 0 },
-		] )
-	);
+// Mock the getProducts values for tests.
+mockUtils.getProducts = jest.fn().mockImplementation( () =>
+	Promise.resolve( [
+		{ id: 10, name: 'foo', parent: 0 },
+		{ id: 20, name: 'bar', parent: 0 },
+	] )
+);
 
-// Add a mock implementation of debounce for testing so we can spy on
-// the onSearch call.
-const debouncedCancel = jest.fn();
-const debouncedAction = jest.fn();
-_.debounce = ( onSearch ) => {
-	const debounced = debouncedAction.mockImplementation( () => {
-		onSearch();
-	} );
-	debounced.cancel = debouncedCancel;
-	return debounced;
-};
+// Add a mock implementation of debounce for testing so we can spy on the onSearch call.
+mockUseDebounce.useDebouncedCallback = jest
+	.fn()
+	.mockImplementation( ( search ) => [
+		() => mockUtils.getProducts( search ),
+	] );
 
 describe( 'withSearchedProducts Component', () => {
-	const { getProducts } = mockedUtils;
+	const { getProducts } = mockUtils;
 	afterEach( () => {
-		debouncedCancel.mockClear();
-		debouncedAction.mockClear();
-		mockedUtils.getProducts.mockClear();
+		mockUseDebounce.useDebouncedCallback.mockClear();
+		mockUtils.getProducts.mockClear();
 	} );
 	const TestComponent = withSearchedProducts(
 		( { selected, products, isLoading, onSearch } ) => {
@@ -57,18 +52,14 @@ describe( 'withSearchedProducts Component', () => {
 	);
 	describe( 'lifecycle tests', () => {
 		const selected = [ 10 ];
-		const renderer = TestRenderer.create(
-			<TestComponent selected={ selected } />
-		);
-		let props;
-		it(
-			'getProducts is called on mount with passed in selected ' +
-				'values',
-			() => {
-				expect( getProducts ).toHaveBeenCalledWith( { selected } );
-				expect( getProducts ).toHaveBeenCalledTimes( 1 );
-			}
-		);
+		let props, renderer;
+
+		act( () => {
+			renderer = TestRenderer.create(
+				<TestComponent selected={ selected } />
+			);
+		} );
+
 		it( 'has expected values for props', () => {
 			props = renderer.root.findByType( 'div' ).props;
 			expect( props.selected ).toEqual( selected );
@@ -77,16 +68,16 @@ describe( 'withSearchedProducts Component', () => {
 				{ id: 20, name: 'bar', parent: 0 },
 			] );
 		} );
-		it( 'debounce and getProducts is called on search event', () => {
+
+		it( 'debounce and getProducts is called on search event', async () => {
 			props = renderer.root.findByType( 'div' ).props;
-			props.onSearch();
-			expect( debouncedAction ).toHaveBeenCalled();
+
+			act( () => {
+				props.onSearch();
+			} );
+
+			expect( mockUseDebounce.useDebouncedCallback ).toHaveBeenCalled();
 			expect( getProducts ).toHaveBeenCalledTimes( 1 );
-		} );
-		it( 'debounce is cancelled on unmount', () => {
-			renderer.unmount();
-			expect( debouncedCancel ).toHaveBeenCalled();
-			expect( getProducts ).toHaveBeenCalledTimes( 0 );
 		} );
 	} );
 } );

@@ -32,20 +32,20 @@ class CommentHandlerTest extends AbstractHandlerTest
 
     public function getHandleValueTestData()
     {
-        return [
+        return array(
             // 2nd argument only exists for inherited method compatibility
-            ['/* comment */', new Token(null, null, null), ''],
-            ['/* comment */foo', new Token(null, null, null), 'foo'],
-        ];
+            array('/* comment */', new Token(null, null, null), ''),
+            array('/* comment */foo', new Token(null, null, null), 'foo'),
+        );
     }
 
     public function getDontHandleValueTestData()
     {
-        return [
-            ['>'],
-            ['+'],
-            [' '],
-        ];
+        return array(
+            array('>'),
+            array('+'),
+            array(' '),
+        );
     }
 
     protected function generateHandler()

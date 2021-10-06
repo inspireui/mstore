@@ -71,6 +71,7 @@ class WC_Order extends WC_Abstract_Order {
 			'state'      => '',
 			'postcode'   => '',
 			'country'    => '',
+			'phone'      => '',
 		),
 		'payment_method'       => '',
 		'payment_method_title' => '',
@@ -179,7 +180,7 @@ class WC_Order extends WC_Abstract_Order {
 		}
 
 		if ( $total_refunded && $display_refunded ) {
-			$formatted_total = '<del>' . wp_strip_all_tags( $formatted_total ) . '</del> <ins>' . wc_price( $order_total - $total_refunded, array( 'currency' => $this->get_currency() ) ) . $tax_string . '</ins>';
+			$formatted_total = '<del aria-hidden="true">' . wp_strip_all_tags( $formatted_total ) . '</del> <ins>' . wc_price( $order_total - $total_refunded, array( 'currency' => $this->get_currency() ) ) . $tax_string . '</ins>';
 		} else {
 			$formatted_total .= $tax_string;
 		}
@@ -420,6 +421,19 @@ class WC_Order extends WC_Abstract_Order {
 	*/
 
 	/**
+	 * Get basic order data in array format.
+	 *
+	 * @return array
+	 */
+	public function get_base_data() {
+		return array_merge(
+			array( 'id' => $this->get_id() ),
+			$this->data,
+			array( 'number' => $this->get_order_number() )
+		);
+	}
+
+	/**
 	 * Get all class data in array format.
 	 *
 	 * @since 3.0.0
@@ -427,12 +441,8 @@ class WC_Order extends WC_Abstract_Order {
 	 */
 	public function get_data() {
 		return array_merge(
+			$this->get_base_data(),
 			array(
-				'id' => $this->get_id(),
-			),
-			$this->data,
-			array(
-				'number'         => $this->get_order_number(),
 				'meta_data'      => $this->get_meta_data(),
 				'line_items'     => $this->get_items( 'line_item' ),
 				'tax_lines'      => $this->get_items( 'tax' ),
@@ -734,6 +744,17 @@ class WC_Order extends WC_Abstract_Order {
 	}
 
 	/**
+	 * Get shipping phone.
+	 *
+	 * @since  5.6.0
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @return string
+	 */
+	public function get_shipping_phone( $context = 'view' ) {
+		return $this->get_address_prop( 'phone', 'shipping', $context );
+	}
+
+	/**
 	 * Get the payment method.
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
@@ -860,7 +881,7 @@ class WC_Order extends WC_Abstract_Order {
 		$address = $this->get_address( 'shipping' );
 
 		// Remove name and company before generate the Google Maps URL.
-		unset( $address['first_name'], $address['last_name'], $address['company'] );
+		unset( $address['first_name'], $address['last_name'], $address['company'], $address['phone'] );
 
 		$address = apply_filters( 'woocommerce_shipping_address_map_url_parts', $address, $this );
 
@@ -898,7 +919,7 @@ class WC_Order extends WC_Abstract_Order {
 		$address     = WC()->countries->get_formatted_address( $raw_address );
 
 		/**
-		 * Filter orders formatterd billing address.
+		 * Filter orders formatted billing address.
 		 *
 		 * @since 3.8.0
 		 * @param string   $address     Formatted billing address string.
@@ -924,7 +945,7 @@ class WC_Order extends WC_Abstract_Order {
 		}
 
 		/**
-		 * Filter orders formatterd shipping address.
+		 * Filter orders formatted shipping address.
 		 *
 		 * @since 3.8.0
 		 * @param string   $address     Formatted billing address string.
@@ -974,7 +995,7 @@ class WC_Order extends WC_Abstract_Order {
 	 * @param string $address Name of address to set. billing or shipping.
 	 * @param mixed  $value Value of the prop.
 	 */
-	protected function set_address_prop( $prop, $address = 'billing', $value ) {
+	protected function set_address_prop( $prop, $address, $value ) {
 		if ( array_key_exists( $prop, $this->data[ $address ] ) ) {
 			if ( true === $this->object_read ) {
 				if ( $value !== $this->data[ $address ][ $prop ] || ( isset( $this->changes[ $address ] ) && array_key_exists( $prop, $this->changes[ $address ] ) ) ) {
@@ -1224,6 +1245,17 @@ class WC_Order extends WC_Abstract_Order {
 	}
 
 	/**
+	 * Set shipping phone.
+	 *
+	 * @since 5.6.0
+	 * @param string $value Shipping phone.
+	 * @throws WC_Data_Exception Throws exception when invalid data is found.
+	 */
+	public function set_shipping_phone( $value ) {
+		$this->set_address_prop( 'phone', 'shipping', $value );
+	}
+
+	/**
 	 * Set the payment method.
 	 *
 	 * @param string $payment_method Supports WC_Payment_Gateway for bw compatibility with < 3.0.
@@ -1402,8 +1434,7 @@ class WC_Order extends WC_Abstract_Order {
 		$needs_address = false;
 
 		foreach ( $this->get_shipping_methods() as $shipping_method ) {
-			// Remove any instance IDs after ":".
-			$shipping_method_id = current( explode( ':', $shipping_method['method_id'] ) );
+			$shipping_method_id = $shipping_method->get_method_id();
 
 			if ( ! in_array( $shipping_method_id, $hide, true ) ) {
 				$needs_address = true;
@@ -1679,7 +1710,7 @@ class WC_Order extends WC_Abstract_Order {
 			return 0;
 		}
 
-		if ( is_user_logged_in() && current_user_can( 'edit_shop_order', $this->get_id() ) && $added_by_user ) {
+		if ( is_user_logged_in() && current_user_can( 'edit_shop_orders', $this->get_id() ) && $added_by_user ) {
 			$user                 = get_user_by( 'id', get_current_user_id() );
 			$comment_author       = $user->display_name;
 			$comment_author_email = $user->user_email;
@@ -1721,6 +1752,16 @@ class WC_Order extends WC_Abstract_Order {
 				)
 			);
 		}
+
+		/**
+		 * Action hook fired after an order note is added.
+		 *
+		 * @param int      $order_note_id Order note ID.
+		 * @param WC_Order $order         Order data.
+		 *
+		 * @since 4.4.0
+		 */
+		do_action( 'woocommerce_order_note_added', $comment_id, $this );
 
 		return $comment_id;
 	}

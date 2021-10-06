@@ -1,13 +1,5 @@
 <?php
-/**
- * Product tag block.
- *
- * @package WooCommerce/Blocks
- */
-
 namespace Automattic\WooCommerce\Blocks\BlockTypes;
-
-defined( 'ABSPATH' ) || exit;
 
 /**
  * ProductTag class.
@@ -41,11 +33,11 @@ class ProductTag extends AbstractProductGrid {
 	 *
 	 * @return array
 	 */
-	protected function get_attributes() {
+	protected function get_block_type_attributes() {
 		return array(
 			'className'         => $this->get_schema_string(),
 			'columns'           => $this->get_schema_number( wc_get_theme_support( 'product_blocks::default_columns', 3 ) ),
-			'rows'              => $this->get_schema_number( wc_get_theme_support( 'product_blocks::default_rows', 1 ) ),
+			'rows'              => $this->get_schema_number( wc_get_theme_support( 'product_blocks::default_rows', 3 ) ),
 			'contentVisibility' => $this->get_schema_content_visibility(),
 			'align'             => $this->get_schema_align(),
 			'alignButtons'      => $this->get_schema_boolean( false ),
@@ -57,5 +49,21 @@ class ProductTag extends AbstractProductGrid {
 			),
 			'isPreview'         => $this->get_schema_boolean( false ),
 		);
+	}
+
+	/**
+	 * Extra data passed through from server to client for block.
+	 *
+	 * @param array $attributes  Any attributes that currently are available from the block.
+	 *                           Note, this will be empty in the editor context when the block is
+	 *                           not in the post content on editor load.
+	 */
+	protected function enqueue_data( array $attributes = [] ) {
+		parent::enqueue_data( $attributes );
+
+		$tag_count = wp_count_terms( 'product_tag' );
+
+		$this->asset_data_registry->add( 'hasTags', $tag_count > 0, true );
+		$this->asset_data_registry->add( 'limitTags', $tag_count > 100, true );
 	}
 }

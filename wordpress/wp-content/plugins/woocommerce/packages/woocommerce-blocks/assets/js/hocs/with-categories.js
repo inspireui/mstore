@@ -3,13 +3,18 @@
  */
 import { Component } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { getCategories } from '@woocommerce/block-components/utils';
+import { getCategories } from '@woocommerce/editor-components/utils';
 
 /**
  * Internal dependencies
  */
 import { formatError } from '../base/utils/errors.js';
 
+/**
+ * HOC that queries categories for a component.
+ *
+ * @param {Function} OriginalComponent Component being wrapped.
+ */
 const withCategories = createHigherOrderComponent( ( OriginalComponent ) => {
 	return class WrappedComponent extends Component {
 		constructor() {
@@ -17,7 +22,7 @@ const withCategories = createHigherOrderComponent( ( OriginalComponent ) => {
 			this.state = {
 				error: null,
 				loading: false,
-				categories: null,
+				categories: [],
 			};
 			this.loadCategories = this.loadCategories.bind( this );
 		}
@@ -29,9 +34,7 @@ const withCategories = createHigherOrderComponent( ( OriginalComponent ) => {
 		loadCategories() {
 			this.setState( { loading: true } );
 
-			getCategories( {
-				show_review_count: this.props.showReviewCount || false,
-			} )
+			getCategories()
 				.then( ( categories ) => {
 					this.setState( {
 						categories,
@@ -43,7 +46,7 @@ const withCategories = createHigherOrderComponent( ( OriginalComponent ) => {
 					const error = await formatError( e );
 
 					this.setState( {
-						categories: null,
+						categories: [],
 						loading: false,
 						error,
 					} );

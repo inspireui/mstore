@@ -3,23 +3,26 @@
  * Plugin Name: WooCommerce Blocks
  * Plugin URI: https://github.com/woocommerce/woocommerce-gutenberg-products-block
  * Description: WooCommerce blocks for the Gutenberg editor.
- * Version: 2.5.14
+ * Version: 5.7.2
  * Author: Automattic
  * Author URI: https://woocommerce.com
  * Text Domain:  woo-gutenberg-products-block
- * Requires at least: 5.0
- * Requires PHP: 5.6
- * WC requires at least: 3.7
- * WC tested up to: 4.0
+ * Requires at least: 5.8
+ * Requires PHP: 7.0
+ * WC requires at least: 5.5
+ * WC tested up to: 5.7
  *
  * @package WooCommerce\Blocks
- * @internal This file is only used when running the REST API as a feature plugin.
+ * @internal This file is only used when running as a feature plugin.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-$minimum_wp_version = '5.0';
+$minimum_wp_version = '5.8';
 
+if ( ! defined( 'WC_BLOCKS_IS_FEATURE_PLUGIN' ) ) {
+	define( 'WC_BLOCKS_IS_FEATURE_PLUGIN', true );
+}
 /**
  * Whether notices must be displayed in the current page (plugins and WooCommerce pages).
  *
@@ -51,8 +54,8 @@ if ( version_compare( $GLOBALS['wp_version'], $minimum_wp_version, '<' ) ) {
 	function woocommerce_blocks_admin_unsupported_wp_notice() {
 		if ( should_display_compatibility_notices() ) {
 			?>
-			<div class="notice notice-error is-dismissible">
-				<p><?php esc_html_e( 'WooCommerce Blocks requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying WooCommerce Blocks.', 'woocommerce' ); ?></p>
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'The WooCommerce Blocks feature plugin requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying WooCommerce Blocks.', 'woocommerce' ); ?></p>
 			</div>
 			<?php
 		}
@@ -60,6 +63,44 @@ if ( version_compare( $GLOBALS['wp_version'], $minimum_wp_version, '<' ) ) {
 	add_action( 'admin_notices', 'woocommerce_blocks_admin_unsupported_wp_notice' );
 	return;
 }
+
+/**
+ * Returns whether the current version is a development version
+ * Note this relies on composer.json version, not plugin version.
+ * Development installs of the plugin don't have a version defined in
+ * composer json.
+ *
+ * @return bool True means the current version is a development version.
+ */
+function woocommerce_blocks_is_development_version() {
+	$composer_file = __DIR__ . '/composer.json';
+	if ( ! is_readable( $composer_file ) ) {
+		return false;
+	}
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- including local file
+	$composer_config = json_decode( file_get_contents( $composer_file ), true );
+	return ! isset( $composer_config['version'] );
+}
+
+/**
+ * If development version is detected and the Jetpack constant is not defined, show a notice.
+ */
+if ( woocommerce_blocks_is_development_version() && ! defined( 'JETPACK_AUTOLOAD_DEV' ) ) {
+	add_action(
+		'admin_notices',
+		function() {
+			echo '<div class="error"><p>';
+			printf(
+				/* translators: %1$s is referring to a php constant name, %2$s is referring to the wp-config.php file. */
+				esc_html__( 'WooCommerce Blocks development mode requires the %1$s constant to be defined and true in your %2$s file. Otherwise you are loading the blocks package from WooCommerce core.', 'woocommerce' ),
+				'JETPACK_AUTOLOAD_DEV',
+				'wp-config.php'
+			);
+			echo '</p></div>';
+		}
+	);
+}
+
 
 /**
  * Autoload packages.
@@ -180,3 +221,27 @@ JS;
 }
 
 add_filter( 'pre_load_script_translations', 'woocommerce_blocks_get_i18n_data_json', 10, 4 );
+
+/**
+ * Filter translations so we can retrieve translations from Core when the original and the translated
+ * texts are the same (which happens when translations are missing).
+ *
+ * @param string $translation Translated text based on WC Blocks translations.
+ * @param string $text        Text to translate.
+ * @param string $domain      The text domain.
+ * @return string WC Blocks translation. In case it's the same as $text, Core translation.
+ */
+function woocommerce_blocks_get_php_translation_from_core( $translation, $text, $domain ) {
+	if ( 'woo-gutenberg-products-block' !== $domain ) {
+		return $translation;
+	}
+
+	// When translation is the same, that could mean the string is not translated.
+	// In that case, load it from core.
+	if ( $translation === $text ) {
+		return translate( $text, 'woocommerce' ); // phpcs:ignore WordPress.WP.I18n.LowLevelTranslationFunction, WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch
+	}
+	return $translation;
+}
+
+add_filter( 'gettext', 'woocommerce_blocks_get_php_translation_from_core', 10, 3 );

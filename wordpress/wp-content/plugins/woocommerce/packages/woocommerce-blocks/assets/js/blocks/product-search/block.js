@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { HOME_URL } from '@woocommerce/block-settings';
+import { HOME_URL } from '@woocommerce/settings';
 
 /**
  * Internal dependencies
@@ -14,6 +14,15 @@ import './style.scss';
 
 /**
  * Component displaying a product search form.
+ *
+ * @param {Object} props Incoming props for the component.
+ * @param {Object} props.attributes Incoming block attributes.
+ * @param {string} props.attributes.label
+ * @param {string} props.attributes.placeholder
+ * @param {string} props.attributes.formId
+ * @param {string} props.attributes.className
+ * @param {boolean} props.attributes.hasLabel
+ * @param {string} props.attributes.align
  */
 const ProductSearchBlock = ( {
 	attributes: { label, placeholder, formId, className, hasLabel, align },
