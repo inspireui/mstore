@@ -202,7 +202,12 @@ class WP_Widget_Block extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, $this->default_instance );
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'content' ); ?>"><?php echo __( 'Block HTML:' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'content' ); ?>">
+				<?php
+				/* translators: HTML code of the block, not an option that blocks HTML. */
+				_e( 'Block HTML:' );
+				?>
+			</label>
 			<textarea id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>" rows="6" cols="50" class="widefat code"><?php echo esc_textarea( $instance['content'] ); ?></textarea>
 		</p>
 		<?php
@@ -218,7 +223,7 @@ class WP_Widget_Block extends WP_Widget {
 	 * @return bool Updated `is_wide` value.
 	 */
 	public function set_is_wide_widget_in_customizer( $is_wide, $widget_id ) {
-		if ( strpos( $widget_id, 'block-' ) === 0 ) {
+		if ( str_starts_with( $widget_id, 'block-' ) ) {
 			return false;
 		}
 

@@ -9,7 +9,8 @@
 <?php defined( 'ABSPATH' ) || exit(); ?>
 
 <div class="wrap woocommerce wc-subscriptions-wrap wc-helper">
-	<h1 class="screen-reader-text"><?php esc_html_e( 'My Subscriptions', 'woocommerce' ); ?></h1>
+	<?php require WC_Helper::get_view_filename( 'html-section-nav.php' ); ?>
+	<h1 class="screen-reader-text"><?php esc_html_e( 'WooCommerce Extensions', 'woocommerce' ); ?></h1>
 
 	<?php require WC_Helper::get_view_filename( 'html-section-notices.php' ); ?>
 
@@ -59,7 +60,8 @@
 			$class_html = $current_filter === $key ? 'class="current"' : '';
 			?>
 			<li>
-				<a <?php echo esc_html( $class_html ); ?> href="<?php echo esc_url( $url ); ?>">
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<a <?php echo $class_html; ?> href="<?php echo esc_url( $url ); ?>">
 					<?php echo esc_html( $label ); ?>
 					<span class="count">(<?php echo absint( $counts[ $key ] ); ?>)</span>
 				</a>
@@ -74,7 +76,7 @@
 				<tr class="wp-list-table__row is-ext-header">
 					<td class="wp-list-table__ext-details">
 						<div class="wp-list-table__ext-title">
-							<a href="<?php echo esc_url( $subscription['product_url'] ); ?>" target="_blank">
+							<a href="<?php echo esc_url( WC_Helper::add_utm_params_to_url_for_subscription_link( $subscription['product_url'], 'product-name' ) ); ?>" target="_blank">
 								<?php echo esc_html( $subscription['product_name'] ); ?>
 							</a>
 						</div>
@@ -205,7 +207,9 @@
 					<tr class="wp-list-table__row is-ext-header">
 						<td class="wp-list-table__ext-details color-bar autorenews">
 							<div class="wp-list-table__ext-title">
-								<a href="<?php echo esc_url( $data['_product_url'] ); ?>" target="_blank"><?php echo esc_html( $data['Name'] ); ?></a>
+								<a href="<?php echo esc_url( WC_Helper::add_utm_params_to_url_for_subscription_link( $data['_product_url'], 'product-name' ) ); ?>" target="_blank">
+									<?php echo esc_html( $data['Name'] ); ?>
+								</a>
 							</div>
 							<div class="wp-list-table__ext-description">
 							</div>
@@ -226,7 +230,20 @@
 					<tr class="wp-list-table__row wp-list-table__ext-updates">
 						<td class="wp-list-table__ext-status <?php echo sanitize_html_class( $subscription_action['status'] ); ?>">
 							<p><span class="dashicons <?php echo sanitize_html_class( $subscription_action['icon'] ); ?>"></span>
-								<?php echo esc_html( $subscription_action['message'] ); ?>
+								<?php
+									echo wp_kses(
+										$subscription_action['message'],
+										array(
+											'a'      => array(
+												'href'  => array(),
+												'title' => array(),
+											),
+											'br'     => array(),
+											'em'     => array(),
+											'strong' => array(),
+										)
+									);
+								?>
 							</p>
 						</td>
 						<td class="wp-list-table__ext-actions">

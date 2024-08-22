@@ -1,0 +1,3 @@
+<IfModule mod_headers.c>
+    Header set X-Response-Header-Test: test
+</IfModule>

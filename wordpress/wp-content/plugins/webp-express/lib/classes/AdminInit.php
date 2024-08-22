@@ -25,7 +25,7 @@ class AdminInit
     public static function runMigrationIfNeeded()
     {
         // When an update requires a migration, the number should be increased
-        define('WEBPEXPRESS_MIGRATION_VERSION', '13');
+        define('WEBPEXPRESS_MIGRATION_VERSION', '14');
 
         if (WEBPEXPRESS_MIGRATION_VERSION != Option::getOption('webp-express-migration-version', 0)) {
             // run migration logic
@@ -33,7 +33,7 @@ class AdminInit
         }
 
         // uncomment next line to test-run a migration
-        //include WEBPEXPRESS_PLUGIN_DIR . '/lib/migrate/migrate13.php';
+        //include WEBPEXPRESS_PLUGIN_DIR . '/lib/migrate/migrate14.php';
     }
 
     public static function pageNowIs($pageId)
@@ -53,12 +53,12 @@ class AdminInit
         if (current_user_can('manage_options')) {
 
             // Hooks related to conversion page (in media)
-            if (self::pageNowIs('upload.php')) {
+            //if (self::pageNowIs('upload.php')) {
                 if (isset($_GET['page']) && ('webp_express_conversion_page' === $_GET['page'])) {
                     //add_action('admin_enqueue_scripts', array('\WebPExpress\WCFMPage', 'enqueueScripts'));
                     add_action('admin_head', array('\WebPExpress\WCFMPage', 'addToHead'));
                 }
-            }
+            //}
 
             // Hooks related to options page
             if (self::pageNowIs('options-general.php') || self::pageNowIs('settings.php')) {
@@ -80,6 +80,7 @@ class AdminInit
             add_action('wp_ajax_convert_file', array('\WebPExpress\Convert', 'processAjaxConvertFile'));
             add_action('wp_ajax_webpexpress_view_log', array('\WebPExpress\ConvertLog', 'processAjaxViewLog'));
             add_action('wp_ajax_webpexpress_purge_cache', array('\WebPExpress\CachePurge', 'processAjaxPurgeCache'));
+            add_action('wp_ajax_webpexpress_purge_log', array('\WebPExpress\LogPurge', 'processAjaxPurgeLog'));
             add_action('wp_ajax_webpexpress_dismiss_message', array('\WebPExpress\DismissableMessages', 'processAjaxDismissMessage'));
             add_action('wp_ajax_webpexpress_dismiss_global_message', array('\WebPExpress\DismissableGlobalMessages', 'processAjaxDismissGlobalMessage'));
             add_action('wp_ajax_webpexpress_self_test', array('\WebPExpress\SelfTest', 'processAjax'));
@@ -103,17 +104,31 @@ class AdminInit
         register_deactivation_hook(WEBPEXPRESS_PLUGIN, array('\WebPExpress\PluginDeactivate', 'deactivate'));
         register_uninstall_hook(WEBPEXPRESS_PLUGIN, array('\WebPExpress\PluginUninstall', 'uninstall'));
 
+                /*$start = microtime(true);
+                BiggerThanSourceDummyFilesBulk::updateStatus(Config::loadConfig());
+                echo microtime(true) - $start;*/
+
+
         // Some hooks must be registered AFTER admin_init...
         add_action("admin_init", array('\WebPExpress\AdminInit', 'addHooksAfterAdminInit'));
 
         // Run migration AFTER admin_init hook (important, as insert_with_markers injection otherwise fails, see #394)
+        // PS: "plugins_loaded" is to early, as insert_with_markers fails.
         // PS: Unfortunately Message::addMessage doesnt print until next load now, we should look into that.
+        // PPS: It does run. It must be the Option that does not react
+        //add_action("admin_init", array('\WebPExpress\AdminInit', 'runMigrationIfNeeded'));
+
         add_action("admin_init", array('\WebPExpress\AdminInit', 'runMigrationIfNeeded'));
 
         add_action("admin_notices", array('\WebPExpress\DismissableGlobalMessages', 'printMessages'));
 
         if (Multisite::isNetworkActivated()) {
-            add_action("network_admin_menu", array('\WebPExpress\AdminUi', 'networAdminMenuHook'));
+            if (is_network_admin()) {
+                add_action("network_admin_menu", array('\WebPExpress\AdminUi', 'networAdminMenuHook'));
+            } else {
+                add_action("admin_menu", array('\WebPExpress\AdminUi', 'adminMenuHookMultisite'));
+            }
+
         } else {
             add_action("admin_menu", array('\WebPExpress\AdminUi', 'adminMenuHook'));
         }

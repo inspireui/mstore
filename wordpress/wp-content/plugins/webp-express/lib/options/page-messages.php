@@ -15,6 +15,7 @@ use \WebPExpress\PlatformInfo;
 use \WebPExpress\State;
 
 
+
 // TODO: Move most of this file into a ProblemDetector class (SystemHealth)
 
 if (!(State::getState('configured', false))) {
@@ -68,6 +69,26 @@ if ($cacheEnablerActivated && !$webpEnabled) {
             'for webp-enabled browsers.'
     );
 }
+/*
+Commented out
+In newer PHP, it generates a fatal (uncatchable) error:
+Fatal error: Uncaught Error: Call to a member function is_feature_active() on null
+See #562
+
+$elementorActivated = in_array('elementor/elementor.php', get_option('active_plugins', []));
+if ($elementorActivated) {
+    try {
+        // The following is wrapped in a try statement because it depends on Elementor classes which might be subject to change
+        if (\Elementor\Plugin::$instance->experiments->is_feature_active( 'e_optimized_css_loading' ) === false) {
+            if ($config['redirect-to-existing-in-htaccess'] === false) {
+                DismissableMessages::addDismissableMessage('0.23.0/elementor');
+            }
+        }
+    } catch (\Exception $e) {
+        // Well, just bad luck.
+    }
+}
+*/
 
 if (($config['operation-mode'] == 'cdn-friendly') && !$config['alter-html']['enabled']) {
     //echo print_r(get_option('cache-enabler'), true);

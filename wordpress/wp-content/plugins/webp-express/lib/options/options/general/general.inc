@@ -28,6 +28,8 @@
                 include_once 'cache-control.inc';
             }
 
+            include_once 'prevent-using-webps-larger-than-original.inc';
+
             ?>
         </tbody>
     </table>

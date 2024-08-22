@@ -407,7 +407,7 @@ jQuery( function( $ ) {
 						var $form = $( 'form.checkout' );
 
 						// Remove notices from all sources
-						$( '.woocommerce-error, .woocommerce-message' ).remove();
+						$( '.woocommerce-error, .woocommerce-message, .is-error, .is-success' ).remove();
 
 						// Add new errors returned by this event
 						if ( data.messages ) {
@@ -477,7 +477,7 @@ jQuery( function( $ ) {
 
 			// Trigger a handler to let gateways manipulate the checkout if needed
 			// eslint-disable-next-line max-len
-			if ( $form.triggerHandler( 'checkout_place_order' ) !== false && $form.triggerHandler( 'checkout_place_order_' + wc_checkout_form.get_payment_method() ) !== false ) {
+			if ( $form.triggerHandler( 'checkout_place_order', [ wc_checkout_form ] ) !== false && $form.triggerHandler( 'checkout_place_order_' + wc_checkout_form.get_payment_method(), [ wc_checkout_form ] ) !== false ) {
 
 				$form.addClass( 'processing' );
 
@@ -501,13 +501,13 @@ jQuery( function( $ ) {
 							var maybe_valid_json = raw_response.match( /{"result.*}/ );
 
 							if ( null === maybe_valid_json ) {
-								console.log( 'Unable to fix malformed JSON' );
+								console.log( 'Unable to fix malformed JSON #1' );
 							} else if ( wc_checkout_form.is_valid_json( maybe_valid_json[0] ) ) {
 								console.log( 'Fixed malformed JSON. Original:' );
 								console.log( raw_response );
 								raw_response = maybe_valid_json[0];
 							} else {
-								console.log( 'Unable to fix malformed JSON' );
+								console.log( 'Unable to fix malformed JSON #2' );
 							}
 						}
 
@@ -525,7 +525,7 @@ jQuery( function( $ ) {
 						wc_checkout_form.detachUnloadEventsOnSubmit();
 
 						try {
-							if ( 'success' === result.result && $form.triggerHandler( 'checkout_place_order_success', result ) !== false ) {
+							if ( 'success' === result.result && $form.triggerHandler( 'checkout_place_order_success', [ result, wc_checkout_form ] ) !== false ) {
 								if ( -1 === result.redirect.indexOf( 'https://' ) || -1 === result.redirect.indexOf( 'http://' ) ) {
 									window.location = result.redirect;
 								} else {
@@ -560,7 +560,22 @@ jQuery( function( $ ) {
 						// Detach the unload handler that prevents a reload / redirect
 						wc_checkout_form.detachUnloadEventsOnSubmit();
 
-						wc_checkout_form.submit_error( '<div class="woocommerce-error">' + errorThrown + '</div>' );
+						// This is just a technical error fallback. i18_checkout_error is expected to be always defined and localized.
+						var errorMessage = errorThrown;
+
+						if (
+							typeof wc_checkout_params === 'object' &&
+							wc_checkout_params !== null &&
+							wc_checkout_params.hasOwnProperty( 'i18n_checkout_error' ) &&
+							typeof wc_checkout_params.i18n_checkout_error === 'string' &&
+							wc_checkout_params.i18n_checkout_error.trim() !== ''
+						) {
+							errorMessage = wc_checkout_params.i18n_checkout_error;
+						}
+
+						wc_checkout_form.submit_error(
+							'<div class="woocommerce-error">' + errorMessage + '</div>'
+						);
 					}
 				});
 			}
@@ -568,7 +583,7 @@ jQuery( function( $ ) {
 			return false;
 		},
 		submit_error: function( error_message ) {
-			$( '.woocommerce-NoticeGroup-checkout, .woocommerce-error, .woocommerce-message' ).remove();
+			$( '.woocommerce-NoticeGroup-checkout, .woocommerce-error, .woocommerce-message, .is-error, .is-success' ).remove();
 			wc_checkout_form.$checkout_form.prepend( '<div class="woocommerce-NoticeGroup woocommerce-NoticeGroup-checkout">' + error_message + '</div>' ); // eslint-disable-line max-len
 			wc_checkout_form.$checkout_form.removeClass( 'processing' ).unblock();
 			wc_checkout_form.$checkout_form.find( '.input-text, select, input:checkbox' ).trigger( 'validate' ).trigger( 'blur' );
@@ -579,7 +594,7 @@ jQuery( function( $ ) {
 			var scrollElement           = $( '.woocommerce-NoticeGroup-updateOrderReview, .woocommerce-NoticeGroup-checkout' );
 
 			if ( ! scrollElement.length ) {
-				scrollElement = $( '.form.checkout' );
+				scrollElement = $( 'form.checkout' );
 			}
 			$.scroll_to_notices( scrollElement );
 		}
@@ -613,8 +628,9 @@ jQuery( function( $ ) {
 			});
 
 			var data = {
-				security:		wc_checkout_params.apply_coupon_nonce,
-				coupon_code:	$form.find( 'input[name="coupon_code"]' ).val()
+				security: wc_checkout_params.apply_coupon_nonce,
+				coupon_code: $form.find('input[name="coupon_code"]').val(),
+				billing_email: wc_checkout_form.$checkout_form.find('input[name="billing_email"]').val()
 			};
 
 			$.ajax({
@@ -622,7 +638,7 @@ jQuery( function( $ ) {
 				url:		wc_checkout_params.wc_ajax_url.toString().replace( '%%endpoint%%', 'apply_coupon' ),
 				data:		data,
 				success:	function( code ) {
-					$( '.woocommerce-error, .woocommerce-message' ).remove();
+					$( '.woocommerce-error, .woocommerce-message, .is-error, .is-success' ).remove();
 					$form.removeClass( 'processing' ).unblock();
 
 					if ( code ) {
@@ -662,13 +678,13 @@ jQuery( function( $ ) {
 				url:     wc_checkout_params.wc_ajax_url.toString().replace( '%%endpoint%%', 'remove_coupon' ),
 				data:    data,
 				success: function( code ) {
-					$( '.woocommerce-error, .woocommerce-message' ).remove();
+					$( '.woocommerce-error, .woocommerce-message, .is-error, .is-success' ).remove();
 					container.removeClass( 'processing' ).unblock();
 
 					if ( code ) {
 						$( 'form.woocommerce-checkout' ).before( code );
 
-						$( document.body ).trigger( 'removed_coupon_in_checkout', [ data.coupon_code ] );
+						$( document.body ).trigger( 'removed_coupon_in_checkout', [ data.coupon ] );
 						$( document.body ).trigger( 'update_checkout', { update_shipping_method: false } );
 
 						// Remove coupon code from coupon field

@@ -8,6 +8,11 @@
  * @version 3.4.0
  */
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\DataSynchronizer;
+use Automattic\WooCommerce\Internal\Utilities\Users;
+use Automattic\WooCommerce\Utilities\OrderUtil;
+use Automattic\WooCommerce\Utilities\StringUtil;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -143,9 +148,9 @@ function wc_get_is_pending_statuses() {
  */
 function wc_get_order_status_name( $status ) {
 	$statuses = wc_get_order_statuses();
-	$status   = 'wc-' === substr( $status, 0, 3 ) ? substr( $status, 3 ) : $status;
-	$status   = isset( $statuses[ 'wc-' . $status ] ) ? $statuses[ 'wc-' . $status ] : $status;
-	return $status;
+	$status   = OrderUtil::remove_status_prefix( $status );
+
+	return $statuses[ 'wc-' . $status ] ?? $status;
 }
 
 /**
@@ -235,6 +240,24 @@ function wc_get_order_types( $for = '' ) {
 				}
 			}
 			break;
+		case 'cot-migration':
+			foreach ( $wc_order_types as $type => $args ) {
+				if ( DataSynchronizer::PLACEHOLDER_ORDER_POST_TYPE !== $type ) {
+					$order_types[] = $type;
+				}
+			}
+			break;
+		case 'admin-menu':
+			$order_types = array_intersect(
+				array_keys( $wc_order_types ),
+				get_post_types(
+					array(
+						'show_ui'      => true,
+						'show_in_menu' => 'woocommerce',
+					)
+				)
+			);
+			break;
 		default:
 			$order_types = array_keys( $wc_order_types );
 			break;
@@ -266,8 +289,6 @@ function wc_get_order_type( $type ) {
  * post types are types of orders, and having them treated as such.
  *
  * $args are passed to register_post_type, but there are a few specific to this function:
- *      - exclude_from_orders_screen (bool) Whether or not this order type also get shown in the main.
- *      orders screen.
  *      - add_order_meta_boxes (bool) Whether or not the order type gets shop_order meta boxes.
  *      - exclude_from_order_count (bool) Whether or not this order type is excluded from counts.
  *      - exclude_from_order_views (bool) Whether or not this order type is visible by customers when.
@@ -299,7 +320,6 @@ function wc_register_order_type( $type, $args = array() ) {
 
 	// Register for WC usage.
 	$order_type_args = array(
-		'exclude_from_orders_screen'       => false,
 		'add_order_meta_boxes'             => true,
 		'exclude_from_order_count'         => false,
 		'exclude_from_order_views'         => false,
@@ -329,25 +349,31 @@ function wc_processing_order_count() {
  * Return the orders count of a specific order status.
  *
  * @param string $status Status.
+ * @param string $type   (Optional) Order type. Leave empty to include all 'for order-count' order types. @{see wc_get_order_types()}.
  * @return int
  */
-function wc_orders_count( $status ) {
-	$count          = 0;
-	$status         = 'wc-' . $status;
-	$order_statuses = array_keys( wc_get_order_statuses() );
+function wc_orders_count( $status, string $type = '' ) {
+	$count           = 0;
+	$legacy_statuses = array( 'draft', 'trash' );
+	$valid_statuses  = array_merge( array_keys( wc_get_order_statuses() ), $legacy_statuses );
+	$status          = ( ! in_array( $status, $legacy_statuses, true ) && 0 !== strpos( $status, 'wc-' ) ) ? 'wc-' . $status : $status;
+	$valid_types     = wc_get_order_types( 'order-count' );
+	$type            = trim( $type );
 
-	if ( ! in_array( $status, $order_statuses, true ) ) {
+	if ( ! in_array( $status, $valid_statuses, true ) || ( $type && ! in_array( $type, $valid_types, true ) ) ) {
 		return 0;
 	}
 
-	$cache_key    = WC_Cache_Helper::get_cache_prefix( 'orders' ) . $status;
+	$cache_key    = WC_Cache_Helper::get_cache_prefix( 'orders' ) . $status . $type;
 	$cached_count = wp_cache_get( $cache_key, 'counts' );
 
 	if ( false !== $cached_count ) {
 		return $cached_count;
 	}
 
-	foreach ( wc_get_order_types( 'order-count' ) as $type ) {
+	$types_for_count = $type ? array( $type ) : $valid_types;
+
+	foreach ( $types_for_count as $type ) {
 		$data_store = WC_Data_Store::load( 'shop_order' === $type ? 'order' : $type );
 		if ( $data_store ) {
 			$count += $data_store->get_order_count( $status );
@@ -460,9 +486,9 @@ function wc_delete_shop_order_transients( $order = 0 ) {
 	// Clear customer's order related caches.
 	if ( is_a( $order, 'WC_Order' ) ) {
 		$order_id = $order->get_id();
-		delete_user_meta( $order->get_customer_id(), '_money_spent' );
-		delete_user_meta( $order->get_customer_id(), '_order_count' );
-		delete_user_meta( $order->get_customer_id(), '_last_order' );
+		Users::delete_site_user_meta( $order->get_customer_id(), 'wc_money_spent' );
+		Users::delete_site_user_meta( $order->get_customer_id(), 'wc_order_count' );
+		Users::delete_site_user_meta( $order->get_customer_id(), 'wc_last_order' );
 	} else {
 		$order_id = 0;
 	}
@@ -514,10 +540,11 @@ function wc_create_refund( $args = array() ) {
 			throw new Exception( __( 'Invalid order ID.', 'woocommerce' ) );
 		}
 
-		$remaining_refund_amount = $order->get_remaining_refund_amount();
-		$remaining_refund_items  = $order->get_remaining_refund_items();
-		$refund_item_count       = 0;
-		$refund                  = new WC_Order_Refund( $args['refund_id'] );
+		$remaining_refund_amount     = $order->get_remaining_refund_amount();
+		$remaining_refund_items      = $order->get_remaining_refund_items();
+		$refund_item_count           = 0;
+		$refund                      = new WC_Order_Refund( $args['refund_id'] );
+		$refunded_order_and_products = array();
 
 		if ( 0 > $args['amount'] || $args['amount'] > $remaining_refund_amount ) {
 			throw new Exception( __( 'Invalid refund amount.', 'woocommerce' ) );
@@ -534,7 +561,7 @@ function wc_create_refund( $args = array() ) {
 		}
 
 		// Negative line items.
-		if ( count( $args['line_items'] ) > 0 ) {
+		if ( is_array( $args['line_items'] ) && count( $args['line_items'] ) > 0 ) {
 			$items = $order->get_items( array( 'line_item', 'fee', 'shipping' ) );
 
 			foreach ( $items as $item_id => $item ) {
@@ -548,6 +575,16 @@ function wc_create_refund( $args = array() ) {
 
 				if ( empty( $qty ) && empty( $refund_total ) && empty( $args['line_items'][ $item_id ]['refund_tax'] ) ) {
 					continue;
+				}
+
+				// array of order id and product id which were refunded.
+				// later to be used for revoking download permission.
+				// checking if the item is a product, as we only need to revoke download permission for products.
+				if ( $item->is_type( 'line_item' ) ) {
+					$refunded_order_and_products[ $item_id ] = array(
+						'order_id'   => $order->get_id(),
+						'product_id' => $item->get_product_id(),
+					);
 				}
 
 				$class         = get_class( $item );
@@ -609,8 +646,31 @@ function wc_create_refund( $args = array() ) {
 				wc_restock_refunded_items( $order, $args['line_items'] );
 			}
 
-			// Trigger notification emails.
-			if ( ( $remaining_refund_amount - $args['amount'] ) > 0 || ( $order->has_free_item() && ( $remaining_refund_items - $refund_item_count ) > 0 ) ) {
+			// delete downloads that were refunded using order and product id, if present.
+			if ( ! empty( $refunded_order_and_products ) ) {
+				foreach ( $refunded_order_and_products as $refunded_order_and_product ) {
+					$download_data_store = WC_Data_Store::load( 'customer-download' );
+					$downloads           = $download_data_store->get_downloads( $refunded_order_and_product );
+					if ( ! empty( $downloads ) ) {
+						foreach ( $downloads as $download ) {
+							$download_data_store->delete_by_id( $download->get_id() );
+						}
+					}
+				}
+			}
+
+			/**
+			 * Trigger notification emails.
+			 *
+			 * Filter hook to modify the partially-refunded status conditions.
+			 *
+			 * @since 6.7.0
+			 *
+			 * @param bool $is_partially_refunded Whether the order is partially refunded.
+			 * @param int  $order_id The order id.
+			 * @param int  $refund_id The refund id.
+			 */
+			if ( (bool) apply_filters( 'woocommerce_order_is_partially_refunded', ( $remaining_refund_amount - $args['amount'] ) > 0 || ( $order->has_free_item() && ( $remaining_refund_items - $refund_item_count ) > 0 ), $order->get_id(), $refund->get_id() ) ) {
 				do_action( 'woocommerce_order_partially_refunded', $order->get_id(), $refund->get_id() );
 			} else {
 				do_action( 'woocommerce_order_fully_refunded', $order->get_id(), $refund->get_id() );
@@ -623,12 +683,15 @@ function wc_create_refund( $args = array() ) {
 			}
 		}
 
+		$order->set_date_modified( time() );
+		$order->save();
+
 		do_action( 'woocommerce_refund_created', $refund->get_id(), $args );
 		do_action( 'woocommerce_order_refunded', $order->get_id(), $refund->get_id() );
 
 	} catch ( Exception $e ) {
 		if ( isset( $refund ) && is_a( $refund, 'WC_Order_Refund' ) ) {
-			wp_delete_post( $refund->get_id(), true );
+			$refund->delete( true );
 		}
 		return new WP_Error( 'error', $e->getMessage() );
 	}
@@ -715,19 +778,29 @@ function wc_restock_refunded_items( $order, $refunded_line_items ) {
 		// Update _reduced_stock meta to track changes.
 		$item_stock_reduced = $item_stock_reduced - $qty_to_refund;
 
-		if ( 0 < $item_stock_reduced ) {
-			// Keeps track of total running tally of reduced stock.
-			$item->update_meta_data( '_reduced_stock', $item_stock_reduced );
+		// Keeps track of total running tally of reduced stock.
+		$item->update_meta_data( '_reduced_stock', $item_stock_reduced );
 
-			// Keeps track of only refunded items that needs restock.
-			$item->update_meta_data( '_restock_refunded_items', $qty_to_refund + $restock_refunded_items );
-		} else {
-			$item->delete_meta_data( '_reduced_stock' );
-			$item->delete_meta_data( '_restock_refunded_items' );
-		}
+		// Keeps track of only refunded items that needs restock.
+		$item->update_meta_data( '_restock_refunded_items', $qty_to_refund + $restock_refunded_items );
 
 		/* translators: 1: product ID 2: old stock level 3: new stock level */
-		$order->add_order_note( sprintf( __( 'Item #%1$s stock increased from %2$s to %3$s.', 'woocommerce' ), $product->get_id(), $old_stock, $new_stock ) );
+		$restock_note = sprintf( __( 'Item #%1$s stock increased from %2$s to %3$s.', 'woocommerce' ), $product->get_id(), $old_stock, $new_stock );
+
+		/**
+		 * Allow the restock note to be modified.
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param string $restock_note The original note.
+		 * @param int $old_stock The old stock.
+		 * @param bool|int|null $new_stock The new stock.
+		 * @param WC_Order $order The order the refund was done for.
+		 * @param bool|WC_Product $product The product the refund was done for.
+		 */
+		$restock_note = apply_filters( 'woocommerce_refund_restock_note', $restock_note, $old_stock, $new_stock, $order, $product );
+
+		$order->add_order_note( $restock_note );
 
 		$item->save();
 
@@ -822,9 +895,22 @@ function wc_order_search( $term ) {
 function wc_update_total_sales_counts( $order_id ) {
 	$order = wc_get_order( $order_id );
 
-	if ( ! $order || $order->get_data_store()->get_recorded_sales( $order ) ) {
+	if ( ! $order ) {
 		return;
 	}
+
+	$recorded_sales  = $order->get_data_store()->get_recorded_sales( $order );
+	$reflected_order = in_array( $order->get_status(), array( 'cancelled', 'trash' ), true );
+
+	if ( ! $reflected_order && 'woocommerce_before_delete_order' === current_action() ) {
+		$reflected_order = true;
+	}
+
+	if ( $recorded_sales xor $reflected_order ) {
+		return;
+	}
+
+	$operation = $recorded_sales && $reflected_order ? 'decrease' : 'increase';
 
 	if ( count( $order->get_items() ) > 0 ) {
 		foreach ( $order->get_items() as $item ) {
@@ -832,12 +918,16 @@ function wc_update_total_sales_counts( $order_id ) {
 
 			if ( $product_id ) {
 				$data_store = WC_Data_Store::load( 'product' );
-				$data_store->update_product_sales( $product_id, absint( $item->get_quantity() ), 'increase' );
+				$data_store->update_product_sales( $product_id, absint( $item->get_quantity() ), $operation );
 			}
 		}
 	}
 
-	$order->get_data_store()->set_recorded_sales( $order, true );
+	if ( 'decrease' === $operation ) {
+		$order->get_data_store()->set_recorded_sales( $order, false );
+	} else {
+		$order->get_data_store()->set_recorded_sales( $order, true );
+	}
 
 	/**
 	 * Called when sales for an order are recorded
@@ -849,6 +939,12 @@ function wc_update_total_sales_counts( $order_id ) {
 add_action( 'woocommerce_order_status_completed', 'wc_update_total_sales_counts' );
 add_action( 'woocommerce_order_status_processing', 'wc_update_total_sales_counts' );
 add_action( 'woocommerce_order_status_on-hold', 'wc_update_total_sales_counts' );
+add_action( 'woocommerce_order_status_completed_to_cancelled', 'wc_update_total_sales_counts' );
+add_action( 'woocommerce_order_status_processing_to_cancelled', 'wc_update_total_sales_counts' );
+add_action( 'woocommerce_order_status_on-hold_to_cancelled', 'wc_update_total_sales_counts' );
+add_action( 'woocommerce_trash_order', 'wc_update_total_sales_counts' );
+add_action( 'woocommerce_untrash_order', 'wc_update_total_sales_counts' );
+add_action( 'woocommerce_before_delete_order', 'wc_update_total_sales_counts' );
 
 /**
  * Update used coupon amount for each coupon within an order.
@@ -863,15 +959,28 @@ function wc_update_coupon_usage_counts( $order_id ) {
 		return;
 	}
 
-	$has_recorded = $order->get_data_store()->get_recorded_coupon_usage_counts( $order );
+	$has_recorded     = $order->get_data_store()->get_recorded_coupon_usage_counts( $order );
+	$invalid_statuses = array( 'cancelled', 'failed', 'trash' );
 
-	if ( $order->has_status( 'cancelled' ) && $has_recorded ) {
+	/**
+	 * Allow invalid order status filtering for updating coupon usage.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param array $invalid_statuses Array of statuses to consider invalid.
+	 */
+	$invalid_statuses = apply_filters(
+		'woocommerce_update_coupon_usage_invalid_statuses',
+		$invalid_statuses
+	);
+
+	if ( $order->has_status( $invalid_statuses ) && $has_recorded ) {
 		$action = 'reduce';
 		$order->get_data_store()->set_recorded_coupon_usage_counts( $order, false );
-	} elseif ( ! $order->has_status( 'cancelled' ) && ! $has_recorded ) {
+	} elseif ( ! $order->has_status( $invalid_statuses ) && ! $has_recorded ) {
 		$action = 'increase';
 		$order->get_data_store()->set_recorded_coupon_usage_counts( $order, true );
-	} elseif ( $order->has_status( 'cancelled' ) ) {
+	} elseif ( $order->has_status( $invalid_statuses ) ) {
 		$order->get_data_store()->release_held_coupons( $order, true );
 		return;
 	} else {
@@ -880,7 +989,7 @@ function wc_update_coupon_usage_counts( $order_id ) {
 
 	if ( count( $order->get_coupon_codes() ) > 0 ) {
 		foreach ( $order->get_coupon_codes() as $code ) {
-			if ( ! $code ) {
+			if ( StringUtil::is_null_or_whitespace( $code ) ) {
 				continue;
 			}
 
@@ -908,12 +1017,20 @@ add_action( 'woocommerce_order_status_completed', 'wc_update_coupon_usage_counts
 add_action( 'woocommerce_order_status_processing', 'wc_update_coupon_usage_counts' );
 add_action( 'woocommerce_order_status_on-hold', 'wc_update_coupon_usage_counts' );
 add_action( 'woocommerce_order_status_cancelled', 'wc_update_coupon_usage_counts' );
+add_action( 'woocommerce_order_status_failed', 'wc_update_coupon_usage_counts' );
+add_action( 'woocommerce_trash_order', 'wc_update_coupon_usage_counts' );
 
 /**
  * Cancel all unpaid orders after held duration to prevent stock lock for those products.
  */
 function wc_cancel_unpaid_orders() {
 	$held_duration = get_option( 'woocommerce_hold_stock_minutes' );
+
+	// Re-schedule the event before cancelling orders
+	// this way in case of a DB timeout or (plugin) crash the event is always scheduled for retry.
+	wp_clear_scheduled_hook( 'woocommerce_cancel_unpaid_orders' );
+	$cancel_unpaid_interval = apply_filters( 'woocommerce_cancel_unpaid_orders_interval_minutes', absint( $held_duration ) );
+	wp_schedule_single_event( time() + ( absint( $cancel_unpaid_interval ) * 60 ), 'woocommerce_cancel_unpaid_orders' );
 
 	if ( $held_duration < 1 || 'yes' !== get_option( 'woocommerce_manage_stock' ) ) {
 		return;
@@ -931,9 +1048,6 @@ function wc_cancel_unpaid_orders() {
 			}
 		}
 	}
-	wp_clear_scheduled_hook( 'woocommerce_cancel_unpaid_orders' );
-	$cancel_unpaid_interval = apply_filters( 'woocommerce_cancel_unpaid_orders_interval_minutes', absint( $held_duration ) );
-	wp_schedule_single_event( time() + ( absint( $cancel_unpaid_interval ) * 60 ), 'woocommerce_cancel_unpaid_orders' );
 }
 add_action( 'woocommerce_cancel_unpaid_orders', 'wc_cancel_unpaid_orders' );
 
@@ -975,6 +1089,7 @@ function wc_get_order_note( $data ) {
 			'content'       => $data->comment_content,
 			'customer_note' => (bool) get_comment_meta( $data->comment_ID, 'is_customer_note', true ),
 			'added_by'      => __( 'WooCommerce', 'woocommerce' ) === $data->comment_author ? 'system' : $data->comment_author,
+			'order_id'      => absint( $data->comment_post_ID ),
 		),
 		$data
 	);
@@ -1095,5 +1210,20 @@ function wc_create_order_note( $order_id, $note, $is_customer_note = false, $add
  * @return bool         True on success, false on failure.
  */
 function wc_delete_order_note( $note_id ) {
-	return wp_delete_comment( $note_id, true );
+	$note = wc_get_order_note( $note_id );
+	if ( $note && wp_delete_comment( $note_id, true ) ) {
+		/**
+		 * Action hook fired after an order note is deleted.
+		 *
+		 * @param int      $note_id Order note ID.
+		 * @param stdClass $note    Object with the deleted order note details.
+		 *
+		 * @since 9.1.0
+		 */
+		do_action( 'woocommerce_order_note_deleted', $note_id, $note );
+
+		return true;
+	}
+
+	return false;
 }

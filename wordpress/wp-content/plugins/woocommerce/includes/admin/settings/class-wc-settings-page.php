@@ -39,6 +39,7 @@ if ( ! class_exists( 'WC_Settings_Page', false ) ) :
 			add_action( 'woocommerce_sections_' . $this->id, array( $this, 'output_sections' ) );
 			add_action( 'woocommerce_settings_' . $this->id, array( $this, 'output' ) );
 			add_action( 'woocommerce_settings_save_' . $this->id, array( $this, 'save' ) );
+			add_action( 'woocommerce_admin_field_add_settings_slot', array( $this, 'add_settings_slot' ) );
 		}
 
 		/**
@@ -62,9 +63,18 @@ if ( ! class_exists( 'WC_Settings_Page', false ) ) :
 		}
 
 		/**
+		 * Creates the React mount point for settings slot.
+		 */
+		public function add_settings_slot() {
+			?>
+			<div id="wc_settings_slotfill"> </div>
+			<?php
+		}
+
+		/**
 		 * Add this page to settings.
 		 *
-		 * @param array $pages The setings array where we'll add ourselves.
+		 * @param array $pages The settings array where we'll add ourselves.
 		 *
 		 * @return mixed
 		 */
@@ -153,7 +163,13 @@ if ( ! class_exists( 'WC_Settings_Page', false ) ) :
 		 */
 		public function get_sections() {
 			$sections = $this->get_own_sections();
-			return apply_filters( 'woocommerce_get_sections_' . $this->id, $sections );
+			/**
+			 * Filters the sections for this settings page.
+			 *
+			 * @since 2.2.0
+			 * @param array $sections The sections for this settings page.
+			 */
+			return (array) apply_filters( 'woocommerce_get_sections_' . $this->id, $sections );
 		}
 
 		/**

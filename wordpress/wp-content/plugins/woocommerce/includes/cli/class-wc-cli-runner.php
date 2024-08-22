@@ -98,10 +98,10 @@ class WC_CLI_Runner {
 	 * Generates command information and tells WP CLI about all
 	 * commands available from a route.
 	 *
-	 * @param string $rest_command WC-API command.
-	 * @param string $route Path to route endpoint.
-	 * @param array  $route_data Command data.
-	 * @param array  $command_args WP-CLI command arguments.
+	 * @param WC_CLI_REST_Command $rest_command WC-API command.
+	 * @param string              $route Path to route endpoint.
+	 * @param array               $route_data Command data.
+	 * @param array               $command_args WP-CLI command arguments.
 	 */
 	private static function register_route_commands( $rest_command, $route, $route_data, $command_args = array() ) {
 		// Define IDs that we are looking for in the routes (in addition to id)
@@ -127,7 +127,7 @@ class WC_CLI_Runner {
 			preg_match_all( '#\([^\)]+\)#', $route, $matches );
 			$resource_id   = ! empty( $matches[0] ) ? array_pop( $matches[0] ) : null;
 			$trimmed_route = rtrim( $route );
-			$is_singular   = substr( $trimmed_route, - strlen( $resource_id ) ) === $resource_id;
+			$is_singular   = substr( $trimmed_route, - strlen( $resource_id ?? '' ) ) === $resource_id;
 
 			// List a collection.
 			if ( array( 'GET' ) === $endpoint['methods'] && ! $is_singular ) {

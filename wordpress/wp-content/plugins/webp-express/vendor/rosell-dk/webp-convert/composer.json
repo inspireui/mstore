@@ -9,19 +9,21 @@
       "@test",
       "@phpcs-all",
       "@composer validate --no-check-all --strict",
-      "@phpstan-global"
+      "@phpstan"
     ],
-    "test": "phpunit --coverage-text",
-    "test-41": "phpunit --coverage-text --configuration 'phpunit-41.xml.dist'",
     "phpunit": "phpunit --coverage-text",
-    "test-no-cov": "phpunit --no-coverage",
+    "test": "phpunit --coverage-text=build/coverage.txt --coverage-clover=build/coverage.clover --coverage-html=build/coverage --whitelist=src tests",
+    "test-41": "phpunit --no-coverage --configuration 'phpunit-41.xml.dist'",
+    "test-with-coverage": "phpunit --coverage-text --configuration 'phpunit-with-coverage.xml.dist'",
+    "test-41-with-coverage": "phpunit --coverage-text --configuration 'phpunit-41.xml.dist'",
+    "test-no-cov": "phpunit --no-coverage tests",
     "cs-fix-all": [
       "php-cs-fixer fix src"
     ],
     "cs-fix": "php-cs-fixer fix",
     "cs-dry": "php-cs-fixer fix --dry-run --diff",
-    "phpcs": "phpcs --standard=PSR2",
-    "phpcs-all": "phpcs --standard=PSR2 src",
+    "phpcs": "phpcs --standard=phpcs-ruleset.xml",
+    "phpcs-all": "phpcs --standard=phpcs-ruleset.xml src",
     "phpcbf": "phpcbf --standard=PSR2",
     "phpstan": "vendor/bin/phpstan analyse src --level=4",
     "phpstan-global-old": "~/.composer/vendor/bin/phpstan analyse src --level=4",
@@ -56,19 +58,22 @@
     }
   ],
   "require": {
-      "php": "^5.6 | ^7.0 | ^8.0",
-      "rosell-dk/image-mime-type-guesser": "^0.3"
+    "php": "^5.6 | ^7.0 | ^8.0",
+    "rosell-dk/exec-with-fallback": "^1.2.0",
+    "rosell-dk/image-mime-type-guesser": "^1.1.1",
+    "rosell-dk/locate-binaries": "^1.0"
   },
   "suggest": {
       "ext-gd": "to use GD extension for converting. Note: Gd must be compiled with webp support",
       "ext-imagick": "to use Imagick extension for converting. Note: Gd must be compiled with webp support",
-      "ext-vips": "to use Vips extension for converting.",
-      "php-stan/php-stan": "Suggested for dev, in order to analyse code before committing"
+      "ext-vips": "to use Vips extension for converting."
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.11",
     "phpunit/phpunit": "^9.3",
-    "squizlabs/php_codesniffer": "3.*"
+    "squizlabs/php_codesniffer": "3.*",
+    "phpstan/phpstan": "^1.10"
+
   },
   "config": {
     "sort-packages": true

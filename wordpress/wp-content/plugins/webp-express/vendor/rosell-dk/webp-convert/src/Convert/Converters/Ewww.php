@@ -11,6 +11,7 @@ use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\Inva
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Options\BooleanOption;
 use WebPConvert\Options\SensitiveStringOption;
+use WebPConvert\Options\OptionFactory;
 
 /**
  * Convert images to webp using ewww cloud service.
@@ -24,15 +25,37 @@ class Ewww extends AbstractConverter
     use CloudConverterTrait;
     use CurlTrait;
 
-    /** @var array  Array of invalid or exceeded api keys discovered during conversions (during the request)  */
+    /** @var array|null  Array of invalid or exceeded api keys discovered during conversions (during the request)  */
     public static $nonFunctionalApiKeysDiscoveredDuringConversion;
 
     public function getUniqueOptions($imageType)
     {
-        return [
-            new SensitiveStringOption('api-key', ''),
-            new BooleanOption('check-key-status-before-converting', true)
-        ];
+        return OptionFactory::createOptions([
+            ['api-key', 'string', [
+                'title' => 'Ewww API key',
+                'description' => 'ewww API key. ' .
+                    'If you choose "auto", webp-convert will ' .
+                    'convert to both lossy and lossless and pick the smallest result',
+                'default' => '',
+                'sensitive' => true,
+                'ui' => [
+                    'component' => 'password',
+                ]
+            ]],
+            ['check-key-status-before-converting', 'boolean', [
+                'title' => 'Check key status before converting',
+                'description' =>
+                    'If enabled, the api key will be validated (relative inexpensive) before trying ' .
+                    'to convert. For automatic conversions, you should enable it. Otherwise you run the ' .
+                    'risk that the same files will be uploaded to ewww cloud service over and over again, ' .
+                    'in case the key has expired. For manually triggered conversions, you can safely disable ' .
+                    'the option.',
+                'default' => true,
+                'ui' => [
+                    'component' => 'checkbox',
+                ]
+            ]],
+        ]);
     }
 
     protected function getUnsupportedDefaultOptions()
@@ -47,7 +70,6 @@ class Ewww extends AbstractConverter
             'preset',
             'sharp-yuv',
             'size-in-percentage',
-            'use-nice'
         ];
     }
 
@@ -173,7 +195,8 @@ class Ewww extends AbstractConverter
         // Messages has a http content type of ie 'text/html; charset=UTF-8
         // Images has application/octet-stream.
         // So verify that we got an image back.
-        if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) != 'application/octet-stream') {
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        if (($contentType != 'application/octet-stream') && ($contentType != 'image/webp')) {
             //echo curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
             curl_close($ch);
 
@@ -204,6 +227,8 @@ class Ewww extends AbstractConverter
             throw new ConversionFailedException(
                 'ewww api did not return an image. It could be that the key is invalid. Response: '
                 . $response
+                . ". Content type: "
+                . curl_getinfo($ch, CURLINFO_CONTENT_TYPE)
             );
         }
 
@@ -260,7 +285,8 @@ class Ewww extends AbstractConverter
         if (curl_errno($ch)) {
             return 'curl error' . curl_error($ch);
         }
-        if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) != 'application/octet-stream') {
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        if (($contentType != 'application/octet-stream') && ($contentType != 'image/webp')) {
             curl_close($ch);
 
             /* May return this: {"error":"invalid","t":"exceeded"} */
@@ -321,10 +347,14 @@ class Ewww extends AbstractConverter
         }
         $responseObj = json_decode($response);
         if (isset($responseObj->error)) {
-            if ($responseObj->error == 'invalid') {
+            if (($responseObj->error == 'invalid') || ($responseObj->error == 'bye invalid')) {
                 return 'invalid';
             } else {
-                throw new \Exception('Ewww returned unexpected error: ' . $response);
+                if ($responseObj->error == 'bye invalid') {
+                    return 'invalid';
+                } else {
+                    throw new \Exception('Ewww returned unexpected error: ' . $response);
+                }
             }
         }
         if (!isset($responseObj->status)) {

@@ -79,7 +79,7 @@ jQuery( function( $ ) {
 		}
 	};
 
-	// Show password visiblity hover icon on woocommerce forms
+	// Show password visibility hover icon on woocommerce forms
 	$( '.woocommerce form .woocommerce-Input[type="password"]' ).wrap( '<span class="password-input"></span>' );
 	// Add 'password-input' class to the password wrapper in checkout page.
 	$( '.woocommerce form input' ).filter(':password').parent('span').addClass('password-input');
@@ -99,4 +99,24 @@ jQuery( function( $ ) {
 			}
 		}
 	);
+
+
+	$( 'a.coming-soon-footer-banner-dismiss' ).on( 'click', function( e ) {
+		var target = $( e.target );
+		$.ajax( {
+			type: 'post',
+			url: target.data( 'rest-url' ),
+			data: {
+				meta: {
+					'woocommerce_coming_soon_banner_dismissed': 'yes'
+				}
+			},
+			beforeSend: function ( xhr ) {
+				xhr.setRequestHeader( 'X-WP-Nonce',  target.data( 'rest-nonce' ) );
+			},
+			complete: function () {
+				$('#coming-soon-footer-banner').hide();
+			}
+		} );
+	} );
 });

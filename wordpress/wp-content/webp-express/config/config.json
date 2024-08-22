@@ -12,6 +12,8 @@
         "uploads",
         "themes"
     ],
+    "enable-logging": false,
+    "prevent-using-webps-larger-than-original": true,
     "enable-redirection-to-converter": true,
     "only-redirect-to-converter-on-cache-miss": false,
     "only-redirect-to-converter-for-webp-enabled-browsers": true,
@@ -82,6 +84,13 @@
             "options": {
                 "skip-pngs": false
             }
+        },
+        {
+            "converter": "ffmpeg",
+            "options": {
+                "use-nice": true,
+                "method": 4
+            }
         }
     ],
     "metadata": "none",
@@ -110,9 +119,11 @@
     "base-htaccess-on-these-capability-tests": {
         "passThroughHeaderWorking": false,
         "passThroughEnvWorking": true,
-        "modHeaderWorking": true
+        "modHeaderWorking": true,
+        "canRunTestScriptInWOD": true,
+        "canRunTestScriptInWOD2": true
     },
     "paths-used-in-htaccess": {
-        "wod-url-path": "wp-content/plugins/webp-express/wod/webp-on-demand.php"
+        "wod-url-path": "demo/wp-content/plugins/webp-express/wod/webp-on-demand.php"
     }
 }

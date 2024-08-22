@@ -59,7 +59,7 @@ class WC_HTTPS {
 			if ( is_array( $content ) ) {
 				$content = array_map( 'WC_HTTPS::force_https_url', $content );
 			} else {
-				$content = str_replace( 'http:', 'https:', $content );
+				$content = str_replace( 'http:', 'https:', (string) $content );
 			}
 		}
 		return $content;
@@ -106,7 +106,7 @@ class WC_HTTPS {
 			return;
 		}
 
-		if ( ! wc_site_is_https() && is_ssl() && $_SERVER['REQUEST_URI'] && ! is_checkout() && ! is_ajax() && ! is_account_page() && apply_filters( 'woocommerce_unforce_ssl_checkout', true ) ) {
+		if ( ! wc_site_is_https() && is_ssl() && $_SERVER['REQUEST_URI'] && ! is_checkout() && ! wp_doing_ajax() && ! is_account_page() && apply_filters( 'woocommerce_unforce_ssl_checkout', true ) ) {
 
 			if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'http' ) ) {
 				wp_safe_redirect( preg_replace( '|^https://|', 'http://', $_SERVER['REQUEST_URI'] ) );

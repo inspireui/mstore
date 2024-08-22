@@ -3,7 +3,7 @@
  * Shows an order item
  *
  * @package WooCommerce\Admin
- * @var object $item The item being displayed
+ * @var WC_Order_Item $item The item being displayed
  * @var int $item_id The id of the item being displayed
  */
 
@@ -59,18 +59,43 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 			<?php
 			echo '<small class="times">&times;</small> ' . esc_html( $item->get_quantity() );
 
-			$refunded_qty = $order->get_qty_refunded_for_item( $item_id );
+			$refunded_qty = -1 * $order->get_qty_refunded_for_item( $item_id );
 
 			if ( $refunded_qty ) {
-				echo '<small class="refunded">-' . esc_html( $refunded_qty * -1 ) . '</small>';
+				echo '<small class="refunded">' . esc_html( $refunded_qty * -1 ) . '</small>';
 			}
 			?>
 		</div>
+		<?php
+			$step = apply_filters( 'woocommerce_quantity_input_step', '1', $product );
+
+			/**
+			* Filter to change the product quantity stepping in the order editor of the admin area.
+			*
+			* @since   5.8.0
+			* @param   string      $step    The current step amount to be used in the quantity editor.
+			* @param   WC_Product  $product The product that is being edited.
+			* @param   string      $context The context in which the quantity editor is shown, 'edit' or 'refund'.
+			*/
+			$step_edit   = apply_filters( 'woocommerce_quantity_input_step_admin', $step, $product, 'edit' );
+			$step_refund = apply_filters( 'woocommerce_quantity_input_step_admin', $step, $product, 'refund' );
+
+			/**
+			* Filter to change the product quantity minimum in the order editor of the admin area.
+			*
+			* @since   5.8.0
+			* @param   string      $step    The current minimum amount to be used in the quantity editor.
+			* @param   WC_Product  $product The product that is being edited.
+			* @param   string      $context The context in which the quantity editor is shown, 'edit' or 'refund'.
+			*/
+			$min_edit   = apply_filters( 'woocommerce_quantity_input_min_admin', '0', $product, 'edit' );
+			$min_refund = apply_filters( 'woocommerce_quantity_input_min_admin', '0', $product, 'refund' );
+		?>
 		<div class="edit" style="display: none;">
-			<input type="number" step="<?php echo esc_attr( apply_filters( 'woocommerce_quantity_input_step', '1', $product ) ); ?>" min="0" autocomplete="off" name="order_item_qty[<?php echo absint( $item_id ); ?>]" placeholder="0" value="<?php echo esc_attr( $item->get_quantity() ); ?>" data-qty="<?php echo esc_attr( $item->get_quantity() ); ?>" size="4" class="quantity" />
+			<input type="number" step="<?php echo esc_attr( $step_edit ); ?>" min="<?php echo esc_attr( $min_edit ); ?>" autocomplete="off" name="order_item_qty[<?php echo absint( $item_id ); ?>]" placeholder="0" value="<?php echo esc_attr( $item->get_quantity() ); ?>" data-qty="<?php echo esc_attr( $item->get_quantity() ); ?>" size="4" class="quantity" />
 		</div>
 		<div class="refund" style="display: none;">
-			<input type="number" step="<?php echo esc_attr( apply_filters( 'woocommerce_quantity_input_step', '1', $product ) ); ?>" min="0" max="<?php echo absint( $item->get_quantity() ); ?>" autocomplete="off" name="refund_order_item_qty[<?php echo absint( $item_id ); ?>]" placeholder="0" size="4" class="refund_order_item_qty" />
+			<input type="number" step="<?php echo esc_attr( $step_refund ); ?>" min="<?php echo esc_attr( $min_refund ); ?>" max="<?php echo absint( $item->get_quantity() ); ?>" autocomplete="off" name="refund_order_item_qty[<?php echo absint( $item_id ); ?>]" placeholder="0" size="4" class="refund_order_item_qty" />
 		</div>
 	</td>
 	<td class="line_cost" width="1%" data-sort-value="<?php echo esc_attr( $item->get_total() ); ?>">
@@ -83,10 +108,10 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 				echo '<span class="wc-order-item-discount">' . sprintf( esc_html__( '%s discount', 'woocommerce' ), wc_price( wc_format_decimal( $item->get_subtotal() - $item->get_total(), '' ), array( 'currency' => $order->get_currency() ) ) ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
-			$refunded = $order->get_total_refunded_for_item( $item_id );
+			$refunded = -1 * $order->get_total_refunded_for_item( $item_id );
 
 			if ( $refunded ) {
-				echo '<small class="refunded">-' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<small class="refunded">' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			?>
 		</div>
@@ -116,11 +141,6 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 			$tax_item_total    = isset( $tax_data['total'][ $tax_item_id ] ) ? $tax_data['total'][ $tax_item_id ] : '';
 			$tax_item_subtotal = isset( $tax_data['subtotal'][ $tax_item_id ] ) ? $tax_data['subtotal'][ $tax_item_id ] : '';
 
-			if ( '' !== $tax_item_subtotal ) {
-				$round_at_subtotal = 'yes' === get_option( 'woocommerce_tax_round_at_subtotal' );
-				$tax_item_total    = wc_round_tax_total( $tax_item_total, $round_at_subtotal ? wc_get_rounding_precision() : null );
-				$tax_item_subtotal = wc_round_tax_total( $tax_item_subtotal, $round_at_subtotal ? wc_get_rounding_precision() : null );
-			}
 			?>
 			<td class="line_tax" width="1%">
 				<div class="view">
@@ -131,10 +151,10 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 						echo '&ndash;';
 					}
 
-					$refunded = $order->get_tax_refunded_for_item( $item_id, $tax_item_id );
+					$refunded = -1 * $order->get_tax_refunded_for_item( $item_id, $tax_item_id );
 
 					if ( $refunded ) {
-						echo '<small class="refunded">-' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo '<small class="refunded">' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					}
 					?>
 				</div>
@@ -161,7 +181,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 	<td class="wc-order-edit-line-item" width="1%">
 		<div class="wc-order-edit-line-item-actions">
 			<?php if ( $order->is_editable() ) : ?>
-				<a class="edit-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Edit item', 'woocommerce' ); ?>"></a><a class="delete-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Delete item', 'woocommerce' ); ?>"></a>
+				<a class="edit-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Edit item', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Edit item', 'woocommerce' ); ?>"></a><a class="delete-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Delete item', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Delete item', 'woocommerce' ); ?>"></a>
 			<?php endif; ?>
 		</div>
 	</td>

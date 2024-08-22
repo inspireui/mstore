@@ -1,107 +1,199 @@
-this["wp"] = this["wp"] || {}; this["wp"]["shortcode"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "/2FX");
-/******/ })
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
 /************************************************************************/
-/******/ ({
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
 
-/***/ "/2FX":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (/* binding */ build_module)
+});
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "next", function() { return next; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "replace", function() { return replace; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "string", function() { return string; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "regexp", function() { return regexp; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "attrs", function() { return attrs; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fromMatch", function() { return fromMatch; });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("YLtl");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var memize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("4eJC");
-/* harmony import */ var memize__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(memize__WEBPACK_IMPORTED_MODULE_1__);
+// UNUSED EXPORTS: attrs, fromMatch, next, regexp, replace, string
+
+;// CONCATENATED MODULE: ./node_modules/memize/dist/index.js
+/**
+ * Memize options object.
+ *
+ * @typedef MemizeOptions
+ *
+ * @property {number} [maxSize] Maximum size of the cache.
+ */
+
+/**
+ * Internal cache entry.
+ *
+ * @typedef MemizeCacheNode
+ *
+ * @property {?MemizeCacheNode|undefined} [prev] Previous node.
+ * @property {?MemizeCacheNode|undefined} [next] Next node.
+ * @property {Array<*>}                   args   Function arguments for cache
+ *                                               entry.
+ * @property {*}                          val    Function result.
+ */
+
+/**
+ * Properties of the enhanced function for controlling cache.
+ *
+ * @typedef MemizeMemoizedFunction
+ *
+ * @property {()=>void} clear Clear the cache.
+ */
+
+/**
+ * Accepts a function to be memoized, and returns a new memoized function, with
+ * optional options.
+ *
+ * @template {(...args: any[]) => any} F
+ *
+ * @param {F}             fn        Function to memoize.
+ * @param {MemizeOptions} [options] Options object.
+ *
+ * @return {((...args: Parameters<F>) => ReturnType<F>) & MemizeMemoizedFunction} Memoized function.
+ */
+function memize(fn, options) {
+	var size = 0;
+
+	/** @type {?MemizeCacheNode|undefined} */
+	var head;
+
+	/** @type {?MemizeCacheNode|undefined} */
+	var tail;
+
+	options = options || {};
+
+	function memoized(/* ...args */) {
+		var node = head,
+			len = arguments.length,
+			args,
+			i;
+
+		searchCache: while (node) {
+			// Perform a shallow equality test to confirm that whether the node
+			// under test is a candidate for the arguments passed. Two arrays
+			// are shallowly equal if their length matches and each entry is
+			// strictly equal between the two sets. Avoid abstracting to a
+			// function which could incur an arguments leaking deoptimization.
+
+			// Check whether node arguments match arguments length
+			if (node.args.length !== arguments.length) {
+				node = node.next;
+				continue;
+			}
+
+			// Check whether node arguments match arguments values
+			for (i = 0; i < len; i++) {
+				if (node.args[i] !== arguments[i]) {
+					node = node.next;
+					continue searchCache;
+				}
+			}
+
+			// At this point we can assume we've found a match
+
+			// Surface matched node to head if not already
+			if (node !== head) {
+				// As tail, shift to previous. Must only shift if not also
+				// head, since if both head and tail, there is no previous.
+				if (node === tail) {
+					tail = node.prev;
+				}
+
+				// Adjust siblings to point to each other. If node was tail,
+				// this also handles new tail's empty `next` assignment.
+				/** @type {MemizeCacheNode} */ (node.prev).next = node.next;
+				if (node.next) {
+					node.next.prev = node.prev;
+				}
+
+				node.next = head;
+				node.prev = null;
+				/** @type {MemizeCacheNode} */ (head).prev = node;
+				head = node;
+			}
+
+			// Return immediately
+			return node.val;
+		}
+
+		// No cached value found. Continue to insertion phase:
+
+		// Create a copy of arguments (avoid leaking deoptimization)
+		args = new Array(len);
+		for (i = 0; i < len; i++) {
+			args[i] = arguments[i];
+		}
+
+		node = {
+			args: args,
+
+			// Generate the result from original function
+			val: fn.apply(null, args),
+		};
+
+		// Don't need to check whether node is already head, since it would
+		// have been returned above already if it was
+
+		// Shift existing head down list
+		if (head) {
+			head.prev = node;
+			node.next = head;
+		} else {
+			// If no head, follows that there's no tail (at initial or reset)
+			tail = node;
+		}
+
+		// Trim tail if we're reached max size and are pending cache insertion
+		if (size === /** @type {MemizeOptions} */ (options).maxSize) {
+			tail = /** @type {MemizeCacheNode} */ (tail).prev;
+			/** @type {MemizeCacheNode} */ (tail).next = null;
+		} else {
+			size++;
+		}
+
+		head = node;
+
+		return node.val;
+	}
+
+	memoized.clear = function () {
+		head = null;
+		tail = null;
+		size = 0;
+	};
+
+	// Ignore reason: There's not a clear solution to create an intersection of
+	// the function with additional properties, where the goal is to retain the
+	// function signature of the incoming argument and add control properties
+	// on the return value.
+
+	// @ts-ignore
+	return memoized;
+}
+
+
+
+;// CONCATENATED MODULE: ./node_modules/@wordpress/shortcode/build-module/index.js
 /**
  * External dependencies
  */
@@ -143,42 +235,40 @@ __webpack_require__.r(__webpack_exports__);
  * @param {string} text  Text to search.
  * @param {number} index Index to start search from.
  *
- * @return {?WPShortcodeMatch} Matched information.
+ * @return {WPShortcodeMatch | undefined} Matched information.
  */
-
 function next(tag, text, index = 0) {
   const re = regexp(tag);
   re.lastIndex = index;
   const match = re.exec(text);
-
   if (!match) {
     return;
-  } // If we matched an escaped shortcode, try again.
+  }
 
-
+  // If we matched an escaped shortcode, try again.
   if ('[' === match[1] && ']' === match[7]) {
     return next(tag, text, re.lastIndex);
   }
-
   const result = {
     index: match.index,
     content: match[0],
     shortcode: fromMatch(match)
-  }; // If we matched a leading `[`, strip it from the match and increment the
-  // index accordingly.
+  };
 
+  // If we matched a leading `[`, strip it from the match and increment the
+  // index accordingly.
   if (match[1]) {
     result.content = result.content.slice(1);
     result.index++;
-  } // If we matched a trailing `]`, strip it from the match.
+  }
 
-
+  // If we matched a trailing `]`, strip it from the match.
   if (match[7]) {
     result.content = result.content.slice(0, -1);
   }
-
   return result;
 }
+
 /**
  * Replace matching shortcodes in a block of text.
  *
@@ -189,22 +279,23 @@ function next(tag, text, index = 0) {
  *
  * @return {string} Text with shortcodes replaced.
  */
-
 function replace(tag, text, callback) {
   return text.replace(regexp(tag), function (match, left, $3, attrs, slash, content, closing, right) {
     // If both extra brackets exist, the shortcode has been properly
     // escaped.
     if (left === '[' && right === ']') {
       return match;
-    } // Create the match object and pass it through the callback.
+    }
 
+    // Create the match object and pass it through the callback.
+    const result = callback(fromMatch(arguments));
 
-    const result = callback(fromMatch(arguments)); // Make sure to return any of the extra brackets if they weren't used to
+    // Make sure to return any of the extra brackets if they weren't used to
     // escape the shortcode.
-
     return result || result === '' ? left + result + right : match;
   });
 }
+
 /**
  * Generate a string from shortcode parameters.
  *
@@ -218,10 +309,10 @@ function replace(tag, text, callback) {
  *
  * @return {string} String representation of the shortcode.
  */
-
 function string(options) {
   return new shortcode(options).string();
 }
+
 /**
  * Generate a RegExp to identify a shortcode.
  *
@@ -242,10 +333,10 @@ function string(options) {
  *
  * @return {RegExp} Shortcode RegExp.
  */
-
 function regexp(tag) {
   return new RegExp('\\[(\\[?)(' + tag + ')(?![\\w-])([^\\]\\/]*(?:\\/(?!\\])[^\\]\\/]*)*?)(?:(\\/)\\]|\\](?:([^\\[]*(?:\\[(?!\\/\\2\\])[^\\[]*)*)(\\[\\/\\2\\]))?)(\\]?)', 'g');
 }
+
 /**
  * Parse shortcode attributes.
  *
@@ -263,10 +354,11 @@ function regexp(tag) {
  *
  * @return {WPShortcodeAttrs} Parsed shortcode attributes.
  */
-
-const attrs = memize__WEBPACK_IMPORTED_MODULE_1___default()(text => {
+const attrs = memize(text => {
   const named = {};
-  const numeric = []; // This regular expression is reused from `shortcode_parse_atts()` in
+  const numeric = [];
+
+  // This regular expression is reused from `shortcode_parse_atts()` in
   // `wp-includes/shortcodes.php`.
   //
   // Capture groups:
@@ -280,12 +372,13 @@ const attrs = memize__WEBPACK_IMPORTED_MODULE_1___default()(text => {
   // 7. A numeric attribute in double quotes.
   // 8. A numeric attribute in single quotes.
   // 9. An unquoted numeric attribute.
+  const pattern = /([\w-]+)\s*=\s*"([^"]*)"(?:\s|$)|([\w-]+)\s*=\s*'([^']*)'(?:\s|$)|([\w-]+)\s*=\s*([^\s'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|'([^']*)'(?:\s|$)|(\S+)(?:\s|$)/g;
 
-  const pattern = /([\w-]+)\s*=\s*"([^"]*)"(?:\s|$)|([\w-]+)\s*=\s*'([^']*)'(?:\s|$)|([\w-]+)\s*=\s*([^\s'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|'([^']*)'(?:\s|$)|(\S+)(?:\s|$)/g; // Map zero-width spaces to actual spaces.
-
+  // Map zero-width spaces to actual spaces.
   text = text.replace(/[\u00a0\u200b]/g, ' ');
-  let match; // Match and normalize attributes.
+  let match;
 
+  // Match and normalize attributes.
   while (match = pattern.exec(text)) {
     if (match[1]) {
       named[match[1].toLowerCase()] = match[2];
@@ -301,12 +394,12 @@ const attrs = memize__WEBPACK_IMPORTED_MODULE_1___default()(text => {
       numeric.push(match[9]);
     }
   }
-
   return {
     named,
     numeric
   };
 });
+
 /**
  * Generate a Shortcode Object from a RegExp match.
  *
@@ -318,10 +411,8 @@ const attrs = memize__WEBPACK_IMPORTED_MODULE_1___default()(text => {
  *
  * @return {WPShortcode} Shortcode instance.
  */
-
 function fromMatch(match) {
   let type;
-
   if (match[4]) {
     type = 'self-closing';
   } else if (match[6]) {
@@ -329,7 +420,6 @@ function fromMatch(match) {
   } else {
     type = 'single';
   }
-
   return new shortcode({
     tag: match[2],
     attrs: match[3],
@@ -337,6 +427,7 @@ function fromMatch(match) {
     content: match[5]
   });
 }
+
 /**
  * Creates a shortcode instance.
  *
@@ -349,27 +440,38 @@ function fromMatch(match) {
  *
  * @return {WPShortcode} Shortcode instance.
  */
+const shortcode = Object.assign(function (options) {
+  const {
+    tag,
+    attrs: attributes,
+    type,
+    content
+  } = options || {};
+  Object.assign(this, {
+    tag,
+    type,
+    content
+  });
 
-const shortcode = Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(function (options) {
-  Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(this, Object(lodash__WEBPACK_IMPORTED_MODULE_0__["pick"])(options || {}, 'tag', 'attrs', 'type', 'content'));
-  const attributes = this.attrs; // Ensure we have a correctly formatted `attrs` object.
-
+  // Ensure we have a correctly formatted `attrs` object.
   this.attrs = {
     named: {},
     numeric: []
   };
-
   if (!attributes) {
     return;
-  } // Parse a string of attributes.
+  }
+  const attributeTypes = ['named', 'numeric'];
 
-
-  if (Object(lodash__WEBPACK_IMPORTED_MODULE_0__["isString"])(attributes)) {
-    this.attrs = attrs(attributes); // Identify a correctly formatted `attrs` object.
-  } else if (Object(lodash__WEBPACK_IMPORTED_MODULE_0__["isEqual"])(Object.keys(attributes), ['named', 'numeric'])) {
-    this.attrs = attributes; // Handle a flat object of attributes.
+  // Parse a string of attributes.
+  if (typeof attributes === 'string') {
+    this.attrs = attrs(attributes);
+    // Identify a correctly formatted `attrs` object.
+  } else if (attributes.length === attributeTypes.length && attributeTypes.every((t, key) => t === attributes[key])) {
+    this.attrs = attributes;
+    // Handle a flat object of attributes.
   } else {
-    Object(lodash__WEBPACK_IMPORTED_MODULE_0__["forEach"])(attributes, (value, key) => {
+    Object.entries(attributes).forEach(([key, value]) => {
       this.set(key, value);
     });
   }
@@ -381,7 +483,7 @@ const shortcode = Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(function
   attrs,
   fromMatch
 });
-Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(shortcode.prototype, {
+Object.assign(shortcode.prototype, {
   /**
    * Get a shortcode attribute.
    *
@@ -393,9 +495,8 @@ Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(shortcode.prototype, {
    * @return {string} Attribute value.
    */
   get(attr) {
-    return this.attrs[Object(lodash__WEBPACK_IMPORTED_MODULE_0__["isNumber"])(attr) ? 'numeric' : 'named'][attr];
+    return this.attrs[typeof attr === 'number' ? 'numeric' : 'named'][attr];
   },
-
   /**
    * Set a shortcode attribute.
    *
@@ -408,10 +509,9 @@ Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(shortcode.prototype, {
    * @return {WPShortcode} Shortcode instance.
    */
   set(attr, value) {
-    this.attrs[Object(lodash__WEBPACK_IMPORTED_MODULE_0__["isNumber"])(attr) ? 'numeric' : 'named'][attr] = value;
+    this.attrs[typeof attr === 'number' ? 'numeric' : 'named'][attr] = value;
     return this;
   },
-
   /**
    * Transform the shortcode into a string.
    *
@@ -419,214 +519,37 @@ Object(lodash__WEBPACK_IMPORTED_MODULE_0__["extend"])(shortcode.prototype, {
    */
   string() {
     let text = '[' + this.tag;
-    Object(lodash__WEBPACK_IMPORTED_MODULE_0__["forEach"])(this.attrs.numeric, value => {
+    this.attrs.numeric.forEach(value => {
       if (/\s/.test(value)) {
         text += ' "' + value + '"';
       } else {
         text += ' ' + value;
       }
     });
-    Object(lodash__WEBPACK_IMPORTED_MODULE_0__["forEach"])(this.attrs.named, (value, name) => {
+    Object.entries(this.attrs.named).forEach(([name, value]) => {
       text += ' ' + name + '="' + value + '"';
-    }); // If the tag is marked as `single` or `self-closing`, close the tag and
-    // ignore any additional content.
+    });
 
+    // If the tag is marked as `single` or `self-closing`, close the tag and
+    // ignore any additional content.
     if ('single' === this.type) {
       return text + ']';
     } else if ('self-closing' === this.type) {
       return text + ' /]';
-    } // Complete the opening tag.
+    }
 
-
+    // Complete the opening tag.
     text += ']';
-
     if (this.content) {
       text += this.content;
-    } // Add the closing tag.
+    }
 
-
+    // Add the closing tag.
     return text + '[/' + this.tag + ']';
   }
-
 });
-/* harmony default export */ __webpack_exports__["default"] = (shortcode);
+/* harmony default export */ const build_module = (shortcode);
 
-
-/***/ }),
-
-/***/ "4eJC":
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Memize options object.
- *
- * @typedef MemizeOptions
- *
- * @property {number} [maxSize] Maximum size of the cache.
- */
-
-/**
- * Internal cache entry.
- *
- * @typedef MemizeCacheNode
- *
- * @property {?MemizeCacheNode|undefined} [prev] Previous node.
- * @property {?MemizeCacheNode|undefined} [next] Next node.
- * @property {Array<*>}                   args   Function arguments for cache
- *                                               entry.
- * @property {*}                          val    Function result.
- */
-
-/**
- * Properties of the enhanced function for controlling cache.
- *
- * @typedef MemizeMemoizedFunction
- *
- * @property {()=>void} clear Clear the cache.
- */
-
-/**
- * Accepts a function to be memoized, and returns a new memoized function, with
- * optional options.
- *
- * @template {Function} F
- *
- * @param {F}             fn        Function to memoize.
- * @param {MemizeOptions} [options] Options object.
- *
- * @return {F & MemizeMemoizedFunction} Memoized function.
- */
-function memize( fn, options ) {
-	var size = 0;
-
-	/** @type {?MemizeCacheNode|undefined} */
-	var head;
-
-	/** @type {?MemizeCacheNode|undefined} */
-	var tail;
-
-	options = options || {};
-
-	function memoized( /* ...args */ ) {
-		var node = head,
-			len = arguments.length,
-			args, i;
-
-		searchCache: while ( node ) {
-			// Perform a shallow equality test to confirm that whether the node
-			// under test is a candidate for the arguments passed. Two arrays
-			// are shallowly equal if their length matches and each entry is
-			// strictly equal between the two sets. Avoid abstracting to a
-			// function which could incur an arguments leaking deoptimization.
-
-			// Check whether node arguments match arguments length
-			if ( node.args.length !== arguments.length ) {
-				node = node.next;
-				continue;
-			}
-
-			// Check whether node arguments match arguments values
-			for ( i = 0; i < len; i++ ) {
-				if ( node.args[ i ] !== arguments[ i ] ) {
-					node = node.next;
-					continue searchCache;
-				}
-			}
-
-			// At this point we can assume we've found a match
-
-			// Surface matched node to head if not already
-			if ( node !== head ) {
-				// As tail, shift to previous. Must only shift if not also
-				// head, since if both head and tail, there is no previous.
-				if ( node === tail ) {
-					tail = node.prev;
-				}
-
-				// Adjust siblings to point to each other. If node was tail,
-				// this also handles new tail's empty `next` assignment.
-				/** @type {MemizeCacheNode} */ ( node.prev ).next = node.next;
-				if ( node.next ) {
-					node.next.prev = node.prev;
-				}
-
-				node.next = head;
-				node.prev = null;
-				/** @type {MemizeCacheNode} */ ( head ).prev = node;
-				head = node;
-			}
-
-			// Return immediately
-			return node.val;
-		}
-
-		// No cached value found. Continue to insertion phase:
-
-		// Create a copy of arguments (avoid leaking deoptimization)
-		args = new Array( len );
-		for ( i = 0; i < len; i++ ) {
-			args[ i ] = arguments[ i ];
-		}
-
-		node = {
-			args: args,
-
-			// Generate the result from original function
-			val: fn.apply( null, args ),
-		};
-
-		// Don't need to check whether node is already head, since it would
-		// have been returned above already if it was
-
-		// Shift existing head down list
-		if ( head ) {
-			head.prev = node;
-			node.next = head;
-		} else {
-			// If no head, follows that there's no tail (at initial or reset)
-			tail = node;
-		}
-
-		// Trim tail if we're reached max size and are pending cache insertion
-		if ( size === /** @type {MemizeOptions} */ ( options ).maxSize ) {
-			tail = /** @type {MemizeCacheNode} */ ( tail ).prev;
-			/** @type {MemizeCacheNode} */ ( tail ).next = null;
-		} else {
-			size++;
-		}
-
-		head = node;
-
-		return node.val;
-	}
-
-	memoized.clear = function() {
-		head = null;
-		tail = null;
-		size = 0;
-	};
-
-	if ( false ) {}
-
-	// Ignore reason: There's not a clear solution to create an intersection of
-	// the function with additional properties, where the goal is to retain the
-	// function signature of the incoming argument and add control properties
-	// on the return value.
-
-	// @ts-ignore
-	return memoized;
-}
-
-module.exports = memize;
-
-
-/***/ }),
-
-/***/ "YLtl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["lodash"]; }());
-
-/***/ })
-
-/******/ })["default"];
+(window.wp = window.wp || {}).shortcode = __webpack_exports__["default"];
+/******/ })()
+;

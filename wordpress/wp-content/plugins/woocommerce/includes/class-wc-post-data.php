@@ -8,8 +8,10 @@
  * @version 2.2.0
  */
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\DataSynchronizer;
 use Automattic\WooCommerce\Internal\ProductAttributesLookup\LookupDataStore as ProductAttributesLookupDataStore;
 use Automattic\WooCommerce\Proxies\LegacyProxy;
+use Automattic\WooCommerce\Utilities\OrderUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -52,6 +54,7 @@ class WC_Post_Data {
 		add_action( 'wp_trash_post', array( __CLASS__, 'trash_post' ) );
 		add_action( 'untrashed_post', array( __CLASS__, 'untrash_post' ) );
 		add_action( 'before_delete_post', array( __CLASS__, 'before_delete_order' ) );
+		add_action( 'woocommerce_before_delete_order', array( __CLASS__, 'before_delete_order' ) );
 
 		// Meta cache flushing.
 		add_action( 'updated_post_meta', array( __CLASS__, 'flush_object_meta_cache' ), 10, 4 );
@@ -326,6 +329,7 @@ class WC_Post_Data {
 
 				break;
 			case 'shop_order':
+			case DataSynchronizer::PLACEHOLDER_ORDER_POST_TYPE:
 				global $wpdb;
 
 				$refunds = $wpdb->get_results( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = 'shop_order_refund' AND post_parent = %d", $id ) );
@@ -401,10 +405,24 @@ class WC_Post_Data {
 			$data_store->untrash_variations( $id );
 
 			wc_product_force_unique_sku( $id );
+			self::clear_global_unique_id_if_necessary( $id );
 
 			wc_get_container()->get( ProductAttributesLookupDataStore::class )->on_product_changed( $id );
 		} elseif ( 'product_variation' === $post_type ) {
 			wc_get_container()->get( ProductAttributesLookupDataStore::class )->on_product_changed( $id );
+		}
+	}
+
+	/**
+	 * Clear global unique id if it's not unique.
+	 *
+	 * @param mixed $id Post ID.
+	 */
+	private static function clear_global_unique_id_if_necessary( $id ) {
+		$product = wc_get_product( $id );
+		if ( $product && ! wc_product_has_global_unique_id( $id, $product->get_global_unique_id() ) ) {
+			$product->set_global_unique_id( '' );
+			$product->save();
 		}
 	}
 
@@ -425,7 +443,7 @@ class WC_Post_Data {
 	 * @param int $order_id Order ID.
 	 */
 	public static function before_delete_order( $order_id ) {
-		if ( in_array( get_post_type( $order_id ), wc_get_order_types(), true ) ) {
+		if ( OrderUtil::is_order( $order_id, wc_get_order_types() ) ) {
 			// Clean up user.
 			$order = wc_get_order( $order_id );
 
@@ -461,7 +479,7 @@ class WC_Post_Data {
 	public static function delete_order_items( $postid ) {
 		global $wpdb;
 
-		if ( in_array( get_post_type( $postid ), wc_get_order_types(), true ) ) {
+		if ( OrderUtil::is_order( $postid, wc_get_order_types() ) ) {
 			do_action( 'woocommerce_delete_order_items', $postid );
 
 			$wpdb->query(
@@ -483,7 +501,7 @@ class WC_Post_Data {
 	 * @param int $postid Post ID.
 	 */
 	public static function delete_order_downloadable_permissions( $postid ) {
-		if ( in_array( get_post_type( $postid ), wc_get_order_types(), true ) ) {
+		if ( OrderUtil::is_order( $postid, wc_get_order_types() ) ) {
 			do_action( 'woocommerce_delete_order_downloadable_permissions', $postid );
 
 			$data_store = WC_Data_Store::load( 'customer-download' );
@@ -499,7 +517,7 @@ class WC_Post_Data {
 	 * @param  int    $meta_id    Meta ID.
 	 * @param  int    $object_id  Object ID.
 	 * @param  string $meta_key   Meta key.
-	 * @param  string $meta_value Meta value.
+	 * @param  mixed  $meta_value Meta value.
 	 */
 	public static function flush_object_meta_cache( $meta_id, $object_id, $meta_key, $meta_value ) {
 		WC_Cache_Helper::invalidate_cache_group( 'object_' . $object_id );

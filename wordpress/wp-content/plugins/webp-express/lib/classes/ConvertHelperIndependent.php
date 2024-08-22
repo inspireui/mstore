@@ -1,8 +1,8 @@
 <?php
 
 /*
-This class is made to be dependent only on a few WebPExpress classes, and must be kept like that.
-It is used by webp-on-demand.php, which does not register an auto loader. It is also used for bulk conversion.
+This class is made to not be dependent on Wordpress functions and must be kept like that.
+It is used by webp-on-demand.php. It is also used for bulk conversion.
 */
 namespace WebPExpress;
 
@@ -77,8 +77,8 @@ class ConvertHelperIndependent
     /**
      * Get destination path corresponding to the source path given (and some configurations)
      *
-     *  If for example Operation mode is set to "mingled" and extension is set to "Append .webp",
-     *  the result of finding the destination path that corresponds to "/path/to/logo.jpg" will be "/path/to/logo.jpg.webp".
+     * If for example Operation mode is set to "mingled" and extension is set to "Append .webp",
+     * the result of finding the destination path that corresponds to "/path/to/logo.jpg" will be "/path/to/logo.jpg.webp".
      *
      * @param  string   $source                     Path to source file
      * @param  string   $destinationFolder          'mingled' or 'separate'
@@ -571,7 +571,7 @@ APACHE
         $text = preg_replace('#' . preg_quote($_SERVER["DOCUMENT_ROOT"]) . '#', '[doc-root]', $text);
 
         // TODO: Put version number somewhere else. Ie \WebPExpress\VersionNumber::version
-        $text = 'WebP Express 0.20.1. ' . $msgTop . ', ' . date("Y-m-d H:i:s") . "\n\r\n\r" . $text;
+        $text = 'WebP Express 0.25.9. ' . $msgTop . ', ' . date("Y-m-d H:i:s") . "\n\r\n\r" . $text;
 
         $logFile = self::getLogFilename($source, $logDir);
 
@@ -596,10 +596,10 @@ APACHE
      * @param  string  $source          Full path to the source file that was converted.
      * @param  string  $destination     Full path to the destination file (may exist or not).
      * @param  array   $convertOptions  Conversion options.
-     * @param  string  $logDir          The folder where log files are kept.
+     * @param  string  $logDir          The folder where log files are kept or null for no logging
      * @param  string  $converter       (optional) Set it to convert with a specific converter.
      */
-    public static function convert($source, $destination, $convertOptions, $logDir, $converter = null) {
+    public static function convert($source, $destination, $convertOptions, $logDir = null, $converter = null) {
         include_once __DIR__ . '/../../vendor/autoload.php';
 
         // At this point, everything has already been checked for sanity. But for good meassure, lets
@@ -620,7 +620,9 @@ APACHE
 
             // Check that log path is sane and inside document root
             // -------------------------------------------------------
-            $logDir = SanityCheck::absPathIsInDocRoot($logDir);
+            if (!is_null($logDir)) {
+                $logDir = SanityCheck::absPathIsInDocRoot($logDir);
+            }
 
 
             // PS: No need to check $logMsgTop. Log files are markdown and stored as ".md". They can do no harm.
@@ -645,20 +647,23 @@ APACHE
                 $converter = ConverterFactory::makeConverter($converter, $source, $destination, $convertOptions, $logger);
                 $converter->doConvert();
             } else {
+//error_log('options:' . print_r(json_encode($convertOptions,JSON_PRETTY_PRINT), true));
                 WebPConvert::convert($source, $destination, $convertOptions, $logger);
             }
             $success = true;
         } catch (\WebpConvert\Exceptions\WebPConvertException $e) {
             $msg = $e->getMessage();
         } catch (\Exception $e) {
-            $msg = 'An exception was thrown!';
-        } catch (Throwable $e) {
-            //Executed only in PHP 7, will not match in PHP 5
-            //$msg = $e->getMessage();
-            //$msg = 'oh no';
+            //$msg = 'An exception was thrown!';
+            $msg = $e->getMessage();
+        } catch (\Throwable $e) {
+            //Executed only in PHP 7 and 8, will not match in PHP 5
+            $msg = $e->getMessage();
         }
 
-        self::saveLog($source, $logDir, $logger->getMarkDown("\n\r"), 'Conversion triggered using bulk conversion');
+        if (!is_null($logDir)) {
+            self::saveLog($source, $logDir, $logger->getMarkDown("\n\r"), 'Conversion triggered using bulk conversion');
+        }
 
         return [
             'success' => $success,
@@ -672,7 +677,7 @@ APACHE
      *  Serve a converted file (if it does not already exist, a conversion is triggered - all handled in webp-convert).
      *
      */
-    public static function serveConverted($source, $destination, $serveOptions, $logDir, $logMsgTop = '')
+    public static function serveConverted($source, $destination, $serveOptions, $logDir = null, $logMsgTop = '')
     {
         include_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -697,8 +702,9 @@ APACHE
             // Check that log path is sane
             // -------------------------------------------------------
             //$logDir = SanityCheck::absPathIsInDocRoot($logDir);
-            $logDir = SanityCheck::absPath($logDir);
-
+            if ($logDir != null) {
+                $logDir = SanityCheck::absPath($logDir);
+            }
 
             // PS: No need to check $logMsgTop. Log files are markdown and stored as ".md". They can do no harm.
 
@@ -712,10 +718,11 @@ APACHE
 
         $convertLogger = new BufferLogger();
         WebPConvert::serveConverted($source, $destination, $serveOptions, null, $convertLogger);
-        $convertLog = $convertLogger->getMarkDown("\n\r");
-        if ($convertLog != '') {
-            self::saveLog($source, $logDir, $convertLog, $logMsgTop);
+        if (!is_null($logDir)) {
+            $convertLog = $convertLogger->getMarkDown("\n\r");
+            if ($convertLog != '') {
+                self::saveLog($source, $logDir, $convertLog, $logMsgTop);
+            }
         }
-
     }
 }

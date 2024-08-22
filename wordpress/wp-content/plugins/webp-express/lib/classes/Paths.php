@@ -163,6 +163,12 @@ class Paths
         return ['uploads', 'themes', 'plugins', 'wp-content', 'index'];
     }
 
+    /**
+     * Find which rootId a path belongs to.
+     *
+     * Note: If the root ids passed are ordered the way getImageRootIds() returns them, the root id
+     * returned will be the "deepest"
+     */
     public static function findImageRootOfPath($path, $rootIdsToSearch) {
         foreach ($rootIdsToSearch as $rootId) {
             if (PathHelper::isPathWithinExistingDirPath($path, self::getAbsDirById($rootId))) {
@@ -339,6 +345,10 @@ class Paths
     {
         return PathHelper::getRelDir(self::getPluginDirAbs(), self::getContentDirAbs());
     }
+    public static function getContentDirRelToWebPExpressPluginDir()
+    {
+        return PathHelper::getRelDir(self::getWebPExpressPluginDirAbs(), self::getContentDirAbs());
+    }
 
 
     public static function isWPContentDirMoved()
@@ -493,6 +503,13 @@ APACHE
         return self::getWebPExpressContentDirAbs() . '/log';
     }
 
+    // ------------ Bigger-than-source  dir -------------
+
+    public static function getBiggerThanSourceDirAbs()
+    {
+        return self::getWebPExpressContentDirAbs() . '/webp-images-bigger-than-source';
+    }
+
     // ------------ Plugin Dir (all plugins) -------------
 
     public static function getPluginDirAbs()
@@ -569,14 +586,13 @@ APACHE
      * (but not quite, as the logic is also in ConverterHelperIndependent::getDestination).
      *
      * @param  string  $rootId
-     * @param  string  $destinationFolder  ("mingled" or "separate")
-     * @param  string  $destinationStructure  ("doc-root" or "image-roots")
+     * @param  DestinationOptions  $destinationOptions
      *
      * @return array   url and abs-path of destination root
      */
-    public static function destinationRoot($rootId, $destinationFolder, $destinationStructure)
+    public static function destinationRoot($rootId, $destinationOptions)
     {
-        if (($destinationFolder == 'mingled') && ($rootId == 'uploads')) {
+        if (($destinationOptions->mingled) && ($rootId == 'uploads')) {
             return [
                 'url' => self::getUrlById('uploads'),
                 'abs-path' => self::getUploadDirAbs()
@@ -587,7 +603,7 @@ APACHE
             $destUrl = self::getUrlById('wp-content') . '/webp-express/webp-images';
             $destPath = self::getAbsDirById('wp-content') . '/webp-express/webp-images';
 
-            if (($destinationStructure == 'doc-root') && self::canUseDocRootForStructuringCacheDir()) {
+            if (($destinationOptions->useDocRoot) && self::canUseDocRootForStructuringCacheDir()) {
                 $relPathFromDocRootToSourceImageRoot = PathHelper::getRelPathFromDocRootToDirNoDirectoryTraversalAllowed(
                     self::getAbsDirById($rootId)
                 );
@@ -596,13 +612,34 @@ APACHE
                     'abs-path' => $destPath  . '/doc-root/' . $relPathFromDocRootToSourceImageRoot
                 ];
             } else {
+                $extraPath = '';
+                if (is_multisite() && (get_current_blog_id() != 1)) {
+                    $extraPath = '/sites/' . get_current_blog_id();   // #510
+                }
                 return [
-                    'url' => $destUrl . '/' . $rootId,
-                    'abs-path' => $destPath  . '/' . $rootId
+                    'url' => $destUrl . '/' . $rootId . $extraPath,
+                    'abs-path' => $destPath  . '/' . $rootId . $extraPath
                 ];
             }
         }
     }
+
+    public static function getRootAndRelPathForDestination($destinationPath, $imageRoots) {
+        foreach ($imageRoots->getArray() as $i => $imageRoot) {
+            $rootPath = $imageRoot->getAbsPath();
+            if (strpos($destinationPath, realpath($rootPath)) !== false) {
+                $relPath = substr($destinationPath, strlen(realpath($rootPath)) + 1);
+                return [$imageRoot->id, $relPath];
+            }
+        }
+        return ['', ''];
+    }
+
+
+
+    // PST:
+    // appendOrSetExtension() have been copied from ConvertHelperIndependent.
+    // TODO: I should complete the move ASAP.
 
     /**
      * Append ".webp" to path or replace extension with "webp", depending on what is appropriate.
@@ -639,7 +676,14 @@ APACHE
      *
      * @return array   url and abs-path of destination
      */
-    public static function destinationPath($rootId, $relPath, $destinationFolder, $destinationExtension, $destinationStructure) {
+   /*
+    public static function destinationPath($rootId, $relPath, $destinationFolder, $destinationExt, $destinationStructure) {
+
+        // TODO: Current logic will not do!
+        // We must use ConvertHelper::getDestination for the abs path.
+        // And we must use logic from AlterHtmlHelper to get the URL
+        // Perhaps this method must be abandonned
+
         $root = self::destinationRoot($rootId, $destinationFolder, $destinationStructure);
         $inUploadFolder = ($rootId == 'upload');
         $relPath = ConvertHelperIndependent::appendOrSetExtension($relPath, $destinationFolder, $destinationExt, $inUploadFolder);
@@ -657,6 +701,16 @@ APACHE
             $config['destination-folder'],
             $config['destination-extension'],
             $config['destination-structure']
+        );
+    }*/
+
+    public static function getDestinationPathCorrespondingToSource($source, $destinationOptions) {
+        return Destination::getDestinationPathCorrespondingToSource(
+            $source,
+            Paths::getWebPExpressContentDirAbs(),
+            Paths::getUploadDirAbs(),
+            $destinationOptions,
+            new ImageRoots(self::getImageRootsDef())
         );
     }
 
@@ -738,7 +792,7 @@ APACHE
      */
     public static function getWebPExpressPluginUrl()
     {
-        return untrailingslashit(plugins_url(null, WEBPEXPRESS_PLUGIN));
+        return untrailingslashit(plugins_url('', WEBPEXPRESS_PLUGIN));
     }
 
     public static function getWebPExpressPluginUrlPath()

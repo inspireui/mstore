@@ -43,10 +43,12 @@ function dt_generate_attachment_metadata($metadata, $attachment_id)
             $sizes[$s]['crop'] = get_option("{$s}_crop");
     }
 
-    foreach ($sizes as $size => $size_data) {
-        $resized = dt_image_make_intermediate_size($file, $size_data['width'], $size_data['height'], $size, $size_data['crop']);
-        if ($resized)
-            $metadata['sizes'][$size] = $resized;
+    if (!empty($sizes)) {
+        foreach ($sizes as $size => $size_data) {
+            $resized = dt_image_make_intermediate_size($file, $size_data['width'], $size_data['height'], $size, $size_data['crop']);
+            if ($resized)
+                $metadata['sizes'][$size] = $resized;
+        }
     }
 
     return $metadata;

@@ -31,12 +31,12 @@ class WC_Privacy extends WC_Abstract_Privacy {
 		parent::__construct();
 
 		// Initialize data exporters and erasers.
-		add_action( 'plugins_loaded', array( $this, 'register_erasers_exporters' ) );
+		add_action( 'init', array( $this, 'register_erasers_exporters' ) );
 
 		// Cleanup orders daily - this is a callback on a daily cron event.
 		add_action( 'woocommerce_cleanup_personal_data', array( $this, 'queue_cleanup_personal_data' ) );
 
-		// Handles custom anonomization types not included in core.
+		// Handles custom anonymization types not included in core.
 		add_filter( 'wp_privacy_anonymize_data', array( $this, 'anonymize_custom_data_types' ), 10, 3 );
 
 		// When this is fired, data is removed in a given order. Called from bulk actions.
@@ -86,7 +86,7 @@ class WC_Privacy extends WC_Abstract_Privacy {
 			'<h2>' . __( 'What we collect and store', 'woocommerce' ) . '</h2>' .
 			'<p>' . __( 'While you visit our site, we’ll track:', 'woocommerce' ) . '</p>' .
 			'<ul>' .
-				'<li>' . __( 'Products you’ve viewed:  we’ll use this to, for example, show you products you’ve recently viewed', 'woocommerce' ) . '</li>' .
+				'<li>' . __( 'Products you’ve viewed: we’ll use this to, for example, show you products you’ve recently viewed', 'woocommerce' ) . '</li>' .
 				'<li>' . __( 'Location, IP address and browser type: we’ll use this for purposes like estimating taxes and shipping', 'woocommerce' ) . '</li>' .
 				'<li>' . __( 'Shipping address: we’ll ask you to enter this so we can, for instance, estimate shipping before you place an order, and send you the order!', 'woocommerce' ) . '</li>' .
 			'</ul>' .
@@ -381,7 +381,14 @@ class WC_Privacy extends WC_Abstract_Privacy {
 			}
 
 			foreach ( $user_ids as $user_id ) {
-				wp_delete_user( $user_id );
+				wp_delete_user( $user_id, 0 );
+				wc_get_logger()->info(
+					sprintf(
+						/* translators: %d user ID. */
+						__( "User #%d was deleted by WooCommerce in accordance with the site's personal data retention settings. Any content belonging to that user has been retained but unassigned.", 'woocommerce' ),
+						$user_id
+					)
+				);
 				$count ++;
 			}
 		}

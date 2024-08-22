@@ -11,6 +11,8 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Internal\Admin\Logging\Settings;
+use Automattic\WooCommerce\Utilities\LoggingUtil;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -45,7 +47,7 @@ function wc_do_deprecated_action( $tag, $args, $version, $replacement = null, $m
  */
 function wc_deprecated_function( $function, $version, $replacement = null ) {
 	// @codingStandardsIgnoreStart
-	if ( is_ajax() || WC()->is_rest_api_request() ) {
+	if ( wp_doing_ajax() || WC()->is_rest_api_request() ) {
 		do_action( 'deprecated_function_run', $function, $replacement, $version );
 		$log_string  = "The {$function} function is deprecated since version {$version}.";
 		$log_string .= $replacement ? " Replace with {$replacement}." : '';
@@ -67,7 +69,7 @@ function wc_deprecated_function( $function, $version, $replacement = null ) {
  */
 function wc_deprecated_hook( $hook, $version, $replacement = null, $message = null ) {
 	// @codingStandardsIgnoreStart
-	if ( is_ajax() || WC()->is_rest_api_request() ) {
+	if ( wp_doing_ajax() || WC()->is_rest_api_request() ) {
 		do_action( 'deprecated_hook_run', $hook, $replacement, $version, $message );
 
 		$message    = empty( $message ) ? '' : ' ' . $message;
@@ -111,7 +113,7 @@ function wc_doing_it_wrong( $function, $message, $version ) {
 	// @codingStandardsIgnoreStart
 	$message .= ' Backtrace: ' . wp_debug_backtrace_summary();
 
-	if ( is_ajax() || WC()->is_rest_api_request() ) {
+	if ( wp_doing_ajax() || WC()->is_rest_api_request() ) {
 		do_action( 'doing_it_wrong_run', $function, $message, $version );
 		error_log( "{$function} was called incorrectly. {$message}. This message was added in version {$version}." );
 	} else {
@@ -129,7 +131,7 @@ function wc_doing_it_wrong( $function, $message, $version ) {
  * @param  string $replacement
  */
 function wc_deprecated_argument( $argument, $version, $message = null ) {
-	if ( is_ajax() || WC()->is_rest_api_request() ) {
+	if ( wp_doing_ajax() || WC()->is_rest_api_request() ) {
 		do_action( 'deprecated_argument_run', $argument, $message, $version );
 		error_log( "The {$argument} argument is deprecated since version {$version}. {$message}" );
 	} else {
@@ -1098,7 +1100,7 @@ function add_woocommerce_term_meta( $term_id, $meta_key, $meta_value, $unique = 
  * @deprecated 3.6.0
  * @param int    $term_id    Term ID.
  * @param string $meta_key   Meta key.
- * @param string $meta_value Meta value (default: '').
+ * @param mixed  $meta_value Meta value (default: '').
  * @param bool   $deprecated Deprecated param (default: false).
  * @return bool
  */
@@ -1122,4 +1124,58 @@ function delete_woocommerce_term_meta( $term_id, $meta_key, $meta_value = '', $d
 function get_woocommerce_term_meta( $term_id, $key, $single = true ) {
 	wc_deprecated_function( 'get_woocommerce_term_meta', '3.6', 'get_term_meta' );
 	return function_exists( 'get_term_meta' ) ? get_term_meta( $term_id, $key, $single ) : get_metadata( 'woocommerce_term', $term_id, $key, $single );
+}
+
+/**
+ * Registers the default log handler.
+ *
+ * @deprecated 8.6.0
+ * @since 3.0
+ * @param array $handlers Handlers.
+ * @return array
+ */
+function wc_register_default_log_handler( $handlers = array() ) {
+	wc_deprecated_function( 'wc_register_default_log_handler', '8.6.0' );
+
+	$default_handler = wc_get_container()->get( Settings::class )->get_default_handler();
+
+	array_push( $handlers, new $default_handler() );
+
+	return $handlers;
+}
+
+/**
+ * Get a log file path.
+ *
+ * @deprecated 8.6.0
+ * @since 2.2
+ *
+ * @param string $handle name.
+ * @return string the log file path.
+ */
+function wc_get_log_file_path( $handle ) {
+	wc_deprecated_function( 'wc_get_log_file_path', '8.6.0' );
+
+	$directory = LoggingUtil::get_log_directory();
+	$file_id   = LoggingUtil::generate_log_file_id( $handle, null, time() );
+	$hash      = LoggingUtil::generate_log_file_hash( $file_id );
+
+	return "{$directory}{$file_id}-{$hash}.log";
+}
+
+/**
+ * Get a log file name.
+ *
+ * @since 3.3
+ *
+ * @param string $handle Name.
+ * @return string The log file name.
+ */
+function wc_get_log_file_name( $handle ) {
+	wc_deprecated_function( 'wc_get_log_file_name', '8.6.0' );
+
+	$file_id = LoggingUtil::generate_log_file_id( $handle, null, time() );
+	$hash    = LoggingUtil::generate_log_file_hash( $file_id );
+
+	return "{$file_id}-{$hash}";
 }

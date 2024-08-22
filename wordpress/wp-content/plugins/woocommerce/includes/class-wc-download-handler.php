@@ -8,12 +8,19 @@
  * @version 2.2.0
  */
 
+use Automattic\WooCommerce\Internal\Traits\AccessiblePrivateMethods;
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Download handler class.
  */
 class WC_Download_Handler {
+	use AccessiblePrivateMethods;
+
+	/**
+	 * The hook used for deferred tracking of partial download attempts.
+	 */
+	public const TRACK_DOWNLOAD_CALLBACK = 'track_partial_download';
 
 	/**
 	 * Hook in methods.
@@ -25,17 +32,28 @@ class WC_Download_Handler {
 		add_action( 'woocommerce_download_file_redirect', array( __CLASS__, 'download_file_redirect' ), 10, 2 );
 		add_action( 'woocommerce_download_file_xsendfile', array( __CLASS__, 'download_file_xsendfile' ), 10, 2 );
 		add_action( 'woocommerce_download_file_force', array( __CLASS__, 'download_file_force' ), 10, 2 );
+		self::add_action( self::TRACK_DOWNLOAD_CALLBACK, array( __CLASS__, 'track_download' ), 10, 3 );
 	}
 
 	/**
 	 * Check if we need to download a file and check validity.
 	 */
 	public static function download_product() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$product_id = absint( $_GET['download_file'] ); // phpcs:ignore WordPress.VIP.SuperGlobalInputUsage.AccessDetected, WordPress.VIP.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$product    = wc_get_product( $product_id );
+		$downloads  = $product ? $product->get_downloads() : array();
 		$data_store = WC_Data_Store::load( 'customer-download' );
 
-		if ( ! $product || empty( $_GET['key'] ) || empty( $_GET['order'] ) ) { // WPCS: input var ok, CSRF ok.
+		$key = empty( $_GET['key'] ) ? '' : sanitize_text_field( wp_unslash( $_GET['key'] ) );
+
+		if (
+			! $product
+			|| empty( $key )
+			|| empty( $_GET['order'] )
+			|| ! isset( $downloads[ $key ] )
+			|| ! $downloads[ $key ]->get_enabled()
+		) {
 			self::download_error( __( 'Invalid download link.', 'woocommerce' ) );
 		}
 
@@ -43,6 +61,7 @@ class WC_Download_Handler {
 		if ( empty( $_GET['email'] ) && empty( $_GET['uid'] ) ) { // WPCS: input var ok, CSRF ok.
 			self::download_error( __( 'Invalid download link.', 'woocommerce' ) );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$order_id = wc_get_order_id_by_order_key( wc_clean( wp_unslash( $_GET['order'] ) ) ); // WPCS: input var ok, CSRF ok.
 		$order    = wc_get_order( $order_id );
@@ -124,9 +143,13 @@ class WC_Download_Handler {
 		// Track the download in logs and change remaining/counts.
 		$current_user_id = get_current_user_id();
 		$ip_address      = WC_Geolocation::get_ip_address();
-		if ( ! $download_range['is_range_request'] ) {
-			$download->track_download( $current_user_id > 0 ? $current_user_id : null, ! empty( $ip_address ) ? $ip_address : null );
-		}
+
+		self::track_download(
+			$download,
+			$current_user_id > 0 ? $current_user_id : null,
+			! empty( $ip_address ) ? $ip_address : null,
+			$download_range['is_range_request']
+		);
 
 		self::download( $file_path, $download->get_product_id() );
 	}
@@ -262,22 +285,31 @@ class WC_Download_Handler {
 		 * via filters we can still do the string replacement on a HTTP file.
 		 */
 		$replacements = array(
-			$wp_uploads_url                  => $wp_uploads_dir,
-			network_site_url( '/', 'https' ) => ABSPATH,
+			$wp_uploads_url                                                   => $wp_uploads_dir,
+			network_site_url( '/', 'https' )                                  => ABSPATH,
 			str_replace( 'https:', 'http:', network_site_url( '/', 'http' ) ) => ABSPATH,
-			site_url( '/', 'https' )         => ABSPATH,
-			str_replace( 'https:', 'http:', site_url( '/', 'http' ) ) => ABSPATH,
+			site_url( '/', 'https' )                                          => ABSPATH,
+			str_replace( 'https:', 'http:', site_url( '/', 'http' ) )         => ABSPATH,
 		);
 
-		$file_path        = str_replace( array_keys( $replacements ), array_values( $replacements ), $file_path );
+		$count            = 0;
+		$file_path        = str_replace( array_keys( $replacements ), array_values( $replacements ), $file_path, $count );
 		$parsed_file_path = wp_parse_url( $file_path );
-		$remote_file      = true;
+		$remote_file      = null === $count || 0 === $count; // Remote file only if there were no replacements.
 
 		// Paths that begin with '//' are always remote URLs.
 		if ( '//' === substr( $file_path, 0, 2 ) ) {
+			$file_path = ( is_ssl() ? 'https:' : 'http:' ) . $file_path;
+
+			/**
+			 * Filter the remote filepath for download.
+			 *
+			 * @since 6.5.0
+			 * @param string $file_path File path.
+			 */
 			return array(
 				'remote_file' => true,
-				'file_path'   => is_ssl() ? 'https:' . $file_path : 'http:' . $file_path,
+				'file_path'   => apply_filters( 'woocommerce_download_parse_remote_file_path', $file_path ),
 			);
 		}
 
@@ -291,14 +323,21 @@ class WC_Download_Handler {
 			$file_path   = realpath( WP_CONTENT_DIR . substr( $file_path, 11 ) );
 
 			// Check if we have an absolute path.
-		} elseif ( ( ! isset( $parsed_file_path['scheme'] ) || ! in_array( $parsed_file_path['scheme'], array( 'http', 'https', 'ftp' ), true ) ) && isset( $parsed_file_path['path'] ) && file_exists( $parsed_file_path['path'] ) ) {
+		} elseif ( ( ! isset( $parsed_file_path['scheme'] ) || ! in_array( $parsed_file_path['scheme'], array( 'http', 'https', 'ftp' ), true ) ) && isset( $parsed_file_path['path'] ) ) {
 			$remote_file = false;
 			$file_path   = $parsed_file_path['path'];
 		}
 
+		/**
+		* Filter the filepath for download.
+		*
+		* @since 6.5.0
+		* @param string  $file_path File path.
+		* @param bool $remote_file Remote File Indicator.
+		*/
 		return array(
 			'remote_file' => $remote_file,
-			'file_path'   => $file_path,
+			'file_path'   => apply_filters( 'woocommerce_download_parse_file_path', $file_path, $remote_file ),
 		);
 	}
 
@@ -495,7 +534,7 @@ class WC_Download_Handler {
 		header( 'X-Robots-Tag: noindex, nofollow', true );
 		header( 'Content-Type: ' . self::get_download_content_type( $file_path ) );
 		header( 'Content-Description: File Transfer' );
-		header( 'Content-Disposition: attachment; filename="' . $filename . '";' );
+		header( 'Content-Disposition: ' . self::get_content_disposition() . '; filename="' . $filename . '";' );
 		header( 'Content-Transfer-Encoding: binary' );
 
 		$file_size = @filesize( $file_path ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
@@ -549,6 +588,22 @@ class WC_Download_Handler {
 		} else {
 			@ob_end_clean(); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 		}
+	}
+
+	/**
+	 *
+	 * Get selected content disposition
+	 *
+	 * Defaults to attachment if `woocommerce_downloads_deliver_inline` setting is not selected.
+	 *
+	 * @return string Content disposition value.
+	 */
+	private static function get_content_disposition() : string {
+		$disposition = 'attachment';
+		if ( 'yes' === get_option( 'woocommerce_downloads_deliver_inline' ) ) {
+			$disposition = 'inline';
+		}
+		return $disposition;
 	}
 
 	/**
@@ -638,15 +693,89 @@ class WC_Download_Handler {
 		 * Since we will now render a message instead of serving a download, we should unwind some of the previously set
 		 * headers.
 		 */
-		header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
-		header_remove( 'Content-Description;' );
-		header_remove( 'Content-Disposition' );
-		header_remove( 'Content-Transfer-Encoding' );
+		if ( headers_sent() ) {
+			wc_get_logger()->log( 'warning', __( 'Headers already sent when generating download error message.', 'woocommerce' ) );
+		} else {
+			header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
+			header_remove( 'Content-Description;' );
+			header_remove( 'Content-Disposition' );
+			header_remove( 'Content-Transfer-Encoding' );
+		}
 
 		if ( ! strstr( $message, '<a ' ) ) {
 			$message .= ' <a href="' . esc_url( wc_get_page_permalink( 'shop' ) ) . '" class="wc-forward">' . esc_html__( 'Go to shop', 'woocommerce' ) . '</a>';
 		}
 		wp_die( $message, $title, array( 'response' => $status ) ); // WPCS: XSS ok.
+	}
+
+	/**
+	 * Takes care of tracking download requests, with support for deferring tracking in the case of
+	 * partial (ranged request) downloads.
+	 *
+	 * @param WC_Customer_Download|int $download        The download to be tracked.
+	 * @param int|null                 $user_id         The user ID, if known.
+	 * @param string|null              $user_ip_address The download IP address, if known.
+	 * @param bool                     $defer           If tracking the download should be deferred.
+	 *
+	 * @return void
+	 * @throws Exception If the active version of Action Scheduler is less than 3.6.0.
+	 */
+	private static function track_download( $download, $user_id = null, $user_ip_address = null, bool $defer = false ): void {
+		try {
+			// If we were supplied with an integer, convert it to a download object.
+			$download = new WC_Customer_Download( $download );
+
+			// In simple cases, we can track the download immediately.
+			if ( ! $defer ) {
+				$download->track_download( $user_id, $user_ip_address );
+				return;
+			}
+
+			// Counting of partial downloads may be disabled by the site operator.
+			if ( get_option( 'woocommerce_downloads_count_partial', 'yes' ) !== 'yes' ) {
+				return;
+			}
+
+			/**
+			 * Determines how long the window of time is for tracking unique download attempts, in relation to
+			 * partial (ranged) download requests.
+			 *
+			 * @since 9.2.0
+			 *
+			 * @param int $window_in_seconds      Non-negative number of seconds. Defaults to 1800 (30 minutes).
+			 * @param int $download_permission_id References the download permission being tracked.
+			 */
+			$window = absint( apply_filters( 'woocommerce_partial_download_tracking_window', 30 * MINUTE_IN_SECONDS, $download->get_id() ) );
+
+			// If we do not have Action Scheduler 3.6.0+ (this would be an unexpected scenario) then we cannot
+			// track partial downloads, because we require support for unique actions.
+			if ( version_compare( ActionScheduler_Versions::instance()->latest_version(), '3.6.0', '<' ) ) {
+				throw new Exception( 'Support for unique scheduled actions is not currently available.' );
+			}
+
+			as_schedule_single_action(
+				time() + $window,
+				self::TRACK_DOWNLOAD_CALLBACK,
+				array(
+					$download->get_id(),
+					$user_id,
+					$user_ip_address,
+				),
+				'woocommerce',
+				true
+			);
+		} catch ( Exception $e ) {
+			wc_get_logger()->error(
+				'There was a problem while tracking a product download.',
+				array(
+					'error'    => $e->getMessage(),
+					'id'       => $download->get_id(),
+					'user_id'  => $user_id,
+					'ip'       => $user_ip_address,
+					'deferred' => $defer ? 'yes' : 'no',
+				)
+			);
+		}
 	}
 }
 

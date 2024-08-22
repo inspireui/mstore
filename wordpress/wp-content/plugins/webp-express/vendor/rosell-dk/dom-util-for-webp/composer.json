@@ -8,21 +8,25 @@
   "scripts": {
     "ci": [
       "@build",
-      "@test",
+      "@test-cov-console",
       "@phpcs-all",
       "@composer validate --no-check-all --strict",
-      "@phpstan-global"
+      "@phpstan"
     ],
     "cs-fix-all": [
       "php-cs-fixer fix src"
     ],
     "cs-fix": "php-cs-fixer fix",
     "cs-dry": "php-cs-fixer fix --dry-run --diff",
-    "test": "phpunit  --coverage-text --coverage-clover=coverage.clover",
-    "phpcs": "phpcs --standard=PSR2",
-    "phpcbf": "phpcbf --standard=PSR2",
-    "phpstan": "vendor/bin/phpstan analyse src --level=4",
-    "phpstan-global": "~/.composer/vendor/bin/phpstan analyse src --level=4"
+    "test": "phpunit --coverage-text=build/coverage.txt --coverage-clover=build/coverage.clover --coverage-html=build/coverage --whitelist=src tests",
+    "test-cov-console": "phpunit --coverage-text --whitelist=src tests",
+    "test-41": "phpunit --coverage-text --configuration 'phpunit-41.xml.dist'",
+    "test-no-cov": "phpunit --no-coverage tests",
+    "phpunit": "phpunit --no-coverage",
+    "phpcs": "phpcs --standard=phpcs-ruleset.xml",
+    "phpcs-all": "phpcs --standard=phpcs-ruleset.xml src",
+    "phpcbf": "phpcbf --standard=phpcs-ruleset.xml",
+    "phpstan": "vendor/bin/phpstan analyse src --level=4"
   },
   "extra": {
       "scripts-descriptions": {
@@ -47,17 +51,16 @@
       "role": "Project Author"
     }
   ],
-  "suggest": {
-    "phpstan/phpstan": "Suggested for dev, in order to analyse code before committing"
-  },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.11",
-    "phpunit/phpunit": "5.7.27",
+    "phpstan/phpstan": "^1.5",
+    "phpunit/phpunit": "^9.3",
     "squizlabs/php_codesniffer": "3.*"
   },
   "config": {
     "sort-packages": true
   },
   "require": {
+    "kub-at/php-simple-html-dom-parser": "^1.9"
   }
 }

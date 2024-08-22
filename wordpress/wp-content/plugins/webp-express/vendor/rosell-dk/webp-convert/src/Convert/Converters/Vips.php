@@ -27,7 +27,6 @@ class Vips extends AbstractConverter
         return [
             'auto-filter',
             'size-in-percentage',
-            'use-nice'
         ];
     }
 
@@ -78,9 +77,9 @@ class Vips extends AbstractConverter
         }
 
 
-        /** @scrutinizer ignore-call */ vips_error_buffer(); // clear error buffer
-        $result = /** @scrutinizer ignore-call */ vips_call('webpsave', null);
-        if ($result == -1) {
+        vips_error_buffer(); // clear error buffer
+        $result = vips_call('webpsave', null);
+        if ($result === -1) {
             $message = vips_error_buffer();
             if (strpos($message, 'VipsOperation: class "webpsave" not found') === 0) {
                 throw new SystemRequirementsNotMetException(
@@ -209,9 +208,9 @@ class Vips extends AbstractConverter
     }
 
     /**
-     * Convert with vips extension.
+     * Save as webp, using vips extension.
      *
-     * Tries to create image resource and save it as webp using the calculated options.
+     * Tries to save image resource as webp, using the supplied options.
      * Vips fails when a parameter is not supported, but we detect this and unset that parameter and try again
      * (recursively call itself until there is no more of these kind of errors).
      *
@@ -246,7 +245,8 @@ class Vips extends AbstractConverter
             }
 
             if ($nameOfPropertyNotFound != '') {
-                $msg = 'Your version of vipslib does not support the "' . $nameOfPropertyNotFound . '" property';
+                $msg = 'Note: Your version of vipslib does not support the "' .
+                    $nameOfPropertyNotFound . '" property';
 
                 switch ($nameOfPropertyNotFound) {
                     case 'alpha_q':
@@ -268,7 +268,7 @@ class Vips extends AbstractConverter
                 $msg .= '. The option is ignored.';
 
 
-                $this->logLn($msg);
+                $this->logLn($msg, 'bold');
 
                 unset($options[$nameOfPropertyNotFound]);
                 $this->webpsave($im, $options);
@@ -279,11 +279,11 @@ class Vips extends AbstractConverter
     }
 
     /**
-     * Convert with vips extension.
+     * Convert, using vips extension.
      *
      * Tries to create image resource and save it as webp using the calculated options.
-     * Vips fails when a parameter is not supported, but we detect this and unset that parameter and try again
-     * (repeat until success).
+     * PS: The Vips "webpsave" call fails when a parameter is not supported, but our webpsave() method
+     * detect this and unset that parameter and try again (repeat until success).
      *
      * @throws  ConversionFailedException  if conversion fails.
      */

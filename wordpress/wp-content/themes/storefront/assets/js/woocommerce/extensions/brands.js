@@ -4,7 +4,6 @@
  * Adds sticky functionality to the brands index.
  */
 ( function () {
-	// eslint-disable-next-line @wordpress/no-global-event-listener
 	document.addEventListener( 'DOMContentLoaded', function () {
 		const brandsAZ = document.getElementsByClassName( 'brands_index' );
 
@@ -15,8 +14,8 @@
 		const adminBar = document.body.classList.contains( 'admin-bar' )
 				? 32
 				: 0,
-			brandsContainerHeight = document.getElementById( 'brands_a_z' )
-				.scrollHeight,
+			brandsContainerHeight =
+				document.getElementById( 'brands_a_z' ).scrollHeight,
 			brandsAZHeight = brandsAZ[ 0 ].scrollHeight + 40;
 
 		const stickyBrandsAZ = function () {
@@ -38,7 +37,6 @@
 
 		stickyBrandsAZ();
 
-		// eslint-disable-next-line @wordpress/no-global-event-listener
 		window.addEventListener( 'scroll', function () {
 			stickyBrandsAZ();
 		} );

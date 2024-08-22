@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebpackWcBlocksCartCheckoutFrontendJsonp=self.webpackChunkwebpackWcBlocksCartCheckoutFrontendJsonp||[]).push([[8422],{8812:(e,c,s)=>{s.r(c),s.d(c,{default:()=>t});var a=s(1609);const t=({children:e,className:c=""})=>(0,a.createElement)("div",{className:c},e)}}]);

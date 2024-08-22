@@ -1,0 +1,20 @@
+{
+  "name": "inspireui/mstore-api",
+  "type": "wordpress-plugin",
+  "authors": [
+    {
+      "name": "FluxBuilder",
+      "email": "hi@fluxbuilder.com"
+    }
+  ],
+  "require": {
+    "firebase/php-jwt": "^6.8",
+    "paragonie/sodium_compat": "^1.20",
+    "google/auth": "^1.37"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4"
+    }
+  }
+}

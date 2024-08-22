@@ -35,8 +35,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php
 			echo wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) );
 
-			if ( $refunded = $order->get_total_refunded_for_item( $item_id, 'fee' ) ) {
-				echo '<small class="refunded">-' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>';
+			if ( $refunded = -1 * $order->get_total_refunded_for_item( $item_id, 'fee' ) ) {
+				echo '<small class="refunded">' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>';
 			}
 			?>
 		</div>
@@ -59,8 +59,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php
 					echo ( '' !== $tax_item_total ) ? wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ) : '&ndash;';
 
-					if ( $refunded = $order->get_tax_refunded_for_item( $item_id, $tax_item_id, 'fee' ) ) {
-						echo '<small class="refunded">-' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>';
+					if ( $refunded = -1 * $order->get_tax_refunded_for_item( $item_id, $tax_item_id, 'fee' ) ) {
+						echo '<small class="refunded">' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>';
 					}
 					?>
 				</div>
@@ -78,7 +78,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<td class="wc-order-edit-line-item">
 		<?php if ( $order->is_editable() ) : ?>
 			<div class="wc-order-edit-line-item-actions">
-				<a class="edit-order-item" href="#"></a><a class="delete-order-item" href="#"></a>
+				<a class="edit-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Edit fee', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Edit fee', 'woocommerce' ); ?>"></a><a class="delete-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Delete fee', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Delete fee', 'woocommerce' ); ?>"></a>
 			</div>
 		<?php endif; ?>
 	</td>

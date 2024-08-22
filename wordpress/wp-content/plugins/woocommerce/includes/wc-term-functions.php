@@ -295,7 +295,7 @@ add_action( 'wp_upgrade', 'wc_taxonomy_metadata_migrate_data', 10, 2 );
  *
  * @param int    $the_term Term ID.
  * @param int    $next_id  The id of the next sibling element in save hierarchy level.
- * @param string $taxonomy Taxnomy.
+ * @param string $taxonomy Taxonomy.
  * @param int    $index    Term index (default: 0).
  * @param mixed  $terms    List of terms. (default: null).
  * @return int
@@ -401,7 +401,7 @@ function _wc_term_recount( $terms, $taxonomy, $callback = true, $terms_are_term_
 	 * @since 5.2
 	 * @param bool
 	 */
-	if ( ! apply_filters( 'woocommerce_product_recount_terms', '__return_true' ) ) {
+	if ( ! apply_filters( 'woocommerce_product_recount_terms', true ) ) {
 		return;
 	}
 
@@ -520,7 +520,7 @@ add_action( 'woocommerce_product_set_stock_status', 'wc_recount_after_stock_chan
  * @return array
  */
 function wc_change_term_counts( $terms, $taxonomies ) {
-	if ( is_admin() || is_ajax() ) {
+	if ( is_admin() || wp_doing_ajax() ) {
 		return $terms;
 	}
 
@@ -529,11 +529,14 @@ function wc_change_term_counts( $terms, $taxonomies ) {
 	}
 
 	$o_term_counts = get_transient( 'wc_term_counts' );
-	$term_counts   = $o_term_counts;
+	$term_counts   = false === $o_term_counts ? array() : $o_term_counts;
 
 	foreach ( $terms as &$term ) {
 		if ( is_object( $term ) ) {
-			$term_counts[ $term->term_id ] = isset( $term_counts[ $term->term_id ] ) ? $term_counts[ $term->term_id ] : get_term_meta( $term->term_id, 'product_count_' . $taxonomies[0], true );
+			$term_counts[ $term->term_id ] =
+				isset( $term_counts[ $term->term_id ] ) ?
+					$term_counts[ $term->term_id ] :
+					get_term_meta( $term->term_id, 'product_count_' . $taxonomies[0], true );
 
 			if ( '' !== $term_counts[ $term->term_id ] ) {
 				$term->count = absint( $term_counts[ $term->term_id ] );
@@ -591,7 +594,7 @@ function wc_clear_term_product_ids( $object_id, $terms, $tt_ids, $taxonomy, $app
 add_action( 'set_object_terms', 'wc_clear_term_product_ids', 10, 6 );
 
 /**
- * Get full list of product visibilty term ids.
+ * Get full list of product visibility term ids.
  *
  * @since  3.0.0
  * @return int[]

@@ -1,152 +1,32 @@
 <?php include_once(plugin_dir_path(dirname(__FILE__)) . 'functions/index.php'); ?>
 
-<!doctype html>
-<html <?php language_attributes(); ?> >
 <head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="profile" href="http://gmpg.org/xfn/11">
-    <?php wp_head(); ?>
-    <style>
-        .mstore_input {
-            margin-bottom: 10px;
-            width: 400px !important;
-            padding: .857em 1.214em !important;
-            background-color: transparent;
-            color: #818181 !important;
-            line-height: 1.286em !important;
-            outline: 0;
-            border: 0;
-            -webkit-appearance: none;
-            border-radius: 1.571em !important;
-            box-sizing: border-box;
-            border-width: 1px;
-            border-style: solid;
-            border-color: #ddd;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, .07) !important;
-            transition: 50ms border-color ease-in-out;
-            font-family: "Open Sans", HelveticaNeue-Light, "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-            touch-action: manipulation;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        .mstore-input-class { 
+            @apply border border-gray-300 text-gray-900 text-sm rounded focus:border-blue-500 w-full sm:max-w-md px-2 py-3
         }
-
-        .mstore_button {
-            position: relative;
-            border: 0 none;
-            border-radius: 3px !important;
-            color: #fff !important;
-            display: inline-block;
-            font-family: 'Poppins', 'Open Sans', Helvetica, Arial, sans-serif;
-            font-size: 12px;
-            letter-spacing: 1px;
-            line-height: 1.5;
-            text-transform: uppercase;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            margin-bottom: 21px;
-            margin-right: 10px;
-            line-height: 1;
-            padding: 12px 30px;
-            background: #39c36e !important;
-            -webkit-transition: all 0.21s ease;
-            -moz-transition: all 0.21s ease;
-            -o-transition: all 0.21s ease;
-            transition: all 0.21s ease;
+        .mstore-button-class {
+            @apply mt-5 px-5 py-2 text-base font-medium text-center text-white bg-green-700 rounded hover:bg-green-800 
         }
-
-        .mstore_title {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: .5em;
-            line-height: 1.1;
-            display: block;
-            margin-inline-start: 0px;
-            margin-inline-end: 0px;
-        }
-
-        .mstore_list {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            font-size: 100%;
-            font: inherit;
-            vertical-align: baseline;
-            display: block;
-            margin-block-start: 1em;
-            margin-block-end: 1em;
-            margin-inline-start: 0px;
-            margin-inline-end: 0px;
-            padding-inline-start: 40px;
-            list-style: none;
-        }
-
-        .mstore_list li {
-            list-style-type: square;
-            font-size: 14px;
-            font-weight: normal;
-            margin-bottom: 6px;
-            display: list-item;
-            text-align: -webkit-match-parent;
-        }
-
-        .mstore_number_list li {
-            list-style-type: decimal;
-        }
-
-        .mstore_link {
-            margin-inline-start: 0px;
-            margin-inline-end: 0px;
-            color: #0099ff;
-            text-decoration: none;
-            outline: 0;
-            transition-property: border, background, color;
-            transition-duration: .05s;
-            transition-timing-function: ease-in-out;
-            margin: 0;
-            padding: 0;
-            border: 0;
-            font-size: 100%;
-            font: inherit;
-            vertical-align: baseline;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .mstore_table {
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 1.236rem;
-            background-color: transparent;
-            border-spacing: 0;
-            border-collapse: collapse;
-            display: table;
-            border-color: grey;
-        }
-
-        .mstore_table a {
-            color: #0099ff;
-            text-decoration: none;
-        }
-
-        .mstore_table th, .mstore_table td {
-            text-align: left;
-        }
-
-        .mstore_deactive_button {
-            background: #C84B31 !important;
+        .mstore-file-input-class {
+            @apply block w-full text-sm text-slate-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-violet-50 file:text-violet-700
+      hover:file:bg-violet-100
         }
     </style>
 </head>
 <body>
-<div id="mstore-api-builder-container" hidden="true">
-    <button type="button" class="mstore_button" name='btn_back'>Back</button>
-    <h4>MStore API Builder</h4> <br/>
-    <?= load_template(dirname(__FILE__) . '/admin/mstore-api-admin-builder.php'); ?>
-</div>
-
-<div id="mstore-api-settings-container">
-    <h4>MStore API Settings</h4> <br/>
-    <?= load_template(dirname(__FILE__) . '/admin/mstore-api-admin-dashboard.php'); ?>
+<?php
+	wp_enqueue_script('my_script', plugins_url('assets/js/mstore-inspireui.js', MSTORE_PLUGIN_FILE), array('jquery'), '1.0.0', true);
+            wp_localize_script('my_script', 'MyAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
+	?>
+<div class="container mx-auto p-5 bg-white">
+    <h4 class="text-xl text-semibold">MStore API Settings</h4> <br/>
+    <?php echo load_template(dirname(__FILE__) . '/admin/mstore-api-admin-dashboard.php'); ?>
 </div>
 
 </body>

@@ -1,6 +1,6 @@
-//     Backbone.js 1.4.0
+//     Backbone.js 1.5.0
 
-//     (c) 2010-2019 Jeremy Ashkenas and DocumentCloud
+//     (c) 2010-2022 Jeremy Ashkenas and DocumentCloud
 //     Backbone may be freely distributed under the MIT license.
 //     For all details and documentation:
 //     http://backbonejs.org
@@ -44,7 +44,7 @@
   var slice = Array.prototype.slice;
 
   // Current version of the library. Keep in sync with `package.json`.
-  Backbone.VERSION = '1.4.0';
+  Backbone.VERSION = '1.5.0';
 
   // For Backbone's purposes, jQuery, Zepto, Ender, or My Library (kidding) owns
   // the `$` variable.
@@ -404,7 +404,11 @@
     if (options.collection) this.collection = options.collection;
     if (options.parse) attrs = this.parse(attrs, options) || {};
     var defaults = _.result(this, 'defaults');
+
+    // Just _.defaults would work fine, but the additional _.extends
+    // is in there for historical reasons. See #3843.
     attrs = _.defaults(_.extend({}, defaults, attrs), defaults);
+
     this.set(attrs, options);
     this.changed = {};
     this.initialize.apply(this, arguments);
@@ -516,7 +520,11 @@
       }
 
       // Update the `id`.
-      if (this.idAttribute in attrs) this.id = this.get(this.idAttribute);
+      if (this.idAttribute in attrs) {
+        var prevId = this.id;
+        this.id = this.get(this.idAttribute);
+        this.trigger('changeId', this, prevId, options);
+      }
 
       // Trigger all relevant attribute changes.
       if (!silent) {
@@ -994,7 +1002,7 @@
     get: function(obj) {
       if (obj == null) return void 0;
       return this._byId[obj] ||
-        this._byId[this.modelId(this._isModel(obj) ? obj.attributes : obj)] ||
+        this._byId[this.modelId(this._isModel(obj) ? obj.attributes : obj, obj.idAttribute)] ||
         obj.cid && this._byId[obj.cid];
     },
 
@@ -1076,9 +1084,23 @@
       var collection = this;
       var success = options.success;
       options.success = function(m, resp, callbackOpts) {
-        if (wait) collection.add(m, callbackOpts);
+        if (wait) {
+          m.off('error', this._forwardPristineError, this);
+          collection.add(m, callbackOpts);
+        }
         if (success) success.call(callbackOpts.context, m, resp, callbackOpts);
       };
+      // In case of wait:true, our collection is not listening to any
+      // of the model's events yet, so it will not forward the error
+      // event. In this special case, we need to listen for it
+      // separately and handle the event just once.
+      // (The reason we don't need to do this for the sync event is
+      // in the success handler above: we add the model first, which
+      // causes the collection to listen, and then invoke the callback
+      // that triggers the event.)
+      if (wait) {
+        model.once('error', this._forwardPristineError, this);
+      }
       model.save(null, options);
       return model;
     },
@@ -1098,8 +1120,8 @@
     },
 
     // Define how to uniquely identify models in the collection.
-    modelId: function(attrs) {
-      return attrs[this.model.prototype.idAttribute || 'id'];
+    modelId: function(attrs, idAttribute) {
+      return attrs[idAttribute || this.model.prototype.idAttribute || 'id'];
     },
 
     // Get an iterator of all models in this collection.
@@ -1134,7 +1156,15 @@
       }
       options = options ? _.clone(options) : {};
       options.collection = this;
-      var model = new this.model(attrs, options);
+
+      var model;
+      if (this.model.prototype) {
+        model = new this.model(attrs, options);
+      } else {
+        // ES class methods didn't have prototype
+        model = this.model(attrs, options);
+      }
+
       if (!model.validationError) return model;
       this.trigger('invalid', this, model.validationError, options);
       return false;
@@ -1154,7 +1184,7 @@
         // Remove references before triggering 'remove' event to prevent an
         // infinite loop. #3693
         delete this._byId[model.cid];
-        var id = this.modelId(model.attributes);
+        var id = this.modelId(model.attributes, model.idAttribute);
         if (id != null) delete this._byId[id];
 
         if (!options.silent) {
@@ -1165,6 +1195,7 @@
         removed.push(model);
         this._removeReference(model, options);
       }
+      if (models.length > 0 && !options.silent) delete options.index;
       return removed;
     },
 
@@ -1177,7 +1208,7 @@
     // Internal method to create a model's ties to a collection.
     _addReference: function(model, options) {
       this._byId[model.cid] = model;
-      var id = this.modelId(model.attributes);
+      var id = this.modelId(model.attributes, model.idAttribute);
       if (id != null) this._byId[id] = model;
       model.on('all', this._onModelEvent, this);
     },
@@ -1185,7 +1216,7 @@
     // Internal method to sever a model's ties to a collection.
     _removeReference: function(model, options) {
       delete this._byId[model.cid];
-      var id = this.modelId(model.attributes);
+      var id = this.modelId(model.attributes, model.idAttribute);
       if (id != null) delete this._byId[id];
       if (this === model.collection) delete model.collection;
       model.off('all', this._onModelEvent, this);
@@ -1199,18 +1230,27 @@
       if (model) {
         if ((event === 'add' || event === 'remove') && collection !== this) return;
         if (event === 'destroy') this.remove(model, options);
-        if (event === 'change') {
-          var prevId = this.modelId(model.previousAttributes());
-          var id = this.modelId(model.attributes);
-          if (prevId !== id) {
-            if (prevId != null) delete this._byId[prevId];
-            if (id != null) this._byId[id] = model;
-          }
+        if (event === 'changeId') {
+          var prevId = this.modelId(model.previousAttributes(), model.idAttribute);
+          var id = this.modelId(model.attributes, model.idAttribute);
+          if (prevId != null) delete this._byId[prevId];
+          if (id != null) this._byId[id] = model;
         }
       }
       this.trigger.apply(this, arguments);
-    }
+    },
 
+    // Internal callback method used in `create`. It serves as a
+    // stand-in for the `_onModelEvent` method, which is not yet bound
+    // during the `wait` period of the `create` call. We still want to
+    // forward any `'error'` event at the end of the `wait` period,
+    // hence a customized callback.
+    _forwardPristineError: function(model, collection, options) {
+      // Prevent double forward if the model was already in the
+      // collection before the call to `create`.
+      if (this.has(model)) return;
+      this._onModelEvent('error', model, collection, options);
+    }
   });
 
   // Defining an @@iterator method implements JavaScript's Iterable protocol.
@@ -1261,7 +1301,7 @@
         if (this._kind === ITERATOR_VALUES) {
           value = model;
         } else {
-          var id = this._collection.modelId(model.attributes);
+          var id = this._collection.modelId(model.attributes, model.idAttribute);
           if (this._kind === ITERATOR_KEYS) {
             value = id;
           } else { // ITERATOR_KEYSVALUES
@@ -1615,11 +1655,11 @@
 
   // Map from CRUD to HTTP for our default `Backbone.sync` implementation.
   var methodMap = {
-    create: 'POST',
-    update: 'PUT',
-    patch: 'PATCH',
-    delete: 'DELETE',
-    read: 'GET'
+    'create': 'POST',
+    'update': 'PUT',
+    'patch': 'PATCH',
+    'delete': 'DELETE',
+    'read': 'GET'
   };
 
   // Set the default implementation of `Backbone.ajax` to proxy through to `$`.
@@ -1712,11 +1752,11 @@
     // against the current location hash.
     _routeToRegExp: function(route) {
       route = route.replace(escapeRegExp, '\\$&')
-        .replace(optionalParam, '(?:$1)?')
-        .replace(namedParam, function(match, optional) {
-          return optional ? match : '([^/?]+)';
-        })
-        .replace(splatParam, '([^?]*?)');
+      .replace(optionalParam, '(?:$1)?')
+      .replace(namedParam, function(match, optional) {
+        return optional ? match : '([^/?]+)';
+      })
+      .replace(splatParam, '([^?]*?)');
       return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
     },
 
@@ -1836,6 +1876,7 @@
       // Is pushState desired ... is it available?
       this.options          = _.extend({root: '/'}, this.options, options);
       this.root             = this.options.root;
+      this._trailingSlash   = this.options.trailingSlash;
       this._wantsHashChange = this.options.hashChange !== false;
       this._hasHashChange   = 'onhashchange' in window && (document.documentMode === void 0 || document.documentMode > 7);
       this._useHashChange   = this._wantsHashChange && this._hasHashChange;
@@ -1978,9 +2019,9 @@
       // Normalize the fragment.
       fragment = this.getFragment(fragment || '');
 
-      // Don't include a trailing slash on the root.
+      // Strip trailing slash on the root unless _trailingSlash is true
       var rootPath = this.root;
-      if (fragment === '' || fragment.charAt(0) === '?') {
+      if (!this._trailingSlash && (fragment === '' || fragment.charAt(0) === '?')) {
         rootPath = rootPath.slice(0, -1) || '/';
       }
       var url = rootPath + fragment;

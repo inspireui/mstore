@@ -1,11 +1,14 @@
 {
     "wod": {
+        "enable-logging": false,
         "enable-redirection-to-converter": true,
         "enable-redirection-to-webp-realizer": true,
         "base-htaccess-on-these-capability-tests": {
             "passThroughHeaderWorking": false,
             "passThroughEnvWorking": true,
-            "modHeaderWorking": true
+            "modHeaderWorking": true,
+            "canRunTestScriptInWOD": true,
+            "canRunTestScriptInWOD2": true
         },
         "destination-extension": "append",
         "destination-folder": "separate",
@@ -13,28 +16,28 @@
         "image-roots": [
             {
                 "id": "uploads",
-                "rel-path": "wp-content/uploads",
-                "url": "http://localhost/wp-content/uploads"
+                "rel-path": "demo/wp-content/uploads",
+                "url": "http://localhost:8888/demo/wp-content/uploads"
             },
             {
                 "id": "themes",
-                "rel-path": "wp-content/themes",
-                "url": "http://localhost/wp-content/themes"
+                "rel-path": "demo/wp-content/themes",
+                "url": "http://localhost:8888/demo/wp-content/themes"
             },
             {
                 "id": "plugins",
-                "rel-path": "wp-content/plugins",
-                "url": "http://localhost/wp-content/plugins"
+                "rel-path": "demo/wp-content/plugins",
+                "url": "http://localhost:8888/demo/wp-content/plugins"
             },
             {
                 "id": "wp-content",
-                "rel-path": "wp-content",
-                "url": "http://localhost/wp-content"
+                "rel-path": "demo/wp-content",
+                "url": "http://localhost:8888/demo/wp-content"
             },
             {
                 "id": "index",
-                "rel-path": ".",
-                "url": "http://localhost"
+                "rel-path": "demo",
+                "url": "http://localhost:8888/demo"
             }
         ],
         "success-response": "converted"
@@ -104,6 +107,13 @@
                     "converter": "gd",
                     "options": {
                         "skip-pngs": false
+                    }
+                },
+                {
+                    "converter": "ffmpeg",
+                    "options": {
+                        "use-nice": true,
+                        "method": 4
                     }
                 }
             ],

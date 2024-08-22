@@ -32,6 +32,24 @@ class Convert
         );
     }
 
+    public static function updateBiggerThanOriginalMark($source, $destination = null, &$config = null)
+    {
+        if (is_null($config)) {
+            $config = Config::loadConfigAndFix();
+        }
+        if (is_null($destination)) {
+            $destination = self::getDestination($config);
+        }
+        BiggerThanSourceDummyFiles::updateStatus(
+            $source,
+            $destination,
+            Paths::getWebPExpressContentDirAbs(),
+            new ImageRoots(Paths::getImageRootsDef()),
+            $config['destination-folder'],
+            $config['destination-extension']
+        );
+    }
+
     public static function convertFile($source, $config = null, $convertOptions = null, $converter = null)
     {
         try {
@@ -84,7 +102,11 @@ class Convert
             // Check log dir
             // -------------------------------
             $checking = 'conversion log dir';
-            $logDir = SanityCheck::absPath(Paths::getWebPExpressContentDirAbs() . '/log');
+            if (isset($config['enable-logging']) && $config['enable-logging']) {
+                $logDir = SanityCheck::absPath(Paths::getWebPExpressContentDirAbs() . '/log');
+            } else {
+                $logDir = null;
+            }
 
 
         } catch (\Exception $e) {
@@ -113,13 +135,16 @@ class Convert
             }
         //}
 
+        self::updateBiggerThanOriginalMark($source, $destination, $config);
 
         if ($result['success'] === true) {
             $result['filesize-original'] = @filesize($source);
             $result['filesize-webp'] = @filesize($destination);
             $result['destination-path'] = $destination;
 
-            $rootOfDestination = Paths::destinationRoot($rootId, $config['destination-folder'], $config['destination-structure']);
+            $destinationOptions = DestinationOptions::createFromConfig($config);
+
+            $rootOfDestination = Paths::destinationRoot($rootId, $destinationOptions);
 
             $relPathFromImageRootToSource = PathHelper::getRelDir(
                 realpath(Paths::getAbsDirById($rootId)),
@@ -264,7 +289,7 @@ class Convert
                 // And we need to merge the general options (such as quality etc) into the option for the specific converter
 
                 $generalWebpConvertOptions = Config::generateWodOptionsFromConfigObj($config)['webp-convert']['convert'];
-                $converterSpecificWebpConvertOptions = $converter['options'];
+                $converterSpecificWebpConvertOptions = isset($converter['options']) ? $converter['options'] : [];
 
                 $webpConvertOptions = array_merge($generalWebpConvertOptions, $converterSpecificWebpConvertOptions);
                 unset($webpConvertOptions['converters']);
@@ -288,8 +313,22 @@ class Convert
 
         $result['nonce-tick'] = $nonceTick;
 
+
+        $result = self::utf8ize($result);
+
         echo json_encode($result, JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT);
+
         wp_die();
     }
 
+    private static function utf8ize($d) {
+        if (is_array($d)) {
+            foreach ($d as $k => $v) {
+                $d[$k] = self::utf8ize($v);
+            }
+        } else if (is_string ($d)) {
+            return utf8_encode($d);
+        }
+        return $d;
+    }
 }

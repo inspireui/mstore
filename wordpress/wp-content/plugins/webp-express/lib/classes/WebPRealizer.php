@@ -239,12 +239,24 @@ class WebPRealizer extends WodConfigLoader
         $serveOptions['fail-when-fail-fails'] = '404';
         $serveOptions['serve-image']['headers']['vary-accept'] = false;
 
+        $loggingEnabled = (isset($wodOptions['enable-logging']) ? $wodOptions['enable-logging'] : true);
+        $logDir = ($loggingEnabled ? self::$webExpressContentDirAbs . '/log' : null);
+
         ConvertHelperIndependent::serveConverted(
             $source,
             $destination,
             $serveOptions,
-            self::$webExpressContentDirAbs . '/log',
+            $logDir,
             'Conversion triggered with the conversion script (wod/webp-realizer.php)'
+        );
+
+        BiggerThanSourceDummyFiles::updateStatus(
+            $source,
+            $destination,
+            self::$webExpressContentDirAbs,
+            self::getImageRootsDef(),
+            $wodOptions['destination-folder'],
+            $wodOptions['destination-extension']
         );
 
         self::fixConfigIfEwwwDiscoveredNonFunctionalApiKeys();

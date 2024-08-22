@@ -65,6 +65,9 @@ class WC_Shipping_Rate {
 	 * @return bool
 	 */
 	public function __isset( $key ) {
+		if ( 'meta_data' === $key ) {
+			wc_doing_it_wrong( __FUNCTION__, __( 'Use `array_key_exists` to check for meta_data on WC_Shipping_Rate to get the correct result.', 'woocommerce' ), '6.0' );
+		}
 		return isset( $this->data[ $key ] );
 	}
 
@@ -223,10 +226,10 @@ class WC_Shipping_Rate {
 	/**
 	 * Get shipping tax.
 	 *
-	 * @return array
+	 * @return float
 	 */
 	public function get_shipping_tax() {
-		return apply_filters( 'woocommerce_get_shipping_tax', count( $this->taxes ) > 0 && ! WC()->customer->get_is_vat_exempt() ? array_sum( $this->taxes ) : 0, $this );
+		return apply_filters( 'woocommerce_get_shipping_tax', count( $this->taxes ) > 0 && ! WC()->customer->get_is_vat_exempt() ? (float) array_sum( $this->taxes ) : 0.0, $this );
 	}
 
 	/**

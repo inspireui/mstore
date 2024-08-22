@@ -4,7 +4,6 @@
  * Class ActionScheduler_Compatibility
  */
 class ActionScheduler_Compatibility {
-
 	/**
 	 * Converts a shorthand byte value to an integer byte value.
 	 *
@@ -83,17 +82,24 @@ class ActionScheduler_Compatibility {
 	 *
 	 * Only allows raising the existing limit and prevents lowering it. Wrapper for wc_set_time_limit(), when available.
 	 *
-	 * @param int The time limit in seconds.
+	 * @param int $limit The time limit in seconds.
 	 */
 	public static function raise_time_limit( $limit = 0 ) {
-		if ( $limit < ini_get( 'max_execution_time' ) ) {
+		$limit = (int) $limit;
+		$max_execution_time = (int) ini_get( 'max_execution_time' );
+
+		// If the max execution time is already set to zero (unlimited), there is no reason to make a further change.
+		if ( 0 === $max_execution_time ) {
 			return;
 		}
 
+		// Whichever of $max_execution_time or $limit is higher is the amount by which we raise the time limit.
+		$raise_by = 0 === $limit || $limit > $max_execution_time ? $limit : $max_execution_time;
+
 		if ( function_exists( 'wc_set_time_limit' ) ) {
-			wc_set_time_limit( $limit );
-		} elseif ( function_exists( 'set_time_limit' ) && false === strpos( ini_get( 'disable_functions' ), 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) {
-			@set_time_limit( $limit );
+			wc_set_time_limit( $raise_by );
+		} elseif ( function_exists( 'set_time_limit' ) && false === strpos( ini_get( 'disable_functions' ), 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) { // phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_modeDeprecatedRemoved
+			@set_time_limit( $raise_by ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 	}
 }

@@ -36,6 +36,8 @@ class Config
             'cache-control-max-age' => 'one-week',
             'cache-control-public' => false,
             'scope' => ['themes', 'uploads'],
+            'enable-logging' => false,
+            'prevent-using-webps-larger-than-original' => true,
 
             // redirection rules
             'enable-redirection-to-converter' => true,
@@ -155,6 +157,12 @@ class Config
         return $config;
     }
 
+    /**
+     *  Fix config.
+     *
+     *  Among other things, the config is merged with default config, to ensure all options are present
+     *
+     */
     public static function fix($config, $checkQualityDetection = true)
     {
         if ($config === false) {
@@ -293,6 +301,7 @@ class Config
             foreach ($config['converters'] as &$converter) {
                 $converterId = $converter['converter'];
                 $hasError = isset($testResult['errors'][$converterId]);
+                $hasWarning = isset($testResult['warnings'][$converterId]);
                 $working = !$hasError;
 
                 /*
@@ -332,6 +341,9 @@ class Config
                     $converter['error'] = $error;
                 } else {
                     unset($converter['error']);
+                }
+                if ($hasWarning) {
+                    $converter['warnings'] = $testResult['warnings'][$converterId];
                 }
             }
         }
@@ -412,6 +424,7 @@ class Config
         $obj['destination-structure'] = $config['destination-structure'];
         $obj['scope'] = $config['scope'];
         $obj['image-types'] = $config['image-types'];   // 0=none,1=jpg, 2=png, 3=both
+        $obj['prevent-using-webps-larger-than-original'] = $config['prevent-using-webps-larger-than-original'];
 
         Option::updateOption(
             'webp-express-alter-html-options',
@@ -420,6 +433,9 @@ class Config
         );
     }
 
+    /**
+     * Save configuration file. Also updates autoloaded options (such as alter html options)
+     */
     public static function saveConfigurationFile($config)
     {
         $config['paths-used-in-htaccess'] = [
@@ -580,6 +596,7 @@ class Config
         // WOD options
         // -------------
         $wod = [
+            'enable-logging' => $config['enable-logging'],
             'enable-redirection-to-converter' => $config['enable-redirection-to-converter'],
             'enable-redirection-to-webp-realizer' => $config['enable-redirection-to-webp-realizer'],
             'base-htaccess-on-these-capability-tests' => $config['base-htaccess-on-these-capability-tests'],
@@ -639,12 +656,45 @@ class Config
     }
 
     /**
+     * Regenerate config and .htaccess files
+     *
+     * It will only happen if configuration file exists. So the method is meant for updating - ie upon migration.
+     * It updates:
+     * - config files (both) - and ensures that capability tests have been run
+     * - autoloaded options (such as alter html options)
+     * - .htaccess files (all)
+     */
+    public static function regenerateConfigAndHtaccessFiles() {
+        self::regenerateConfig(true);
+    }
+
+    /**
+     * Regenerate config and .htaccess files
+     *
+     * It will only happen if configuration file exists. So the method is meant for updating - ie upon migration.
+     * It updates:
+     * - config files (both) - and ensures that capability tests have been run
+     * - autoloaded options (such as alter html options)
+     * - .htaccess files - but only if needed due to configuration changes
+     */
+    public static function regenerateConfig($forceRuleUpdating = false) {
+        if (!self::isConfigFileThere()) {
+            return;
+        }
+        $config = self::loadConfig();
+        $config = self::fix($config, false);    // fix. We do not need examining if quality detection is working
+        if ($config === false) {
+            return;
+        }
+        self::saveConfigurationAndHTAccess($config, $forceRuleUpdating);
+    }
+
+    /**
      *
      *  $rewriteRulesNeedsUpdate:
      */
     public static function saveConfigurationAndHTAccess($config, $forceRuleUpdating = false)
     {
-
         // Important to do this check before saving config, because the method
         // compares against existing config.
 

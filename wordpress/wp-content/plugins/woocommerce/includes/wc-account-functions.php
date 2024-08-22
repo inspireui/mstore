@@ -22,6 +22,11 @@ function wc_lostpassword_url( $default_url = '' ) {
 		return $default_url;
 	}
 
+	// Don't change the admin form.
+	if ( did_action( 'login_form_login' ) ) {
+		return $default_url;
+	}
+
 	// Don't redirect to the woocommerce endpoint on global network admin lost passwords.
 	if ( is_multisite() && isset( $_GET['redirect_to'] ) && false !== strpos( wp_unslash( $_GET['redirect_to'] ), network_admin_url() ) ) { // WPCS: input var ok, sanitization ok, CSRF ok.
 		return $default_url;
@@ -99,10 +104,10 @@ function wc_get_account_menu_items() {
 		'dashboard'       => __( 'Dashboard', 'woocommerce' ),
 		'orders'          => __( 'Orders', 'woocommerce' ),
 		'downloads'       => __( 'Downloads', 'woocommerce' ),
-		'edit-address'    => _n( 'Addresses', 'Address', (int) wc_shipping_enabled(), 'woocommerce' ),
+		'edit-address'    => _n( 'Address', 'Addresses', ( 1 + (int) wc_shipping_enabled() ), 'woocommerce' ),
 		'payment-methods' => __( 'Payment methods', 'woocommerce' ),
 		'edit-account'    => __( 'Account details', 'woocommerce' ),
-		'customer-logout' => __( 'Logout', 'woocommerce' ),
+		'customer-logout' => __( 'Log out', 'woocommerce' ),
 	);
 
 	// Remove missing endpoints.
@@ -190,7 +195,13 @@ function wc_get_account_endpoint_url( $endpoint ) {
  * @return array
  */
 function wc_get_account_orders_columns() {
-	$columns = apply_filters(
+	/**
+	 * Filters the array of My Account > Orders columns.
+	 *
+	 * @since 2.6.0
+	 * @param array $columns Array of column labels keyed by column IDs.
+	 */
+	return apply_filters(
 		'woocommerce_account_orders_columns',
 		array(
 			'order-number'  => __( 'Order', 'woocommerce' ),
@@ -200,9 +211,6 @@ function wc_get_account_orders_columns() {
 			'order-actions' => __( 'Actions', 'woocommerce' ),
 		)
 	);
-
-	// Deprecated filter since 2.6.0.
-	return apply_filters( 'woocommerce_my_account_my_orders_columns', $columns );
 }
 
 /**
@@ -306,11 +314,9 @@ function wc_get_account_orders_actions( $order ) {
  * Get account formatted address.
  *
  * @since  3.2.0
- * @param  string $address_type Address type.
- *                              Accepts: 'billing' or 'shipping'.
- *                              Default to 'billing'.
+ * @param  string $address_type Type of address; 'billing' or 'shipping'.
  * @param  int    $customer_id  Customer ID.
- *                              Default to 0.
+ *                              Defaults to 0.
  * @return string
  */
 function wc_get_account_formatted_address( $address_type = 'billing', $customer_id = 0 ) {
@@ -392,7 +398,7 @@ function wc_get_account_saved_payment_methods_list_item_cc( $item, $payment_toke
 
 	$card_type               = $payment_token->get_card_type();
 	$item['method']['last4'] = $payment_token->get_last4();
-	$item['method']['brand'] = ( ! empty( $card_type ) ? ucfirst( $card_type ) : esc_html__( 'Credit card', 'woocommerce' ) );
+	$item['method']['brand'] = ( ! empty( $card_type ) ? ucwords( str_replace( '_', ' ', $card_type ) ) : esc_html__( 'Credit card', 'woocommerce' ) );
 	$item['expires']         = $payment_token->get_expiry_month() . '/' . substr( $payment_token->get_expiry_year(), -2 );
 
 	return $item;

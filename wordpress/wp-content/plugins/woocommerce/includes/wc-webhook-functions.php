@@ -75,6 +75,11 @@ add_action( 'woocommerce_webhook_process_delivery', 'wc_webhook_process_delivery
  */
 function wc_deliver_webhook_async( $webhook_id, $arg ) {
 	$webhook = new WC_Webhook( $webhook_id );
+
+	if ( 0 === $webhook->get_id() ) {
+		return;
+	}
+
 	$webhook->deliver( $arg );
 }
 add_action( 'woocommerce_deliver_webhook_async', 'wc_deliver_webhook_async', 10, 2 );
@@ -159,18 +164,23 @@ function wc_get_webhook_statuses() {
  * @return bool
  */
 function wc_load_webhooks( $status = '', $limit = null ) {
+	// short-circuit if webhooks should not be loaded at all.
+	if ( ! is_null( $limit ) && $limit <= 0 ) {
+		return false;
+	}
+
 	$data_store = WC_Data_Store::load( 'webhook' );
 	$webhooks   = $data_store->get_webhooks_ids( $status );
 	$loaded     = 0;
 
 	foreach ( $webhooks as $webhook_id ) {
-		$webhook = new WC_Webhook( $webhook_id );
-		$webhook->enqueue();
-		$loaded ++;
-
 		if ( ! is_null( $limit ) && $loaded >= $limit ) {
 			break;
 		}
+
+		$webhook = new WC_Webhook( $webhook_id );
+		$webhook->enqueue();
+		$loaded ++;
 	}
 
 	return 0 < $loaded;

@@ -201,6 +201,8 @@ class WebPOnDemand extends WodConfigLoader
 
         // Done with sanitizing, lets get to work!
         // ---------------------------------------
+        self::$checking = 'done';
+
         if (isset($wodOptions['success-response']) && ($wodOptions['success-response'] == 'original')) {
             $serveOptions['serve-original'] = true;
             $serveOptions['serve-image']['headers']['vary-accept'] = false;
@@ -242,12 +244,24 @@ class WebPOnDemand extends WodConfigLoader
             }
         }
 
+        $loggingEnabled = (isset($wodOptions['enable-logging']) ? $wodOptions['enable-logging'] : true);
+        $logDir = ($loggingEnabled ? self::$webExpressContentDirAbs . '/log' : null);
+
         ConvertHelperIndependent::serveConverted(
             $source,
             $destination,
             $serveOptions,
-            self::$webExpressContentDirAbs . '/log',
+            $logDir,
             'Conversion triggered with the conversion script (wod/webp-on-demand.php)'
+        );
+
+        BiggerThanSourceDummyFiles::updateStatus(
+            $source,
+            $destination,
+            self::$webExpressContentDirAbs,
+            self::getImageRootsDef(),
+            $wodOptions['destination-folder'],
+            $wodOptions['destination-extension']
         );
 
         self::fixConfigIfEwwwDiscoveredNonFunctionalApiKeys();
@@ -261,7 +275,11 @@ class WebPOnDemand extends WodConfigLoader
         } catch (ValidateException $e) {
             self::exitWithError('Validation failed for ' . self::$checking . ': '. $e->getMessage());
         } catch (\Exception $e) {
-            self::exitWithError('Error occured while calculating ' . self::$checking . ': '. $e->getMessage());
+            if (self::$checking == 'done') {
+                self::exitWithError('Error occured during conversion/serving:' . $e->getMessage());
+            } else {
+                self::exitWithError('Error occured while calculating ' . self::$checking . ': '. $e->getMessage());
+            }
         }
     }
 }

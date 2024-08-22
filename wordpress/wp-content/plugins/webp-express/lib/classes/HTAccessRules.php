@@ -75,6 +75,25 @@ class HTAccessRules
     }
 
     /**
+     *
+     *  Note that server variables are only allowed some places in the .htaccess.
+     *  It is for example not allowed in CondPattern so something like this will not work:
+     *  RewriteCond %{REQUEST_FILENAME} (?i)(%{DOCUMENT_ROOT}/wordpress/wp-content/themes/)(.*)(\.jpe?g|\.png)$
+     */
+    private static function replaceDocRootWithApacheTokenIfDocRootAvailable($absPath)
+    {
+        // TODO: I would like to test this thoroughly before using so we do nothing now:
+        return $absPath;
+
+        if (PathHelper::isDocRootAvailable()) {
+            if (strpos($absPath, $_SERVER['DOCUMENT_ROOT']) === 0) {
+                return "%{DOCUMENT_ROOT}" . substr($absPath, strlen($_SERVER['DOCUMENT_ROOT']));
+            }
+        }
+        return $absPath;
+    }
+
+    /**
      * Decides if .htaccess rules needs to be updated.
      *
      * The result is positive under these circumstances:
@@ -122,7 +141,8 @@ class HTAccessRules
             'destination-folder' => 'separate',
             'destination-extension' => 'append',
             'destination-structure' => 'doc-root',
-            'scope' => ['themes', 'uploads']
+            'scope' => ['themes', 'uploads'],
+            'prevent-using-webps-larger-than-original' => true,
         ];
 
         // If one of the props have changed, we need to update.
@@ -277,7 +297,6 @@ class HTAccessRules
     {
         $rules = '';
 
-
         if (self::$mingled) {
             // TODO:
             // Only write mingled rules for "uploads" dir.
@@ -355,7 +374,9 @@ class HTAccessRules
                 $cacheDirRel = Paths::getCacheDirRelToDocRoot() . '/doc-root';
 
                 $rules .= "  RewriteCond %{REQUEST_FILENAME} -f\n";
-                $rules .= "  RewriteCond " . self::$docRootString . "/" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp -f\n";
+                $rules .= "  RewriteCond " .
+                    self::$docRootString .
+                    "/" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot . "/$1.$2.webp -f\n";
                 $rules .= "  RewriteRule ^/?(.+)\.(" . self::$fileExt . ")$ /" . $cacheDirRel . "/" . self::$htaccessDirRelToDocRoot .
                     "/$1.$2.webp [NC,T=image/webp,E=EXISTING:1," . (self::$setAddVaryEnvInRedirect ? 'E=ADDVARY:1,' : '') . "L]\n\n";
 
@@ -373,7 +394,7 @@ class HTAccessRules
                     self::$htaccessDir
                 );
                 $cacheDirForThisRoot = PathHelper::fixAbsPathToUseUnresolvedDocRoot($cacheDirForThisRoot);
-
+                $cacheDirForThisRoot = PathHelper::backslashesToForwardSlashes($cacheDirForThisRoot); #512
                 $rules .= "  RewriteCond " . $cacheDirForThisRoot . "/%2%3.webp -f\n";
                 //RewriteCond /var/www/webp-express-tests/we0/wp-content-moved/webp-express/webp-images/uploads/%2%3.webp -f
 
@@ -440,6 +461,8 @@ class HTAccessRules
                 $params[] = "wp-content=" . Paths::getContentDirRel();
             }
 
+            // When matching from the beginning (^), we need the "/?" in order to make it work on litespeed too.
+            // Here is why: https://openlitespeed.org/kb/apache-rewrite-rules-in-openlitespeed/
             $rewriteRuleStart = '^/?(.+)';
             $rules .= "  RewriteRule " . $rewriteRuleStart . "\.(webp)$ " .
                 "/" . self::getWebPRealizerUrlPath() .
@@ -458,7 +481,8 @@ class HTAccessRules
             $flags = [];
 
             if (!self::$passThroughEnvVarDefinitelyUnavailable) {
-                $flags[] = 'E=WE_WP_CONTENT_REL_TO_PLUGIN_DIR:' . Paths::getContentDirRelToPluginDir();
+                //$flags[] = 'E=WE_WP_CONTENT_REL_TO_PLUGIN_DIR:' . Paths::getContentDirRelToPluginDir();
+                $flags[] = 'E=WE_WP_CONTENT_REL_TO_WE_PLUGIN_DIR:' . Paths::getContentDirRelToWebPExpressPluginDir();
                 $flags[] = 'E=WE_DESTINATION_REL_HTACCESS:$0';
                 $flags[] = 'E=WE_HTACCESS_ID:' . self::$htaccessDir;    // this will btw either be "uploads" or "cache"
             }
@@ -466,7 +490,8 @@ class HTAccessRules
             $flags[] = 'L';
 
             if (!self::$passThroughEnvVarDefinitelyAvailable) {
-                $params[] = 'xwp-content-rel-to-plugin-dir=x' . Paths::getContentDirRelToPluginDir();
+                //$params[] = 'xwp-content-rel-to-plugin-dir=x' . Paths::getContentDirRelToPluginDir();
+                $params[] = 'xwp-content-rel-to-we-plugin-dir=x' . Paths::getContentDirRelToWebPExpressPluginDir();
                 $params[] = 'xdestination-rel-htaccess=x$0';
                 $params[] = 'htaccess-id=' . self::$htaccessDir;
             }
@@ -643,9 +668,9 @@ class HTAccessRules
 
             /*
             Create something like this:
-
             RewriteCond %{REQUEST_FILENAME} -f
-            RewriteRule (?i).*(\.jpe?g|\.png)$ /plugins-moved/webp-express/wod/webp-on-demand.php [E=WE_WP_CONTENT_REL_TO_PLUGIN_DIR:../../we0-content,E=WE_SOURCE_REL_HTACCESS:$0,E=WE_HTACCESS_ID:themes,NC,L]
+            RewriteCond %{REQUEST_FILENAME} (?i)(.*)(\.jpe?g|\.png)$
+            RewriteRule (?i).*$ /wordpress/wp-content/plugins/webp-express/wod/webp-on-demand.php [E=WE_WP_CONTENT_REL_TO_WE_PLUGIN_DIR:../..,E=WE_SOURCE_REL_HTACCESS:$0,E=WE_HTACCESS_ID:uploads,NC,L]
             */
 
             // Making sure the source exists
@@ -655,7 +680,8 @@ class HTAccessRules
             $flags = [];
 
             if (!self::$passThroughEnvVarDefinitelyUnavailable) {
-                $flags[] = 'E=WE_WP_CONTENT_REL_TO_PLUGIN_DIR:' . Paths::getContentDirRelToPluginDir();
+                //$flags[] = 'E=WE_WP_CONTENT_REL_TO_PLUGIN_DIR:' . Paths::getContentDirRelToPluginDir();
+                $flags[] = 'E=WE_WP_CONTENT_REL_TO_WE_PLUGIN_DIR:' . Paths::getContentDirRelToWebPExpressPluginDir();
                 $flags[] = 'E=WE_SOURCE_REL_HTACCESS:$0';
                 $flags[] = 'E=WE_HTACCESS_ID:' . self::$htaccessDir;    // this will btw be one of the image roots. It will not be "cache"
             }
@@ -663,16 +689,25 @@ class HTAccessRules
             $flags[] = 'L';
 
             if (!self::$passThroughEnvVarDefinitelyAvailable) {
-                $params[] = 'xwp-content-rel-to-plugin-dir=x' . Paths::getContentDirRelToPluginDir();
+                //$params[] = 'xwp-content-rel-to-plugin-dir=x' . Paths::getContentDirRelToPluginDir();
+                $params[] = 'xwp-content-rel-to-we-plugin-dir=x' . Paths::getContentDirRelToWebPExpressPluginDir();
                 $params[] = 'xsource-rel-htaccess=x$0';
                 $params[] = 'htaccess-id=' . self::$htaccessDir;
             }
+
+            $rules .= "  RewriteCond %{REQUEST_FILENAME} (?i)(.*)(" . self::$fileExtIncludingDot . ")$\n";
+
+            $rules .= "  RewriteRule (?i).*$ " .
+                "/" . self::getWodUrlPath() .
+                (count($params) > 0 ? "?" . implode('&', $params) : "") .
+                " [" . implode(',', $flags) . "]\n";
 
             // self::$appendWebP cannot be used, we need the following in order for
             // it to work for uploads in: Mingled, "Set to WebP", "Image roots".
             // TODO! Will it work for ie theme images?
             // - well, it should, because the script is passed $0. Not matching the ".png" part of the filename
             // only means it is a bit more greedy than it has to
+            /*
             $appendWebP = !(self::$config['destination-extension'] == 'set');
 
             $rules .= "  RewriteRule (?i).*" . ($appendWebP ? "(" . self::$fileExtIncludingDot . ")" : "") . "$ " .
@@ -680,7 +715,7 @@ class HTAccessRules
                 (count($params) > 0 ? "?" . implode('&', $params) : "") .
                 " [" . implode(',', $flags) . "]\n";
 
-
+*/
             /*
 */
 
@@ -849,6 +884,10 @@ class HTAccessRules
         self::$modHeaderDefinitelyUnavailable = ($capTests['modHeaderWorking'] === false);
         self::$passThroughHeaderDefinitelyUnavailable = ($capTests['passThroughHeaderWorking'] === false);
         self::$passThroughHeaderDefinitelyAvailable = ($capTests['passThroughHeaderWorking'] === true);
+
+        self::$passThroughEnvVarDefinitelyUnavailable = ($capTests['passThroughEnvWorking'] === false);
+        self::$passThroughEnvVarDefinitelyAvailable = ($capTests['passThroughEnvWorking'] === true);
+
         self::$canDefinitelyRunTestScriptInWOD = ($capTests['canRunTestScriptInWOD'] === true);
         self::$canDefinitelyRunTestScriptInWOD2 = ($capTests['canRunTestScriptInWOD2'] === true);
 
@@ -1015,6 +1054,52 @@ class HTAccessRules
             $rules .= "# ---------------------------------------------\n\n";
             $rules .= "<IfModule mod_rewrite.c>\n" .
                 "  RewriteEngine On\n\n";
+
+            $rules .= "  # Escape hatch #1: Adding ?dontreplace to an url can be used to bypass redirection\n";
+            $rules .= "  RewriteCond %{QUERY_STRING} dontreplace$\n";
+            $rules .= "  RewriteCond %{REQUEST_FILENAME} -f\n";
+            $rules .= "  RewriteRule . - [L]\n\n";
+
+            $rules .= "  # Escape hatch #2: Placing an empty file in the same folder as the jpeg/png which has same file name, but \".dontreplace\" appended will bypass redirection\n";
+            $rules .= "  RewriteCond %{REQUEST_FILENAME} (?i)(.*)(\.jpe?g|\.png)$\n";
+            $rules .= "  RewriteCond %1%2\.dontreplace -f\n";
+            $rules .= "  RewriteRule . - [L]\n\n";
+
+            $rules .= "  # Deprecated escape hatch: Adding ?original to an url can be used to bypass redirection\n";
+            $rules .= "  RewriteCond %{QUERY_STRING} original$\n";
+            $rules .= "  RewriteCond %{REQUEST_FILENAME} -f\n";
+            $rules .= "  RewriteRule . - [L]\n\n";
+
+            $rules .= "  # Deprecated escape hatch: Placing an empty file in the same folder as the jpeg/png which has same file name, but \".do-not-convert\" appended will bypass redirection\n";
+            $rules .= "  RewriteCond %{REQUEST_FILENAME} (?i)(.*)(\.jpe?g|\.png)$\n";
+            $rules .= "  RewriteCond %1%2\.do-not-convert -f\n";
+            $rules .= "  RewriteRule . - [L]\n\n";
+
+            if ($config['prevent-using-webps-larger-than-original']) {
+                $rules .= "  # Avoid redirecting to webp files that are bigger than the original\n";
+                $rules .= "  RewriteCond %{REQUEST_FILENAME} -f\n";
+
+                // Find relative path of source (accessible as %2%3)
+                $rules .= "  RewriteCond %{REQUEST_FILENAME} (?i)(" . self::$htaccessDirAbs . "/)(.*)(" .self::$fileExtIncludingDot . ")$\n";
+
+                // Check if dummy file exists
+                $cacheDirForThisRoot = PathHelper::fixAbsPathToUseUnresolvedDocRoot(
+                    Paths::getBiggerThanSourceDirAbs() . '/' . self::$htaccessDir
+                );
+                $rules .= "  RewriteCond " .
+                    PathHelper::backslashesToForwardSlashes(
+                        self::replaceDocRootWithApacheTokenIfDocRootAvailable($cacheDirForThisRoot)
+                    ) .
+                    "/%2%3.webp -f\n";
+
+                $rules .= "  RewriteRule . - [L]\n\n";
+
+            }
+
+            // In the future, we could let user add exeptions in UI. Also for folders
+            // in order to make this work for folders, we will need to update the .htaccess
+            // and list the exceptions here with rules like this:
+            // RewriteRule ^uploads/2021/06/ - [L]
 
             if (self::$config['redirect-to-existing-in-htaccess']) {
                 $rules .= self::redirectToExistingRules();

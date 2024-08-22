@@ -72,7 +72,7 @@ function wc_get_attribute_taxonomies() {
 	 */
 	$raw_attribute_taxonomies = (array) array_filter( apply_filters( 'woocommerce_attribute_taxonomies', $raw_attribute_taxonomies ) );
 
-	// Index by ID for easer lookups.
+	// Index by ID for easier lookups.
 	$attribute_taxonomies = array();
 
 	foreach ( $raw_attribute_taxonomies as $result ) {
@@ -95,7 +95,7 @@ function wc_get_attribute_taxonomy_ids() {
 	$cache_key   = $prefix . 'ids';
 	$cache_value = wp_cache_get( $cache_key, 'woocommerce-attributes' );
 
-	if ( $cache_value ) {
+	if ( false !== $cache_value ) {
 		return $cache_value;
 	}
 
@@ -117,7 +117,7 @@ function wc_get_attribute_taxonomy_labels() {
 	$cache_key   = $prefix . 'labels';
 	$cache_value = wp_cache_get( $cache_key, 'woocommerce-attributes' );
 
-	if ( $cache_value ) {
+	if ( false !== $cache_value ) {
 		return $cache_value;
 	}
 
@@ -483,7 +483,7 @@ function wc_create_attribute( $args ) {
 	}
 
 	// Validate slug.
-	if ( strlen( $slug ) >= 28 ) {
+	if ( strlen( $slug ) > 28 ) {
 		/* translators: %s: attribute slug */
 		return new WP_Error( 'invalid_product_attribute_slug_too_long', sprintf( __( 'Slug "%s" is too long (28 characters max). Shorten it, please.', 'woocommerce' ), $slug ), array( 'status' => 400 ) );
 	} elseif ( wc_check_if_attribute_name_is_reserved( $slug ) ) {
@@ -569,7 +569,7 @@ function wc_create_attribute( $args ) {
 			// Update taxonomy ordering term meta.
 			$wpdb->update(
 				$wpdb->termmeta,
-				array( 'meta_key' => 'order_pa_' . sanitize_title( $data['attribute_name'] ) ), // WPCS: slow query ok.
+				array( 'meta_key' => 'order' ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				array( 'meta_key' => 'order_pa_' . sanitize_title( $old_slug ) ) // WPCS: slow query ok.
 			);
 
@@ -632,6 +632,16 @@ function wc_update_attribute( $id, $args ) {
 	$attribute = wc_get_attribute( $id );
 
 	$args['id'] = $attribute ? $attribute->id : 0;
+
+	// When updating an existing attribute, populate any undefined args with the existing value.
+	// This prevents those values from being reset to their respective defaults.
+	if ( $args['id'] ) {
+		$args['has_archives'] = $args['has_archives'] ?? $attribute->has_archives;
+		$args['name']         = $args['name'] ?? $attribute->name;
+		$args['order_by']     = $args['order_by'] ?? $attribute->order_by;
+		$args['slug']         = $args['slug'] ?? $attribute->slug;
+		$args['type']         = $args['type'] ?? $attribute->type;
+	}
 
 	if ( $args['id'] && empty( $args['name'] ) ) {
 		$args['name'] = $attribute->name;
@@ -722,7 +732,7 @@ function wc_attribute_taxonomy_slug( $attribute_name ) {
 	$cache_key   = $prefix . 'slug-' . $attribute_name;
 	$cache_value = wp_cache_get( $cache_key, 'woocommerce-attributes' );
 
-	if ( $cache_value ) {
+	if ( false !== $cache_value ) {
 		return $cache_value;
 	}
 

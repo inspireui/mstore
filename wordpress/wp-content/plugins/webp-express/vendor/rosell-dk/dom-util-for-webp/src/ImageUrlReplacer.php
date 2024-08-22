@@ -3,15 +3,16 @@
 namespace DOMUtilForWebP;
 
 //use Sunra\PhpSimple\HtmlDomParser;
+use KubAT\PhpSimple\HtmlDomParser;
 
 /**
  *  Highly configurable class for replacing image URLs in HTML (both src and srcset syntax)
  *
- *  Based on http://simplehtmldom.sourceforge.net/ - a library for easily manipulating HTML by means of a DOM.
+ *  Uses http://simplehtmldom.sourceforge.net/ - a library for easily manipulating HTML by means of a DOM.
  *  The great thing about this library is that it supports working on invalid HTML and it only applies the changes you
- *  make - very gently.
- *
- * TODO: Check out how ewww does it
+ *  make - very gently (however, not as gently as we do in PictureTags).
+ *  PS: The library is a bit old, so perhaps we should look for another.
+ *  ie https://packagist.org/packages/masterminds/html5 ??
  *
  *  Behaviour can be customized by overriding the public methods (replaceUrl, $searchInTags, etc)
  *
@@ -49,7 +50,7 @@ class ImageUrlReplacer
      * would be unsafe. See #21
      * @return  void
      */
-    public final function __construct()
+    final public function __construct()
     {
     }
 
@@ -159,7 +160,11 @@ class ImageUrlReplacer
                 foreach ($parts as &$part) {
                     //echo 'part:' . $part . "\n";
                     $regex = '#(url\\s*\\(([\\"\\\']?))([^\\\'\\";\\)]*)(\\2\\s*\\))#';
-                    $part = preg_replace_callback($regex, 'self::processCSSRegExCallback', $part);
+                    $part = preg_replace_callback(
+                        $regex,
+                        '\DOMUtilForWebP\ImageUrlReplacer::processCSSRegExCallback',
+                        $part
+                    );
                     //echo 'result:' . $part . "\n";
                 }
                 $declarations[$i] = implode(',', $parts);
@@ -179,8 +184,9 @@ class ImageUrlReplacer
         // function str_get_html($str, $lowercase=true, $forceTagsClosed=true, $target_charset = DEFAULT_TARGET_CHARSET,
         //    $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT, $defaultSpanText=DEFAULT_SPAN_TEXT)
 
-        //$dom = HtmlDomParser::str_get_html($html, false, false, 'UTF-8', false);
-        $dom = str_get_html($html, false, false, 'UTF-8', false);
+        $dom = HtmlDomParser::str_get_html($html, false, true, 'UTF-8', false);
+        //$dom = str_get_html($html, false, false, 'UTF-8', false);
+
 
         // MAX_FILE_SIZE is defined in simple_html_dom.
         // For safety sake, we make sure it is defined before using
@@ -232,9 +238,9 @@ class ImageUrlReplacer
     /* Main replacer function */
     public static function replace($html)
     {
-        if (!function_exists('str_get_html')) {
+        /*if (!function_exists('str_get_html')) {
             require_once __DIR__ . '/../src-vendor/simple_html_dom/simple_html_dom.inc';
-        }
+        }*/
         $iur = new static();
         return $iur->replaceHtml($html);
     }

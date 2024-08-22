@@ -1,0 +1,7 @@
+{
+    "name": "automattic/woocommerce-legacy-rest-api",
+    "description": "The legacy WooCommerce REST API, which used to be part of WooCommerce itself but is removed as of WooCommerce 9.0.",
+    "require": {
+		"php": ">=7.4"
+    }
+}

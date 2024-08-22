@@ -5,8 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use \WebPExpress\Paths;
 use \WebPExpress\Config;
 
-$ver = '7';             // note: Minimum 1
-$jsDir = 'js/0.19.0';   // We change dir when it is critical that no-one gets the cached version (there is a plugin that strips version strings out there...)
+// Note: $ver is added to querystring. However, when it is is critical that no-one gets the cached version,
+// a change of filename is neccessary, as there is a plugin that strips version strings out there...!
+// If only one file update is critical: change the name of the file
+// If several files are critical: rename the folder (ie "js2")
+$ver = '3';  // note: Minimum 1.
+$jsDir = 'js';
 
 if (!function_exists('webp_express_add_inline_script')) {
     function webp_express_add_inline_script($id, $script, $position) {
@@ -102,6 +106,10 @@ if (!(isset($config['operation-mode']) && ($config['operation-mode'] == 'no-conv
     wp_register_script('purgecache', plugins_url($jsDir . '/purge-cache.js', __FILE__), [], $ver);
     wp_enqueue_script('purgecache');
 
+    // purge log
+    wp_register_script('purgelog', plugins_url($jsDir . '/purge-log.js', __FILE__), [], $ver);
+    wp_enqueue_script('purgelog');
+
 }
 
 //wp_register_script('api_keys', plugins_url($jsDir . 'api-keys.js', __FILE__), ['daspopup'], '0.7.0-dev8');
@@ -115,6 +123,7 @@ $javascriptVars = [
         'convert' => wp_create_nonce('webpexpress-ajax-convert-nonce'),
         'list-unconverted-files' => wp_create_nonce('webpexpress-ajax-list-unconverted-files-nonce'),
         'purge-cache' => wp_create_nonce('webpexpress-ajax-purge-cache-nonce'),
+        'purge-log' => wp_create_nonce('webpexpress-ajax-purge-log-nonce'),
         'view-log' => wp_create_nonce('webpexpress-ajax-view-log-nonce'),
         'self-test' => wp_create_nonce('webpexpress-ajax-self-test-nonce'),
     ],

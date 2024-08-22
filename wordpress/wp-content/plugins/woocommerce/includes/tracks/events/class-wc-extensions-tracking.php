@@ -22,6 +22,7 @@ class WC_Extensions_Tracking {
 		add_action( 'woocommerce_helper_disconnected', array( $this, 'track_helper_disconnected' ) );
 		add_action( 'woocommerce_helper_subscriptions_refresh', array( $this, 'track_helper_subscriptions_refresh' ) );
 		add_action( 'woocommerce_addon_installed', array( $this, 'track_addon_install' ), 10, 2 );
+		add_action( 'woocommerce_page_wc-addons_connection_error', array( $this, 'track_extensions_page_connection_error' ), 10, 1 );
 	}
 
 	/**
@@ -33,7 +34,7 @@ class WC_Extensions_Tracking {
 			'section' => empty( $_REQUEST['section'] ) ? '_featured' : wc_clean( wp_unslash( $_REQUEST['section'] ) ),
 		);
 
-		$event      = 'extensions_view';
+		$event = 'extensions_view';
 		if ( 'helper' === $properties['section'] ) {
 			$event = 'subscriptions_view';
 		}
@@ -45,6 +46,29 @@ class WC_Extensions_Tracking {
 		// phpcs:enable
 
 		WC_Tracks::record_event( $event, $properties );
+	}
+
+	/**
+	 * Send a Tracks event when the Extensions page gets a bad response or no response
+	 * from the WCCOM extensions API.
+	 *
+	 * @param string $error Error message.
+	 */
+	public function track_extensions_page_connection_error( string $error = '' ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$properties = array(
+			'section' => empty( $_REQUEST['section'] ) ? '_featured' : wc_clean( wp_unslash( $_REQUEST['section'] ) ),
+		);
+
+		if ( ! empty( $_REQUEST['search'] ) ) {
+			$properties['search_term'] = wc_clean( wp_unslash( $_REQUEST['search'] ) );
+		}
+		// phpcs:enable
+
+		if ( ! empty( $error ) ) {
+			$properties['error_data'] = $error;
+		}
+		WC_Tracks::record_event( 'extensions_view_connection_error', $properties );
 	}
 
 	/**
@@ -65,7 +89,17 @@ class WC_Extensions_Tracking {
 	 * Send a Tracks even when a Helper connection process completed successfully.
 	 */
 	public function track_helper_connection_complete() {
-		WC_Tracks::record_event( 'extensions_subscriptions_connected' );
+		$properties = array();
+
+		if ( ! empty( $_GET['utm_source'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$properties['utm_source'] = wc_clean( wp_unslash( $_GET['utm_source'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		if ( ! empty( $_GET['utm_campaign'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$properties['utm_campaign'] = wc_clean( wp_unslash( $_GET['utm_campaign'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		WC_Tracks::record_event( 'extensions_subscriptions_connected', $properties );
 	}
 
 	/**

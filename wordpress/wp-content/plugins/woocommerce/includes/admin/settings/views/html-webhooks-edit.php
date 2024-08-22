@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php esc_html_e( 'Name', 'woocommerce' ); ?>
 						<?php
 						/* translators: %s: date */
-						echo wc_help_tip( sprintf( __( 'Friendly name for identifying this webhook, defaults to Webhook created on %s.', 'woocommerce' ), strftime( _x( '%b %d, %Y @ %I:%M %p', 'Webhook created on date parsed by strftime', 'woocommerce' ) ) ) ); // @codingStandardsIgnoreLine
+						echo wc_help_tip( sprintf( __( 'Friendly name for identifying this webhook, defaults to Webhook created on %s.', 'woocommerce' ), (new DateTime('now'))->format( _x( 'M d, Y @ h:i A', 'Webhook created on date parsed by DateTime::format', 'woocommerce' ) ) ) ); // @codingStandardsIgnoreLine
 						?>
 					</label>
 				</th>
@@ -145,14 +145,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 								?>
 							</option>
 						<?php endforeach; ?>
-						<option value="legacy_v3" <?php selected( 'legacy_v3', $webhook->get_api_version(), true ); ?>><?php esc_html_e( 'Legacy API v3 (deprecated)', 'woocommerce' ); ?></option>
+						<?php
+						$legacy_api_option_name =
+							WC()->legacy_rest_api_is_available() ?
+							__( 'Legacy API v3 (deprecated)', 'woocommerce' ) :
+							__( 'Legacy API v3 (⚠️ NOT AVAILABLE)', 'woocommerce' );
+						?>
+						<option value="legacy_v3" <?php selected( 'legacy_v3', $webhook->get_api_version(), true ); ?>><?php echo esc_html( $legacy_api_option_name ); ?></option>
 					</select>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 
-	<?php do_action( 'woocommerce_webhook_options' ); ?>
+	<?php
+	/**
+	 * Fires within the webhook editor, after the Webhook Data fields have rendered.
+	 *
+	 * @param WC_Webhook $webhook
+	 */
+	do_action( 'woocommerce_webhook_options', $webhook );
+	?>
 </div>
 
 <div id="webhook-actions" class="settings-panel">

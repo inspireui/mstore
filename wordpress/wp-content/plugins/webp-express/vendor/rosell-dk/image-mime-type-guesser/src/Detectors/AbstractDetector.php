@@ -2,8 +2,6 @@
 
 namespace ImageMimeTypeGuesser\Detectors;
 
-use ImageMimeTypeGuesser\Detectors\AbstractDetector;
-
 abstract class AbstractDetector
 {
     /**
@@ -24,7 +22,6 @@ abstract class AbstractDetector
     /**
      * Create an instance of this class
      *
-     * @param  string  $filePath  The path to the file
      * @return static
      */
     public static function createInstance()

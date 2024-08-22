@@ -72,8 +72,8 @@ if ( ! class_exists( 'Storefront_Admin' ) ) :
 					<span class="storefront-welcome-nav__version">Storefront <?php echo esc_attr( $storefront_version ); ?></span>
 					<ul>
 						<li><a href="https://wordpress.org/support/theme/storefront" target="_blank"><?php esc_html_e( 'Support', 'storefront' ); ?></a></li>
-						<li><a href="https://docs.woocommerce.com/documentation/themes/storefront/" target="_blank"><?php esc_html_e( 'Documentation', 'storefront' ); ?></a></li>
-						<li><a href="https://woocommerce.wordpress.com/category/storefront/" target="_blank"><?php esc_html_e( 'Development blog', 'storefront' ); ?></a></li>
+						<li><a href="https://woocommerce.com/documentation/themes/storefront/" target="_blank"><?php esc_html_e( 'Documentation', 'storefront' ); ?></a></li>
+						<li><a href="https://developer.woo.com/category/release-post/storefront-theme-release-notes/" target="_blank"><?php esc_html_e( 'Development blog', 'storefront' ); ?></a></li>
 					</ul>
 				</section>
 
@@ -150,7 +150,7 @@ if ( ! class_exists( 'Storefront_Admin' ) ) :
 						</p>
 
 						<p>
-							<a href="https://woocommerce.com/product-category/themes/storefront-child-theme-themes/?utm_source=storefront&utm_medium=product&utm_campaign=storefrontaddons" class="storefront-button" target="_blank"><?php esc_html_e( 'Check \'em out', 'storefront' ); ?></a>
+							<a href="https://woocommerce.com/documentation/products/themes/storefront/child-themes/?utm_source=storefront&utm_medium=product&utm_campaign=storefrontaddons" class="storefront-button" target="_blank"><?php esc_html_e( 'Check \'em out', 'storefront' ); ?></a>
 						</p>
 					</div>
 				</div>

@@ -64,9 +64,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="view">
 			<?php
 			echo wp_kses_post( wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ) );
-			$refunded = $order->get_total_refunded_for_item( $item_id, 'shipping' );
+			$refunded = -1 * $order->get_total_refunded_for_item( $item_id, 'shipping' );
 			if ( $refunded ) {
-				echo wp_kses_post( '<small class="refunded">-' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>' );
+				echo wp_kses_post( '<small class="refunded">' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>' );
 			}
 			?>
 		</div>
@@ -89,9 +89,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="view">
 					<?php
 					echo wp_kses_post( ( '' !== $tax_item_total ) ? wc_price( $tax_item_total, array( 'currency' => $order->get_currency() ) ) : '&ndash;' );
-					$refunded = $order->get_tax_refunded_for_item( $item_id, $tax_item_id, 'shipping' );
+					$refunded = -1 * $order->get_tax_refunded_for_item( $item_id, $tax_item_id, 'shipping' );
 					if ( $refunded ) {
-						echo wp_kses_post( '<small class="refunded">-' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>' );
+						echo wp_kses_post( '<small class="refunded">' . wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) . '</small>' );
 					}
 					?>
 				</div>
@@ -109,7 +109,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<td class="wc-order-edit-line-item">
 		<?php if ( $order->is_editable() ) : ?>
 			<div class="wc-order-edit-line-item-actions">
-				<a class="edit-order-item" href="#"></a><a class="delete-order-item" href="#"></a>
+				<a class="edit-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Edit shipping', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Edit shipping', 'woocommerce' ); ?>"></a><a class="delete-order-item tips" href="#" data-tip="<?php esc_attr_e( 'Delete shipping', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Delete shipping', 'woocommerce' ); ?>"></a>
 			</div>
 		<?php endif; ?>
 	</td>

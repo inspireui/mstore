@@ -1,11 +1,11 @@
 
 # BEGIN WebP Express
-# The directives (lines) between "BEGIN WebP Express" and "END WebP Express" are
-# dynamically generated, and should only be modified via WordPress filters.
-# Any changes to the directives between these markers will be overwritten.
-# The rules below is a result of many parameters, including the following:
+# The rules below have been dynamically created by WebP Express in accordance with the plugin settings
+# DO NOT EDIT MANUALLY (unless you are prepared that your changes might be overridden by WebP Express)
+# The following parameters have been in play to produce the rules:
 #
 # WebP Express options:
+# - Operation mode: varied-image-responses
 # - Redirection to existing webp: enabled
 # - Redirection to converter: enabled
 # - Redirection to converter to create missing webp files upon request for the webp: enabled
@@ -13,6 +13,7 @@
 # - Destination extension: append
 # - Destination structure: doc-root
 # - Image types: jpeg, png
+# - Alter HTML enabled?: yes
 #
 # Wordpress/Server configuration:
 # - Document root availablity: Available and its "realpath" is available too. Can be used for structuring cache dir.
@@ -35,7 +36,7 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^/?(.+)\.(webp)$ /wp-content/plugins/webp-express/wod/webp-realizer.php [E=DESTINATIONREL:wp-content/webp-express/webp-images/$0,E=WPCONTENT:wp-content,NC,L]
+  RewriteRule ^/?(.+)\.(webp)$ /demo/wp-content/plugins/webp-express/wod/webp-realizer.php [E=DESTINATIONREL:demo/wp-content/webp-express/webp-images/$0,E=WPCONTENT:demo/wp-content,NC,L]
 
 </IfModule>
 

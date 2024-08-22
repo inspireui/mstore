@@ -35,7 +35,7 @@ jQuery( function( $ ) {
 			$tabs_wrapper.find( '.wc-tab, .panel:not(.panel .panel)' ).hide();
 
 			$tab.closest( 'li' ).addClass( 'active' );
-			$tabs_wrapper.find( $tab.attr( 'href' ) ).show();
+			$tabs_wrapper.find( '#' + $tab.attr( 'href' ).split( '#' )[1] ).show();
 		} )
 		// Review link
 		.on( 'click', 'a.woocommerce-review-link', function() {
@@ -300,7 +300,7 @@ jQuery( function( $ ) {
 			eventTarget = $( e.target ),
 			clicked;
 
-		if ( eventTarget.is( '.woocommerce-product-gallery__trigger' ) || eventTarget.is( '.woocommerce-product-gallery__trigger img' ) ) {
+		if ( 0 < eventTarget.closest( '.woocommerce-product-gallery__trigger' ).length ) {
 			clicked = this.$target.find( '.flex-active-slide' );
 		} else {
 			clicked = eventTarget.closest( '.woocommerce-product-gallery__image' );

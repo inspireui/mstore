@@ -17,7 +17,7 @@ class ActionScheduler_wpPostStore_PostTypeRegistrar {
 	protected function post_type_args() {
 		$args = array(
 			'label' => __( 'Scheduled Actions', 'woocommerce' ),
-			'description' => __( 'Scheduled actions are hooks triggered on a cetain date and time.', 'woocommerce' ),
+			'description' => __( 'Scheduled actions are hooks triggered on a certain date and time.', 'woocommerce' ),
 			'public' => false,
 			'map_meta_cap' => true,
 			'hierarchical' => false,

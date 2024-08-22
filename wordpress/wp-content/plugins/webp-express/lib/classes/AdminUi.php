@@ -11,15 +11,6 @@ use \WebPExpress\Multisite;
 class AdminUi
 {
 
-    public static function getSettingsUrl()
-    {
-        if (Multisite::isNetworkActivated()) {
-            return network_admin_url('settings.php?page=webp_express_settings_page');
-        } else {
-            return admin_url('options-general.php?page=webp_express_settings_page');
-        }
-    }
-
     // Add settings link on the plugins page
     // The hook was registred in AdminInit
     public static function pluginActionLinksFilter($links)
@@ -49,6 +40,7 @@ class AdminUi
         return array_merge($links, $mylinks);
     }
 
+
     // callback for 'network_admin_menu' (registred in AdminInit)
     public static function networAdminMenuHook()
     {
@@ -60,6 +52,34 @@ class AdminUi
             'webp_express_settings_page', // slug
             array('\WebPExpress\OptionsPage', 'display') // Callback function which displays the page
         );
+
+        add_submenu_page(
+            'settings.php', // Parent element
+            'WebP Express File Manager', //Page Title
+            'WebP Express File Manager', //Menu Title
+            'manage_network_options', //capability
+            'webp_express_conversion_page', // slug
+            array('\WebPExpress\WCFMPage', 'display') //The function to be called to output the content for this page.
+        );
+
+    }
+
+    public static function adminMenuHookMultisite()
+    {
+        // Add Media page
+        /*
+        not ready - it should not display images for the other blogs!
+
+        add_submenu_page(
+          'upload.php', // Parent element
+          'WebP Express', //Page Title
+          'WebP Express', //Menu Title
+          'manage_network_options', //capability
+          'webp_express_conversion_page', // slug
+          array('\WebPExpress\WCFMPage', 'display') //The function to be called to output the content for this page.
+        );
+        */
+
     }
 
     public static function adminMenuHook()
@@ -74,7 +94,6 @@ class AdminUi
         );
 
         // Add Media page
-        /* Uncommented until ready!
         add_media_page(
           'WebP Express', //Page Title
           'WebP Express', //Menu Title
@@ -82,6 +101,6 @@ class AdminUi
           'webp_express_conversion_page', // slug
           array('\WebPExpress\WCFMPage', 'display') //The function to be called to output the content for this page.
         );
-        */
+
     }
 }

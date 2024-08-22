@@ -43,7 +43,9 @@ class AlterHtmlHelper
     public static function getOptions() {
       if (!isset(self::$options)) {
           self::$options = json_decode(Option::getOption('webp-express-alter-html-options', null), true);
-
+          if (!isset(self::$options['prevent-using-webps-larger-than-original'])) {
+              self::$options['prevent-using-webps-larger-than-original'] = true;
+          }
           // Set scope if it isn't there (it wasn't cached until 0.17.5)
           if (!isset(self::$options['scope'])) {
             $config = Config::loadConfig();
@@ -151,12 +153,13 @@ class AlterHtmlHelper
 
 
     /**
-     *  Get url for webp from source url,  (if ), given a certain baseUrl / baseDir.
-     *  Base can for example be uploads or wp-content.
+     * Get url for webp from source url,  (if ), given a certain baseUrl / baseDir.
+     * Base can for example be uploads or wp-content.
      *
-     *  returns false
-     *  - if no source file found in that base
-     *  - or source file is found but webp file isn't there and the `only-for-webps-that-exists` option is set
+     * returns false:
+     * - if no source file found in that base
+     * - if source file is found but webp file isn't there and the `only-for-webps-that-exists` option is set
+     * - if webp is marked as bigger than source
      *
      *  @param  string  $sourceUrl   Url of source image (ie http://example.com/wp-content/image.jpg)
      *  @param  string  $rootId      Id (created in Config::updateAutoloadedOptions). Ie "uploads", "content" or any image root id
@@ -165,7 +168,6 @@ class AlterHtmlHelper
      */
     public static function getWebPUrlInImageRoot($sourceUrl, $rootId, $baseUrl, $baseDir)
     {
-        //error_log('getWebPUrlInImageRoot:' . $sourceUrl . ':' . $baseUrl . ':' . $baseDir);
 
 
         $srcPathRel = self::getRelUrlPath($sourceUrl, $baseUrl);
@@ -182,6 +184,13 @@ class AlterHtmlHelper
             return false;
         }
 
+        if (file_exists($srcPathAbs . '.do-not-convert')) {
+            return false;
+        }
+        if (file_exists($srcPathAbs . '.dontreplace')) {
+            return false;
+        }
+
         // Calculate destination of webp (both path and url)
         // ----------------------------------------
 
@@ -189,19 +198,21 @@ class AlterHtmlHelper
 
         // Make sure the options are loaded (and fixed)
         self::getOptions();
+        $destinationOptions = new DestinationOptions(
+            self::$options['destination-folder'] == 'mingled',
+            self::$options['destination-structure'] == 'doc-root',
+            self::$options['destination-extension'] == 'set',
+            self::$options['scope']
+        );
 
         if (!isset(self::$options['scope']) || !in_array($rootId, self::$options['scope'])) {
             return false;
         }
 
-        $destinationRoot = Paths::destinationRoot(
-            $rootId,
-            self::$options['destination-folder'],
-            self::$options['destination-structure']
-        );
+        $destinationRoot = Paths::destinationRoot($rootId, $destinationOptions);
 
         $relPathFromImageRootToSource = PathHelper::getRelDir(
-            realpath(Paths::getAbsDirById($rootId)),
+            realpath(Paths::getAbsDirById($rootId)),  // note: In multisite (subfolders), it contains ie "/site/2/"
             realpath($srcPathAbs)
         );
         $relPathFromImageRootToDest = ConvertHelperIndependent::appendOrSetExtension(
@@ -216,12 +227,45 @@ class AlterHtmlHelper
             return false;
         }
 
+        // check if webp is marked as bigger than source
+        /*
+        $biggerThanSourcePath = Paths::getBiggerThanSourceDirAbs() . '/' . $rootId . '/' . $relPathFromImageRootToDest;
+        if (@file_exists($biggerThanSourcePath)) {
+            return false;
+        }*/
+
+        // check if webp is larger than original
+        if (self::$options['prevent-using-webps-larger-than-original']) {
+            if (BiggerThanSource::bigger($srcPathAbs, $destPathAbs)) {
+                return false;
+            }
+        }
+
         $destUrl = $destinationRoot['url'] . '/' . $relPathFromImageRootToDest;
 
         // Fix scheme (use same as source)
         $sourceUrlComponents = parse_url($sourceUrl);
         $destUrlComponents = parse_url($destUrl);
-        return $sourceUrlComponents['scheme'] . '://' . $sourceUrlComponents['host'] . $destUrlComponents['path'];
+        $port = isset($sourceUrlComponents['port']) ? ":" . $sourceUrlComponents['port'] : "";
+        $result = $sourceUrlComponents['scheme'] . '://' . $sourceUrlComponents['host'] . $port . $destUrlComponents['path'];
+
+        /*
+        error_log(
+            "getWebPUrlInImageRoot:\n" .
+            "- url: " . $sourceUrl . "\n" .
+            "- baseUrl: " . $baseUrl . "\n" .
+            "- baseDir: " . $baseDir . "\n" .
+            "- root id: " . $rootId . "\n" .
+            "- root abs: " . Paths::getAbsDirById($rootId) . "\n" .
+            "- destination root (abs): " . $destinationRoot['abs-path'] . "\n" .
+            "- destination root (url): " . $destinationRoot['url'] . "\n" .
+            "- rel: " . $srcPathRel . "\n" .
+            "- srcPathAbs: " . $srcPathAbs . "\n" .
+            '- relPathFromImageRootToSource: ' . $relPathFromImageRootToSource . "\n" .
+            '- get_blog_details()->path: '  . get_blog_details()->path . "\n" .
+            "- result: " . $result . "\n"
+        );*/
+        return $result;
     }
 
 
@@ -241,7 +285,7 @@ class AlterHtmlHelper
         if (self::$options['only-for-webp-enabled-browsers']) {
             if (!isset($_SERVER['HTTP_ACCEPT']) || (strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') === false)) {
                 return $returnValueOnFail;
-            }          
+            }
         }
 
         // Fail for relative urls. Wordpress doesn't use such very much anyway
@@ -270,6 +314,7 @@ class AlterHtmlHelper
                 break;
         }
 
+
         //error_log('source url:' . $sourceUrl);
 
         // Try all image roots
@@ -277,7 +322,6 @@ class AlterHtmlHelper
             $baseDir = Paths::getAbsDirById($rootId);
             $baseUrl = Paths::getUrlById($rootId);
 
-            //error_log('baseurl: ' . $baseUrl);
             if (Multisite::isMultisite() && ($rootId == 'uploads')) {
                 $baseUrl = Paths::getUploadUrl();
                 $baseDir = Paths::getUploadDirAbs();

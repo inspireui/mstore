@@ -180,15 +180,15 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 		$limit = apply_filters( 'woocommerce_rest_batch_items_limit', 100, $this->get_normalized_rest_base() );
 		$total = 0;
 
-		if ( ! empty( $items['create'] ) ) {
+		if ( ! empty( $items['create'] ) && is_countable( $items['create'] ) ) {
 			$total += count( $items['create'] );
 		}
 
-		if ( ! empty( $items['update'] ) ) {
+		if ( ! empty( $items['update'] ) && is_countable( $items['update'] ) ) {
 			$total += count( $items['update'] );
 		}
 
-		if ( ! empty( $items['delete'] ) ) {
+		if ( ! empty( $items['delete'] ) && is_countable( $items['delete'] ) ) {
 			$total += count( $items['delete'] );
 		}
 
@@ -227,7 +227,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 
 		if ( ! empty( $items['create'] ) ) {
 			foreach ( $items['create'] as $item ) {
-				$_item = new WP_REST_Request( 'POST' );
+				$_item = new WP_REST_Request( 'POST', $request->get_route() );
 
 				// Default parameters.
 				$defaults = array();
@@ -264,7 +264,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 
 		if ( ! empty( $items['update'] ) ) {
 			foreach ( $items['update'] as $item ) {
-				$_item = new WP_REST_Request( 'PUT' );
+				$_item = new WP_REST_Request( 'PUT', $request->get_route() );
 				$_item->set_body_params( $item );
 				$_response = $this->update_item( $_item );
 
@@ -291,7 +291,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 					continue;
 				}
 
-				$_item = new WP_REST_Request( 'DELETE' );
+				$_item = new WP_REST_Request( 'DELETE', $request->get_route() );
 				$_item->set_query_params(
 					array(
 						'id'    => $id,
@@ -435,26 +435,14 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 	 * Validate textarea based settings.
 	 *
 	 * @since 3.0.0
+	 * @since 9.0.0 No longer allows storing IFRAME, which was allowed for "ShareThis" integration no longer found in core.
 	 * @param string $value Value.
 	 * @param array  $setting Setting.
 	 * @return string
 	 */
 	public function validate_setting_textarea_field( $value, $setting ) {
 		$value = is_null( $value ) ? '' : $value;
-		return wp_kses(
-			trim( stripslashes( $value ) ),
-			array_merge(
-				array(
-					'iframe' => array(
-						'src'   => true,
-						'style' => true,
-						'id'    => true,
-						'class' => true,
-					),
-				),
-				wp_kses_allowed_html( 'post' )
-			)
-		);
+		return wp_kses_post( trim( stripslashes( $value ) ) );
 	}
 
 	/**
@@ -491,7 +479,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
-						'type'    => 'object',
+						'type' => 'object',
 					),
 				),
 				'update' => array(
@@ -499,7 +487,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
-						'type'    => 'object',
+						'type' => 'object',
 					),
 				),
 				'delete' => array(
@@ -507,7 +495,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
-						'type'    => 'integer',
+						'type' => 'integer',
 					),
 				),
 			),
@@ -578,7 +566,7 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 		// Return the list of all requested fields which appear in the schema.
 		$this->_fields = array_reduce(
 			$requested_fields,
-			function( $response_fields, $field ) use ( $fields ) {
+			function ( $response_fields, $field ) use ( $fields ) {
 				if ( in_array( $field, $fields, true ) ) {
 					$response_fields[] = $field;
 					return $response_fields;
@@ -595,5 +583,47 @@ abstract class WC_REST_Controller extends WP_REST_Controller {
 			array()
 		);
 		return $this->_fields;
+	}
+
+	/**
+	 * Limit the contents of the meta_data property based on certain request parameters.
+	 *
+	 * Note that if both `include_meta` and `exclude_meta` are present in the request,
+	 * `include_meta` will take precedence.
+	 *
+	 * @param \WP_REST_Request $request   The request.
+	 * @param array            $meta_data All of the meta data for an object.
+	 *
+	 * @return array
+	 */
+	protected function get_meta_data_for_response( $request, $meta_data ) {
+		$fields = $this->get_fields_for_response( $request );
+		if ( ! in_array( 'meta_data', $fields, true ) ) {
+			return array();
+		}
+
+		$include = (array) $request['include_meta'];
+		$exclude = (array) $request['exclude_meta'];
+
+		if ( ! empty( $include ) ) {
+			$meta_data = array_filter(
+				$meta_data,
+				function ( WC_Meta_Data $item ) use ( $include ) {
+					$data = $item->get_data();
+					return in_array( $data['key'], $include, true );
+				}
+			);
+		} elseif ( ! empty( $exclude ) ) {
+			$meta_data = array_filter(
+				$meta_data,
+				function ( WC_Meta_Data $item ) use ( $exclude ) {
+					$data = $item->get_data();
+					return ! in_array( $data['key'], $exclude, true );
+				}
+			);
+		}
+
+		// Ensure the array indexes are reset so it doesn't get converted to an object in JSON.
+		return array_values( $meta_data );
 	}
 }

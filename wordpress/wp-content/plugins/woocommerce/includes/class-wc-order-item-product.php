@@ -7,12 +7,30 @@
  * @since   3.0.0
  */
 
+use Automattic\WooCommerce\Utilities\NumberUtil;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Order item product class.
  */
 class WC_Order_Item_Product extends WC_Order_Item {
+
+	/**
+	 * Legacy values.
+	 *
+	 * @deprecated 4.4.0 For legacy actions.
+	 * @var array
+	 */
+	public $legacy_values;
+
+	/**
+	 * Legacy cart item key.
+	 *
+	 * @deprecated 4.4.0 For legacy actions.
+	 * @var string
+	 */
+	public $legacy_cart_item_key;
 
 	/**
 	 * Order Data array. This is the core order data exposed in APIs since 3.0.0.
@@ -155,18 +173,18 @@ class WC_Order_Item_Product extends WC_Order_Item {
 			$tax_data['total']    = array_map( 'wc_format_decimal', $raw_tax_data['total'] );
 
 			// Subtotal cannot be less than total!
-			if ( array_sum( $tax_data['subtotal'] ) < array_sum( $tax_data['total'] ) ) {
+			if ( NumberUtil::array_sum( $tax_data['subtotal'] ) < NumberUtil::array_sum( $tax_data['total'] ) ) {
 				$tax_data['subtotal'] = $tax_data['total'];
 			}
 		}
 		$this->set_prop( 'taxes', $tax_data );
 
 		if ( 'yes' === get_option( 'woocommerce_tax_round_at_subtotal' ) ) {
-			$this->set_total_tax( array_sum( $tax_data['total'] ) );
-			$this->set_subtotal_tax( array_sum( $tax_data['subtotal'] ) );
+			$this->set_total_tax( NumberUtil::array_sum( $tax_data['total'] ) );
+			$this->set_subtotal_tax( NumberUtil::array_sum( $tax_data['subtotal'] ) );
 		} else {
-			$this->set_total_tax( array_sum( array_map( 'wc_round_tax_total', $tax_data['total'] ) ) );
-			$this->set_subtotal_tax( array_sum( array_map( 'wc_round_tax_total', $tax_data['subtotal'] ) ) );
+			$this->set_total_tax( NumberUtil::array_sum( array_map( 'wc_round_tax_total', $tax_data['total'] ) ) );
+			$this->set_subtotal_tax( NumberUtil::array_sum( array_map( 'wc_round_tax_total', $tax_data['subtotal'] ) ) );
 		}
 	}
 
@@ -269,7 +287,8 @@ class WC_Order_Item_Product extends WC_Order_Item {
 	}
 
 	/**
-	 * Get subtotal.
+	 * Gets the item subtotal. This is the price of the item times the quantity
+	 * excluding taxes before coupon discounts.
 	 *
 	 * @param  string $context What the value is for. Valid values are 'view' and 'edit'.
 	 * @return string
@@ -289,7 +308,8 @@ class WC_Order_Item_Product extends WC_Order_Item {
 	}
 
 	/**
-	 * Get total.
+	 * Gets the item total. This is the price of the item times the quantity
+	 * excluding taxes after coupon discounts.
 	 *
 	 * @param  string $context What the value is for. Valid values are 'view' and 'edit'.
 	 * @return string
@@ -428,6 +448,7 @@ class WC_Order_Item_Product extends WC_Order_Item {
 	 * @param string $offset Offset.
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		if ( 'line_subtotal' === $offset ) {
 			$offset = 'subtotal';
@@ -452,6 +473,7 @@ class WC_Order_Item_Product extends WC_Order_Item {
 	 * @param string $offset Offset.
 	 * @param mixed  $value  Value.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ) {
 		wc_deprecated_function( 'WC_Order_Item_Product::offsetSet', '4.4.0', '' );
 		if ( 'line_subtotal' === $offset ) {
@@ -476,6 +498,7 @@ class WC_Order_Item_Product extends WC_Order_Item {
 	 * @param string $offset Offset.
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists( $offset ) {
 		if ( in_array( $offset, array( 'line_subtotal', 'line_subtotal_tax', 'line_total', 'line_tax', 'line_tax_data', 'item_meta_array', 'item_meta', 'qty' ), true ) ) {
 			return true;

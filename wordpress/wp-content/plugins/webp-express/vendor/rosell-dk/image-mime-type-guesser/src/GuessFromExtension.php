@@ -24,7 +24,6 @@ class GuessFromExtension
      *
      *  If no mapping found, nothing is returned
      *
-     *  TODO: jp2, jpx, ...
      * Returns:
      * - mimetype (if file extension could be mapped to an image type),
      * - false (if file extension could be mapped to a type known not to be an image type)
@@ -52,39 +51,6 @@ class GuessFromExtension
             $fileExtension = strtolower($fileExtension);
         }*/
 
-        $result = preg_match('#\\.([^.]*)$#', $filePath, $matches);
-        if ($result !== 1) {
-            return null;
-        }
-        $fileExtension = $matches[1];
-
-        // Trivial image mime types
-        if (in_array($fileExtension, ['bmp', 'gif', 'jpeg', 'png', 'tiff', 'webp'])) {
-            return 'image/' . $fileExtension;
-        }
-
-        // Common extensions that are definitely not images
-        if (in_array($fileExtension, ['txt', 'doc', 'zip', 'gz', 'exe'])) {
-            return false;
-        }
-
-        // Non-trivial image mime types
-        switch ($fileExtension) {
-            case 'ico':
-                return 'image/vnd.microsoft.icon';      // or perhaps 'x-icon' ?
-
-            case 'jpg':
-                return 'image/jpeg';
-
-            case 'svg':
-                return 'image/svg+xml';
-
-            case 'tif':
-                return 'image/tiff';
-        }
-
-        // We do not know this extension, return null
-        return null;
+        return MimeMap::filenameToMime($filePath);
     }
-
 }

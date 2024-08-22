@@ -1,0 +1,2 @@
+2024-08-22T07:41:20+00:00 INFO Plugin woocommerce-legacy-rest-api/woocommerce-legacy-rest-api.php v1.0.4 installed by WooCommerce, source: https://downloads.wordpress.org/plugin/woocommerce-legacy-rest-api.latest-stable.zip CONTEXT: {"recorded_data":{"version":"1.0.4","date":"2024-08-22 07:41:20","metadata":{"info_link":"https://developer.woocommerce.com/2023/10/03/the-legacy-rest-api-will-move-to-a-dedicated-extension-in-woocommerce-9-0/"}}}
+2024-08-22T07:41:20+00:00 INFO WooCommerce activated the Legacy REST API plugin in this site.

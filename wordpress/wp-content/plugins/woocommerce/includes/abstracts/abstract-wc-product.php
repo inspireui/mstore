@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\WooCommerce\Internal\ProductAttributesLookup\LookupDataStore as ProductAttributesLookupDataStore;
+use Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories\Register as Download_Directories;
 
 /**
  * Legacy product contains all deprecated methods for this class and can be
@@ -64,6 +65,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		'description'        => '',
 		'short_description'  => '',
 		'sku'                => '',
+		'global_unique_id'   => '',
 		'price'              => '',
 		'regular_price'      => '',
 		'sale_price'         => '',
@@ -250,13 +252,24 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	}
 
 	/**
-	 * Get SKU (Stock-keeping unit) - product unique ID.
+	 * Get SKU (Stock-keeping unit).
 	 *
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 * @return string
 	 */
 	public function get_sku( $context = 'view' ) {
 		return $this->get_prop( 'sku', $context );
+	}
+
+	/**
+	 * Get Unique ID.
+	 *
+	 * @since 9.1.0
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @return string
+	 */
+	public function get_global_unique_id( $context = 'view' ) {
+		return $this->get_prop( 'global_unique_id', $context );
 	}
 
 	/**
@@ -780,7 +793,9 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	 * @param  string $visibility Options: 'hidden', 'visible', 'search' and 'catalog'.
 	 */
 	public function set_catalog_visibility( $visibility ) {
-		$options = array_keys( wc_get_product_visibility_options() );
+		$options    = array_keys( wc_get_product_visibility_options() );
+		$visibility = in_array( $visibility, $options, true ) ? $visibility : strtolower( $visibility );
+
 		if ( ! in_array( $visibility, $options, true ) ) {
 			$this->error( 'product_invalid_catalog_visibility', __( 'Invalid catalog visibility option.', 'woocommerce' ) );
 		}
@@ -819,9 +834,40 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		if ( $this->get_object_read() && ! empty( $sku ) && ! wc_product_has_unique_sku( $this->get_id(), $sku ) ) {
 			$sku_found = wc_get_product_id_by_sku( $sku );
 
-			$this->error( 'product_invalid_sku', __( 'Invalid or duplicated SKU.', 'woocommerce' ), 400, array( 'resource_id' => $sku_found ) );
+			$this->error(
+				'product_invalid_sku',
+				__( 'Invalid or duplicated SKU.', 'woocommerce' ),
+				400,
+				array(
+					'resource_id' => $sku_found,
+					'unique_sku'  => wc_product_generate_unique_sku( $this->get_id(), $sku ),
+				)
+			);
 		}
 		$this->set_prop( 'sku', $sku );
+	}
+
+	/**
+	 * Set global_unique_id
+	 *
+	 * @since 9.1.0
+	 * @param string $global_unique_id Unique ID.
+	 */
+	public function set_global_unique_id( $global_unique_id ) {
+		$global_unique_id = preg_replace( '/[^0-9\-]/', '', (string) $global_unique_id );
+		if ( $this->get_object_read() && ! empty( $global_unique_id ) && ! wc_product_has_global_unique_id( $this->get_id(), $global_unique_id ) ) {
+			$global_unique_id_found = wc_get_product_id_by_global_unique_id( $global_unique_id );
+
+			$this->error(
+				'product_invalid_global_unique_id',
+				__( 'Invalid or duplicated GTIN, UPC, EAN or ISBN.', 'woocommerce' ),
+				400,
+				array(
+					'resource_id' => $global_unique_id_found,
+				)
+			);
+		}
+		$this->set_prop( 'global_unique_id', $global_unique_id );
 	}
 
 	/**
@@ -901,6 +947,8 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		if ( empty( $status ) ) {
 			$status = 'taxable';
 		}
+
+		$status = strtolower( $status );
 
 		if ( ! in_array( $status, $options, true ) ) {
 			$this->error( 'product_invalid_tax_status', __( 'Invalid product tax status.', 'woocommerce' ) );
@@ -1101,7 +1149,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	 *     position - integer sort order.
 	 *     visible - If visible on frontend.
 	 *     variation - If used for variations.
-	 * Indexed by unqiue key to allow clearing old ones after a set.
+	 * Indexed by unique key to allow clearing old ones after a set.
 	 *
 	 * @since 3.0.0
 	 * @param array $raw_attributes Array of WC_Product_Attribute objects.
@@ -1201,55 +1249,91 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	/**
 	 * Set downloads.
 	 *
-	 * @since 3.0.0
+	 * @throws WC_Data_Exception If an error relating to one of the downloads is encountered.
+	 *
 	 * @param array $downloads_array Array of WC_Product_Download objects or arrays.
+	 *
+	 * @since 3.0.0
 	 */
 	public function set_downloads( $downloads_array ) {
-		$downloads = array();
-		$errors    = array();
+		// When the object is first hydrated, only the previously persisted downloads will be passed in.
+		$existing_downloads = $this->get_object_read() ? (array) $this->get_prop( 'downloads' ) : $downloads_array;
+		$downloads          = array();
+		$errors             = array();
+
+		$downloads_array    = $this->build_downloads_map( $downloads_array );
+		$existing_downloads = $this->build_downloads_map( $existing_downloads );
 
 		foreach ( $downloads_array as $download ) {
-			if ( is_a( $download, 'WC_Product_Download' ) ) {
-				$download_object = $download;
-			} else {
-				$download_object = new WC_Product_Download();
+			$download_id = $download->get_id();
+			$is_new      = ! isset( $existing_downloads[ $download_id ] );
+			$has_changed = ! $is_new && $existing_downloads[ $download_id ]->get_file() !== $downloads_array[ $download_id ]->get_file();
 
-				// If we don't have a previous hash, generate UUID for download.
-				if ( empty( $download['download_id'] ) ) {
-					$download['download_id'] = wp_generate_uuid4();
+			try {
+				$download->check_is_valid( $this->get_object_read() );
+				$downloads[ $download_id ] = $download;
+			} catch ( Exception $e ) {
+				// We only add error messages for newly added downloads (let's not overwhelm the user if there are
+				// multiple existing files which are problematic).
+				if ( $is_new || $has_changed ) {
+					$errors[] = $e->getMessage();
 				}
 
-				$download_object->set_id( $download['download_id'] );
-				$download_object->set_name( $download['name'] );
-				$download_object->set_file( $download['file'] );
-			}
-
-			// Validate the file extension.
-			if ( ! $download_object->is_allowed_filetype() ) {
-				if ( $this->get_object_read() ) {
-					/* translators: %1$s: Downloadable file */
-					$errors[] = sprintf( __( 'The downloadable file %1$s cannot be used as it does not have an allowed file type. Allowed types include: %2$s', 'woocommerce' ), '<code>' . basename( $download_object->get_file() ) . '</code>', '<code>' . implode( ', ', array_keys( $download_object->get_allowed_mime_types() ) ) . '</code>' );
+				// If the problem is with an existing download, disable it.
+				if ( ! $is_new ) {
+					$download->set_enabled( false );
+					$downloads[ $download_id ] = $download;
 				}
-				continue;
 			}
-
-			// Validate the file exists.
-			if ( ! $download_object->file_exists() ) {
-				if ( $this->get_object_read() ) {
-					/* translators: %s: Downloadable file */
-					$errors[] = sprintf( __( 'The downloadable file %s cannot be used as it does not exist on the server.', 'woocommerce' ), '<code>' . $download_object->get_file() . '</code>' );
-				}
-				continue;
-			}
-
-			$downloads[ $download_object->get_id() ] = $download_object;
-		}
-
-		if ( $errors ) {
-			$this->error( 'product_invalid_download', $errors[0] );
 		}
 
 		$this->set_prop( 'downloads', $downloads );
+
+		if ( $errors && $this->get_object_read() ) {
+			$this->error( 'product_invalid_download', $errors[0] );
+		}
+	}
+
+	/**
+	 * Takes an array of downloadable file representations and converts it into an array of
+	 * WC_Product_Download objects, indexed by download ID.
+	 *
+	 * @param array[]|WC_Product_Download[] $downloads Download data to be re-mapped.
+	 *
+	 * @return WC_Product_Download[]
+	 */
+	private function build_downloads_map( array $downloads ): array {
+		$downloads_map = array();
+
+		foreach ( $downloads as $download_data ) {
+			// If the item is already a WC_Product_Download we can add it to the map and move on.
+			if ( is_a( $download_data, 'WC_Product_Download' ) ) {
+				$downloads_map[ $download_data->get_id() ] = $download_data;
+				continue;
+			}
+
+			// If the item is not an array, there is nothing else we can do (bad data).
+			if ( ! is_array( $download_data ) ) {
+				continue;
+			}
+
+			// Otherwise, transform the array to a WC_Product_Download and add to the map.
+			$download_object = new WC_Product_Download();
+
+			// If we don't have a previous hash, generate UUID for download.
+			if ( empty( $download_data['download_id'] ) ) {
+				$download_data['download_id'] = wp_generate_uuid4();
+			}
+
+			$download_object->set_id( $download_data['download_id'] );
+			$download_object->set_name( $download_data['name'] );
+			$download_object->set_file( $download_data['file'] );
+			$download_object->set_enabled( isset( $download_data['enabled'] ) ? $download_data['enabled'] : true );
+
+			$downloads_map[ $download_object->get_id() ] = $download_object;
+		}
+
+		return $downloads_map;
 	}
 
 	/**
@@ -1341,7 +1425,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 			return;
 		}
 
-		$stock_is_above_notification_threshold = ( $this->get_stock_quantity() > get_option( 'woocommerce_notify_no_stock_amount', 0 ) );
+		$stock_is_above_notification_threshold = ( (int) $this->get_stock_quantity() > absint( get_option( 'woocommerce_notify_no_stock_amount', 0 ) ) );
 		$backorders_are_allowed                = ( 'no' !== $this->get_backorders() );
 
 		if ( $stock_is_above_notification_threshold ) {
@@ -1554,7 +1638,7 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 		if ( $this->get_parent_id() ) {
 			$parent_product = wc_get_product( $this->get_parent_id() );
 
-			if ( $parent_product && 'publish' !== $parent_product->get_status() ) {
+			if ( $parent_product && 'publish' !== $parent_product->get_status() && ! current_user_can( 'edit_post', $parent_product->get_id() ) ) {
 				$visible = false;
 			}
 		}
@@ -1885,6 +1969,23 @@ class WC_Product extends WC_Abstract_Legacy_Product {
 	 */
 	public function single_add_to_cart_text() {
 		return apply_filters( 'woocommerce_product_single_add_to_cart_text', __( 'Add to cart', 'woocommerce' ), $this );
+	}
+
+	/**
+	 * Get the aria-describedby description for the add to cart button.
+	 *
+	 * @return string
+	 */
+	public function add_to_cart_aria_describedby() {
+		/**
+		 * Filter the aria-describedby description for the add to cart button.
+		 *
+		 * @since 7.8.0
+		 *
+		 * @param string $var Text for the 'aria-describedby' attribute.
+		 * @param WC_Product $this Product object.
+		 */
+		return apply_filters( 'woocommerce_product_add_to_cart_aria_describedby', '', $this );
 	}
 
 	/**

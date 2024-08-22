@@ -284,10 +284,6 @@
 
 			.coupon {
 				float: left;
-
-				label {
-					display: none;
-				}
 			}
 		}
 	}
@@ -481,6 +477,12 @@
 	.woocommerce-MyAccount-content {
 		float: right;
 		width: 68%;
+
+		mark {
+			background-color: transparent;
+			color: inherit;
+			font-weight: 700;
+		}
 	}
 }
 

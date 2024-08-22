@@ -10,14 +10,15 @@ function getValue(&$val, $default = '')
 
 $data = null;
 if (isset($_POST['order'])) {
-    $data = json_decode(urldecode(base64_decode($_POST['order'])), true);
+    $data = json_decode(urldecode(base64_decode(sanitize_text_field($_POST['order']))), true);
 } elseif (filter_has_var(INPUT_GET, 'order')) {
-    $data = filter_has_var(INPUT_GET, 'order') ? json_decode(urldecode(base64_decode(filter_input(INPUT_GET, 'order'))), true) : [];
+    $data = filter_has_var(INPUT_GET, 'order') ? json_decode(urldecode(base64_decode(sanitize_text_field(filter_input(INPUT_GET, 'order')))), true) : [];
 } elseif (filter_has_var(INPUT_GET, 'code')) {
-    $code = filter_input(INPUT_GET, 'code');
+    $code = sanitize_text_field(filter_input(INPUT_GET, 'code'));
     global $wpdb;
     $table_name = $wpdb->prefix . "mstore_checkout";
-    $item = $wpdb->get_row("SELECT * FROM $table_name WHERE code = '$code'");
+    $sql = $wpdb->prepare("SELECT * FROM $table_name WHERE code = %s", $code);
+    $item = $wpdb->get_row($sql);
     if ($item) {
         $data = json_decode(urldecode(base64_decode($item->order)), true);
     } else {
@@ -28,10 +29,9 @@ if (isset($_POST['order'])) {
 if ($data != null):
     global $woocommerce;
     // Validate the cookie token
-    $userId = wp_validate_auth_cookie($data['token'], 'logged_in');
-
-    if (!$userId) {
-        return var_dump("Invalid authentication cookie. Please try to login again!");
+    $userId = validateCookieLogin($data['token']);
+    if (is_wp_error($userId)) {
+        return var_dump($userId);
     }
 
     // Check user and authentication
@@ -114,7 +114,7 @@ if ($data != null):
                                         <form
                                                 name="checkout" method="post"
                                                 class="checkout woocommerce-checkout"
-                                                action="<?= esc_url(get_bloginfo('url')); ?>/checkout/"
+                                                action="<?php echo esc_url(get_bloginfo('url')); ?>/checkout/"
                                                 enctype="multipart/form-data">
                                             <?php do_action('woocommerce_checkout_before_customer_details'); ?>
                                             <div class="col2-set" id="customer_details">
@@ -132,7 +132,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_first_name" id="billing_first_name"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['first_name']) ? esc_html(getValue($billing['first_name'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['first_name']) ? esc_html(getValue($billing['first_name'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-last validate-required"
                                                                id="billing_last_name_field" data-priority="20">
@@ -142,7 +142,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_last_name" id="billing_last_name"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['last_name']) ? esc_html(getValue($billing['last_name'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['last_name']) ? esc_html(getValue($billing['last_name'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-wide" id="billing_company_field"
                                                                data-priority="30">
@@ -151,7 +151,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_company" id="billing_company"
                                                                        placeholder=""
-                                                                       value="<?= isset($data['billing_company']) ? esc_html(getValue($data['billing_company'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($data['billing_company']) ? esc_html(getValue($data['billing_company'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-wide address-field update_totals_on_change validate-required"
                                                                id="billing_country_field" data-priority="40">
@@ -161,7 +161,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_country" id="billing_country"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['country']) ? esc_html(getValue($billing['country'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['country']) ? esc_html(getValue($billing['country'])) : ''; ?>"/>
 
                                                             </p>
                                                             <p class="form-row form-row-wide address-field validate-required"
@@ -172,14 +172,14 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_address_1" id="billing_address_1"
                                                                        placeholder="Street address"
-                                                                       value="<?= isset($billing['address_1']) ? esc_html(getValue($billing['address_1'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['address_1']) ? esc_html(getValue($billing['address_1'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-wide address-field"
                                                                id="billing_address_2_field" data-priority="60">
                                                                 <input class="input-text "
                                                                        name="billing_address_2" id="billing_address_2"
                                                                        placeholder="Apartment, suite, unit etc. (optional)"
-                                                                       value="<?= isset($billing['address_2']) ? esc_html(getValue($billing['address_2'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['address_2']) ? esc_html(getValue($billing['address_2'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-wide address-field validate-required"
                                                                id="billing_city_field" data-priority="70">
@@ -189,7 +189,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_city" id="billing_city"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['city']) ? esc_html(getValue($billing['city'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['city']) ? esc_html(getValue($billing['city'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-wide address-field validate-state"
                                                                id="billing_state_field" style="display: none">
@@ -197,7 +197,7 @@ if ($data != null):
                                                                     County</label>
                                                                 <input class="hidden" name="billing_state"
                                                                        id="billing_state"
-                                                                       value="<?= isset($billing['state']) ? esc_html(getValue($billing['state'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['state']) ? esc_html(getValue($billing['state'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-wide address-field validate-postcode"
                                                                id="billing_postcode_field" data-priority="65">
@@ -206,7 +206,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_postcode" id="billing_postcode"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['postcode']) ? esc_html(getValue($billing['postcode'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['postcode']) ? esc_html(getValue($billing['postcode'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-first validate-phone"
                                                                id="billing_phone_field" data-priority="100">
@@ -214,7 +214,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_phone" id="billing_phone"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['phone']) ? esc_html(getValue($billing['phone'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['phone']) ? esc_html(getValue($billing['phone'])) : ''; ?>"/>
                                                             </p>
                                                             <p class="form-row form-row-last validate-required validate-email"
                                                                id="billing_email_field" data-priority="110">
@@ -224,7 +224,7 @@ if ($data != null):
                                                                 <input class="input-text "
                                                                        name="billing_email" id="billing_email"
                                                                        placeholder=""
-                                                                       value="<?= isset($billing['email']) ? esc_html(getValue($billing['email'])) : ''; ?>"/>
+                                                                       value="<?php echo isset($billing['email']) ? esc_html(getValue($billing['email'])) : ''; ?>"/>
                                                             </p>
                                                         </div>
 
@@ -253,7 +253,7 @@ if ($data != null):
                                                                     <input class="input-text "
                                                                            name="shipping_first_name"
                                                                            id="shipping_first_name" placeholder=""
-                                                                           value="<?= isset($shipping['first_name']) ? esc_html(getValue($shipping['first_name'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['first_name']) ? esc_html(getValue($shipping['first_name'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-last validate-required"
                                                                    id="shipping_last_name_field" data-priority="20">
@@ -263,7 +263,7 @@ if ($data != null):
                                                                     <input class="input-text "
                                                                            name="shipping_last_name"
                                                                            id="shipping_last_name" placeholder=""
-                                                                           value="<?= isset($shipping['last_name']) ? esc_html(getValue($shipping['last_name'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['last_name']) ? esc_html(getValue($shipping['last_name'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide"
                                                                    id="shipping_company_field" data-priority="30">
@@ -272,7 +272,7 @@ if ($data != null):
                                                                     <input class="input-text "
                                                                            name="shipping_company" id="shipping_company"
                                                                            placeholder=""
-                                                                           value="<?= isset($shipping['company']) ? esc_html(getValue($shipping['company'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['company']) ? esc_html(getValue($shipping['company'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide address-field update_totals_on_change validate-required"
                                                                    id="shipping_country_field" data-priority="40">
@@ -283,7 +283,7 @@ if ($data != null):
                                                                     <input class="input-text "
                                                                            name="shipping_country" id="shipping_country"
                                                                            placeholder=""
-                                                                           value="<?= isset($shipping['country']) ? esc_html(getValue($shipping['country'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['country']) ? esc_html(getValue($shipping['country'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide address-field validate-required"
                                                                    id="shipping_address_1_field" data-priority="50">
@@ -294,7 +294,7 @@ if ($data != null):
                                                                            name="shipping_address_1"
                                                                            id="shipping_address_1"
                                                                            placeholder="Street address"
-                                                                           value="<?= isset($shipping['address_1']) ? esc_html(getValue($shipping['address_1'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['address_1']) ? esc_html(getValue($shipping['address_1'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide address-field"
                                                                    id="shipping_address_2_field" data-priority="60">
@@ -302,7 +302,7 @@ if ($data != null):
                                                                            name="shipping_address_2"
                                                                            id="shipping_address_2"
                                                                            placeholder="Apartment, suite, unit etc. (optional)"
-                                                                           value="<?= isset($shipping['address_2']) ? esc_html(getValue($shipping['address_2'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['address_2']) ? esc_html(getValue($shipping['address_2'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide address-field validate-required"
                                                                    id="shipping_city_field" data-priority="70">
@@ -312,7 +312,7 @@ if ($data != null):
                                                                     <input class="input-text "
                                                                            name="shipping_city" id="shipping_city"
                                                                            placeholder=""
-                                                                           value="<?= isset($shipping['city']) ? esc_html(getValue($shipping['city'])) : ''; ?>"/>
+                                                                           value="<?php echo isset($shipping['city']) ? esc_html(getValue($shipping['city'])) : ''; ?>"/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide address-field validate-state"
                                                                    id="shipping_state_field" style="display: none">
@@ -320,7 +320,7 @@ if ($data != null):
                                                                         County</label>
                                                                     <input class="hidden"
                                                                            name="shipping_state" id="shipping_state"
-                                                                           value="<?= isset($shipping['state']) ? esc_html(getValue($shipping['state'])) : ''; ?>"
+                                                                           value="<?php echo isset($shipping['state']) ? esc_html(getValue($shipping['state'])) : ''; ?>"
                                                                            placeholder=""/>
                                                                 </p>
                                                                 <p class="form-row form-row-wide address-field validate-postcode"
@@ -330,7 +330,7 @@ if ($data != null):
                                                                     <input class="input-text "
                                                                            name="shipping_postcode"
                                                                            id="shipping_postcode" placeholder=""
-                                                                           value="<?= isset($shipping['postcode']) ? esc_html(getValue($shipping['postcode'])) : '';; ?>"/>
+                                                                           value="<?php echo isset($shipping['postcode']) ? esc_html(getValue($shipping['postcode'])) : '';; ?>"/>
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -346,7 +346,7 @@ if ($data != null):
                                                                           id="order_comments"
                                                                           placeholder="Notes about your order, e.g. special notes for delivery."
                                                                           rows="2" cols="5"
-                                                                          value="<?= isset($data['customer_note']) ? esc_html($data['customer_note']) : ''; ?>"><?= isset($data['customer_note']) ? esc_html($data['customer_note']) : ''; ?></textarea>
+                                                                          value="<?php echo isset($data['customer_note']) ? esc_html($data['customer_note']) : ''; ?>"><?php echo isset($data['customer_note']) ? esc_html($data['customer_note']) : ''; ?></textarea>
                                                             </p>
                                                         </div>
                                                     </div>
@@ -375,14 +375,14 @@ if ($data != null):
 
                                                         if ($_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters('woocommerce_checkout_cart_item_visible', true, $cart_item, $cart_item_key)) {
                                                             ?>
-                                                            <tr class="<?= esc_attr(apply_filters('woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key)); ?>">
+                                                            <tr class="<?php echo esc_attr(apply_filters('woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key)); ?>">
                                                                 <td class="product-name">
-                                                                    <?= apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key) . '&nbsp;'; ?>
-                                                                    <?= apply_filters('woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf('&times; %s', $cart_item['quantity']) . '</strong>', $cart_item, $cart_item_key); ?>
-                                                                    <?= wc_get_formatted_cart_item_data($cart_item); ?>
+                                                                <?php echo apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key) . '&nbsp;'; ?>
+                                                                <?php echo apply_filters('woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf('&times; %s', $cart_item['quantity']) . '</strong>', $cart_item, $cart_item_key); ?>
+                                                                <?php echo wc_get_formatted_cart_item_data($cart_item); ?>
                                                                 </td>
                                                                 <td class="product-total">
-                                                                    <?= apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); ?>
+                                                                <?php echo apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); ?>
                                                                 </td>
                                                             </tr>
                                                             <?php
@@ -397,7 +397,7 @@ if ($data != null):
                                                     </tr>
 
                                                     <?php foreach (WC()->cart->get_coupons() as $code => $coupon) : ?>
-                                                        <tr class="cart-discount coupon-<?= esc_attr(sanitize_title($code)); ?>">
+                                                        <tr class="cart-discount coupon-<?php echo esc_attr(sanitize_title($code)); ?>">
                                                             <th><?php wc_cart_totals_coupon_label($coupon); ?></th>
                                                             <td><?php wc_cart_totals_coupon_html($coupon); ?></td>
                                                         </tr>
@@ -409,8 +409,8 @@ if ($data != null):
                                                             <th>Shipping</th>
                                                             <td><input type="radio" checked="checked"
                                                                        class="shipping_method" name="shipping_method[]"
-                                                                       id="shipping_method__<?= esc_html($shippingMethod); ?>"
-                                                                       value="<?= esc_html($shippingMethod); ?>"/>
+                                                                       id="shipping_method__<?php echo esc_html($shippingMethod); ?>"
+                                                                       value="<?php echo esc_html($shippingMethod); ?>"/>
                                                             </td>
                                                         </tr>
 
@@ -418,7 +418,7 @@ if ($data != null):
 
                                                     <?php foreach (WC()->cart->get_fees() as $fee) : ?>
                                                         <tr class="fee">
-                                                            <th><?= esc_html($fee->name); ?></th>
+                                                            <th><?php echo esc_html($fee->name); ?></th>
                                                             <td><?php wc_cart_totals_fee_html($fee); ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -426,14 +426,14 @@ if ($data != null):
                                                     <?php if (wc_tax_enabled() && 'excl' === WC()->cart->get_tax_price_display_mode()) : ?>
                                                         <?php if ('itemized' === get_option('woocommerce_tax_total_display')) : ?>
                                                             <?php foreach (WC()->cart->get_tax_totals() as $code => $tax) : ?>
-                                                                <tr class="tax-rate tax-rate-<?= esc_attr(sanitize_title($code)); ?>">
-                                                                    <th><?= esc_html($tax->label); ?></th>
-                                                                    <td><?= wp_kses_post($tax->formatted_amount); ?></td>
+                                                                <tr class="tax-rate tax-rate-<?php echo esc_attr(sanitize_title($code)); ?>">
+                                                                    <th><?php echo esc_html($tax->label); ?></th>
+                                                                    <td><?php echo esc_html(wp_kses_post($tax->formatted_amount)); ?></td>
                                                                 </tr>
                                                             <?php endforeach; ?>
                                                         <?php else : ?>
                                                             <tr class="tax-total">
-                                                                <th><?= esc_html(WC()->countries->tax_or_vat()); ?></th>
+                                                                <th><?php echo esc_html(WC()->countries->tax_or_vat()); ?></th>
                                                                 <td><?php wc_cart_totals_taxes_total_html(); ?></td>
                                                             </tr>
                                                         <?php endif; ?>
@@ -454,9 +454,9 @@ if ($data != null):
                                                 <div id="payment" class="woocommerce-checkout-payment">
 
                                                     <input type="radio" name="payment_method"
-                                                           id="payment_method_<?= esc_attr($data['payment_method']); ?>"
+                                                           id="payment_method_<?php echo esc_attr($data['payment_method']); ?>"
                                                            checked="checked"
-                                                           value="<?= esc_html($data['payment_method']); ?>"/>
+                                                           value="<?php echo esc_html($data['payment_method']); ?>"/>
 
                                                     <input type="checkbox"
                                                            class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox"
@@ -465,7 +465,7 @@ if ($data != null):
 
                                                     <?php do_action('woocommerce_review_order_before_submit'); ?>
 
-                                                    <?= apply_filters('woocommerce_order_button_html', '<input type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="" />'); ?>
+                                                    <?php echo apply_filters('woocommerce_order_button_html', '<input type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="" />'); ?>
 
                                                     <?php do_action('woocommerce_review_order_after_submit'); ?>
 

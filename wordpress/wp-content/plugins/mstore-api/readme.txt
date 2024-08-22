@@ -1,34 +1,39 @@
-=== MStore API ===
-Contributors:      InspireUI Ltd
-Tags:              mstore, fluxstore, react-native, flutter, inspireui, ios, android
+=== MStore API - Create Native Android & iOS Apps On The Cloud ===
+Contributors:      inspireui
+Tags:              flutter, app builder, app creator, mobile app builder, woocommerce app
 Requires at least: 4.4
-Tested up to:      5.8.1
-Stable tag:        3.4.5
+Tested up to:      6.5.3
+Stable tag:        4.15.3
 License:           GPL-2.0
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-The plugin is used for config the Mstore/FluxStore mobile and support RestAPI to connect to the app.
+Take your WordPress store mobile with MStore API!
+This plugin bridges the gap between your WordPress website and the powerful FluxBuilder app builder. 
 
 == Description ==
+Take your WordPress store mobile with MStore API!
 
-The plugin is used for config the Mstore/FluxStore mobile and support RestAPI to connect to the app.
+This plugin bridges the gap between your WordPress website and the powerful FluxBuilder app builder. By enabling the REST API, MStore API seamlessly connects your store data (products, users, orders) to [FluxBuilder App](https://www.fluxbuilder.com), allowing you to create a custom mobile app for your business  without writing any code.
 
-[youtube https://youtu.be/sYnHhnS5WnQ]
+[youtube https://youtu.be/xJ9EQmSw1XU?si=ujuFzKCeYQ5eA0xQ]
 
-Fluxstore is a universal e-commerce app inspired by Flutter framework, made by Google. With the mission of reducing thousands of hours of business spent on designing, developing and testing a mobile app, Fluxstore comes as a complete solution for optimizing to deliver your app to the market with high productivity and cost efficiency. It could be able to satisfy all of the business requirements including e-commerce functionalities, impressive UX design and smooth performance on both iOS and Android devices.
+### Key benefits:
 
-If your business has already had the website that built based on WooCommerce, Magento or Opencart, then it is easy to integrate with Fluxstore by just a few steps, and quickly release the final app to both Appstore and Google Play store. The download package is included the full source code and many related resources (designs, documents, videos…) that help you install in the smoothest way.
+- **Effortless mobile app creation**: Leverage FluxBuilder's drag-and-drop interface and pre-built templates to design your dream mobile app.
+- **Seamless data integration**: MStore API ensures smooth communication between your WordPress store and the mobile app, keeping product information, user accounts, and orders in sync.
+- **Enhanced customer experience**: Offer a convenient mobile shopping experience to your customers, boosting engagement and sales.
 
-Either you are business people with raising sale ambition or developers with faster mobile application creation need, Fluxstore provides you solutions.
-Faster- Smoother- Closer. 
+Ready to go mobile? Download the MStore API plugin and unlock the power of FluxBuilder for your WordPress store!
 
 ### Reference links
-- Company Website: [https://inspireui.com](https://inspireui.com)
-- App demo: [iOS](https://apps.apple.com/us/app/mstore-flutter/id1469772800), [Android](https://play.google.com/store/apps/details?id=com.inspireui.fluxstore)
-- Youtube Channel: [https://www.youtube.com/inspireui](https://www.youtube.com/inspireui)
-- Document: [https://docs.inspireui.com](https://docs.inspireui.com)
-- MStore website: [https://mstore.io](https://mstore.io)
-- Fluxstore website: [https://fluxstore.app](https://fluxstore.app)
+- FluxBuilder - Flutter App Builder: [https://www.fluxbuilder.com](https://www.fluxbuilder.com)
+- Guide to use: [docs.fluxbuilder.com](https://docs.fluxbuilder.com)
+- Download The App Builder: [fluxbuilder.com/download](https://www.fluxbuilder.com/download)
+- Showcase: [https://showcase.fluxbuilder.com](https://showcase.fluxbuilder.com)
+- [Youtube](https://www.youtube.com/inspireui?sub_confirmation=1) 
+- [Facebook](https://www.facebook.com/groups/1401824449973438) 
+- [Document](https://docs.fluxbuilder.com) 
+
 
 == Installation ==
 
@@ -43,10 +48,362 @@ Faster- Smoother- Closer.
 1. Click Install.
 
 == Changelog ==
+= 4.15.3 =
+  * Fix sms login checking
+
+= 4.15.2 =
+  * Fix waring issues
+
+= 4.15.1 =
+  * Support Tera Wallet Referrals
+  
+= 4.15.0 =
+  * Remove api/flutter_user/firebase_sms_login and api/flutter_user/firebase_sms_login_v2 endpoint. They're replaced by api/flutter_user/firebase_sms and api/flutter_user/firebase_sms_login_v2
+  * Note: this version works on FluxStore v4.1.1 or later. If you're using the old FluxStore version, please doesn't upgrade MStore Api plugin v4.15.0 or later. 
+
+= 4.14.7 =
+  * Fix firebase sms security
+
+= 4.14.6 =
+  * Fix crash products api
+
+= 4.14.5 =
+  * Support YITH WooCommerce Badge Management Premium plugin
+
+= 4.14.4 =
+  * Push notification to admin when has new order
+
+= 4.14.3 =
+  * Fix update product in vendor admin
+
+= 4.14.2 =
+  * Fix syntax error
+
+= 4.14.1 =
+  * Support to push notification to delivery boy when order is assigned
+
+= 4.14.0 =
+  * Upgrade Filter function
+  * Add size guide feature
+
+= 4.13.7 =
+  * Update plugin description 
+
+= 4.13.6 =
+  * Fix to avatar that is uploaded on the app to website
+
+= 4.13.5 =
+  * Fix to check review module on WCFM
+
+= 4.13.4 =
+  * Update push notification via Firebase
+
+= 4.13.3 =
+  * Fix shipping on webview checkout
+
+= 4.13.2 =
+  * Fix to save order to vendor dashboard for WCFM
+
+= 4.13.1 =
+  * Fix duplicate review
+
+= 4.13.0 =
+  * Fix to get products to rate
+
+= 4.12.9 =
+  * Fix list nearby vendors dokan api
+
+= 4.12.8 =
+  * Support to get listings by featured
+
+= 4.12.7 =
+  * Get purchased products api
+
+= 4.12.6 =
+  * Update error code for digits api
+
+= 4.12.5 =
+  * Fix TeraWallet Withdrawal api
+
+= 4.12.4 =
+  * Support TeraWallet Withdrawal api
+
+= 4.12.3 =
+  * Fix submit review mylisting
+
+= 4.12.2 =
+  * Add submit review api for listeo
+
+= 4.12.1 =
+  * Support min max prices api
+
+= 4.12.0 =
+  * Fix auth on webview
+
+= 4.11.9 =
+  * Add custom information table api for B2BKing
+
+= 4.11.8 =
+  * Update vendor dashboard api
+
+= 4.11.7 =
+  * Support B2BKing
+
+= 4.11.6 =
+  * Update description
+
+= 4.11.5 =
+  * Fix appointment checkout issues
+
+= 4.11.4 =
+  * Fix crash variation
+
+= 4.11.3 =
+  * Support tag/category for Product Composite
+
+= 4.11.2 =
+  * Fix home cache
+
+= 4.11.1 =
+  * Support Composite Product api
+
+= 4.11.0 =
+  * Support Store Locator api
+
+= 4.10.10 =
+  * Fix digits login with password
+
+= 4.10.9 =
+  * Fix sql injection
+
+= 4.10.8 =
+  * Fix security apple login
+  * Fix get drivers api
+  * Fix create product api
+
+= 4.10.7 =
+  * Update promptpay order detail
+
+= 4.10.6 =
+  * Fix to scan product
+
+= 4.10.5 =
+  * Fix to show product price with tax settings
+
+= 4.10.4 =
+  * Support Flow Flow api
+  
+= 4.10.3 =
+  * Fix register account for wholesale
+
+= 4.10.2 =
+  * Fix security issues when upload file
+  * Fix Product Gift Cards
+
+= 4.10.1 =
+  * Add whosale prices for product
+
+= 4.10.0 =
+  * Remove  verify purchase code
+
+= 4.0.9 =
+  * Fix to register vendor account on Manager app
+
+= 4.0.8 =
+  * Update  Apple Login
+
+= 4.0.7 =
+  * Support 2c2p payment gateway
+
+= 4.0.6 =
+  * Fix load vendor orders
+
+= 4.0.5 =
+  * Fix ExpressPay api
+
+= 4.0.4 =
+  * Support ExpressPay api
+  
+= 4.0.3 =
+  * Fix search delivery boy api
+
+= 4.0.2 =
+  * Fix security
+
+= 4.0.1 =
+  * Add api to get dokan orders for listeo
+
+= 3.9.9 =
+  * Fix security issues
+
+= 3.9.8 =
+  * Fix security issues and support Thawani api
+
+= 3.9.7 =
+  * Fix security issues
+
+= 3.9.6 =
+  * Fix security issues
+
+= 3.9.5 =
+  * Fix load categories for vendor
+
+= 3.9.4 =
+  * Fix login api for listeo theme
+
+= 3.9.3 =
+  * Fix security issue for listing api
+
+= 3.9.2 =
+  * Fix security issue for cart api
+
+= 3.9.1 =
+  * Fix security issue for coupon api
+
+= 3.9.0 =
+  * Fix to push notification to seller when order created
+
+= 3.8.9 =
+  * Add Stripe api
+
+= 3.8.8 =
+  * Fix shop orders api
+  
+= 3.8.7 =
+  * Support Wholesale api
+
+= 3.8.6 =
+  * Fix nearby for mylisting
+
+= 3.8.5 =
+  * Get video products api
+  * Support Midtrans payment
+
+= 3.8.4 =
+  * Show bank info after order completed
+
+= 3.8.3 =
+  * Fix product variant issues
+
+= 3.8.2 =
+  * Update apple login api to save first name and last name
+
+= 3.8.1 =
+  * Fix mylisting api to show location, lat, long
+
+= 3.8.0 =
+  * Support to send sms via Digits
+
+= 3.7.9 =
+  * Add delete order api
+
+= 3.7.8 =
+  * Fix upload image
+
+= 3.7.7 =
+  * Fix validate zh config json
+
+= 3.7.6 =
+  * Add product rating counts api
+
+= 3.7.5 =
+  * Fix send email when register
+
+= 3.7.4 =
+  * Whitelist demo account
+
+= 3.7.3 =
+  * Fix security issue when upload config json file
+
+= 3.7.2 =
+  * Fix api to get products by vendor
+
+= 3.7.1 =
+  * Update Active Api
+
+= 3.7.0 =
+  * Fix some issues for Fluxstore Manager
+
+= 3.6.9 =
+  * Fix to upload image for variant product
+
+= 3.6.8 =
+  * Support api to add order note after paying by MyFatoorah
+
+= 3.6.7 =
+  * Support api to add order note after paying by Tap
+
+= 3.6.6 =
+  * Fix crash dynamic link for category
+
+= 3.6.5 =
+  * Fix limit products in home cache api
+
+= 3.6.4 =
+  * Support Flutterwave payment method
+
+= 3.6.3 =
+  * Support PayStack payment method
+
+= 3.6.2 =
+  * Fix shipping methods to response required_shipping value
+
+= 3.6.1 =
+  * Fix to show payment methods based on the country
+
+= 3.6.0 =
+  * Fix to show payment methods based on the country
+
+= 3.5.9 =
+  * Fix add-on checkout issue
+
+= 3.5.8 =
+  * Fix checkout issue
+
+= 3.5.7 =
+  * Fix checkout issue
+
+= 3.5.6 =
+  * Fix add-on checkout issue
+
+= 3.5.5 =
+  * Remove required card for free level for paid membership pro
+
+= 3.5.4 =
+  * Fix wordpress 6
+
+= 3.5.3 =
+  * Sending email after creating order
+  * Delete user api
+
+= 3.5.2 =
+  * Support Listing Api
+
+= 3.5.1 =
+  * Support Digits SMS login
+
+= 3.5.0 =
+  * Fix load attributes for product variant
+
+= 3.4.9 =
+  * Improve home cache performance
+
+= 3.4.8 =
+  * Support Paid Membership Pro
+
+= 3.4.7 =
+  * Support PayTM payment
+
+= 3.4.6 =
+  * Fix the warning issues on PHP 8.x
+  * Update some Text sanitize.
+
 = 3.4.5 =
   * Fix security issue when upload config file
   * Fix Authenticated Arbitrary File Deletion Vulnerability
   * Update to compatible with the latest WordPress 5.8
+  * Rename files to upgrade Naming Convention.
+  * Release the MStore API Postman Collection - https://www.getpostman.com/collections/8f9c088b0e5b82b90400
   
 = 3.4.4 =
   * Support Tera Wallet

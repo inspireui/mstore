@@ -36,7 +36,7 @@ class WC_Settings_General extends WC_Settings_Page {
 		$currency_code_options = get_woocommerce_currencies();
 
 		foreach ( $currency_code_options as $code => $name ) {
-			$currency_code_options[ $code ] = $name . ' (' . get_woocommerce_currency_symbol( $code ) . ')';
+			$currency_code_options[ $code ] = $name . ' (' . get_woocommerce_currency_symbol( $code ) . ') — ' . esc_html( $code );
 		}
 
 		$settings =
@@ -175,7 +175,7 @@ class WC_Settings_General extends WC_Settings_Page {
 					'class'    => 'wc-enhanced-select',
 					'options'  => array(
 						''                 => __( 'No location by default', 'woocommerce' ),
-						'base'             => __( 'Shop base address', 'woocommerce' ),
+						'base'             => __( 'Shop country/region', 'woocommerce' ),
 						'geolocation'      => __( 'Geolocate', 'woocommerce' ),
 						'geolocation_ajax' => __( 'Geolocate (with page caching support)', 'woocommerce' ),
 					),

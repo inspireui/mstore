@@ -10,6 +10,8 @@
  * @since    3.0.0
  */
 
+use Automattic\WooCommerce\Utilities\{ ArrayUtil, NumberUtil, StringUtil };
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -189,7 +191,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 
 			$hideprefix = 'true' === $request['all_item_meta'] ? null : '_';
 
-			foreach ( $item->get_formatted_meta_data( $hideprefix, true ) as $meta_key => $formatted_meta ) {
+			foreach ( $item->get_all_formatted_meta_data( $hideprefix ) as $meta_key => $formatted_meta ) {
 				$item_meta[] = array(
 					'key'   => $formatted_meta->key,
 					'label' => $formatted_meta->display_key,
@@ -265,7 +267,9 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 			$shipping_taxes = $shipping_item->get_taxes();
 
 			if ( ! empty( $shipping_taxes['total'] ) ) {
-				$shipping_line['total_tax'] = wc_format_decimal( array_sum( $shipping_taxes['total'] ), $dp );
+				$total_tax = NumberUtil::array_sum( $shipping_taxes['total'] );
+
+				$shipping_line['total_tax'] = wc_format_decimal( $total_tax, $dp );
 
 				foreach ( $shipping_taxes['total'] as $tax_rate_id => $tax ) {
 					$shipping_line['taxes'][] = array(
@@ -318,9 +322,9 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 		foreach ( $order->get_items( 'coupon' ) as $coupon_item_id => $coupon_item ) {
 			$coupon_line = array(
 				'id'           => $coupon_item_id,
-				'code'         => $coupon_item['name'],
-				'discount'     => wc_format_decimal( $coupon_item['discount_amount'], $dp ),
-				'discount_tax' => wc_format_decimal( $coupon_item['discount_amount_tax'], $dp ),
+				'code'         => $coupon_item->get_name(),
+				'discount'     => wc_format_decimal( $coupon_item->get_discount(), $dp ),
+				'discount_tax' => wc_format_decimal( $coupon_item->get_discount_tax(), $dp ),
 			);
 
 			$data['coupon_lines'][] = $coupon_line;
@@ -590,9 +594,9 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 	/**
 	 * Update address.
 	 *
-	 * @param WC_Order $order
-	 * @param array $posted
-	 * @param string $type
+	 * @param WC_Order $order  Order object.
+	 * @param array    $posted Request data.
+	 * @param string   $type   Type of address; 'billing' or 'shipping'.
 	 */
 	protected function update_address( $order, $posted, $type = 'billing' ) {
 		foreach ( $posted as $key => $value ) {
@@ -737,7 +741,8 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 		$item = new WC_Order_Item_Coupon( ! empty( $posted['id'] ) ? $posted['id'] : '' );
 
 		if ( 'create' === $action ) {
-			if ( empty( $posted['code'] ) ) {
+			$coupon_code = ArrayUtil::get_value_or_default( $posted, 'code' );
+			if ( StringUtil::is_null_or_whitespace( $coupon_code ) ) {
 				throw new WC_REST_Exception( 'woocommerce_rest_invalid_coupon_coupon', __( 'Coupon code is required.', 'woocommerce' ), 400 );
 			}
 		}
@@ -907,6 +912,54 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 	}
 
 	/**
+	 * Check if a given request has access to read an item.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function get_item_permissions_check( $request ) {
+		$object = wc_get_order( (int) $request['id'] );
+
+		if ( ( ! $object || 0 === $object->get_id() ) && ! wc_rest_check_post_permissions( $this->post_type, 'read' ) ) {
+			return new WP_Error( 'woocommerce_rest_cannot_view', __( 'Sorry, you cannot view this resource.', 'woocommerce' ), array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return parent::get_item_permissions_check( $request );
+	}
+
+	/**
+	 * Check if a given request has access to update an item.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function update_item_permissions_check( $request ) {
+		$object = wc_get_order( (int) $request['id'] );
+
+		if ( ( ! $object || 0 === $object->get_id() ) && ! wc_rest_check_post_permissions( $this->post_type, 'read' ) ) {
+			return new WP_Error( 'woocommerce_rest_cannot_edit', __( 'Sorry, you are not allowed to edit this resource.', 'woocommerce' ), array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return parent::update_item_permissions_check( $request );
+	}
+
+	/**
+	 * Check if a given request has access to delete an item.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error
+	 */
+	public function delete_item_permissions_check( $request ) {
+		$object = wc_get_order( (int) $request['id'] );
+
+		if ( ( ! $object || 0 === $object->get_id() ) && ! wc_rest_check_post_permissions( $this->post_type, 'read' ) ) {
+			return new WP_Error( 'woocommerce_rest_cannot_delete', __( 'Sorry, you are not allowed to delete this resource.', 'woocommerce' ), array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return parent::delete_item_permissions_check( $request );
+	}
+
+	/**
 	 * Get the Order's schema, conforming to JSON Schema.
 	 *
 	 * @return array
@@ -956,7 +1009,7 @@ class WC_REST_Orders_V1_Controller extends WC_REST_Posts_Controller {
 				),
 				'version' => array(
 					'description' => __( 'Version of WooCommerce which last updated the order.', 'woocommerce' ),
-					'type'        => 'integer',
+					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
