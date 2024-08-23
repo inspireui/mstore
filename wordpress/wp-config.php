@@ -19,8 +19,8 @@
  */
 
 
-define( 'WP_HOME', 'http://localhost/wordpress' );
-define( 'WP_SITEURL', 'http://localhost/wordpress' );
+define( 'WP_HOME', 'http://mstore.local' );
+define( 'WP_SITEURL', 'http://mstore.local' );
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
